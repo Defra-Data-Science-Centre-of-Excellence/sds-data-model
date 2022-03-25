@@ -187,6 +187,7 @@ def docs_build(session: Session) -> None:
     build_dir = Path("_build")
     html_dir = Path("_build/html")
     output_dir = Path("docs")
+    no_jekyll = output_dir / ".nojekyll"
 
     session.run("sphinx-build", *args)
 
@@ -194,5 +195,6 @@ def docs_build(session: Session) -> None:
         rmtree(output_dir)
     
     copytree(html_dir, output_dir)
+    no_jekyll.touch()
 
     rmtree(build_dir)
