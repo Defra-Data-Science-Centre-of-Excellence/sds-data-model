@@ -3,7 +3,7 @@ SDS Data Model
 
 |PyPI| |Status| |Python Version| |License|
 
-|Read the Docs| |Tests| |Codecov|
+|Docs| |Tests| |Codecov|
 
 |pre-commit| |Black|
 
