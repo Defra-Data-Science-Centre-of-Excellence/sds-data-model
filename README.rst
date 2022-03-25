@@ -20,10 +20,10 @@ SDS Data Model
    :target: https://opensource.org/licenses/MIT
    :alt: License
 .. |Docs| image:: https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model/actions/workflows/deploy-docs.yml/badge.svg
-   :target: https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model/actions/workflows/deploy-docs.yml
+   :target: https://defra-data-science-centre-of-excellence.github.io/sds-data-model/
    :alt: Read the documentation at https://defra-data-science-centre-of-excellence.github.io/sds-data-model/
-.. |CI| image:: https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model/workflows/Tests/badge.svg
-   :target: https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model/actions?workflow=Tests
+.. |CI| image:: https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model/actions/workflows/python-package.yml/badge.svg
+   :target: https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model/actions/workflows/python-package.yml
    :alt: Tests
 .. |Codecov| image:: https://codecov.io/gh/Defra-Data-Science-Centre-of-Excellence/sds-data-model/branch/main/graph/badge.svg
    :target: https://codecov.io/gh/Defra-Data-Science-Centre-of-Excellence/sds-data-model
