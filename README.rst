@@ -22,11 +22,11 @@ SDS Data Model
 .. |Docs| image:: https://img.shields.io/readthedocs/sds-data-model/latest.svg?label=Read%20the%20Docs
    :target: https://defra-data-science-centre-of-excellence.github.io/sds-data-model/
    :alt: Read the documentation at https://defra-data-science-centre-of-excellence.github.io/sds-data-model/
-.. |Tests| image:: https://github.com/EFT-Defra/sds-data-model/workflows/Tests/badge.svg
-   :target: https://github.com/EFT-Defra/sds-data-model/actions?workflow=Tests
+.. |Tests| image:: https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model/workflows/Tests/badge.svg
+   :target: https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model/actions?workflow=Tests
    :alt: Tests
-.. |Codecov| image:: https://codecov.io/gh/EFT-Defra/sds-data-model/branch/main/graph/badge.svg
-   :target: https://codecov.io/gh/EFT-Defra/sds-data-model
+.. |Codecov| image:: https://codecov.io/gh/Defra-Data-Science-Centre-of-Excellence/sds-data-model/branch/main/graph/badge.svg
+   :target: https://codecov.io/gh/Defra-Data-Science-Centre-of-Excellence/sds-data-model
    :alt: Codecov
 .. |pre-commit| image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white
    :target: https://github.com/pre-commit/pre-commit
@@ -95,7 +95,7 @@ This project was generated from `@cjolowicz`_'s `Hypermodern Python Cookiecutter
 .. _MIT license: https://opensource.org/licenses/MIT
 .. _PyPI: https://pypi.org/
 .. _Hypermodern Python Cookiecutter: https://github.com/cjolowicz/cookiecutter-hypermodern-python
-.. _file an issue: https://github.com/EFT-Defra/sds-data-model/issues
+.. _file an issue: https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model/issues
 .. _pip: https://pip.pypa.io/
 .. github-only
 .. _Contributor Guide: CONTRIBUTING.rst
