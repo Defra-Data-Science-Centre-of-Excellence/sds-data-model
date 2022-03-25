@@ -188,12 +188,11 @@ def docs_build(session: Session) -> None:
     html_dir = Path("_build/html")
     output_dir = Path("docs")
 
-    if build_dir.exists():
-        rmtree(build_dir)
-
     session.run("sphinx-build", *args)
 
     if output_dir.exists():
         rmtree(output_dir)
     
     copytree(html_dir, output_dir)
+
+    rmtree(build_dir)
