@@ -14,7 +14,7 @@ Here is a list of important resources for contributors:
 
 .. _MIT license: https://opensource.org/licenses/MIT
 .. _Source Code: https://github.com/EFT-Defra/sds-data-model
-.. _Documentation: https://sds-data-model.readthedocs.io/
+.. _Documentation: https://defra-data-science-centre-of-excellence.github.io/sds-data-model/
 .. _Issue Tracker: https://github.com/EFT-Defra/sds-data-model/issues
 
 How to report a bug

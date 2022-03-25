@@ -7,7 +7,7 @@ license = "MIT"
 readme = "README.rst"
 homepage = "https://github.com/EFT-Defra/sds-data-model"
 repository = "https://github.com/EFT-Defra/sds-data-model"
-documentation = "https://sds-data-model.readthedocs.io"
+documentation = "https://defra-data-science-centre-of-excellence.github.io/sds-data-model/"
 classifiers = [
     "Development Status :: 1 - Planning",
 ]

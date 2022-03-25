@@ -19,9 +19,9 @@ SDS Data Model
 .. |License| image:: https://img.shields.io/pypi/l/sds-data-model
    :target: https://opensource.org/licenses/MIT
    :alt: License
-.. |Read the Docs| image:: https://img.shields.io/readthedocs/sds-data-model/latest.svg?label=Read%20the%20Docs
-   :target: https://sds-data-model.readthedocs.io/
-   :alt: Read the documentation at https://sds-data-model.readthedocs.io/
+.. |Docs| image:: https://img.shields.io/readthedocs/sds-data-model/latest.svg?label=Read%20the%20Docs
+   :target: https://defra-data-science-centre-of-excellence.github.io/sds-data-model/
+   :alt: Read the documentation at https://defra-data-science-centre-of-excellence.github.io/sds-data-model/
 .. |Tests| image:: https://github.com/EFT-Defra/sds-data-model/workflows/Tests/badge.svg
    :target: https://github.com/EFT-Defra/sds-data-model/actions?workflow=Tests
    :alt: Tests
@@ -99,4 +99,4 @@ This project was generated from `@cjolowicz`_'s `Hypermodern Python Cookiecutter
 .. _pip: https://pip.pypa.io/
 .. github-only
 .. _Contributor Guide: CONTRIBUTING.rst
-.. _Usage: https://sds-data-model.readthedocs.io/en/latest/usage.html
+.. _Usage: https://defra-data-science-centre-of-excellence.github.io/sds-data-model/usage.html
