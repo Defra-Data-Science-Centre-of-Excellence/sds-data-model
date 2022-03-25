@@ -3,7 +3,7 @@ SDS Data Model
 
 |PyPI| |Status| |Python Version| |License|
 
-|Docs| |Tests| |Codecov|
+|Docs| |CI| |Codecov|
 
 |pre-commit| |Black|
 
@@ -19,10 +19,10 @@ SDS Data Model
 .. |License| image:: https://img.shields.io/pypi/l/sds-data-model
    :target: https://opensource.org/licenses/MIT
    :alt: License
-.. |Docs| image:: https://img.shields.io/readthedocs/sds-data-model/latest.svg?label=Read%20the%20Docs
-   :target: https://defra-data-science-centre-of-excellence.github.io/sds-data-model/
+.. |Docs| image:: https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model/actions/workflows/deploy-docs.yml/badge.svg
+   :target: https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model/actions/workflows/deploy-docs.yml
    :alt: Read the documentation at https://defra-data-science-centre-of-excellence.github.io/sds-data-model/
-.. |Tests| image:: https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model/workflows/Tests/badge.svg
+.. |CI| image:: https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model/workflows/Tests/badge.svg
    :target: https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model/actions?workflow=Tests
    :alt: Tests
 .. |Codecov| image:: https://codecov.io/gh/Defra-Data-Science-Centre-of-Excellence/sds-data-model/branch/main/graph/badge.svg
