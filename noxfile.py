@@ -1,6 +1,6 @@
 """Nox sessions."""
 import os
-import shutil
+from shutil import rmtree, copytree
 import sys
 from pathlib import Path
 from textwrap import dedent
@@ -84,7 +84,7 @@ def activate_virtualenv_in_precommit_hooks(session: Session) -> None:
         hook.write_text("\n".join(lines))
 
 
-@session(name="pre-commit", python="3.10")
+@session(name="pre-commit", python="3.8")
 def precommit(session: Session) -> None:
     """Lint using pre-commit."""
     args = session.posargs or ["run", "--all-files", "--show-diff-on-failure"]
@@ -107,7 +107,7 @@ def precommit(session: Session) -> None:
         activate_virtualenv_in_precommit_hooks(session)
 
 
-@session(python="3.10")
+@session(python="3.8")
 def safety(session: Session) -> None:
     """Scan dependencies for insecure packages."""
     requirements = session.poetry.export_requirements()
@@ -174,32 +174,26 @@ def xdoctest(session: Session) -> None:
     session.run("python", "-m", "xdoctest", *args)
 
 
-@session(name="docs-build", python="3.10")
+@session(name="docs-build", python="3.8")
 def docs_build(session: Session) -> None:
     """Build the documentation."""
-    args = session.posargs or ["docs", "docs/_build"]
+    args = session.posargs or ["-M", "html", "source", "_build"]
     if not session.posargs and "FORCE_COLOR" in os.environ:
         args.insert(0, "--color")
 
     session.install(".")
     session.install("sphinx")
 
-    build_dir = Path("docs", "_build")
+    build_dir = Path("_build")
+    html_dir = Path("_build/html")
+    output_dir = Path("docs")
+
     if build_dir.exists():
-        shutil.rmtree(build_dir)
+        rmtree(build_dir)
 
     session.run("sphinx-build", *args)
 
-
-@session(python="3.10")
-def docs(session: Session) -> None:
-    """Build and serve the documentation with live reloading on file changes."""
-    args = session.posargs or ["--open-browser", "docs", "docs/_build"]
-    session.install(".")
-    session.install("sphinx", "sphinx-autobuild")
-
-    build_dir = Path("docs", "_build")
-    if build_dir.exists():
-        shutil.rmtree(build_dir)
-
-    session.run("sphinx-autobuild", *args)
+    if output_dir.exists():
+        rmtree(output_dir)
+    
+    copytree(html_dir, output_dir)
