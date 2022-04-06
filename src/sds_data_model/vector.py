@@ -1,17 +1,16 @@
+from asyncio import gather
 from dataclasses import asdict, dataclass
 import json
 from pathlib import Path
 from typing import Optional, TypeVar, Tuple
 
 from affine import Affine
-import attrs
+from dask.array import zeros as dask_zeros
 from geopandas import clip, GeoDataFrame, read_file
-from importlib_metadata import metadata
-from matplotlib.pyplot import grid
 from numpy import arange, ndarray, zeros, ones
 from shapely.geometry import Polygon
 from rasterio.features import geometry_mask
-from xarray import DataArray
+from xarray import DataArray, Dataset
 
 from sds_data_model.constants import BNG, GRID_SIZE, OUT_SHAPE
 from sds_data_model.metadata import Metadata
@@ -49,11 +48,10 @@ class BngVectorTile:
                 invert=invert,
             ).astype(dtype)
 
-    def to_netcdf_as_mask(
+    def to_data_array_as_mask(
         self,
-        path: str,
         layer_name: str,
-    ) -> None:
+    ) -> DataArray:
         xmin, ymin, xmax, ymax = self.bbox
 
         transform = Affine(
@@ -70,15 +68,22 @@ class BngVectorTile:
             transform=transform,
         )
 
-        data_array = DataArray(
+        return DataArray(
             data=mask,
-            dims=("x", "y"),
             coords={
-                "northings": ("y", arange(ymax, ymin, -GRID_SIZE)),
-                "eastings": ("x", arange(xmin, xmax, GRID_SIZE)),
+                "northings": ("northings", arange(ymax, ymin, -GRID_SIZE)),
+                "eastings": ("eastings", arange(xmin, xmax, GRID_SIZE)),
             },
             name=layer_name,
-            attrs=asdict(self.metadata),
+        )
+
+    def to_netcdf_as_mask(
+        self,
+        path: str,
+        layer_name: str,
+    ) -> None:
+        data_array = self.to_data_array_as_mask(
+            layer_name=layer_name,
         )
 
         out_path = Path(path) / layer_name
@@ -87,6 +92,27 @@ class BngVectorTile:
             out_path.mkdir(parents=True)
 
         data_array.to_netcdf(path=f"{str(out_path)}/{self.name}.nc")
+
+    def to_zarr_as_mask(
+        self,
+        path: str,
+        layer_name: str,
+    ) -> None:
+        dataset = self.to_data_array_as_mask(
+            layer_name=layer_name,
+        ).to_dataset()
+        xmin, ymin, xmax, ymax = self.bbox
+
+        store = f"{path}/{layer_name}.zarr"
+
+        dataset.to_zarr(
+            store=store,
+            mode="a",
+            region={
+                "northings": slice(int(ymin / GRID_SIZE), int(ymax / GRID_SIZE)),
+                "eastings": slice(int(xmin / GRID_SIZE), int(xmax / GRID_SIZE)),
+            },
+        )
 
 
 TiledBngVectorLayerType = TypeVar(
@@ -100,13 +126,47 @@ class TiledBngVectorLayer:
     tiles: Tuple[BngVectorTile]
     metadata: Metadata
 
-    def to_netcdf_as_mask(
+    async def to_netcdf_as_mask(
         self: TiledBngVectorLayerType,
         path: Optional[str] = None,
     ) -> None:
         _path = path if path else "."
-        for vector_tile in self.tiles:
+        await gather(
             vector_tile.to_netcdf_as_mask(
+                path=_path,
+                layer_name=self.name,
+            )
+            for vector_tile in self.tiles
+        )
+
+    def to_zarr_as_mask(
+        self: TiledBngVectorLayerType,
+        path: Optional[str] = None,
+    ) -> None:
+        _path = path if path else "."
+
+        store = f"{_path}/{self.name}.zarr"
+
+        dummy_data = dask_zeros(
+                shape=(130_000, 70_000),
+                dtype="uint8",
+            )
+
+        DataArray(
+            data=dummy_data,
+            coords={
+                "northings": ("northings", arange(1_300_000, 0, -GRID_SIZE)),
+                "eastings": ("eastings", arange(0, 700_000, GRID_SIZE)),
+            },
+            name=self.name,
+            attrs=asdict(self.metadata),
+        ).to_dataset().to_zarr(
+            store=store,
+            compute=False,
+        )
+
+        for vector_tile in self.tiles:
+            vector_tile.to_zarr_as_mask(
                 path=_path,
                 layer_name=self.name,
             )

@@ -89,6 +89,17 @@ def _element_to_dic(element: Element) -> Dict[str, str]:
     return initial_dictionary
 
 
+def get_dictionary(
+    tree: Element,
+    tags: List[Union[str, Tuple[str, str]]],
+    final_tag: Union[str, Tuple[str, str]] = None,
+) -> Dict[str, Any]:
+    tags.append(final_tag)
+    xpath = _create_xpath(tags)
+    element = tree.find(xpath)
+    return _element_to_dic(element)
+
+
 def _str_from_dict(dictionary: Dict[str, Any], list_of_keys: List[str]) -> str:
     for key in list_of_keys:
         dictionary = dictionary[key]
@@ -106,6 +117,7 @@ class Metadata:
     abstract: str
     topic_category: Tuple[str]
     keyword: Tuple[str]
+    # temporal_extent: Dict[str, Any]
 
     @classmethod
     def from_file(cls: MetadataType, path: str) -> MetadataType:
@@ -153,8 +165,8 @@ class Metadata:
             final_tag="MD_TopicCategoryCode",
         )
 
-        #TODO INSPIRE theme
-        #TODO keywords from 2 controlled vocabularies
+        # TODO INSPIRE theme
+        # TODO keywords from 2 controlled vocabularies
         keyword = get_tuple_of_values(
             tree=xml,
             tags=[
@@ -166,22 +178,30 @@ class Metadata:
             ],
         )
 
+        # temporal_extent = get_dictionary(
+        #     tree=xml,
+        #     tags=[
+        #         "identificationInfo",
+        #         "MD_DataIdentification",
+        #         "extent",
+        #         "EX_Extent",
+        #         "temporalElement",
+        #         "EX_TemporalExtent",
+        #         "extent",
+        #     ],
+        #     final_tag=(GML, "TimePeriod"),
+        # )
+
         return cls(
             title=title,
             dataset_language=dataset_language,
             abstract=abstract,
             topic_category=topic_category,
             keyword=keyword,
+            # temporal_extent=temporal_extent,
         )
 
 
-# GeminiMetadataType = TypeVar("GeminiMetadataType", bound="GeminiMetadata")
-
-
-# @dataclass
-# class GeminiMetadata(Metadata):
-#     xml: Element
-# title: str
 # dataset_reference_date: List[str]
 # lineage: str
 # spatial_reference_system: List[str]
@@ -251,8 +271,6 @@ class Metadata:
 #         "alternateTitle",
 #     ],
 # )
-
-
 
 
 # #TODO gml:TimeInstant
