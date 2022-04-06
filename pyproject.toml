@@ -17,6 +17,15 @@ Changelog = "https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data
 
 [tool.poetry.dependencies]
 python = "~3.8"
+geopandas = "^0.10.2"
+requests = "^2.27.1"
+matplotlib = "^3.5.1"
+rasterio = "^1.2.10"
+xarray = "^2022.3.0"
+zarr = "^2.11.1"
+netCDF4 = "^1.5.8"
+dask = {extras = ["diagnostics"], version = "^2022.4.0"}
+Rtree = "^0.9.7"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
@@ -40,6 +49,7 @@ reorder-python-imports = "^2.6.0"
 pre-commit-hooks = "^4.0.1"
 Pygments = "^2.10.0"
 pyupgrade = "^2.29.1"
+ipykernel = "^6.9.2"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
