@@ -1,197 +1,86 @@
 from asyncio import gather
 from dataclasses import asdict, dataclass
 import json
-from pathlib import Path
-from typing import Optional, TypeVar, Tuple
+from typing import Generator, Optional, TypeVar, Tuple
 
 from affine import Affine
-from dask.array import zeros as dask_zeros
-from geopandas import clip, GeoDataFrame, read_file
-from numpy import arange, ndarray, zeros, ones
-from shapely.geometry import Polygon
-from rasterio.features import geometry_mask
-from xarray import DataArray, Dataset
+from geopandas import GeoDataFrame, read_file
+from shapely.geometry import box
 
-from sds_data_model.constants import BNG, GRID_SIZE, OUT_SHAPE
+from sds_data_model._vector import _get_mask
+from sds_data_model.constants import BBOXES, CELL_SIZE, BNG, BoundingBox, OUT_SHAPE
 from sds_data_model.metadata import Metadata
+from sds_data_model.raster import MaskTile, TiledMaskLayer
+
+
+_VectorTile = TypeVar("_VectorTile", bound="VectorTile")
 
 
 @dataclass
-class BngVectorTile:
-    name: str
-    bbox: Polygon
-    data: GeoDataFrame
-    metadata: Metadata
+class VectorTile:
+    bbox: BoundingBox
+    gpdf: GeoDataFrame
+
+    @property
+    def transform(self: _VectorTile) -> Affine:
+        xmin, _, _, ymax = self.bbox
+        return Affine(CELL_SIZE, 0, xmin, 0, -CELL_SIZE, ymax)
 
     def to_mask(
-        self,
-        out_shape: Tuple[int, int],
-        transform: Affine,
-        dtype: str = "uint8",
+        self: _VectorTile,
+        out_shape: Tuple[int, int] = OUT_SHAPE,
         invert: bool = True,
-    ) -> ndarray:
-        if all(self.data.geometry.is_empty) and invert:
-            return zeros(
-                shape=out_shape,
-                dtype=dtype,
-            )
-        elif all(self.data.geometry.is_empty) and not invert:
-            return ones(
-                shape=out_shape,
-                dtype=dtype,
-            )
-        else:
-            return geometry_mask(
-                geometries=self.data.geometry,
-                out_shape=out_shape,
-                transform=transform,
-                invert=invert,
-            ).astype(dtype)
-
-    def to_data_array_as_mask(
-        self,
-        layer_name: str,
-    ) -> DataArray:
-        xmin, ymin, xmax, ymax = self.bbox
-
-        transform = Affine(
-            GRID_SIZE,
-            0,
-            xmin,
-            0,
-            -GRID_SIZE,
-            ymax,
+        dtype: str = "uint8",
+    ) -> MaskTile:
+        mask_array = _get_mask(
+            gpdf=self.gpdf,
+            out_shape=out_shape,
+            transform=self.transform,
+            invert=invert,
+            dtype=dtype,
         )
 
-        mask = self.to_mask(
-            out_shape=OUT_SHAPE,
-            transform=transform,
-        )
-
-        return DataArray(
-            data=mask,
-            coords={
-                "northings": ("northings", arange(ymax, ymin, -GRID_SIZE)),
-                "eastings": ("eastings", arange(xmin, xmax, GRID_SIZE)),
-            },
-            name=layer_name,
-        )
-
-    def to_netcdf_as_mask(
-        self,
-        path: str,
-        layer_name: str,
-    ) -> None:
-        data_array = self.to_data_array_as_mask(
-            layer_name=layer_name,
-        )
-
-        out_path = Path(path) / layer_name
-
-        if not out_path.exists():
-            out_path.mkdir(parents=True)
-
-        data_array.to_netcdf(path=f"{str(out_path)}/{self.name}.nc")
-
-    def to_zarr_as_mask(
-        self,
-        path: str,
-        layer_name: str,
-    ) -> None:
-        dataset = self.to_data_array_as_mask(
-            layer_name=layer_name,
-        ).to_dataset()
-        xmin, ymin, xmax, ymax = self.bbox
-
-        store = f"{path}/{layer_name}.zarr"
-
-        dataset.to_zarr(
-            store=store,
-            mode="a",
-            region={
-                "northings": slice(int(ymin / GRID_SIZE), int(ymax / GRID_SIZE)),
-                "eastings": slice(int(xmin / GRID_SIZE), int(xmax / GRID_SIZE)),
-            },
-        )
+        return MaskTile(bbox=self.bbox, array=mask_array)
 
 
-TiledBngVectorLayerType = TypeVar(
-    "TiledBngVectorLayerType", bound="TiledBngVectorLayer"
-)
+_TiledVectorLayer = TypeVar("_TiledVectorLayer", bound="TiledVectorLayer")
 
 
 @dataclass
-class TiledBngVectorLayer:
+class TiledVectorLayer:
     name: str
-    tiles: Tuple[BngVectorTile]
+    tiles: Generator[VectorTile, None, None]
     metadata: Metadata
 
-    async def to_netcdf_as_mask(
-        self: TiledBngVectorLayerType,
-        path: Optional[str] = None,
-    ) -> None:
-        _path = path if path else "."
-        await gather(
-            vector_tile.to_netcdf_as_mask(
-                path=_path,
-                layer_name=self.name,
-            )
-            for vector_tile in self.tiles
-        )
-
-    def to_zarr_as_mask(
-        self: TiledBngVectorLayerType,
-        path: Optional[str] = None,
-    ) -> None:
-        _path = path if path else "."
-
-        store = f"{_path}/{self.name}.zarr"
-
-        dummy_data = dask_zeros(
-                shape=(130_000, 70_000),
-                dtype="uint8",
-            )
-
-        DataArray(
-            data=dummy_data,
-            coords={
-                "northings": ("northings", arange(1_300_000, 0, -GRID_SIZE)),
-                "eastings": ("eastings", arange(0, 700_000, GRID_SIZE)),
-            },
+    def to_masks(self: _TiledVectorLayer) -> TiledMaskLayer:
+        masks = (tile.to_mask() for tile in self.tiles)
+        return TiledMaskLayer(
             name=self.name,
-            attrs=asdict(self.metadata),
-        ).to_dataset().to_zarr(
-            store=store,
-            compute=False,
+            masks=masks,
+            metadata=self.metadata,
         )
 
-        for vector_tile in self.tiles:
-            vector_tile.to_zarr_as_mask(
-                path=_path,
-                layer_name=self.name,
-            )
 
-
-BngVectorLayerType = TypeVar("BngVectorLayerType", bound="BngVectorLayer")
+_VectorLayer = TypeVar("_VectorLayer", bound="VectorLayer")
 
 
 @dataclass
-class BngVectorLayer:
+class VectorLayer:
     name: str
-    data: GeoDataFrame
+    gpdf: GeoDataFrame
     metadata: Metadata
 
     @classmethod
     def from_files(
-        cls: BngVectorLayerType,
+        cls: _VectorLayer,
         data_path: str,
         metadata_path: Optional[str] = None,
         name: Optional[str] = None,
-    ) -> BngVectorLayerType:
-        data = read_file(data_path)
+    ) -> _VectorLayer:
+        gpdf = read_file(data_path)
 
-        if data.crs.name != BNG:
-            raise TypeError(f"CRS must be {BNG}, not {data.crs.name}")
+        if gpdf.crs.name != BNG:
+            raise TypeError(f"CRS must be {BNG}, not {gpdf.crs.name}")
 
         if not metadata_path:
             metadata = json.load(f"{data_path}-metadata.json")
@@ -202,30 +91,20 @@ class BngVectorLayer:
 
         return cls(
             name=_name,
-            data=data,
+            gpdf=gpdf,
             metadata=metadata,
         )
 
-    def to_tiles(self, grid_path: str, grid_layer: str) -> TiledBngVectorLayer:
-        grid = read_file(
-            grid_path,
-            layer=grid_layer,
-        )
-
-        if grid.crs.name != BNG:
-            raise TypeError(f"CRS must be {BNG}, not {grid.crs.name}")
-
-        tiles = tuple(
-            BngVectorTile(
-                name=data["tile_name"],
-                bbox=data["geometry"].bounds,
-                data=clip(self.data, data["geometry"]),
-                metadata=self.metadata,
+    def to_tiles(self, bboxes: Tuple[BoundingBox] = BBOXES) -> TiledVectorLayer:
+        tiles = (
+            VectorTile(
+                bbox=bbox,
+                gpdf=self.gpdf.clip(box(*bbox)),
             )
-            for _, data in grid.iterrows()
+            for bbox in bboxes
         )
 
-        return TiledBngVectorLayer(
+        return TiledVectorLayer(
             name=self.name,
             tiles=tiles,
             metadata=self.metadata,
