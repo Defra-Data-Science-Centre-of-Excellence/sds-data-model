@@ -1,17 +1,29 @@
-from asyncio import gather
 from dataclasses import asdict, dataclass
 import json
 from typing import Generator, Optional, TypeVar, Tuple
 
 from affine import Affine
+from dask.array import block, from_delayed
+from dask.delayed import Delayed
 from geopandas import GeoDataFrame, read_file
+from more_itertools import chunked
+from numpy import arange
 from shapely.geometry import box
+from xarray import DataArray
 
 from sds_data_model._vector import _get_mask
-from sds_data_model.constants import BBOXES, CELL_SIZE, BNG, BoundingBox, OUT_SHAPE
+from sds_data_model.constants import (
+    BBOXES,
+    CELL_SIZE,
+    BNG,
+    BNG_XMIN,
+    BNG_XMAX,
+    BNG_YMIN,
+    BNG_YMAX,
+    BoundingBox,
+    OUT_SHAPE,
+)
 from sds_data_model.metadata import Metadata
-from sds_data_model.raster import MaskTile, TiledMaskLayer
-
 
 _VectorTile = TypeVar("_VectorTile", bound="VectorTile")
 
@@ -31,16 +43,14 @@ class VectorTile:
         out_shape: Tuple[int, int] = OUT_SHAPE,
         invert: bool = True,
         dtype: str = "uint8",
-    ) -> MaskTile:
-        mask_array = _get_mask(
+    ) -> Delayed:
+        return _get_mask(
             gpdf=self.gpdf,
             out_shape=out_shape,
             transform=self.transform,
             invert=invert,
             dtype=dtype,
         )
-
-        return MaskTile(bbox=self.bbox, array=mask_array)
 
 
 _TiledVectorLayer = TypeVar("_TiledVectorLayer", bound="TiledVectorLayer")
@@ -52,12 +62,22 @@ class TiledVectorLayer:
     tiles: Generator[VectorTile, None, None]
     metadata: Metadata
 
-    def to_masks(self: _TiledVectorLayer) -> TiledMaskLayer:
-        masks = (tile.to_mask() for tile in self.tiles)
-        return TiledMaskLayer(
+    def to_data_array_as_mask(self: _TiledVectorLayer) -> DataArray:
+        delayed_masks = tuple(tile.to_mask() for tile in self.tiles)
+        dask_arrays = tuple(
+            from_delayed(mask, dtype="uint8", shape=(10_000, 10_000))
+            for mask in delayed_masks
+        )
+        rows = chunked(dask_arrays, 7)
+        data = block(list(rows))
+        return DataArray(
+            data=data,
+            coords={
+                "northings": ("northings", arange(BNG_YMAX, BNG_YMIN, -CELL_SIZE)),
+                "eastings": ("eastings", arange(BNG_XMIN, BNG_XMAX, CELL_SIZE)),
+            },
             name=self.name,
-            masks=masks,
-            metadata=self.metadata,
+            attrs= asdict(self.metadata),
         )
 
 
