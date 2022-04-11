@@ -1,18 +1,21 @@
 from typing import Tuple
 
 from affine import Affine
+from dask import delayed
+from dask.delayed import Delayed
 from geopandas import GeoDataFrame
-from numpy import ndarray, ones, zeros
+from numpy import ones, zeros
 from rasterio.features import geometry_mask
 
 
+@delayed
 def _get_mask(
     gpdf: GeoDataFrame,
     invert: bool,
     out_shape: Tuple[int, int],
     dtype: str,
     transform: Affine,
-) -> ndarray:
+) -> Delayed:
     if all(gpdf.geometry.is_empty) and invert:
         return zeros(
             shape=out_shape,
