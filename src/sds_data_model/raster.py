@@ -19,7 +19,10 @@ class TiledDataArrayLayer:
     def to_netcdfs(self, root: str) -> None:
         base_path = Path(root) / self.name
         if root.startswith("s3://"):
-            s3_path = get_mapper(str(base_path), s3_additional_kwargs={'ACL': 'bucket-owner-full-control'})
+            s3_path = get_mapper(
+                str(base_path),
+                s3_additional_kwargs={"ACL": "bucket-owner-full-control"},
+            )
         else:
             if not base_path.exists():
                 base_path.mkdir(parents=True)

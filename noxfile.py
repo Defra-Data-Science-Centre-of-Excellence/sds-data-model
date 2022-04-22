@@ -193,7 +193,7 @@ def docs_build(session: Session) -> None:
 
     if output_dir.exists():
         rmtree(output_dir)
-    
+
     copytree(html_dir, output_dir)
     no_jekyll.touch()
 
