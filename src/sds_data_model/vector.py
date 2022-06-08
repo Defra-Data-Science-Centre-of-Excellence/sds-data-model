@@ -109,8 +109,6 @@ class VectorTile:
             dtype=dtype,
         )
 
-        info(f"Rasterised `VectorTile` with bounding box: {self.bbox}.")
-
         return mask
 
     def to_categorical_raster(
@@ -126,8 +124,6 @@ class VectorTile:
             transform=self.transform,
             dtype=dtype,
         )
-
-        info(f"Rasterised `VectorTile` with bounding box: {self.bbox}.")
 
         return categorical_raster
 
@@ -248,7 +244,8 @@ class TiledVectorLayer:
         return data_array
 
     def to_data_array_as_categorical_raster(
-        self: _TiledVectorLayer, categorical_column: str
+        self: _TiledVectorLayer,
+        categorical_column: str,
     ) -> DataArray:
         delayed_categorical_rasters = (
             tile.to_categorical_raster(categorical_column=categorical_column)
