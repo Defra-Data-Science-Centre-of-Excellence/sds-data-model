@@ -24,13 +24,13 @@ package = "sds_data_model"
 python_versions = ["3.8"]
 nox.needs_version = ">= 2021.6.6"
 nox.options.sessions = (
-    "pre-commit",
-    "safety",
-    "mypy",
-    "tests",
-    "typeguard",
-    "xdoctest",
-    "docs-build",
+    # "pre-commit",
+    # "safety",
+    # "mypy",
+    # "tests",
+    # "typeguard",
+    # "xdoctest",
+    # "docs-build",
 )
 
 
@@ -118,7 +118,7 @@ def safety(session: Session) -> None:
 @session(python=python_versions)
 def mypy(session: Session) -> None:
     """Type-check using mypy."""
-    args = session.posargs or ["src", "tests", "docs/conf.py"]
+    args = session.posargs or ["src", "tests"]
     session.install(".")
     session.install("mypy", "pytest")
     session.run("mypy", *args)
