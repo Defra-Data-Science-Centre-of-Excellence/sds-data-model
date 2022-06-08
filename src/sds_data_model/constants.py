@@ -27,7 +27,7 @@ def _get_bboxes(
     xmax: int = BNG_XMAX,
     ymax: int = BNG_YMAX,
     box_size: int = BOX_SIZE,
-) -> Tuple[BoundingBox]:
+) -> Tuple[BoundingBox, ...]:
     eastings = range(xmin, xmax, box_size)
     northings = range(ymax, ymin, -box_size)
 
