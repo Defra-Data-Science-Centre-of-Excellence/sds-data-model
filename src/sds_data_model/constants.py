@@ -1,7 +1,7 @@
 from itertools import product
 from typing import Tuple
 
-BNG = "OSGB36 / British National Grid"
+BNG = "OSGB 1936 / British National Grid"
 BNG_XMIN = 0
 BNG_YMIN = 0
 BNG_XMAX = 700_000
