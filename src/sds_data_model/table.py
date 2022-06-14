@@ -1,13 +1,16 @@
 from dataclasses import dataclass
 import io
 import json
+from logging import INFO, info, basicConfig
 import requests
 from typing import Any, Dict, Generator, List, Optional, TypeVar, Tuple, Union
 
-from pandas import DataFrame, read_csv
+from pandas import DataFrame, Series, read_csv
 from urllib.parse import urlparse
 
 from sds_data_model.metadata import Metadata
+
+basicConfig(format="%(levelname)s:%(asctime)s:%(message)s", level=INFO)
 
 _TableLayer = TypeVar("_TableLayer", bound="TableLayer")
 
@@ -53,12 +56,29 @@ class TableLayer:
         )
 
     def select(self: _TableLayer, columns: List[str]) -> _TableLayer:
+        info(f"Selected columns: {columns}.")
         return TableLayer(
             name=self.name,
             df=self.df.loc[:, columns],
             metadata=self.metadata
-            )
+        )
 
-    # def where():
+    def where(self: _TableLayer, condition: Series) -> _TableLayer:
+        info(f"Selected rows where {condition}.")
+        return TableLayer(
+            name=self.name,
+            df=self.df.loc[condition, :],
+            metadata=self.metadata
+        )
 
-    # def join():
+    def join(self: _TableLayer,
+             other: DataFrame,
+             how: str = "left",
+             kwargs: Dict[str, Any] = None
+             ) -> _TableLayer:
+        info(f"Joined to {other.info()}.")
+        return TableLayer(
+            name=self.name,
+            df=self.df.merge(right=other, how=how, **kwargs),
+            metadata=self.metadata
+        )
