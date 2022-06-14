@@ -11,6 +11,7 @@ from sds_data_model.metadata import Metadata
 
 _TableLayer = TypeVar("_TableLayer", bound="TableLayer")
 
+
 @dataclass
 class TableLayer:
     name: str
@@ -28,7 +29,8 @@ class TableLayer:
         if urlparse(data_path).scheme in ('http', 'https',):
             with requests.Session() as session:
                 res = session.get(data_path)
-                df = read_csv(io.StringIO(res.content.decode('Windows-1252')), **data_kwargs)
+                df = read_csv(io.StringIO(res.content.decode('Windows-1252')),
+                              **data_kwargs)
         else:
             df = read_csv(data_path, **data_kwargs)
 
@@ -55,8 +57,8 @@ class TableLayer:
             name=self.name,
             df=self.df.loc[:, columns],
             metadata=self.metadata
-            ))
+            )
 
-    def where():
+    # def where():
 
-    def join():
+    # def join():
