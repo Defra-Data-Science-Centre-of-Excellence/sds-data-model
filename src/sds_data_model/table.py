@@ -49,3 +49,14 @@ class TableLayer:
             df=df,
             metadata=metadata,
         )
+
+    def select(self: _TableLayer, columns: List[str]) -> _TableLayer:
+        return TableLayer(
+            name=self.name,
+            df=self.df.loc[:, columns],
+            metadata=self.metadata
+            ))
+
+    def where():
+
+    def join():
