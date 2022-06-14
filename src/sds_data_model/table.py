@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import inspect
 import io
 import json
 from logging import INFO, info, basicConfig
@@ -64,7 +65,12 @@ class TableLayer:
         )
 
     def where(self: _TableLayer, condition: Series) -> _TableLayer:
-        info(f"Selected rows where {condition}.")
+        frame = inspect.currentframe()
+        code_input = inspect.getouterframes(frame, 1)
+        code_input = [f for f in code_input if 'where(' in f.code_context[0]]
+        code_input = code_input[0].code_context[0]
+        code_input = code_input[6 + code_input.find('where('):code_input.rfind(')')]
+        info(f"Selected rows where {code_input}.")
         return TableLayer(
             name=self.name,
             df=self.df.loc[condition, :],
