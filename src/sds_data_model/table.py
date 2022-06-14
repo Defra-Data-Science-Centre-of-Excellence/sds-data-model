@@ -33,8 +33,12 @@ class TableLayer:
             df = read_csv(data_path, **data_kwargs)
 
         if not metadata_path:
-            # This is the default for csvw
-            metadata = json.load(f"{data_path}-metadata.json")
+            try:
+                # This is the default for csvw
+                metadata = json.load(f"{data_path}-metadata.json")
+            except:
+                # If no metadata is available
+                metadata = None
         else:
             metadata = Metadata.from_file(metadata_path)
 
