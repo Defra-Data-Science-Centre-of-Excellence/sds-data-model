@@ -1,8 +1,11 @@
 from dataclasses import dataclass
+import io
 import json
+import requests
 from typing import Any, Dict, Generator, List, Optional, TypeVar, Tuple, Union
 
 from pandas import DataFrame, read_csv
+from urllib.parse import urlparse
 
 from sds_data_model.metadata import Metadata
 
@@ -22,7 +25,12 @@ class TableLayer:
         metadata_path: Optional[str] = None,
         name: Optional[str] = None,
     ) -> _TableLayer:
-        df = read_csv(data_path, **data_kwargs)
+        if urlparse(data_path).scheme in ('http', 'https',):
+            with requests.Session() as session:
+                res = session.get(data_path)
+                df = read_csv(io.StringIO(res.content.decode('Windows-1252')), **data_kwargs)
+        else:
+            df = read_csv(data_path, **data_kwargs)
 
         if not metadata_path:
             # This is the default for csvw
