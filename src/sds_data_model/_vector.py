@@ -146,9 +146,10 @@ def _from_delayed_to_data_array(
     delayed_arrays: Tuple[Delayed],
     name: str,
     metadata: Metadata,
+    dtype: str,
 ) -> DataArray:
     dask_arrays = tuple(
-        from_delayed(mask, dtype="uint8", shape=OUT_SHAPE) for mask in delayed_arrays
+        from_delayed(mask, dtype=dtype, shape=OUT_SHAPE) for mask in delayed_arrays
     )
     rows = chunked(dask_arrays, 7)
     data = block(list(rows))
