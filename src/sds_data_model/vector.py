@@ -18,6 +18,7 @@ from sds_data_model._vector import (
     _select,
     _to_categorical_raster,
     _where,
+    _get_col_dtype,
 )
 from sds_data_model.constants import (
     BBOXES,
@@ -25,6 +26,7 @@ from sds_data_model.constants import (
     BNG,
     BoundingBox,
     OUT_SHAPE,
+    raster_dtype_levels,
 )
 from sds_data_model.metadata import Metadata
 
@@ -126,6 +128,16 @@ class VectorTile:
         )
 
         return categorical_raster
+    
+    def get_col_dtype(
+        self: _VectorTile,
+        categorical_column: str,
+    ) -> str:
+        return _get_col_dtype(
+            gpdf=self.gpdf,
+            categorical_column=categorical_column,
+        )
+
 
 
 _TiledVectorLayer = TypeVar("_TiledVectorLayer", bound="TiledVectorLayer")
@@ -247,8 +259,18 @@ class TiledVectorLayer:
         self: _TiledVectorLayer,
         categorical_column: str,
     ) -> DataArray:
+
+        col_dtypes = (
+            tile.get_col_dtype(categorical_column=categorical_column)
+            for tile in self.tiles
+        )
+
+        col_dtypes_clean = [x for x in list(col_dtypes) if x is not None]
+        col_dtypes_levels = [raster_dtype_levels.index(x) for x in col_dtypes_clean]
+        dtype = raster_dtype_levels[max(col_dtypes_levels)]
+
         delayed_categorical_rasters = (
-            tile.to_categorical_raster(categorical_column=categorical_column)
+            tile.to_categorical_raster(categorical_column=categorical_column, dtype=dtype)
             for tile in self.tiles
         )
 
@@ -256,6 +278,7 @@ class TiledVectorLayer:
             delayed_arrays=delayed_categorical_rasters,
             name=self.name,
             metadata=self.metadata,
+            dtype=dtype,
         )
 
         info(f"Converted to DataArray as categorical raster.")
@@ -285,17 +308,17 @@ class VectorLayer:
         if gpdf.crs.name != BNG:
             raise TypeError(f"CRS must be {BNG}, not {gpdf.crs.name}")
 
-        if not metadata_path:
-            metadata = json.load(f"{data_path}-metadata.json")
-        else:
-            metadata = Metadata.from_file(metadata_path)
+        # if not metadata_path:
+        #     metadata = json.load(f"{data_path}-metadata.json")
+        # else:
+        #     metadata = Metadata.from_file(metadata_path)
 
         _name = name if name else metadata["title"]
 
         return cls(
             name=_name,
             gpdf=gpdf,
-            metadata=metadata,
+            metadata=''#metadata,
         )
 
     def to_tiles(self, bboxes: Tuple[BoundingBox] = BBOXES) -> TiledVectorLayer:

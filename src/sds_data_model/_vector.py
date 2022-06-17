@@ -11,6 +11,7 @@ from more_itertools import chunked
 from numpy import arange, ones, zeros
 from pandas import DataFrame, Series, merge
 from rasterio.features import geometry_mask, rasterize
+from rasterio.dtypes import get_minimum_dtype
 from shapely.geometry import box
 from shapely.geometry.base import BaseGeometry
 from xarray import DataArray
@@ -105,6 +106,12 @@ def _get_shapes(
         (geometry, value)
         for geometry, value in zip(gpdf["geometry"], gpdf[categorical_column])
     )
+
+def _get_col_dtype(
+    gpdf: GeoDataFrame,
+    categorical_column: str,
+) -> str:
+    return get_minimum_dtype(gpdf[categorical_column])
 
 
 @delayed

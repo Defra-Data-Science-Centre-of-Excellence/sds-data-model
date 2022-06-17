@@ -1,7 +1,7 @@
 from itertools import product
 from typing import Tuple
 
-BNG = "OSGB36 / British National Grid"
+BNG = "OSGB 1936 / British National Grid"
 BNG_XMIN = 0
 BNG_YMIN = 0
 BNG_XMAX = 700_000
@@ -20,6 +20,7 @@ CHARACTER_STRING = GCO + "CharacterString"
 
 BoundingBox = Tuple[int, int, int, int]
 
+raster_dtype_levels = ['int8', 'uint8', 'uint16', 'int16', 'uint32', 'int32', 'float32', 'float64']
 
 def _get_bboxes(
     xmin: int = BNG_XMIN,
