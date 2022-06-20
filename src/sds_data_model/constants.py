@@ -20,7 +20,9 @@ CHARACTER_STRING = GCO + "CharacterString"
 
 BoundingBox = Tuple[int, int, int, int]
 
-raster_dtype_levels = ['int8', 'uint8', 'uint16', 'int16', 'uint32', 'int32', 'float32', 'float64']
+# Order for data types taken from rasterio docs lines 14-27 
+# https://github.com/rasterio/rasterio/blob/master/rasterio/dtypes.py
+raster_dtype_levels = ['bool', 'uint8', 'int8', 'uint16', 'int16', 'uint32', 'int32', 'float32', 'float64', 'complex', 'complex64', 'complex128']
 
 def _get_bboxes(
     xmin: int = BNG_XMIN,

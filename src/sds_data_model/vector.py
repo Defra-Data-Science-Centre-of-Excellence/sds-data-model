@@ -259,10 +259,12 @@ class TiledVectorLayer:
         self: _TiledVectorLayer,
         categorical_column: str,
     ) -> DataArray:
+        
+        tiles=[i for i in self.tiles]
 
         col_dtypes = (
             tile.get_col_dtype(categorical_column=categorical_column)
-            for tile in self.tiles
+            for tile in tiles
         )
 
         col_dtypes_clean = [x for x in list(col_dtypes) if x is not None]
@@ -271,8 +273,10 @@ class TiledVectorLayer:
 
         delayed_categorical_rasters = (
             tile.to_categorical_raster(categorical_column=categorical_column, dtype=dtype)
-            for tile in self.tiles
+            for tile in tiles
         )
+
+        # print(list(delayed_categorical_rasters))
 
         data_array = _from_delayed_to_data_array(
             delayed_arrays=delayed_categorical_rasters,
