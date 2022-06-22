@@ -100,24 +100,25 @@ def _get_mask(
 
 def _get_shapes(
     gpdf: GeoDataFrame,
-    categorical_column: str,
+    column: str,
 ) -> Generator[Tuple[BaseGeometry, Any], None, None]:
     return (
         (geometry, value)
-        for geometry, value in zip(gpdf["geometry"], gpdf[categorical_column])
+        for geometry, value in zip(gpdf["geometry"], gpdf[column])
     )
 
 def _get_col_dtype(
     gpdf: GeoDataFrame,
-    categorical_column: str,
+    column: str,
 ) -> str:
-    return get_minimum_dtype(gpdf[categorical_column])
+    """This method takes a vectortile and returns the minimum rasterio data type required to represent the data in the column of interest."""
+    return get_minimum_dtype(gpdf[column])
 
 
 @delayed
-def _to_categorical_raster(
+def _to_raster(
     gpdf: GeoDataFrame,
-    categorical_column: str,
+    column: str,
     out_shape: Tuple[int, int],
     dtype: str,
     transform: Affine,
@@ -131,7 +132,7 @@ def _to_categorical_raster(
     else:
         shapes = _get_shapes(
             gpdf=gpdf,
-            categorical_column=categorical_column,
+            column=column,
         )
         return rasterize(
             shapes=shapes,

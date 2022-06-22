@@ -16,7 +16,7 @@ from sds_data_model._vector import (
     _get_mask,
     _join,
     _select,
-    _to_categorical_raster,
+    _to_raster,
     _where,
     _get_col_dtype,
 )
@@ -113,29 +113,30 @@ class VectorTile:
 
         return mask
 
-    def to_categorical_raster(
+    def to_raster(
         self: _VectorTile,
-        categorical_column: str,
+        column: str,
         out_shape: Tuple[int, int] = OUT_SHAPE,
         dtype: str = "uint8",
     ) -> Delayed:
-        categorical_raster = _to_categorical_raster(
+        raster = _to_raster(
             gpdf=self.gpdf,
-            categorical_column=categorical_column,
+            column=column,
             out_shape=out_shape,
             transform=self.transform,
             dtype=dtype,
         )
 
-        return categorical_raster
+        return raster
     
     def get_col_dtype(
         self: _VectorTile,
-        categorical_column: str,
+        column: str,
     ) -> str:
+        """This method calls _get_col_dtype on an individual vectortile."""
         return _get_col_dtype(
             gpdf=self.gpdf,
-            categorical_column=categorical_column,
+            column=column,
         )
 
 
@@ -255,15 +256,19 @@ class TiledVectorLayer:
 
         return data_array
 
-    def to_data_array_as_categorical_raster(
+    def to_data_array_as_raster(
         self: _TiledVectorLayer,
-        categorical_column: str,
+        column: str,
     ) -> DataArray:
+        """This method instantiates the tiles so that they can be used in subsequent methods.
+        get_col_dtypes is called on all vectortiles, removes None (due to tiles on irish sea), 
+        Gets the index location of each dtype from the constant list and returns the maximum index 
+        location (most complex data type) to accomodate all tiles in the layer."""
         
         tiles=[i for i in self.tiles]
 
         col_dtypes = (
-            tile.get_col_dtype(categorical_column=categorical_column)
+            tile.get_col_dtype(column=column)
             for tile in tiles
         )
 
@@ -271,21 +276,20 @@ class TiledVectorLayer:
         col_dtypes_levels = [raster_dtype_levels.index(x) for x in col_dtypes_clean]
         dtype = raster_dtype_levels[max(col_dtypes_levels)]
 
-        delayed_categorical_rasters = (
-            tile.to_categorical_raster(categorical_column=categorical_column, dtype=dtype)
+        delayed_rasters = (
+            tile.to_raster(column=column, dtype=dtype)
             for tile in tiles
         )
 
-        # print(list(delayed_categorical_rasters))
 
         data_array = _from_delayed_to_data_array(
-            delayed_arrays=delayed_categorical_rasters,
+            delayed_arrays=delayed_rasters,
             name=self.name,
             metadata=self.metadata,
             dtype=dtype,
         )
 
-        info(f"Converted to DataArray as categorical raster.")
+        info(f"Converted to DataArray as raster.")
 
         return data_array
 
