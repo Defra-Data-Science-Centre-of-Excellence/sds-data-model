@@ -8,7 +8,7 @@ from dask.delayed import Delayed
 from geopandas import GeoDataFrame, read_file
 from pandas import DataFrame, Series
 from shapely.geometry import box
-from xarray import DataArray
+from xarray import DataArray, Dataset, merge
 
 from sds_data_model._vector import (
     _from_delayed_to_data_array,
@@ -256,42 +256,52 @@ class TiledVectorLayer:
 
         return data_array
 
-    def to_data_array_as_raster(
+    def to_dataset_as_raster(
         self: _TiledVectorLayer,
-        column: str,
-    ) -> DataArray:
+        columns: list[str, ...],
+    ) -> Dataset:
         """This method instantiates the tiles so that they can be used in subsequent methods.
         get_col_dtypes is called on all vectortiles, removes None (due to tiles on irish sea), 
         Gets the index location of each dtype from the constant list and returns the maximum index 
-        location (most complex data type) to accomodate all tiles in the layer."""
+        location (most complex data type) to accomodate all tiles in the layer, for every column provided"""
         
-        tiles=[i for i in self.tiles]
+        tiles = list(self.tiles)
 
         col_dtypes = (
-            tile.get_col_dtype(column=column)
-            for tile in tiles
+            (
+                tile.get_col_dtype(column=i)
+                for tile in tiles
+            ) 
+            for i in columns
         )
 
-        col_dtypes_clean = [x for x in list(col_dtypes) if x is not None]
-        col_dtypes_levels = [raster_dtype_levels.index(x) for x in col_dtypes_clean]
-        dtype = raster_dtype_levels[max(col_dtypes_levels)]
+        col_dtypes_clean = [[x for x in list(i) if x is not None] for i in col_dtypes]
+        col_dtypes_levels = [[raster_dtype_levels.index(x) for x in i] for i in col_dtypes_clean]
+        dtype = [raster_dtype_levels[max(i)] for i in col_dtypes_levels]
 
         delayed_rasters = (
-            tile.to_raster(column=column, dtype=dtype)
-            for tile in tiles
+            (
+                tile.to_raster(column=i, dtype=j)
+                for tile in tiles
+            ) 
+            for i, j in zip(columns, dtype)
         )
 
-
-        data_array = _from_delayed_to_data_array(
-            delayed_arrays=delayed_rasters,
-            name=self.name,
-            metadata=self.metadata,
-            dtype=dtype,
+        dataset = merge(
+            [
+                _from_delayed_to_data_array(
+                    delayed_arrays=i,
+                    name=j,
+                    metadata=self.metadata,
+                    dtype=k,
+                ) 
+                for i, j, k in zip(delayed_rasters, columns, dtype)
+            ]
         )
 
-        info(f"Converted to DataArray as raster.")
+        info(f"Converted to Dataset as raster.")
 
-        return data_array
+        return dataset
 
 
 _VectorLayer = TypeVar("_VectorLayer", bound="VectorLayer")
