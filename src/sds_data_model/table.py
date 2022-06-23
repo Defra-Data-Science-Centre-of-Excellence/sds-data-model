@@ -49,9 +49,10 @@ class TableLayer:
                 if suffix == '.csv':
                     df = file_reader[suffix](io.StringIO(res.content.decode('Windows-1252')),
                                              **data_kwargs)
-                else:
+                elif suffix in ['.xlsx', '.xls']:
                     df = file_reader[suffix](res.content, **data_kwargs)
-
+                else:
+                    raise NotImplementedError
         else:
             df = file_reader[suffix](data_path, **data_kwargs)
 
