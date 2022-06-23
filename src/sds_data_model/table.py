@@ -16,11 +16,25 @@ basicConfig(format="%(levelname)s:%(asctime)s:%(message)s", level=INFO)
 
 _TableLayer = TypeVar("_TableLayer", bound="TableLayer")
 
+
+def _find_closing_bracket(string):
+    flag = 1
+    string_index = 0
+    while flag > 0:
+        if string[string_index] == "(":
+            flag += 1
+        elif string[string_index] == ")":
+            flag -= 1
+        string_index +=1
+    return string_index - 1
+
+
 def _get_function_input(func_name: str, frame: inspect.types.FrameType) -> str:
     code_input = inspect.getouterframes(frame, 1)
     code_input = [f for f in code_input if f'{func_name}(' in f.code_context[0]]
     code_input = code_input[0].code_context[0]
-    code_input = code_input[6 + code_input.find(f'{func_name}('):code_input.rfind(')')]
+    code_input = code_input[len(func_name) + code_input.find(f'{func_name}('):]
+    code_input = code_input[:_find_closing_bracket(code_input)]
     return code_input
 
 @dataclass
