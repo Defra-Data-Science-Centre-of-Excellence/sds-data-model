@@ -58,7 +58,7 @@ class TableLayer:
         if not metadata_path:
             try:
                 # This is the default for csvw
-                metadata = json.load(f"{data_path}-metadata.json")
+                metadata = json.load(open(f"{data_path}-metadata.json"))
             except FileNotFoundError:
                 # If no metadata file is available
                 metadata = None
