@@ -106,7 +106,7 @@ class TableLayer:
         return query_output
 
     def join(self: _TableLayer,
-             other: TableLayer,
+             other: _TableLayer,
              how: str = "left",
              kwargs: Dict[str, Any] = None
              ) -> _TableLayer:
