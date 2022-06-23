@@ -33,9 +33,9 @@ class TableLayer:
     def from_csvw(
         cls: _TableLayer,
         data_path: str,
-        data_kwargs: Dict[str, Any],
         metadata_path: Optional[str] = None,
         name: Optional[str] = None,
+        data_kwargs: Optional[Dict[str, Any]] = {},
     ) -> _TableLayer:
         file_reader = {".csv": read_csv,
                        ".json": read_json,
