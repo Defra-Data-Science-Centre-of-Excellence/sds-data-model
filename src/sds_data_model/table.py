@@ -30,7 +30,7 @@ class TableLayer:
     metadata: Metadata
 
     @classmethod
-    def from_csvw(
+    def from_file(
         cls: _TableLayer,
         data_path: str,
         metadata_path: Optional[str] = None,
