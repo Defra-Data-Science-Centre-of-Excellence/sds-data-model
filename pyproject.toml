@@ -52,6 +52,8 @@ pre-commit-hooks = "^4.0.1"
 Pygments = "^2.10.0"
 pyupgrade = "^2.29.1"
 ipykernel = "^6.9.2"
+nox-poetry = "^1.0.1"
+isort = "^5.10.1"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
