@@ -55,6 +55,10 @@ ipykernel = "^6.9.2"
 nox-poetry = "^1.0.1"
 isort = "^5.10.1"
 
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
 tests = ["tests", "*/tests"]
