@@ -14,6 +14,7 @@ from rasterio.features import geometry_mask, rasterize
 from shapely.geometry import box
 from shapely.geometry.base import BaseGeometry
 from xarray import DataArray
+
 from sds_data_model.constants import (
     BNG_XMAX,
     BNG_XMIN,
@@ -23,7 +24,6 @@ from sds_data_model.constants import (
     OUT_SHAPE,
     BoundingBox,
 )
-
 from sds_data_model.metadata import Metadata
 
 

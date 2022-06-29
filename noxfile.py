@@ -1,8 +1,8 @@
 """Nox sessions."""
 import os
-from shutil import rmtree, copytree
 import sys
 from pathlib import Path
+from shutil import copytree, rmtree
 from textwrap import dedent
 
 import nox

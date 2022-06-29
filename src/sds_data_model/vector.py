@@ -1,7 +1,7 @@
-from dataclasses import dataclass
 import json
-from logging import INFO, info, basicConfig
-from typing import Any, Dict, Generator, List, Optional, TypeVar, Tuple, Union
+from dataclasses import dataclass
+from logging import INFO, basicConfig, info
+from typing import Any, Dict, Generator, List, Optional, Tuple, TypeVar, Union
 
 from affine import Affine
 from dask.delayed import Delayed
@@ -19,15 +19,8 @@ from sds_data_model._vector import (
     _to_categorical_raster,
     _where,
 )
-from sds_data_model.constants import (
-    BBOXES,
-    CELL_SIZE,
-    BNG,
-    BoundingBox,
-    OUT_SHAPE,
-)
+from sds_data_model.constants import BBOXES, BNG, CELL_SIZE, OUT_SHAPE, BoundingBox
 from sds_data_model.metadata import Metadata
-
 
 basicConfig(format="%(levelname)s:%(asctime)s:%(message)s", level=INFO)
 
