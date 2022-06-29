@@ -12,7 +12,7 @@ This project uses [`isort`](https://pycqa.github.io/isort/index.html) and [`blac
 
 Formatters ensure that code conforms to a specific style. This reduces idiosyncrasies and arguments about style and should lessen the cognitive overhead of involved in diving in to a new code base as the code should always look the same.
 
-There are lots of python formatters out there, such as [`autopep9`](https://pypi.org/project/autopep8/) and ['yapf`](<https://github.com/google/yapf>), but`black` stands out because of it's lack of configurability: the less options there are, the less opportunities there are for disagreements and different approaches.
+There are lots of python formatters out there, such as [`autopep9`](https://pypi.org/project/autopep8/) and [`yapf`](<https://github.com/google/yapf>), but`black` stands out because of it's lack of configurability: the less options there are, the less opportunities there are for disagreements and different approaches.
 
 Similarly, there are quite a few import sorters but `isort` is my choice because it's maintained by the [Python Code Quality Authority](https://meta.pycqa.org/) and it integrates well with `black`.[^3]
 
