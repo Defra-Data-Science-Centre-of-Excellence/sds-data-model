@@ -34,6 +34,7 @@ def _from_file(
     bbox: BoundingBox,
     **kwargs,
 ) -> Delayed:
+    """Returns a delayed GeoDataFrame clipped to a given bounding box."""
     return read_file(
         filename=data_path,
         bbox=box(*bbox),
@@ -43,11 +44,13 @@ def _from_file(
 
 @delayed
 def _select(gpdf: Delayed, columns: List[str]) -> Delayed:
+    """Returns given columns from a delayed GeoDataFrame."""
     return gpdf[columns]
 
 
 @delayed
 def _where(gpdf: Delayed, condition: Series) -> Delayed:
+    """Returns a delayed GeoDataFrame filtered by a given condition."""
     return gpdf[condition]
 
 
@@ -59,6 +62,7 @@ def _join(
     fillna: Optional[Dict[str, Any]] = None,
     **kwargs,
 ) -> Delayed:
+    """Returns a delayed GeoDataFrame joined to a given DataFrame."""
     _gpdf = merge(
         left=gpdf,
         right=other,
@@ -79,6 +83,7 @@ def _get_mask(
     dtype: str,
     transform: Affine,
 ) -> Delayed:
+    """Returns a delayed boolean Numpy ndarray where 1 means the pixel overlaps a geometry."""
     if all(gpdf.geometry.is_empty) and invert:
         return zeros(
             shape=out_shape,
@@ -102,6 +107,7 @@ def _get_shapes(
     gpdf: GeoDataFrame,
     column: str,
 ) -> Generator[Tuple[BaseGeometry, Any], None, None]:
+    """Yields (Geometry, value) tuples for every row in a GeoDataFrame."""
     return (
         (geometry, value)
         for geometry, value in zip(gpdf["geometry"], gpdf[column])
@@ -124,6 +130,7 @@ def _to_raster(
     transform: Affine,
     **kwargs,
 ) -> Delayed:
+    """Returns a delayed boolean Numpy ndarray with values taken from a given column."""
     if all(gpdf.geometry.is_empty):
         return zeros(
             shape=out_shape,
@@ -149,6 +156,7 @@ def _from_delayed_to_data_array(
     metadata: Metadata,
     dtype: str,
 ) -> DataArray:
+    """Converts a 1D delayed Numpy array into a 2D DataArray."""
     dask_arrays = tuple(
         from_delayed(mask, dtype=dtype, shape=OUT_SHAPE) for mask in delayed_arrays
     )
