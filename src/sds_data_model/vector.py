@@ -323,8 +323,8 @@ class VectorLayer:
     ) -> _VectorLayer:
         gpdf = read_file(data_path, **data_kwargs)
 
-        if gpdf.crs.name != BNG:
-            raise TypeError(f"CRS must be {BNG}, not {gpdf.crs.name}")
+        if gpdf.crs.name not in BNG:
+            raise TypeError(f"CRS must be one of {BNG}, not {gpdf.crs.name}")
 
         # if not metadata_path:
         #     metadata = json.load(f"{data_path}-metadata.json")
