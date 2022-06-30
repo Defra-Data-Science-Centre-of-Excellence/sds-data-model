@@ -258,7 +258,7 @@ class TiledVectorLayer:
 
     def to_dataset_as_raster(
         self: _TiledVectorLayer,
-        columns: List[str, ...],
+        columns: List[str],
     ) -> Dataset:
         """This method instantiates the tiles so that they can be used in subsequent methods.
         get_col_dtypes is called on all vectortiles, removes None (due to tiles on irish sea), 
