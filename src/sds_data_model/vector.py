@@ -148,7 +148,7 @@ _TiledVectorLayer = TypeVar("_TiledVectorLayer", bound="TiledVectorLayer")
 class TiledVectorLayer:
     name: str
     tiles: Generator[VectorTile, None, None]
-    metadata: Metadata
+    metadata: Optional[Metadata]
 
     @classmethod
     def from_files(
@@ -176,7 +176,7 @@ class TiledVectorLayer:
         #     raise TypeError(f"CRS must be {BNG}, not {gpdf.crs.name}")
 
         if not metadata_path:
-            metadata = ""
+            metadata = None
         else:
             metadata = Metadata.from_file(metadata_path)
 
@@ -311,7 +311,7 @@ _VectorLayer = TypeVar("_VectorLayer", bound="VectorLayer")
 class VectorLayer:
     name: str
     gpdf: GeoDataFrame
-    metadata: Metadata
+    metadata: Optional[Metadata]
 
     @classmethod
     def from_files(
@@ -326,17 +326,17 @@ class VectorLayer:
         if gpdf.crs.name not in BNG:
             raise TypeError(f"CRS must be one of {BNG}, not {gpdf.crs.name}")
 
-        # if not metadata_path:
-        #     metadata = json.load(f"{data_path}-metadata.json")
-        # else:
-        #     metadata = Metadata.from_file(metadata_path)
+        if not metadata_path:
+            metadata = None
+        else:
+            metadata = Metadata.from_file(metadata_path)
 
         _name = name if name else metadata["title"]
 
         return cls(
             name=_name,
             gpdf=gpdf,
-            metadata=''#metadata,
+            metadata=metadata,
         )
 
     def to_tiles(self, bboxes: Tuple[BoundingBox] = BBOXES) -> TiledVectorLayer:
