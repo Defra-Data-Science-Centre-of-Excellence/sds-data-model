@@ -10,6 +10,7 @@ from pandas import DataFrame, Series
 from shapely.geometry import box
 from xarray import DataArray, Dataset, merge
 
+from sds_data_model._helpers import _read_metadata
 from sds_data_model._vector import (
     _from_delayed_to_data_array,
     _from_file,
@@ -175,10 +176,10 @@ class TiledVectorLayer:
         # if gpdf.crs.name != BNG:
         #     raise TypeError(f"CRS must be {BNG}, not {gpdf.crs.name}")
 
-        if not metadata_path:
-            metadata = None
-        else:
-            metadata = Metadata.from_file(metadata_path)
+        metadata = _read_metadata(
+            data_path=data_path,
+            metadata_path=metadata_path,
+        )
 
         info(f"Read metadata from {metadata_path}.")
 
@@ -326,10 +327,10 @@ class VectorLayer:
         if gpdf.crs.name not in BNG:
             raise TypeError(f"CRS must be one of {BNG}, not {gpdf.crs.name}")
 
-        if not metadata_path:
-            metadata = None
-        else:
-            metadata = Metadata.from_file(metadata_path)
+        metadata = _read_metadata(
+            data_path=data_path,
+            metadata_path=metadata_path,
+        )
 
         _name = name if name else metadata["title"]
 

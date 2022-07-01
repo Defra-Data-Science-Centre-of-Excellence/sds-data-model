@@ -12,6 +12,7 @@ from pandas import (DataFrame, Series,
 from pathlib import Path
 from urllib.parse import urlparse
 
+from sds_data_model._helpers import _read_metadata
 from sds_data_model.metadata import Metadata
 
 basicConfig(format="%(levelname)s:%(asctime)s:%(message)s", level=INFO)
@@ -105,15 +106,10 @@ class TableLayer:
         else:
             df = file_reader[suffix](data_path, **data_kwargs)
 
-        if not metadata_path:
-            try:
-                # This is the default for csvw
-                metadata = json.load(open(f"{data_path}-metadata.json"))
-            except FileNotFoundError:
-                # If no metadata file is available
-                metadata = None
-        else:
-            metadata = Metadata.from_file(metadata_path)
+        metadata = _read_metadata(
+            data_path=data_path,
+            metadata_path=metadata_path,
+        )
 
         _name = name if name else metadata["title"]
 
