@@ -10,11 +10,12 @@ from geopandas import GeoDataFrame, read_file
 from more_itertools import chunked
 from numpy import arange, ones, zeros
 from pandas import DataFrame, Series, merge
-from rasterio.features import geometry_mask, rasterize
 from rasterio.dtypes import get_minimum_dtype
+from rasterio.features import geometry_mask, rasterize
 from shapely.geometry import box
 from shapely.geometry.base import BaseGeometry
 from xarray import DataArray
+
 from sds_data_model.constants import (
     BNG_XMAX,
     BNG_XMIN,
@@ -24,7 +25,6 @@ from sds_data_model.constants import (
     OUT_SHAPE,
     BoundingBox,
 )
-
 from sds_data_model.metadata import Metadata
 
 
@@ -109,9 +109,9 @@ def _get_shapes(
 ) -> Generator[Tuple[BaseGeometry, Any], None, None]:
     """Yields (Geometry, value) tuples for every row in a GeoDataFrame."""
     return (
-        (geometry, value)
-        for geometry, value in zip(gpdf["geometry"], gpdf[column])
+        (geometry, value) for geometry, value in zip(gpdf["geometry"], gpdf[column])
     )
+
 
 def _get_col_dtype(
     gpdf: GeoDataFrame,

@@ -1,7 +1,7 @@
-from dataclasses import dataclass
 import json
-from logging import INFO, info, basicConfig
-from typing import Any, Dict, Generator, List, Optional, TypeVar, Tuple, Union
+from dataclasses import dataclass
+from logging import INFO, basicConfig, info
+from typing import Any, Dict, Generator, List, Optional, Tuple, TypeVar, Union
 
 from affine import Affine
 from dask.delayed import Delayed
@@ -13,23 +13,22 @@ from xarray import DataArray, Dataset, merge
 from sds_data_model._vector import (
     _from_delayed_to_data_array,
     _from_file,
+    _get_col_dtype,
     _get_mask,
     _join,
     _select,
     _to_raster,
     _where,
-    _get_col_dtype,
 )
 from sds_data_model.constants import (
     BBOXES,
-    CELL_SIZE,
     BNG,
-    BoundingBox,
+    CELL_SIZE,
     OUT_SHAPE,
+    BoundingBox,
     raster_dtype_levels,
 )
 from sds_data_model.metadata import Metadata
-
 
 basicConfig(format="%(levelname)s:%(asctime)s:%(message)s", level=INFO)
 
@@ -128,7 +127,7 @@ class VectorTile:
         )
 
         return raster
-    
+
     def get_col_dtype(
         self: _VectorTile,
         column: str,
@@ -138,7 +137,6 @@ class VectorTile:
             gpdf=self.gpdf,
             column=column,
         )
-
 
 
 _TiledVectorLayer = TypeVar("_TiledVectorLayer", bound="TiledVectorLayer")
@@ -261,29 +259,22 @@ class TiledVectorLayer:
         columns: List[str],
     ) -> Dataset:
         """This method instantiates the tiles so that they can be used in subsequent methods.
-        get_col_dtypes is called on all vectortiles, removes None (due to tiles on irish sea), 
-        Gets the index location of each dtype from the constant list and returns the maximum index 
+        get_col_dtypes is called on all vectortiles, removes None (due to tiles on irish sea),
+        Gets the index location of each dtype from the constant list and returns the maximum index
         location (most complex data type) to accomodate all tiles in the layer, for every column provided"""
-        
+
         tiles = list(self.tiles)
 
-        col_dtypes = (
-            (
-                tile.get_col_dtype(column=i)
-                for tile in tiles
-            ) 
-            for i in columns
-        )
+        col_dtypes = ((tile.get_col_dtype(column=i) for tile in tiles) for i in columns)
 
         col_dtypes_clean = [[x for x in list(i) if x is not None] for i in col_dtypes]
-        col_dtypes_levels = [[raster_dtype_levels.index(x) for x in i] for i in col_dtypes_clean]
+        col_dtypes_levels = [
+            [raster_dtype_levels.index(x) for x in i] for i in col_dtypes_clean
+        ]
         dtype = [raster_dtype_levels[max(i)] for i in col_dtypes_levels]
 
         delayed_rasters = (
-            (
-                tile.to_raster(column=i, dtype=j)
-                for tile in tiles
-            ) 
+            (tile.to_raster(column=i, dtype=j) for tile in tiles)
             for i, j in zip(columns, dtype)
         )
 
@@ -294,7 +285,7 @@ class TiledVectorLayer:
                     name=j,
                     metadata=self.metadata,
                     dtype=k,
-                ) 
+                )
                 for i, j, k in zip(delayed_rasters, columns, dtype)
             ]
         )

@@ -1,15 +1,13 @@
 from abc import ABC
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, TypeVar, Type, Tuple, Union
-from xml.etree.ElementTree import Element, fromstring
-from re import compile
-from requests import get
 from functools import singledispatch
-from typing import List, Union, Tuple
-from xml.etree.ElementTree import Element
+from re import compile
+from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
+from xml.etree.ElementTree import Element, fromstring
 
+from requests import get
 
-from sds_data_model.constants import GCO, GMD, GML, GMX, CHARACTER_STRING
+from sds_data_model.constants import CHARACTER_STRING, GCO, GMD, GML, GMX
 
 
 @singledispatch
