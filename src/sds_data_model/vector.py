@@ -30,6 +30,9 @@ from sds_data_model.constants import (
 )
 from sds_data_model.metadata import Metadata
 
+from sds_data_model.logger import log
+
+
 basicConfig(format="%(levelname)s:%(asctime)s:%(message)s", level=INFO)
 
 _VectorTile = TypeVar("_VectorTile", bound="VectorTile")
@@ -46,6 +49,7 @@ class VectorTile:
         return Affine(CELL_SIZE, 0, xmin, 0, -CELL_SIZE, ymax)
 
     @classmethod
+    @log
     def from_file(
         cls: _VectorTile,
         data_path: str,
@@ -149,11 +153,12 @@ class TiledVectorLayer:
     metadata: Optional[Metadata]
 
     @classmethod
+    @log
     def from_files(
         cls: _TiledVectorLayer,
         data_path: str,
-        data_kwargs: Dict[str, Any],
         bboxes: Tuple[BoundingBox] = BBOXES,
+        data_kwargs: Optional[Dict[str, Any]] = None,
         metadata_path: Optional[str] = None,
         name: Optional[str] = None,
     ) -> _TiledVectorLayer:
@@ -305,14 +310,18 @@ class VectorLayer:
     metadata: Optional[Metadata]
 
     @classmethod
+    @log
     def from_files(
         cls: _VectorLayer,
         data_path: str,
-        data_kwargs: Dict[str, Any],
+        data_kwargs: Optional[Dict[str, Any]] = None,
         metadata_path: Optional[str] = None,
         name: Optional[str] = None,
     ) -> _VectorLayer:
-        gpdf = read_file(data_path, **data_kwargs)
+        if data_kwargs:
+            gpdf = read_file(data_path, **data_kwargs)
+        else:
+            gpdf = read_file(data_path)
 
         if gpdf.crs.name not in BNG:
             raise TypeError(f"CRS must be one of {BNG}, not {gpdf.crs.name}")
@@ -330,7 +339,25 @@ class VectorLayer:
             metadata=metadata,
         )
 
-    def to_tiles(self, bboxes: Tuple[BoundingBox] = BBOXES) -> TiledVectorLayer:
+    @log
+    def select(self: _VectorLayer, columns: List[str]) -> _VectorLayer:
+        gpdf = _select(gpdf=self.gpdf, columns=columns)
+        return VectorLayer(
+            gpdf=gpdf,
+            name=self.name,
+            metadata=self.metadata,
+        )
+
+    @log
+    def where(self: _VectorLayer, condition: Series) -> _TiledVectorLayer:
+        gpdf = _where(self.gpdf, condition=condition)
+        return VectorLayer(
+            gpdf=gpdf,
+            name=self.name,
+            metadata=self.metadata,
+        )
+
+    def to_tiles(self, bboxes: Tuple[BoundingBox, ...] = BBOXES) -> TiledVectorLayer:
         tiles = (
             VectorTile(
                 bbox=bbox,

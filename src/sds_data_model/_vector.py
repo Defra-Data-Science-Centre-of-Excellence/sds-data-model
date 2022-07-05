@@ -2,10 +2,10 @@ from asyncio import run
 from dataclasses import asdict
 from typing import Any, Dict, Generator, List, Optional, Tuple, Union
 
+
 from affine import Affine
-from dask import delayed
 from dask.array import block, from_delayed
-from dask.delayed import Delayed
+from dask.delayed import Delayed, delayed
 from geopandas import GeoDataFrame, read_file
 from more_itertools import chunked
 from numpy import arange, ones, zeros
@@ -32,7 +32,7 @@ from sds_data_model.metadata import Metadata
 def _from_file(
     data_path: str,
     bbox: BoundingBox,
-    **kwargs,
+    **kwargs: Dict[str, Any],
 ) -> Delayed:
     """Returns a delayed GeoDataFrame clipped to a given bounding box."""
     return read_file(
