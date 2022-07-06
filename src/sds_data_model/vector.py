@@ -67,6 +67,7 @@ class VectorTile:
             gpdf=gpdf,
         )
 
+    @log
     def select(self: _VectorTile, columns: List[str]) -> _VectorTile:
         gpdf = _select(gpdf=self.gpdf, columns=columns)
         return VectorTile(
@@ -74,6 +75,7 @@ class VectorTile:
             gpdf=gpdf,
         )
 
+    @log
     def where(self: _VectorTile, condition: Series) -> _VectorTile:
         gpdf = _where(gpdf=self.gpdf, condition=condition)
         return VectorTile(
