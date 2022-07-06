@@ -30,6 +30,7 @@ from sds_data_model.constants import (
     raster_dtype_levels,
 )
 from sds_data_model.metadata import Metadata
+from sds_data_model.logger import log
 
 
 basicConfig(format="%(levelname)s:%(asctime)s:%(message)s", level=INFO)
@@ -48,6 +49,7 @@ class VectorTile:
         return Affine(CELL_SIZE, 0, xmin, 0, -CELL_SIZE, ymax)
 
     @classmethod
+    @log
     def from_file(
         cls: _VectorTile,
         data_path: str,
@@ -65,6 +67,7 @@ class VectorTile:
             gpdf=gpdf,
         )
 
+    @log
     def select(self: _VectorTile, columns: List[str]) -> _VectorTile:
         gpdf = _select(gpdf=self.gpdf, columns=columns)
         return VectorTile(
@@ -72,6 +75,7 @@ class VectorTile:
             gpdf=gpdf,
         )
 
+    @log
     def where(self: _VectorTile, condition: Series) -> _VectorTile:
         gpdf = _where(gpdf=self.gpdf, condition=condition)
         return VectorTile(
@@ -79,6 +83,7 @@ class VectorTile:
             gpdf=gpdf,
         )
 
+    @log
     def join(
         self: _VectorTile,
         other: DataFrame,
@@ -98,6 +103,7 @@ class VectorTile:
             gpdf=gpdf,
         )
 
+    @log
     def to_mask(
         self: _VectorTile,
         out_shape: Tuple[int, int] = OUT_SHAPE,
@@ -114,6 +120,7 @@ class VectorTile:
 
         return mask
 
+    @log
     def to_raster(
         self: _VectorTile,
         column: str,
@@ -130,6 +137,7 @@ class VectorTile:
 
         return raster
     
+    @log
     def get_col_dtype(
         self: _VectorTile,
         column: str,
