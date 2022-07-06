@@ -30,8 +30,6 @@ from sds_data_model.constants import (
 )
 from sds_data_model.metadata import Metadata
 
-from sds_data_model.logger import log
-
 
 basicConfig(format="%(levelname)s:%(asctime)s:%(message)s", level=INFO)
 
@@ -49,7 +47,6 @@ class VectorTile:
         return Affine(CELL_SIZE, 0, xmin, 0, -CELL_SIZE, ymax)
 
     @classmethod
-    @log
     def from_file(
         cls: _VectorTile,
         data_path: str,
@@ -67,7 +64,6 @@ class VectorTile:
             gpdf=gpdf,
         )
 
-    @log
     def select(self: _VectorTile, columns: List[str]) -> _VectorTile:
         gpdf = _select(gpdf=self.gpdf, columns=columns)
         return VectorTile(
@@ -75,7 +71,6 @@ class VectorTile:
             gpdf=gpdf,
         )
 
-    @log
     def where(self: _VectorTile, condition: Series) -> _VectorTile:
         gpdf = _where(gpdf=self.gpdf, condition=condition)
         return VectorTile(
@@ -155,7 +150,6 @@ class TiledVectorLayer:
     metadata: Optional[Metadata]
 
     @classmethod
-    @log
     def from_files(
         cls: _TiledVectorLayer,
         data_path: str,
@@ -312,7 +306,6 @@ class VectorLayer:
     metadata: Optional[Metadata]
 
     @classmethod
-    @log
     def from_files(
         cls: _VectorLayer,
         data_path: str,
@@ -341,7 +334,6 @@ class VectorLayer:
             metadata=metadata,
         )
 
-    @log
     def select(self: _VectorLayer, columns: List[str]) -> _VectorLayer:
         gpdf = _select(gpdf=self.gpdf, columns=columns)
         return VectorLayer(
@@ -350,7 +342,6 @@ class VectorLayer:
             metadata=self.metadata,
         )
 
-    @log
     def where(self: _VectorLayer, condition: Series) -> _TiledVectorLayer:
         gpdf = _where(self.gpdf, condition=condition)
         return VectorLayer(
