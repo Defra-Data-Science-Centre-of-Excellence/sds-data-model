@@ -9,8 +9,8 @@ runs:
       uses: actions/checkout@v2    
     - name: Set up Python ${{ inputs.python-version }}
       uses: actions/setup-python@v2
-        with:
-          python-version: ${{ inputs.python-version }}
+      with:
+        python-version: ${{ inputs.python-version }}
     - name: Install poetry
       run: curl -sSL https://install.python-poetry.org | python3 -
     - name: Install nox
