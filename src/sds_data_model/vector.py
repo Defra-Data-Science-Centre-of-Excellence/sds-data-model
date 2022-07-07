@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
 from logging import INFO, basicConfig, info
-from typing import Any, Dict, Generator, List, Optional, Tuple, TypeVar, Union
+from typing import Any, Dict, Generator, List, Optional, Tuple, TypeVar, Type
 
 from affine import Affine
 from dask.delayed import Delayed
@@ -30,29 +30,29 @@ from sds_data_model.constants import (
 )
 from sds_data_model.metadata import Metadata
 
-
 basicConfig(format="%(levelname)s:%(asctime)s:%(message)s", level=INFO)
 
-_VectorTile = TypeVar("_VectorTile", bound="VectorTile")
 
+_VectorTileType = TypeVar("_VectorTileType", bound="VectorTile")
 
 @dataclass
 class VectorTile:
     bbox: BoundingBox
     gpdf: Delayed
 
+
     @property
-    def transform(self: _VectorTile) -> Affine:
+    def transform(self) -> Affine:
         xmin, _, _, ymax = self.bbox
         return Affine(CELL_SIZE, 0, xmin, 0, -CELL_SIZE, ymax)
 
     @classmethod
     def from_file(
-        cls: _VectorTile,
+        cls: Type[_VectorTileType],
         data_path: str,
         bbox: BoundingBox,
         **kwargs: Dict[str, Any],
-    ) -> _VectorTile:
+    ) -> "VectorTile":
         gpdf = _from_file(
             data_path=data_path,
             bbox=bbox,
@@ -64,14 +64,14 @@ class VectorTile:
             gpdf=gpdf,
         )
 
-    def select(self: _VectorTile, columns: List[str]) -> _VectorTile:
+    def select(self: _VectorTileType, columns: List[str]) -> "VectorTile":
         gpdf = _select(gpdf=self.gpdf, columns=columns)
         return VectorTile(
             bbox=self.bbox,
             gpdf=gpdf,
         )
 
-    def where(self: _VectorTile, condition: Series) -> _VectorTile:
+    def where(self: _VectorTileType, condition: Series) -> "VectorTile":
         gpdf = _where(gpdf=self.gpdf, condition=condition)
         return VectorTile(
             bbox=self.bbox,
@@ -79,12 +79,12 @@ class VectorTile:
         )
 
     def join(
-        self: _VectorTile,
+        self: _VectorTileType,
         other: DataFrame,
         how: str,
         fillna: Optional[Dict[str, Any]] = None,
         **kwargs,
-    ) -> _VectorTile:
+    ) -> "VectorTile":
         gpdf = _join(
             gpdf=self.gpdf,
             other=other,
@@ -98,7 +98,7 @@ class VectorTile:
         )
 
     def to_mask(
-        self: _VectorTile,
+        self: _VectorTileType,
         out_shape: Tuple[int, int] = OUT_SHAPE,
         invert: bool = True,
         dtype: str = "uint8",
@@ -114,7 +114,7 @@ class VectorTile:
         return mask
 
     def to_raster(
-        self: _VectorTile,
+        self: _VectorTileType,
         column: str,
         out_shape: Tuple[int, int] = OUT_SHAPE,
         dtype: str = "uint8",
@@ -130,7 +130,7 @@ class VectorTile:
         return raster
 
     def get_col_dtype(
-        self: _VectorTile,
+        self: _VectorTileType,
         column: str,
     ) -> str:
         """This method calls _get_col_dtype on an individual vectortile."""
@@ -151,21 +151,30 @@ class TiledVectorLayer:
 
     @classmethod
     def from_files(
-        cls: _TiledVectorLayer,
+        cls: Type[_TiledVectorLayer],
         data_path: str,
-        bboxes: Tuple[BoundingBox] = BBOXES,
+        bboxes: Tuple[BoundingBox, ...] = BBOXES,
         data_kwargs: Optional[Dict[str, Any]] = None,
         metadata_path: Optional[str] = None,
         name: Optional[str] = None,
-    ) -> _TiledVectorLayer:
-        tiles = tuple(
-            VectorTile.from_file(
-                data_path=data_path,
-                bbox=bbox,
-                **data_kwargs,
+    ) -> "TiledVectorLayer":
+        if data_kwargs:
+            tiles = (
+                VectorTile.from_file(
+                    data_path=data_path,
+                    bbox=bbox,
+                    **data_kwargs,
+                )
+                for bbox in bboxes
             )
-            for bbox in bboxes
-        )
+        else:
+            tiles = (
+                VectorTile.from_file(
+                    data_path=data_path,
+                    bbox=bbox,
+                )
+                for bbox in bboxes
+            )
 
         info(f"Read data from {data_path}.")
 
@@ -189,7 +198,7 @@ class TiledVectorLayer:
             metadata=metadata,
         )
 
-    def select(self: _TiledVectorLayer, columns: List[str]) -> _TiledVectorLayer:
+    def select(self: _TiledVectorLayer, columns: List[str]) -> "TiledVectorLayer":
         tiles = tuple(tile.select(columns) for tile in self.tiles)
 
         tiled_vector_layer = TiledVectorLayer(
@@ -202,7 +211,7 @@ class TiledVectorLayer:
 
         return tiled_vector_layer
 
-    def where(self: _TiledVectorLayer, condition: Series) -> _TiledVectorLayer:
+    def where(self: _TiledVectorLayer, condition: Series) -> "TiledVectorLayer":
         tiles = tuple(tile.where(condition) for tile in self.tiles)
 
         tiled_vector_layer = TiledVectorLayer(
@@ -221,7 +230,7 @@ class TiledVectorLayer:
         how: str = "left",
         fillna: Optional[Dict[str, Any]] = None,
         **kwargs,
-    ) -> _TiledVectorLayer:
+    ) -> "TiledVectorLayer":
         tiles = tuple(
             tile.join(
                 other=other,
@@ -307,12 +316,12 @@ class VectorLayer:
 
     @classmethod
     def from_files(
-        cls: _VectorLayer,
+        cls: Type[_VectorLayer],
         data_path: str,
         data_kwargs: Optional[Dict[str, Any]] = None,
         metadata_path: Optional[str] = None,
         name: Optional[str] = None,
-    ) -> _VectorLayer:
+    ) -> "VectorLayer":
         if data_kwargs:
             gpdf = read_file(data_path, **data_kwargs)
         else:
@@ -334,7 +343,7 @@ class VectorLayer:
             metadata=metadata,
         )
 
-    def select(self: _VectorLayer, columns: List[str]) -> _VectorLayer:
+    def select(self: _VectorLayer, columns: List[str]) -> "VectorLayer":
         gpdf = _select(gpdf=self.gpdf, columns=columns)
         return VectorLayer(
             gpdf=gpdf,
@@ -342,7 +351,7 @@ class VectorLayer:
             metadata=self.metadata,
         )
 
-    def where(self: _VectorLayer, condition: Series) -> _TiledVectorLayer:
+    def where(self: _VectorLayer, condition: Series) -> "VectorLayer":
         gpdf = _where(self.gpdf, condition=condition)
         return VectorLayer(
             gpdf=gpdf,
