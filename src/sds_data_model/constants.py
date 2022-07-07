@@ -20,12 +20,14 @@ TILE_SIZE = BOX_SIZE // CELL_SIZE
 # Dimensions of VectorTile in cells
 OUT_SHAPE = (TILE_SIZE, TILE_SIZE)
 
-#! Ignore for now, these are XML namespaces used in Gemini Metadata
-GMD = "{http://www.isotc211.org/2005/gmd}"
-GML = "{http://www.opengis.net/gml/3.2}"
-GMX = "{http://www.isotc211.org/2005/gmx}"
-GCO = "{http://www.isotc211.org/2005/gco}"
-CHARACTER_STRING = GCO + "CharacterString"
+TITLE_XPATH = [
+    "gmd:identificationInfo",
+    "gmd:MD_DataIdentification",
+    "gmd:citation",
+    "gmd:CI_Citation",
+    "gmd:title",
+    "gco:CharacterString",
+]
 
 # Type alias, i.e. a BoundingBox is a Tuple of 4 integers
 # See https://docs.python.org/3.8/library/typing.html#type-aliases
