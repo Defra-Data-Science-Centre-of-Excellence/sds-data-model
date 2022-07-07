@@ -2,7 +2,6 @@ from asyncio import run
 from dataclasses import asdict
 from typing import Any, Dict, Generator, List, Optional, Tuple, Union
 
-
 from affine import Affine
 from dask.array import block, from_delayed
 from dask.delayed import Delayed, delayed
