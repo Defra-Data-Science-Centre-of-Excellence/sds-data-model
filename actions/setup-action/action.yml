@@ -1,17 +1,14 @@
 name: Setup workflow environment
-inputs:
-  python-version:
-    required: true
+description: Installs poetry, nox, and nox-poetry
 runs:
   using: composite
   steps:
-    - name: Set up Python ${{ inputs.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ inputs.python-version }}
     - name: Install poetry
       run: curl -sSL https://install.python-poetry.org | python3 -
+      shell: bash
     - name: Install nox
       run: pip install nox
+      shell: bash
     - name: Install nox-poetry
       run: pip install nox-poetry
+      shell: bash
