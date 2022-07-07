@@ -19,6 +19,7 @@ from sds_data_model._vector import (
     _select,
     _to_raster,
     _where,
+    _get_col_dtype,
 )
 from sds_data_model.constants import (
     BBOXES,

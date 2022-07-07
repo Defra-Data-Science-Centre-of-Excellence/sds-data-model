@@ -12,6 +12,7 @@ from numpy import arange, ones, zeros
 from pandas import DataFrame, Series, merge
 from rasterio.dtypes import get_minimum_dtype
 from rasterio.features import geometry_mask, rasterize
+from rasterio.dtypes import get_minimum_dtype
 from shapely.geometry import box
 from shapely.geometry.base import BaseGeometry
 from xarray import DataArray
@@ -111,6 +112,13 @@ def _get_shapes(
     return (
         (geometry, value) for geometry, value in zip(gpdf["geometry"], gpdf[column])
     )
+
+def _get_col_dtype(
+    gpdf: GeoDataFrame,
+    column: str,
+) -> str:
+    """This method takes a vectortile and returns the minimum rasterio data type required to represent the data in the column of interest."""
+    return get_minimum_dtype(gpdf[column])
 
 
 def _get_col_dtype(
