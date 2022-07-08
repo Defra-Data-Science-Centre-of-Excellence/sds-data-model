@@ -6,6 +6,7 @@ from typing import Any, Dict, Generator, List, Optional, Tuple, TypeVar, Type
 from affine import Affine
 from dask.delayed import Delayed
 from geopandas import GeoDataFrame, read_file
+from numpy import dtype, ndarray
 from pandas import DataFrame, Series
 from shapely.geometry import box
 from xarray import DataArray, Dataset, merge
@@ -53,7 +54,7 @@ class VectorTile:
         data_path: str,
         bbox: BoundingBox,
         **kwargs: Dict[str, Any],
-    ) -> "VectorTile":
+    ) -> _VectorTileType:
         gpdf = _from_file(
             data_path=data_path,
             bbox=bbox,
@@ -65,14 +66,14 @@ class VectorTile:
             gpdf=gpdf,
         )
 
-    def select(self: _VectorTileType, columns: List[str]) -> "VectorTile":
+    def select(self: _VectorTileType, columns: List[str]) -> _VectorTileType:
         gpdf = _select(gpdf=self.gpdf, columns=columns)
         return VectorTile(
             bbox=self.bbox,
             gpdf=gpdf,
         )
 
-    def where(self: _VectorTileType, condition: Series) -> "VectorTile":
+    def where(self: _VectorTileType, condition: Series) -> _VectorTileType:
         gpdf = _where(gpdf=self.gpdf, condition=condition)
         return VectorTile(
             bbox=self.bbox,
@@ -85,7 +86,7 @@ class VectorTile:
         how: str,
         fillna: Optional[Dict[str, Any]] = None,
         **kwargs,
-    ) -> "VectorTile":
+    ) -> _VectorTileType:
         gpdf = _join(
             gpdf=self.gpdf,
             other=other,
@@ -103,7 +104,7 @@ class VectorTile:
         out_shape: Tuple[int, int] = OUT_SHAPE,
         invert: bool = True,
         dtype: str = "uint8",
-    ) -> Delayed:
+    ) -> ndarray[Any, dtype]:
         mask = _get_mask(
             gpdf=self.gpdf,
             out_shape=out_shape,
@@ -119,7 +120,7 @@ class VectorTile:
         column: str,
         out_shape: Tuple[int, int] = OUT_SHAPE,
         dtype: str = "uint8",
-    ) -> Delayed:
+    ) -> ndarray[Any, dtype]:
         raster = _to_raster(
             gpdf=self.gpdf,
             column=column,
@@ -133,7 +134,7 @@ class VectorTile:
     def get_col_dtype(
         self: _VectorTileType,
         column: str,
-    ) -> str:
+    ) -> Optional[str]:
         """This method calls _get_col_dtype on an individual vectortile."""
         return _get_col_dtype(
             gpdf=self.gpdf,
@@ -141,7 +142,7 @@ class VectorTile:
         )
 
 
-_TiledVectorLayer = TypeVar("_TiledVectorLayer", bound="TiledVectorLayer")
+_TiledVectorLayer = TypeVar("_TiledVectorLayer", bound=_TiledVectorLayer)
 
 
 @dataclass
@@ -158,7 +159,7 @@ class TiledVectorLayer:
         data_kwargs: Optional[Dict[str, Any]] = None,
         metadata_path: Optional[str] = None,
         name: Optional[str] = None,
-    ) -> "TiledVectorLayer":
+    ) -> _TiledVectorLayer:
         if data_kwargs:
             tiles = (
                 VectorTile.from_file(
@@ -191,7 +192,7 @@ class TiledVectorLayer:
 
         info(f"Read metadata from {metadata_path}.")
 
-        _name = name if name else metadata["title"]
+        _name = name if name else metadata["title"] if metadata else None
 
         return cls(
             name=_name,
@@ -199,8 +200,8 @@ class TiledVectorLayer:
             metadata=metadata,
         )
 
-    def select(self: _TiledVectorLayer, columns: List[str]) -> "TiledVectorLayer":
-        tiles = tuple(tile.select(columns) for tile in self.tiles)
+    def select(self: _TiledVectorLayer, columns: List[str]) -> _TiledVectorLayer:
+        tiles = (tile.select(columns) for tile in self.tiles)
 
         tiled_vector_layer = TiledVectorLayer(
             name=self.name,
@@ -212,7 +213,7 @@ class TiledVectorLayer:
 
         return tiled_vector_layer
 
-    def where(self: _TiledVectorLayer, condition: Series) -> "TiledVectorLayer":
+    def where(self: _TiledVectorLayer, condition: Series) -> _TiledVectorLayer:
         tiles = tuple(tile.where(condition) for tile in self.tiles)
 
         tiled_vector_layer = TiledVectorLayer(
@@ -231,7 +232,7 @@ class TiledVectorLayer:
         how: str = "left",
         fillna: Optional[Dict[str, Any]] = None,
         **kwargs,
-    ) -> "TiledVectorLayer":
+    ) -> _TiledVectorLayer:
         tiles = tuple(
             tile.join(
                 other=other,
@@ -336,7 +337,7 @@ class VectorLayer:
         else:
             metadata = Metadata.from_file(metadata_path)
 
-        _name = name if name else metadata["title"]
+        _name = name if name else metadata["title"] if metadata else None
 
         return cls(
             name=_name,

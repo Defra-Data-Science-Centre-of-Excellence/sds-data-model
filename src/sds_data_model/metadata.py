@@ -5,16 +5,19 @@ from lxml.etree import Element, parse
 
 from sds_data_model.constants import TITLE_XPATH
 
-MetadataType = TypeVar("MetadataType", bound="Metadata")
-
 
 def _get_value(root_element: Element, xpath: Union[str, List], namespaces: Dict) -> str:
     if isinstance(xpath, str):
         _xpath = xpath
     elif isinstance(xpath, list):
         _xpath = "/".join(xpath)
-    title_element = root_element.xpath(_xpath, namespaces=namespaces)
-    return title_element[0].text
+    element = root_element.xpath(_xpath, namespaces=namespaces)
+    #! `element_text` must be explicitly coerced `.text` returns `Any`
+    element_text = str(element[0].text)
+    return element_text
+
+
+MetadataType = TypeVar("MetadataType", bound="Metadata")
 
 
 @dataclass
@@ -59,7 +62,7 @@ class Metadata:
     # metadata_standard_version: Optional[str] #! Optional
 
     @classmethod
-    def from_file(cls: Type[MetadataType], xml_path: str) -> "Metadata":
+    def from_file(cls: Type[MetadataType], xml_path: str) -> MetadataType:
 
         xml = parse(xml_path)
 

@@ -7,7 +7,7 @@ from dask.array import block, from_delayed
 from dask.delayed import Delayed, delayed
 from geopandas import GeoDataFrame, read_file
 from more_itertools import chunked
-from numpy import arange, ones, zeros
+from numpy import arange, dtype, ndarray, ones, zeros
 from pandas import DataFrame, Series, merge
 from rasterio.dtypes import get_minimum_dtype
 from rasterio.features import geometry_mask, rasterize
@@ -25,6 +25,7 @@ from sds_data_model.constants import (
     OUT_SHAPE,
     BoundingBox,
 )
+
 from sds_data_model.metadata import Metadata
 
 
@@ -33,7 +34,7 @@ def _from_file(
     data_path: str,
     bbox: BoundingBox,
     **kwargs: Dict[str, Any],
-) -> Delayed:
+) -> GeoDataFrame:
     """Returns a delayed GeoDataFrame clipped to a given bounding box."""
     return read_file(
         filename=data_path,
@@ -43,25 +44,25 @@ def _from_file(
 
 
 @delayed
-def _select(gpdf: Delayed, columns: List[str]) -> Delayed:
+def _select(gpdf: GeoDataFrame, columns: List[str]) -> GeoDataFrame:
     """Returns given columns from a delayed GeoDataFrame."""
     return gpdf[columns]
 
 
 @delayed
-def _where(gpdf: Delayed, condition: Series) -> Delayed:
+def _where(gpdf: GeoDataFrame, condition: Series) -> GeoDataFrame:
     """Returns a delayed GeoDataFrame filtered by a given condition."""
     return gpdf[condition]
 
 
 @delayed
 def _join(
-    gpdf: Delayed,
+    gpdf: GeoDataFrame,
     other: DataFrame,
     how: str,
     fillna: Optional[Dict[str, Any]] = None,
     **kwargs,
-) -> Delayed:
+) -> GeoDataFrame:
     """Returns a delayed GeoDataFrame joined to a given DataFrame."""
     _gpdf = merge(
         left=gpdf,
@@ -82,7 +83,7 @@ def _get_mask(
     out_shape: Tuple[int, int],
     dtype: str,
     transform: Affine,
-) -> Delayed:
+) -> ndarray[Any, dtype[Any]]:
     """Returns a delayed boolean Numpy ndarray where 1 means the pixel overlaps a geometry."""
     if all(gpdf.geometry.is_empty) and invert:
         return zeros(
@@ -95,12 +96,14 @@ def _get_mask(
             dtype=dtype,
         )
     else:
-        return geometry_mask(
+        #! `mask` must be explicitly typed because `.astype` returns `Any`
+        mask: ndarray[Any, dtype[Any]] = geometry_mask(
             geometries=gpdf.geometry,
             out_shape=out_shape,
             transform=transform,
             invert=invert,
         ).astype(dtype)
+        return mask
 
 
 def _get_shapes(
@@ -112,20 +115,15 @@ def _get_shapes(
         (geometry, value) for geometry, value in zip(gpdf["geometry"], gpdf[column])
     )
 
-def _get_col_dtype(
-    gpdf: GeoDataFrame,
-    column: str,
-) -> str:
-    """This method takes a vectortile and returns the minimum rasterio data type required to represent the data in the column of interest."""
-    return get_minimum_dtype(gpdf[column])
-
 
 def _get_col_dtype(
     gpdf: GeoDataFrame,
     column: str,
-) -> str:
+) -> Optional[str]:
     """This method takes a vectortile and returns the minimum rasterio data type required to represent the data in the column of interest."""
-    return get_minimum_dtype(gpdf[column])
+    #! `minimum_dtype` must be explicitly typed because `mypy` doesn't understand `get_minimum_dtype`s return type
+    minimum_dtype: Optional[str] = get_minimum_dtype(gpdf[column])
+    return minimum_dtype
 
 
 @delayed
@@ -136,7 +134,7 @@ def _to_raster(
     dtype: str,
     transform: Affine,
     **kwargs,
-) -> Delayed:
+) -> ndarray[Any, dtype[Any]]:
     """Returns a delayed boolean Numpy ndarray with values taken from a given column."""
     if all(gpdf.geometry.is_empty):
         return zeros(
@@ -148,19 +146,21 @@ def _to_raster(
             gpdf=gpdf,
             column=column,
         )
-        return rasterize(
+        #! `raster` must be explicitly typed because `rasterize` returns `Any`
+        raster: ndarray[Any, dtype[Any]] = rasterize(
             shapes=shapes,
             out_shape=out_shape,
             transform=transform,
             dtype=dtype,
             **kwargs,
         )
+        return raster
 
 
 def _from_delayed_to_data_array(
-    delayed_arrays: Tuple[Delayed],
+    delayed_arrays: Tuple[ndarray[Any, dtype[Any]], ...],
     name: str,
-    metadata: Metadata,
+    metadata: Optional[Metadata],
     dtype: str,
 ) -> DataArray:
     """Converts a 1D delayed Numpy array into a 2D DataArray."""
