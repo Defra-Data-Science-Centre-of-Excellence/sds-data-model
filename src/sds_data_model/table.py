@@ -86,6 +86,11 @@ class TableLayer:
                        ".json": read_json,
                        ".xlsx": read_excel,
                        ".xls": read_excel,
+                       ".xlsm": read_excel,
+                       ".xlsb": read_excel,
+                       ".odf": read_excel,
+                       ".ods": read_excel,
+                       ".odt": read_excel, 
                        ".parquet": read_parquet}
         suffix = Path(data_path).suffix
 
