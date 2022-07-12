@@ -35,6 +35,11 @@
           </gmd:keyword>
         </gmd:MD_Keywords>
       </gmd:descriptiveKeywords>
+      <gmd:spatialRepresentationType>
+            <gmd:MD_SpatialRepresentationTypeCode 
+            codeList='https://schemas.isotc211.org/schemas/19139/resources/codelist/gmxCodelists.xml#MD_SpatialRepresentationTypeCode' 
+            codeListValue='textTable' />
+         </gmd:spatialRepresentationType>
 </gmd:MD_DataIdentification>
 </gmd:identificationInfo>
   <gmd:dataQualityInfo>
