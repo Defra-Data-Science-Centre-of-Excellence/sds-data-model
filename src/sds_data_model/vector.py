@@ -246,7 +246,7 @@ class TiledVectorLayer:
         """This method instantiates the tiles so that they can be used in subsequent methods.
         get_col_dtypes is called on all vectortiles, removes None (due to tiles on irish sea),
         Gets the index location of each dtype from the constant list and returns the maximum index
-        location (most complex data type) to accomodate all tiles in the layer, for every column provided"""
+        location (most complex data type) to accommodate all tiles in the layer, for every column provided"""
 
         tiles = list(self.tiles)
 
