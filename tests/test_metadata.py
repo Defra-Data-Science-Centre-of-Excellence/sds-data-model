@@ -7,7 +7,7 @@ expected = Metadata(
 
 def test_from_files(datadir) -> None:
     # Arrange
-    metadata_path = datadir / "title.xml"
+    metadata_path = datadir / "example.xml"
     # Act
     recieved = Metadata.from_file(
         xml_path=str(metadata_path),
