@@ -6,6 +6,7 @@ expected = Metadata(
     topic_category=("geoscientificInformation", "environment"),
     keyword=("satellite imagery", "earth observation"),
     quality_scope=("dataset",),
+    spatial_representation_type=("textTable",),
 )
 
 

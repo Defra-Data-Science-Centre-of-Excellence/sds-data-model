@@ -9,6 +9,7 @@ from sds_data_model.constants import (
     TOPIC_CATEGORY_XPATH,
     KEYWORD_XPATH,
     QUALITY_SCOPE_XPATH,
+    SPATIAL_REPRESENTATION_TYPE_XPATH,
 )
 
 MetadataType = TypeVar("MetadataType", bound="Metadata")
@@ -31,7 +32,7 @@ def _get_target_elements(
     return root_element.xpath(_xpath, namespaces=namespaces)
 
 
-def _get_value(
+def _get_text_value(
     root_element: Element,
     xpath: Union[str, List],
     namespaces: Dict,
@@ -44,7 +45,7 @@ def _get_value(
     return target_elements[0].text.strip()
 
 
-def _get_values(
+def _get_text_values(
     root_element: Element,
     xpath: Union[str, List],
     namespaces: Dict,
@@ -55,6 +56,20 @@ def _get_values(
         namespaces=namespaces,
     )
     return tuple(target_element.text.strip() for target_element in target_elements)
+
+
+def _get_attribute_values(
+    root_element: Element,
+    xpath: Union[str, List],
+    namespaces: Dict,
+    attribute: str,
+) -> Tuple[str, ...]:
+    target_elements = _get_target_elements(
+        root_element,
+        xpath=xpath,
+        namespaces=namespaces,
+    )
+    return tuple(target_element.get(attribute) for target_element in target_elements)
 
 
 @dataclass
@@ -91,7 +106,7 @@ class Metadata:
     # hierarchy_level_name: Optional[str]  #! Conditional
     quality_scope: Tuple[str]
     # parent_identifier: Optional[str] #! Optional
-    # spatial_representation_type: List[str]
+    spatial_representation_type: Tuple[str]
     # character_encoding: Optional[List[str]] = field(default_factory=list)  #! Conditional
     # data_quality: Optional[List[str]] = field(default_factory=list)  #! Conditional
     # maintenance_information: Optional[str] #! Optional
@@ -107,34 +122,41 @@ class Metadata:
 
         namespaces = root_element.nsmap
 
-        title = _get_value(
+        title = _get_text_value(
             root_element=root_element,
             namespaces=namespaces,
             xpath=TITLE_XPATH,
         )
 
-        dataset_language = _get_values(
+        dataset_language = _get_text_values(
             root_element=root_element,
             namespaces=namespaces,
             xpath=DATASET_LANGUAGE_XPATH,
         )
 
-        topic_category = _get_values(
+        topic_category = _get_text_values(
             root_element=root_element,
             namespaces=namespaces,
             xpath=TOPIC_CATEGORY_XPATH,
         )
 
-        keyword = _get_values(
+        keyword = _get_text_values(
             root_element=root_element,
             namespaces=namespaces,
             xpath=KEYWORD_XPATH,
         )
 
-        quality_scope = _get_values(
+        quality_scope = _get_text_values(
             root_element=root_element,
             namespaces=namespaces,
             xpath=QUALITY_SCOPE_XPATH,
+        )
+
+        spatial_representation_type =_get_attribute_values(
+            root_element=root_element,
+            namespaces=namespaces,
+            xpath=SPATIAL_REPRESENTATION_TYPE_XPATH,
+            attribute="codeListValue",
         )
 
         return cls(
@@ -143,4 +165,5 @@ class Metadata:
             topic_category=topic_category,
             keyword=keyword,
             quality_scope=quality_scope,
+            spatial_representation_type=spatial_representation_type,
         )
