@@ -25,7 +25,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Setup
-        uses: ./actions/setup-action
+        uses: ./actions/setup-environment
       - name: Run nox
         run: poetry run nox -s isort black
   static-type-analysis:
@@ -43,6 +43,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Setup
-        uses: ./actions/setup-action
+        uses: ./actions/setup-environment
       - name: Run nox
         run: poetry run nox -s mypy
