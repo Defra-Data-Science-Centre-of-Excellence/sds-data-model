@@ -3,7 +3,11 @@ from typing import Dict, List, Tuple, TypeVar, Union
 
 from lxml.etree import Element, parse
 
-from sds_data_model.constants import TITLE_XPATH, DATASET_LANGUAGE_XPATH
+from sds_data_model.constants import (
+    TITLE_XPATH,
+    DATASET_LANGUAGE_XPATH,
+    TOPIC_CATEGORY_XPATH,
+)
 
 MetadataType = TypeVar("MetadataType", bound="Metadata")
 
@@ -57,7 +61,7 @@ class Metadata:
     # alternative_title: Optional[List[str]] = field(default_factory=list) #! Optional
     dataset_language: Tuple[str]
     # abstract: str
-    # topic_category: Tuple[str]
+    topic_category: Tuple[str]
     # keyword: Tuple[str]
     # temporal_extent: Dict[str, Any]
     # dataset_reference_date: List[str]
@@ -113,7 +117,14 @@ class Metadata:
             xpath=DATASET_LANGUAGE_XPATH,
         )
 
+        topic_category = _get_values(
+            root_element=root_element,
+            namespaces=namespaces,
+            xpath=TOPIC_CATEGORY_XPATH,
+        )
+
         return cls(
             title=title,
             dataset_language=dataset_language,
+            topic_category=topic_category,
         )
