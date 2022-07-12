@@ -7,6 +7,7 @@ from sds_data_model.constants import (
     TITLE_XPATH,
     DATASET_LANGUAGE_XPATH,
     TOPIC_CATEGORY_XPATH,
+    KEYWORD_XPATH,
 )
 
 MetadataType = TypeVar("MetadataType", bound="Metadata")
@@ -62,7 +63,7 @@ class Metadata:
     dataset_language: Tuple[str]
     # abstract: str
     topic_category: Tuple[str]
-    # keyword: Tuple[str]
+    keyword: Tuple[str]
     # temporal_extent: Dict[str, Any]
     # dataset_reference_date: List[str]
     # lineage: str
@@ -123,8 +124,15 @@ class Metadata:
             xpath=TOPIC_CATEGORY_XPATH,
         )
 
+        keyword = _get_values(
+            root_element=root_element,
+            namespaces=namespaces,
+            xpath=KEYWORD_XPATH,
+        )
+
         return cls(
             title=title,
             dataset_language=dataset_language,
             topic_category=topic_category,
+            keyword=keyword,
         )
