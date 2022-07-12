@@ -8,6 +8,7 @@ from sds_data_model.constants import (
     DATASET_LANGUAGE_XPATH,
     TOPIC_CATEGORY_XPATH,
     KEYWORD_XPATH,
+    QUALITY_SCOPE_XPATH,
 )
 
 MetadataType = TypeVar("MetadataType", bound="Metadata")
@@ -88,7 +89,7 @@ class Metadata:
     # bounding_box: List[str]
     # file_identifier: str
     # hierarchy_level_name: Optional[str]  #! Conditional
-    # quality_scope: List[str]
+    quality_scope: Tuple[str]
     # parent_identifier: Optional[str] #! Optional
     # spatial_representation_type: List[str]
     # character_encoding: Optional[List[str]] = field(default_factory=list)  #! Conditional
@@ -130,9 +131,16 @@ class Metadata:
             xpath=KEYWORD_XPATH,
         )
 
+        quality_scope = _get_values(
+            root_element=root_element,
+            namespaces=namespaces,
+            xpath=QUALITY_SCOPE_XPATH,
+        )
+
         return cls(
             title=title,
             dataset_language=dataset_language,
             topic_category=topic_category,
             keyword=keyword,
+            quality_scope=quality_scope,
         )

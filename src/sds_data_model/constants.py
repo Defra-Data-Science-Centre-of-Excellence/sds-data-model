@@ -52,6 +52,15 @@ KEYWORD_XPATH = [
     "gco:CharacterString",
 ]
 
+QUALITY_SCOPE_XPATH = [
+    "gmd:dataQualityInfo",
+    "gmd:DQ_DataQuality",
+    "gmd:scope",
+    "gmd:DQ_Scope",
+    "gmd:level",
+    "gmd:MD_ScopeCode",
+]
+
 # Type alias, i.e. a BoundingBox is a Tuple of 4 integers
 # See https://docs.python.org/3.8/library/typing.html#type-aliases
 BoundingBox = Tuple[int, int, int, int]
