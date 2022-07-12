@@ -30,6 +30,7 @@ s3fs = "^2022.3.0"
 more-itertools = "^8.12.0"
 xlrd = "^2.0.1"
 openpyxl = "^3.0.10"
+networkx = "^2.8.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
