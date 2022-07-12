@@ -1,17 +1,16 @@
-from asyncio import run
 from dataclasses import asdict
-from typing import Any, Dict, Generator, List, Optional, Tuple, Union
+from typing import Any, Dict, Generator, List, Optional, Tuple
 
 from affine import Affine
 from dask.array import block, from_delayed
-from dask.delayed import Delayed, delayed
+from dask.delayed import delayed
 from geopandas import GeoDataFrame, read_file
 from more_itertools import chunked
-from numpy import arange, dtype, ndarray, ones, zeros
+from numpy import arange, ones, zeros
+from numpy.typing import NDArray
 from pandas import DataFrame, Series, merge
 from rasterio.dtypes import get_minimum_dtype
 from rasterio.features import geometry_mask, rasterize
-from rasterio.dtypes import get_minimum_dtype
 from shapely.geometry import box
 from shapely.geometry.base import BaseGeometry
 from xarray import DataArray
@@ -25,7 +24,6 @@ from sds_data_model.constants import (
     OUT_SHAPE,
     BoundingBox,
 )
-
 from sds_data_model.metadata import Metadata
 
 
@@ -83,7 +81,7 @@ def _get_mask(
     out_shape: Tuple[int, int],
     dtype: str,
     transform: Affine,
-) -> ndarray[Any, dtype[Any]]:
+) -> NDArray[Any]:
     """Returns a delayed boolean Numpy ndarray where 1 means the pixel overlaps a geometry."""
     if all(gpdf.geometry.is_empty) and invert:
         return zeros(
@@ -97,7 +95,7 @@ def _get_mask(
         )
     else:
         #! `mask` must be explicitly typed because `.astype` returns `Any`
-        mask: ndarray[Any, dtype[Any]] = geometry_mask(
+        mask: NDArray[Any] = geometry_mask(
             geometries=gpdf.geometry,
             out_shape=out_shape,
             transform=transform,
@@ -134,7 +132,7 @@ def _to_raster(
     dtype: str,
     transform: Affine,
     **kwargs,
-) -> ndarray[Any, dtype[Any]]:
+) -> NDArray[Any]:
     """Returns a delayed boolean Numpy ndarray with values taken from a given column."""
     if all(gpdf.geometry.is_empty):
         return zeros(
@@ -147,7 +145,7 @@ def _to_raster(
             column=column,
         )
         #! `raster` must be explicitly typed because `rasterize` returns `Any`
-        raster: ndarray[Any, dtype[Any]] = rasterize(
+        raster: NDArray[Any] = rasterize(
             shapes=shapes,
             out_shape=out_shape,
             transform=transform,
@@ -158,7 +156,7 @@ def _to_raster(
 
 
 def _from_delayed_to_data_array(
-    delayed_arrays: Tuple[ndarray[Any, dtype[Any]], ...],
+    delayed_arrays: Generator[NDArray[Any], None, None],
     name: str,
     metadata: Optional[Metadata],
     dtype: str,
@@ -179,3 +177,15 @@ def _from_delayed_to_data_array(
         name=name,
         attrs=_metadata,
     )
+
+
+def _get_name(
+    metadata: Optional[Metadata],
+    name: Optional[str],
+) -> str:
+    if name:
+        return name
+    elif metadata:
+        return metadata.title
+    else:
+        raise ValueError("If there isn't any metadata, a name must be supplied.")
