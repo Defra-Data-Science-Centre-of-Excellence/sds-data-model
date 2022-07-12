@@ -16,6 +16,7 @@ MetadataType = TypeVar("MetadataType", bound="Metadata")
 
 
 def _get_xpath(xpath: Union[str, List[str]]) -> str:
+    """Construct an xpath query from a string or list of strings."""
     if isinstance(xpath, str):
         _xpath = xpath
     elif isinstance(xpath, list):
@@ -28,6 +29,7 @@ def _get_target_elements(
     xpath: Union[str, List[str]],
     namespaces: Dict[str, str],
 ) -> List[Element]:
+    """Get a list of Elements using a xpath query."""
     _xpath = _get_xpath(xpath)
     target_elements: List[Element] = root_element.xpath(_xpath, namespaces=namespaces)
     return target_elements
@@ -38,6 +40,7 @@ def _get_text_value(
     xpath: Union[str, List[str]],
     namespaces: Dict[str, str],
 ) -> str:
+    """Get a single text value from a xpath query."""
     target_elements = _get_target_elements(
         root_element,
         xpath=xpath,
@@ -52,6 +55,7 @@ def _get_text_values(
     xpath: Union[str, List[str]],
     namespaces: Dict[str, str],
 ) -> Tuple[str, ...]:
+    """Get a sequence of text values from a xpath query."""
     target_elements = _get_target_elements(
         root_element,
         xpath=xpath,
@@ -66,6 +70,7 @@ def _get_attribute_values(
     namespaces: Dict[str, str],
     attribute: str,
 ) -> Tuple[str, ...]:
+    """Get a sequence of attribute values from a xpath query."""
     target_elements = _get_target_elements(
         root_element,
         xpath=xpath,
