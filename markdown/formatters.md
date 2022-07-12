@@ -104,10 +104,7 @@ If you're feeling really brave, you can also set VS Code to autosave so that you
 
 ## As part of a CI pipeline
 
-This project uses GitHub Action for Continuos Integration. The CI workflow is defined
-in `.github/workflows/python-package.yml`. This workflow will run the full nox test
-suite, include the `black` and `isort` sessions, whenever code is pushed to the
-`develop` branch or pull requests into `develop` are triggered.
+This project uses GitHub Action for Continuos Integration. The CI workflow is defined in `.github/workflows/python-package.yml`. This workflow will run the  `black` and `isort` sessions as part of the `format` job, whenever code is pushed to the `develop` branch or pull requests into `develop` are triggered.
 
 [^1]: https://pycqa.github.io/isort/index.html
 [^2]: https://black.readthedocs.io/en/stable/the_black_code_style/index.html
