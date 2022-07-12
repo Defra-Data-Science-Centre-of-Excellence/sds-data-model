@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Tuple, TypeVar, Union
+from typing import Dict, List, Tuple, Type, TypeVar, Union
 
 from lxml.etree import Element, parse
 
@@ -15,7 +15,7 @@ from sds_data_model.constants import (
 MetadataType = TypeVar("MetadataType", bound="Metadata")
 
 
-def _get_xpath(xpath: Union[str, List]) -> str:
+def _get_xpath(xpath: Union[str, List[str]]) -> str:
     if isinstance(xpath, str):
         _xpath = xpath
     elif isinstance(xpath, list):
@@ -25,30 +25,32 @@ def _get_xpath(xpath: Union[str, List]) -> str:
 
 def _get_target_elements(
     root_element: Element,
-    xpath: Union[str, List],
-    namespaces: Dict,
-) -> str:
+    xpath: Union[str, List[str]],
+    namespaces: Dict[str, str],
+) -> List[Element]:
     _xpath = _get_xpath(xpath)
-    return root_element.xpath(_xpath, namespaces=namespaces)
+    target_elements: List[Element] = root_element.xpath(_xpath, namespaces=namespaces)
+    return target_elements
 
 
 def _get_text_value(
     root_element: Element,
-    xpath: Union[str, List],
-    namespaces: Dict,
+    xpath: Union[str, List[str]],
+    namespaces: Dict[str, str],
 ) -> str:
     target_elements = _get_target_elements(
         root_element,
         xpath=xpath,
         namespaces=namespaces,
     )
-    return target_elements[0].text.strip()
+    target_element: str = target_elements[0].text.strip()
+    return target_element
 
 
 def _get_text_values(
     root_element: Element,
-    xpath: Union[str, List],
-    namespaces: Dict,
+    xpath: Union[str, List[str]],
+    namespaces: Dict[str, str],
 ) -> Tuple[str, ...]:
     target_elements = _get_target_elements(
         root_element,
@@ -60,8 +62,8 @@ def _get_text_values(
 
 def _get_attribute_values(
     root_element: Element,
-    xpath: Union[str, List],
-    namespaces: Dict,
+    xpath: Union[str, List[str]],
+    namespaces: Dict[str, str],
     attribute: str,
 ) -> Tuple[str, ...]:
     target_elements = _get_target_elements(
@@ -76,10 +78,10 @@ def _get_attribute_values(
 class Metadata:
     title: str
     # alternative_title: Optional[List[str]] = field(default_factory=list) #! Optional
-    dataset_language: Tuple[str]
+    dataset_language: Tuple[str, ...]
     # abstract: str
-    topic_category: Tuple[str]
-    keyword: Tuple[str]
+    topic_category: Tuple[str, ...]
+    keyword: Tuple[str, ...]
     # temporal_extent: Dict[str, Any]
     # dataset_reference_date: List[str]
     # lineage: str
@@ -104,9 +106,9 @@ class Metadata:
     # bounding_box: List[str]
     # file_identifier: str
     # hierarchy_level_name: Optional[str]  #! Conditional
-    quality_scope: Tuple[str]
+    quality_scope: Tuple[str, ...]
     # parent_identifier: Optional[str] #! Optional
-    spatial_representation_type: Tuple[str]
+    spatial_representation_type: Tuple[str, ...]
     # character_encoding: Optional[List[str]] = field(default_factory=list)  #! Conditional
     # data_quality: Optional[List[str]] = field(default_factory=list)  #! Conditional
     # maintenance_information: Optional[str] #! Optional
@@ -114,7 +116,7 @@ class Metadata:
     # metadata_standard_version: Optional[str] #! Optional
 
     @classmethod
-    def from_file(cls: MetadataType, xml_path: str) -> MetadataType:
+    def from_file(cls: Type[MetadataType], xml_path: str) -> MetadataType:
 
         xml = parse(xml_path)
 
