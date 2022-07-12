@@ -11,6 +11,7 @@ from more_itertools import chunked
 from numpy import arange, ones, zeros
 from pandas import DataFrame, Series, merge
 from rasterio.features import geometry_mask, rasterize
+from rasterio.dtypes import get_minimum_dtype
 from shapely.geometry import box
 from shapely.geometry.base import BaseGeometry
 from xarray import DataArray
@@ -33,6 +34,7 @@ def _from_file(
     bbox: BoundingBox,
     **kwargs,
 ) -> Delayed:
+    """Returns a delayed GeoDataFrame clipped to a given bounding box."""
     return read_file(
         filename=data_path,
         bbox=box(*bbox),
@@ -42,11 +44,13 @@ def _from_file(
 
 @delayed
 def _select(gpdf: Delayed, columns: List[str]) -> Delayed:
+    """Returns given columns from a delayed GeoDataFrame."""
     return gpdf[columns]
 
 
 @delayed
 def _where(gpdf: Delayed, condition: Series) -> Delayed:
+    """Returns a delayed GeoDataFrame filtered by a given condition."""
     return gpdf[condition]
 
 
@@ -58,6 +62,7 @@ def _join(
     fillna: Optional[Dict[str, Any]] = None,
     **kwargs,
 ) -> Delayed:
+    """Returns a delayed GeoDataFrame joined to a given DataFrame."""
     _gpdf = merge(
         left=gpdf,
         right=other,
@@ -78,6 +83,7 @@ def _get_mask(
     dtype: str,
     transform: Affine,
 ) -> Delayed:
+    """Returns a delayed boolean Numpy ndarray where 1 means the pixel overlaps a geometry."""
     if all(gpdf.geometry.is_empty) and invert:
         return zeros(
             shape=out_shape,
@@ -99,23 +105,32 @@ def _get_mask(
 
 def _get_shapes(
     gpdf: GeoDataFrame,
-    categorical_column: str,
+    column: str,
 ) -> Generator[Tuple[BaseGeometry, Any], None, None]:
+    """Yields (Geometry, value) tuples for every row in a GeoDataFrame."""
     return (
         (geometry, value)
-        for geometry, value in zip(gpdf["geometry"], gpdf[categorical_column])
+        for geometry, value in zip(gpdf["geometry"], gpdf[column])
     )
+
+def _get_col_dtype(
+    gpdf: GeoDataFrame,
+    column: str,
+) -> str:
+    """This method takes a vectortile and returns the minimum rasterio data type required to represent the data in the column of interest."""
+    return get_minimum_dtype(gpdf[column])
 
 
 @delayed
-def _to_categorical_raster(
+def _to_raster(
     gpdf: GeoDataFrame,
-    categorical_column: str,
+    column: str,
     out_shape: Tuple[int, int],
     dtype: str,
     transform: Affine,
     **kwargs,
 ) -> Delayed:
+    """Returns a delayed boolean Numpy ndarray with values taken from a given column."""
     if all(gpdf.geometry.is_empty):
         return zeros(
             shape=out_shape,
@@ -124,7 +139,7 @@ def _to_categorical_raster(
     else:
         shapes = _get_shapes(
             gpdf=gpdf,
-            categorical_column=categorical_column,
+            column=column,
         )
         return rasterize(
             shapes=shapes,
@@ -139,9 +154,11 @@ def _from_delayed_to_data_array(
     delayed_arrays: Tuple[Delayed],
     name: str,
     metadata: Metadata,
+    dtype: str,
 ) -> DataArray:
+    """Converts a 1D delayed Numpy array into a 2D DataArray."""
     dask_arrays = tuple(
-        from_delayed(mask, dtype="uint8", shape=OUT_SHAPE) for mask in delayed_arrays
+        from_delayed(mask, dtype=dtype, shape=OUT_SHAPE) for mask in delayed_arrays
     )
     rows = chunked(dask_arrays, 7)
     data = block(list(rows))

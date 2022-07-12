@@ -8,7 +8,7 @@ from dask.delayed import Delayed
 from geopandas import GeoDataFrame, read_file
 from pandas import DataFrame, Series
 from shapely.geometry import box
-from xarray import DataArray
+from xarray import DataArray, Dataset, merge
 
 from sds_data_model._vector import (
     _from_delayed_to_data_array,
@@ -16,8 +16,9 @@ from sds_data_model._vector import (
     _get_mask,
     _join,
     _select,
-    _to_categorical_raster,
+    _to_raster,
     _where,
+    _get_col_dtype,
 )
 from sds_data_model.constants import (
     BBOXES,
@@ -25,6 +26,7 @@ from sds_data_model.constants import (
     BNG,
     BoundingBox,
     OUT_SHAPE,
+    raster_dtype_levels,
 )
 from sds_data_model.metadata import Metadata
 
@@ -111,21 +113,32 @@ class VectorTile:
 
         return mask
 
-    def to_categorical_raster(
+    def to_raster(
         self: _VectorTile,
-        categorical_column: str,
+        column: str,
         out_shape: Tuple[int, int] = OUT_SHAPE,
         dtype: str = "uint8",
     ) -> Delayed:
-        categorical_raster = _to_categorical_raster(
+        raster = _to_raster(
             gpdf=self.gpdf,
-            categorical_column=categorical_column,
+            column=column,
             out_shape=out_shape,
             transform=self.transform,
             dtype=dtype,
         )
 
-        return categorical_raster
+        return raster
+    
+    def get_col_dtype(
+        self: _VectorTile,
+        column: str,
+    ) -> str:
+        """This method calls _get_col_dtype on an individual vectortile."""
+        return _get_col_dtype(
+            gpdf=self.gpdf,
+            column=column,
+        )
+
 
 
 _TiledVectorLayer = TypeVar("_TiledVectorLayer", bound="TiledVectorLayer")
@@ -135,7 +148,7 @@ _TiledVectorLayer = TypeVar("_TiledVectorLayer", bound="TiledVectorLayer")
 class TiledVectorLayer:
     name: str
     tiles: Generator[VectorTile, None, None]
-    metadata: Metadata
+    metadata: Optional[Metadata]
 
     @classmethod
     def from_files(
@@ -163,7 +176,7 @@ class TiledVectorLayer:
         #     raise TypeError(f"CRS must be {BNG}, not {gpdf.crs.name}")
 
         if not metadata_path:
-            metadata = ""
+            metadata = None
         else:
             metadata = Metadata.from_file(metadata_path)
 
@@ -243,24 +256,52 @@ class TiledVectorLayer:
 
         return data_array
 
-    def to_data_array_as_categorical_raster(
+    def to_dataset_as_raster(
         self: _TiledVectorLayer,
-        categorical_column: str,
-    ) -> DataArray:
-        delayed_categorical_rasters = (
-            tile.to_categorical_raster(categorical_column=categorical_column)
-            for tile in self.tiles
+        columns: List[str],
+    ) -> Dataset:
+        """This method instantiates the tiles so that they can be used in subsequent methods.
+        get_col_dtypes is called on all vectortiles, removes None (due to tiles on irish sea), 
+        Gets the index location of each dtype from the constant list and returns the maximum index 
+        location (most complex data type) to accomodate all tiles in the layer, for every column provided"""
+        
+        tiles = list(self.tiles)
+
+        col_dtypes = (
+            (
+                tile.get_col_dtype(column=i)
+                for tile in tiles
+            ) 
+            for i in columns
         )
 
-        data_array = _from_delayed_to_data_array(
-            delayed_arrays=delayed_categorical_rasters,
-            name=self.name,
-            metadata=self.metadata,
+        col_dtypes_clean = [[x for x in list(i) if x is not None] for i in col_dtypes]
+        col_dtypes_levels = [[raster_dtype_levels.index(x) for x in i] for i in col_dtypes_clean]
+        dtype = [raster_dtype_levels[max(i)] for i in col_dtypes_levels]
+
+        delayed_rasters = (
+            (
+                tile.to_raster(column=i, dtype=j)
+                for tile in tiles
+            ) 
+            for i, j in zip(columns, dtype)
         )
 
-        info(f"Converted to DataArray as categorical raster.")
+        dataset = merge(
+            [
+                _from_delayed_to_data_array(
+                    delayed_arrays=i,
+                    name=j,
+                    metadata=self.metadata,
+                    dtype=k,
+                ) 
+                for i, j, k in zip(delayed_rasters, columns, dtype)
+            ]
+        )
 
-        return data_array
+        info(f"Converted to Dataset as raster.")
+
+        return dataset
 
 
 _VectorLayer = TypeVar("_VectorLayer", bound="VectorLayer")
@@ -270,7 +311,7 @@ _VectorLayer = TypeVar("_VectorLayer", bound="VectorLayer")
 class VectorLayer:
     name: str
     gpdf: GeoDataFrame
-    metadata: Metadata
+    metadata: Optional[Metadata]
 
     @classmethod
     def from_files(
@@ -282,11 +323,11 @@ class VectorLayer:
     ) -> _VectorLayer:
         gpdf = read_file(data_path, **data_kwargs)
 
-        if gpdf.crs.name != BNG:
-            raise TypeError(f"CRS must be {BNG}, not {gpdf.crs.name}")
+        if gpdf.crs.name not in BNG:
+            raise TypeError(f"CRS must be one of {BNG}, not {gpdf.crs.name}")
 
         if not metadata_path:
-            metadata = json.load(f"{data_path}-metadata.json")
+            metadata = None
         else:
             metadata = Metadata.from_file(metadata_path)
 
