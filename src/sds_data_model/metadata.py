@@ -1,27 +1,61 @@
 from dataclasses import dataclass
-from typing import Dict, List, TypeVar, Union
+from typing import Dict, List, Tuple, TypeVar, Union
 
 from lxml.etree import Element, parse
 
-from sds_data_model.constants import TITLE_XPATH
+from sds_data_model.constants import TITLE_XPATH, DATASET_LANGUAGE_XPATH
 
 MetadataType = TypeVar("MetadataType", bound="Metadata")
 
 
-def _get_value(root_element: Element, xpath: Union[str, List], namespaces: Dict) -> str:
+def _get_xpath(xpath: Union[str, List]) -> str:
     if isinstance(xpath, str):
         _xpath = xpath
     elif isinstance(xpath, list):
         _xpath = "/".join(xpath)
-    title_element = root_element.xpath(_xpath, namespaces=namespaces)
-    return title_element[0].text
+    return _xpath
+
+
+def _get_target_elements(
+    root_element: Element,
+    xpath: Union[str, List],
+    namespaces: Dict,
+) -> str:
+    _xpath = _get_xpath(xpath)
+    return root_element.xpath(_xpath, namespaces=namespaces)
+
+
+def _get_value(
+    root_element: Element,
+    xpath: Union[str, List],
+    namespaces: Dict,
+) -> str:
+    target_elements = _get_target_elements(
+        root_element,
+        xpath=xpath,
+        namespaces=namespaces,
+    )
+    return target_elements[0].text.strip()
+
+
+def _get_values(
+    root_element: Element,
+    xpath: Union[str, List],
+    namespaces: Dict,
+) -> Tuple[str, ...]:
+    target_elements = _get_target_elements(
+        root_element,
+        xpath=xpath,
+        namespaces=namespaces,
+    )
+    return tuple(target_element.text.strip() for target_element in target_elements)
 
 
 @dataclass
 class Metadata:
     title: str
     # alternative_title: Optional[List[str]] = field(default_factory=list) #! Optional
-    # dataset_language: Tuple[str]
+    dataset_language: Tuple[str]
     # abstract: str
     # topic_category: Tuple[str]
     # keyword: Tuple[str]
@@ -73,6 +107,13 @@ class Metadata:
             xpath=TITLE_XPATH,
         )
 
+        dataset_language = _get_values(
+            root_element=root_element,
+            namespaces=namespaces,
+            xpath=DATASET_LANGUAGE_XPATH,
+        )
+
         return cls(
             title=title,
+            dataset_language=dataset_language,
         )

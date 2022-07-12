@@ -2,6 +2,7 @@ from sds_data_model.metadata import Metadata
 
 expected = Metadata(
     title="Digital Geological Map Data of Great Britain - 625k",
+    dataset_language=("English",),
 )
 
 

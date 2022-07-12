@@ -29,6 +29,13 @@ TITLE_XPATH = [
     "gco:CharacterString",
 ]
 
+DATASET_LANGUAGE_XPATH = [
+    "gmd:identificationInfo",
+    "gmd:MD_DataIdentification",
+    "gmd:language",
+    "gmd:LanguageCode",
+]
+
 # Type alias, i.e. a BoundingBox is a Tuple of 4 integers
 # See https://docs.python.org/3.8/library/typing.html#type-aliases
 BoundingBox = Tuple[int, int, int, int]
