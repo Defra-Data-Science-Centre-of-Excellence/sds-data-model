@@ -52,3 +52,54 @@ def _get_bboxes(
 
 # A tuple of BoundingBox for BNG 100km grid squares.
 BBOXES = _get_bboxes()
+
+TITLE_XPATH = [
+    "gmd:identificationInfo",
+    "gmd:MD_DataIdentification",
+    "gmd:citation",
+    "gmd:CI_Citation",
+    "gmd:title",
+    "gco:CharacterString",
+]
+
+ABSTRACT_XPATH = [
+    "gmd:MD_Metadata",
+    "gmd:identificationInfo",
+    "gmd:MD_DataIdentification",
+    "gmd:abstract",
+    "gco:CharacterString"
+]
+
+LINEAGE_XPATH =[
+    "gmd:MD_Metadata",
+    "gmd:dataQualityInfo",
+    "gmd:DQ_DataQuality",
+    "gmd:scope",
+    "gmd:DQ_Scope",
+    "gmd:level",
+    "gmd:MD_ScopeCode"
+]
+
+METADATA_DATE_XPATH = [
+    "gmd:MD_Metadata",
+    "gmd:dateStamp",
+    "gco:Date"
+]
+
+METADATA_LANGUAGE_XPATH = [
+    "gmd:MD_Metadata",
+    "gmd:language",
+    "gmd:LanguageCode"
+]
+
+RESOURCE_TYPE_XPATH = [
+    "gmd:MD_Metadata",
+    "gmd:hierarchyLevel",
+    "gmd:MD_ScopeCode"
+]
+
+FILE_IDENTIFIER_XPATH = [
+    "gmd:MD_Metadata",
+    "gmd:fileIdentifier",
+    "gco:CharacterString"
+]
