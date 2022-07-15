@@ -30,7 +30,7 @@ from sds_data_model.constants import (
     raster_dtype_levels,
 )
 from sds_data_model.metadata import Metadata
-from sds_data_model.logger import log
+from sds_data_model.logger import log, graph
 
 
 basicConfig(format="%(levelname)s:%(asctime)s:%(message)s", level=INFO)
@@ -136,7 +136,7 @@ class VectorTile:
         )
 
         return raster
-    
+
     @log
     def get_col_dtype(
         self: _VectorTile,
@@ -147,7 +147,6 @@ class VectorTile:
             gpdf=self.gpdf,
             column=column,
         )
-
 
 
 _TiledVectorLayer = TypeVar("_TiledVectorLayer", bound="TiledVectorLayer")
@@ -270,29 +269,22 @@ class TiledVectorLayer:
         columns: List[str],
     ) -> Dataset:
         """This method instantiates the tiles so that they can be used in subsequent methods.
-        get_col_dtypes is called on all vectortiles, removes None (due to tiles on irish sea), 
-        Gets the index location of each dtype from the constant list and returns the maximum index 
+        get_col_dtypes is called on all vectortiles, removes None (due to tiles on irish sea),
+        Gets the index location of each dtype from the constant list and returns the maximum index
         location (most complex data type) to accomodate all tiles in the layer, for every column provided"""
-        
+
         tiles = list(self.tiles)
 
-        col_dtypes = (
-            (
-                tile.get_col_dtype(column=i)
-                for tile in tiles
-            ) 
-            for i in columns
-        )
+        col_dtypes = ((tile.get_col_dtype(column=i) for tile in tiles) for i in columns)
 
         col_dtypes_clean = [[x for x in list(i) if x is not None] for i in col_dtypes]
-        col_dtypes_levels = [[raster_dtype_levels.index(x) for x in i] for i in col_dtypes_clean]
+        col_dtypes_levels = [
+            [raster_dtype_levels.index(x) for x in i] for i in col_dtypes_clean
+        ]
         dtype = [raster_dtype_levels[max(i)] for i in col_dtypes_levels]
 
         delayed_rasters = (
-            (
-                tile.to_raster(column=i, dtype=j)
-                for tile in tiles
-            ) 
+            (tile.to_raster(column=i, dtype=j) for tile in tiles)
             for i, j in zip(columns, dtype)
         )
 
@@ -303,7 +295,7 @@ class TiledVectorLayer:
                     name=j,
                     metadata=self.metadata,
                     dtype=k,
-                ) 
+                )
                 for i, j, k in zip(delayed_rasters, columns, dtype)
             ]
         )
@@ -323,6 +315,7 @@ class VectorLayer:
     metadata: Optional[Metadata]
 
     @classmethod
+    @graph
     def from_files(
         cls: _VectorLayer,
         data_path: str,
