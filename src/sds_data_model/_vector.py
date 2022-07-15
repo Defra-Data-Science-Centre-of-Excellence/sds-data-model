@@ -15,7 +15,9 @@ from rasterio.dtypes import get_minimum_dtype
 from shapely.geometry import box
 from shapely.geometry.base import BaseGeometry
 from xarray import DataArray
+from osgeo.ogr import Open
 from sds_data_model.constants import (
+    BNG,
     BNG_XMAX,
     BNG_XMIN,
     BNG_YMAX,
@@ -172,3 +174,19 @@ def _from_delayed_to_data_array(
         name=name,
         attrs=_metadata,
     )
+
+def _check_projection(
+    vector_data: str
+) -> None:
+    """This function acquires the 'projcrs' attribute from an OGR compatible vector file and checks whether it matches BNG projection strings used within the data model."""
+    # read in data and pull out Spatial Ref information
+    dataset = Open(vector_data)
+    layer = dataset.GetLayer()
+    layer_prj = layer.GetSpatialRef()
+    
+    # check if projection of input data matches BNG stated in constants
+    if(layer_prj.IsSame(BNG)):
+        # add any logging requirements
+        print("Logging gubbins to go here")
+    else:
+        raise Exception("Input dataset not in British National Grid. Reproject before proceeding.")

@@ -19,6 +19,7 @@ from sds_data_model._vector import (
     _to_raster,
     _where,
     _get_col_dtype,
+    _check_projection
 )
 from sds_data_model.constants import (
     BBOXES,
@@ -321,10 +322,8 @@ class VectorLayer:
         metadata_path: Optional[str] = None,
         name: Optional[str] = None,
     ) -> _VectorLayer:
+        _check_projection(data_path)
         gpdf = read_file(data_path, **data_kwargs)
-
-        if gpdf.crs.name not in BNG:
-            raise TypeError(f"CRS must be one of {BNG}, not {gpdf.crs.name}")
 
         if not metadata_path:
             metadata = None
