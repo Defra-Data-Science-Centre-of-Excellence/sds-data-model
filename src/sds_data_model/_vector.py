@@ -172,3 +172,16 @@ def _from_delayed_to_data_array(
         name=name,
         attrs=_metadata,
     )
+
+def _get_categories(
+        data_path: str,
+        convert_to_categorical: List[str],
+        data_kwargs: Dict[str, Any],
+    ) -> dict:
+        gpdf_non_spatial = read_file(data_path, ignore_geometry=True, **data_kwargs)
+
+        cat_col_lookup = [dict(enumerate(gpdf_non_spatial[col].astype("category").cat.categories)) for col in convert_to_categorical]
+
+        cat_lookup={col:cat_col_lookup[convert_to_categorical.index(col)] for col in convert_to_categorical}
+
+        return(cat_lookup)

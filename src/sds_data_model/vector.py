@@ -19,6 +19,7 @@ from sds_data_model._vector import (
     _to_raster,
     _where,
     _get_col_dtype,
+    _get_categories,
 )
 from sds_data_model.constants import (
     BBOXES,
@@ -149,6 +150,7 @@ class TiledVectorLayer:
     name: str
     tiles: Generator[VectorTile, None, None]
     metadata: Optional[Metadata]
+    category_lookup: Optional[Dict[str, Any]]
 
     @classmethod
     def from_files(
@@ -312,12 +314,14 @@ class VectorLayer:
     name: str
     gpdf: GeoDataFrame
     metadata: Optional[Metadata]
+    category_lookup: Optional[Dict[str, Any]]
 
     @classmethod
     def from_files(
         cls: _VectorLayer,
         data_path: str,
         data_kwargs: Dict[str, Any],
+        convert_to_categorical: List[str] = None,
         metadata_path: Optional[str] = None,
         name: Optional[str] = None,
     ) -> _VectorLayer:
@@ -333,10 +337,14 @@ class VectorLayer:
 
         _name = name if name else metadata["title"]
 
+        if convert_to_categorical:
+            category_lookup = _get_categories(data_path, convert_to_categorical, data_kwargs=data_kwargs)
+
         return cls(
             name=_name,
             gpdf=gpdf,
             metadata=metadata,
+            category_lookup=category_lookup,
         )
 
     def to_tiles(self, bboxes: Tuple[BoundingBox] = BBOXES) -> TiledVectorLayer:
@@ -352,4 +360,5 @@ class VectorLayer:
             name=self.name,
             tiles=tiles,
             metadata=self.metadata,
+            category_lookup=self.category_lookup,
         )
