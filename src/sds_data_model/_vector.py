@@ -176,12 +176,16 @@ def _from_delayed_to_data_array(
     )
 
 def _check_projection(
-    vector_data: str
+    vector_data: str, **data_kwargs
 ) -> None:
     """This function acquires the 'projcrs' attribute from an OGR compatible vector file and checks whether it matches BNG projection strings used within the data model."""
+    if "layer" in data_kwargs:
+        iLayer = data_kwargs.get("layer")
+    else:
+        iLayer = 0
     # read in data and pull out Spatial Ref information
     dataset = Open(vector_data)
-    layer = dataset.GetLayer()
+    layer = dataset.GetLayer(iLayer=iLayer)
     layer_prj = layer.GetSpatialRef()
     
     # check if projection of input data matches BNG stated in constants
