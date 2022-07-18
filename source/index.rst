@@ -12,3 +12,7 @@ Welcome to SDS Data Model's documentation!
 
    usage
    reference
+   contributing
+   Code of Conduct <codeofconduct>
+   License <license>
+   Changelog <https://github.com/EFT-Defra/sds-data-model/releases>
