@@ -76,6 +76,10 @@ def greeting(name: Optional[str] = None) -> str:
         return "Hello world" 
 ```
 
+### Do we need `mypy` if we're using other linters?
+
+Yes, though `mypy` could be described as a linter; see, for example [the VS Code docs](https://code.visualstudio.com/docs/python/linting#_mypy). I would arguing that `mypy` is more specific and therefore more narrowly useful than a general linter. Where linters highlight common errors and bad practices, mypy focuses on the correct declaration and usage of types. `mypy` therefore augments other linters instead of replacing them.
+
 ## How?
 
 There are several ways you can run `mypy`:
@@ -107,7 +111,7 @@ This will run the `mypy` session defined in the project `noxfile.py` file.
 
 ## In your IDE (VS Code)
 
-You can tell VS Code to [use `mypy` to lint python code](https://code.visualstudio.com/docs/python/linting#_mypy) in your setting:
+You can tell VS Code to [use `mypy` to lint python code](https://code.visualstudio.com/docs/python/linting#_mypy) in your setting:[^1]
 
 ```json
 {
@@ -134,4 +138,12 @@ It's worth adding [`--ignore-missing-imports`](https://mypy.readthedocs.io/en/st
 
 ## As part of a CI pipeline
 
-This project uses GitHub Action for Continuos Integration. The CI workflow is defined in `.github/workflows/python-package.yml`. This workflow will run the `mypy` sessions as part of the `static-type-analysis` job, whenever code is pushed to the `develop` branch or pull requests into `develop` are triggered.
+This project uses GitHub Actions for Continuous Integration. The CI workflow is defined in `.github/workflows/python-package.yml`. This workflow will run the `mypy` sessions as part of the `static-type-analysis` job, whenever code is pushed to the `develop` branch or pull requests into `develop` are triggered.
+
+[^1]: You can open your settings by selecting File > Preferences > Settings or by using the keyboard shortcut `Ctrl + ,`. You can then switch to the JSON view by clicking the icon of a file with an arrow in the top-right hand corner of the screen.
+
+## `mypy` configuration
+
+This project uses a `pyproject.toml` file for configuration. For information on how to configure `mypy` using this file,
+see: [Using a pyproject.toml file](h
+ttps://mypy.readthedocs.io/en/stable/config_file.html#using-a-pyproject-toml-file) in the `mypy` documentation.

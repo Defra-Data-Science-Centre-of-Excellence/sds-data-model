@@ -6,7 +6,7 @@ This project uses [`isort`](https://pycqa.github.io/isort/index.html) and [`blac
 
 `isort` is "a Python utility / library to sort imports alphabetically, and automatically separated into sections and by type."[^1]
 
-`black` is "a PEP 8 compliant opinionated formatter with its own style.".[^2]
+`black` is a [PEP 8](https://peps.python.org/pep-0008/), Python's official style guide, "compliant opinionated formatter with its own style.".[^2]
 
 ## Why?
 
@@ -63,7 +63,7 @@ poetry run nox -s isort
 
 ## In your IDE (VS Code)
 
-You can tell VS Code to use `black`[^5] to format python code in your setting:
+You can tell VS Code to use `black`[^5] to format python code in your settings:[^6]
 
 ```json
 {
@@ -104,10 +104,11 @@ If you're feeling really brave, you can also set VS Code to autosave so that you
 
 ## As part of a CI pipeline
 
-This project uses GitHub Action for Continuos Integration. The CI workflow is defined in `.github/workflows/python-package.yml`. This workflow will run the  `black` and `isort` sessions as part of the `format` job, whenever code is pushed to the `develop` branch or pull requests into `develop` are triggered.
+This project uses GitHub Actions for Continuous Integration. The CI workflow is defined in `.github/workflows/python-package.yml`. This workflow will run the  `black` and `isort` sessions as part of the `format` job, whenever code is pushed to the `develop` branch or pull requests into `develop` are triggered.
 
 [^1]: https://pycqa.github.io/isort/index.html
 [^2]: https://black.readthedocs.io/en/stable/the_black_code_style/index.html
 [^3]: <https://pycqa.github.io/isort/docs/configuration/black_compatibility.html>
 [^4]: <https://github.com/psf/black/issues/333#issuecomment-1153637034>
 [^5]: https://code.visualstudio.com/docs/python/editing#_formatting
+[^6]: You can open your settings by selecting File > Preferences > Settings or by using the keyboard shortcut `Ctrl + ,`. You can then switch to the JSON view by clicking the icon of a file with an arrow in the top-right hand corner of the screen.
