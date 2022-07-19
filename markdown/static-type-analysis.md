@@ -78,7 +78,7 @@ def greeting(name: Optional[str] = None) -> str:
 
 ### Do we need `mypy` if we're using other linters?
 
-Yes, though `mypy` could be described as a linter; see, for example [the VS Code docs](https://code.visualstudio.com/docs/python/linting#_mypy). I would arguing that `mypy` is more specific and therefore more narrowly useful than a general linter. Where linters highlight common errors and bad practices, mypy focuses on the correct declaration and usage of types. `mypy` therefore augments other linters instead of replacing them.
+Yes, though `mypy` could be described as a linter; see, for example [the VS Code docs](https://code.visualstudio.com/docs/python/linting#_mypy). I would argue that `mypy` is more specific and therefore more narrowly useful than a general linter. Where linters highlight common errors and bad practices, mypy focuses on the correct declaration and usage of types. `mypy` therefore augments other linters instead of replacing them.
 
 ## How?
 
