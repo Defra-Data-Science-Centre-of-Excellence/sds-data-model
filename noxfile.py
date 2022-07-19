@@ -217,3 +217,23 @@ def docs_build(session: Session) -> None:
     no_jekyll.touch()
 
     rmtree(build_dir)
+
+
+@session(name="lint", python="3.8")
+def lint(session: Session) -> None:
+    """Lint using flake8."""
+    args = session.posargs
+    session.install(".")
+    deps = [
+        "flake8",
+        "flake8-annotations",
+        "flake8-bandit",
+        "flake8-black",
+        "flake8-bugbear",
+        "flake8-docstrings",
+        "flake8-isort",
+        "darglint",
+    ]
+    session.install(*deps)
+    session.install("flake8")
+    session.run("flake8", *args)
