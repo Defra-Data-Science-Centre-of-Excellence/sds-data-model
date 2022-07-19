@@ -70,7 +70,6 @@ ABSTRACT_XPATH = [
 ]
 
 LINEAGE_XPATH =[
-    "gmd:MD_Metadata",
     "gmd:dataQualityInfo",
     "gmd:DQ_DataQuality",
     "gmd:lineage",
