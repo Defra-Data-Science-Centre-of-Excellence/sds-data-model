@@ -7,6 +7,7 @@ from affine import Affine
 from dask.delayed import Delayed
 from geopandas import GeoDataFrame, read_file
 from pandas import DataFrame, Series
+from pyogrio import read_info
 from shapely.geometry import box
 from xarray import DataArray, Dataset, merge
 
@@ -151,6 +152,7 @@ class TiledVectorLayer:
     tiles: Generator[VectorTile, None, None]
     metadata: Optional[Metadata]
     category_lookup: Optional[Dict[str, Any]]
+    schema: Dict[str, str]
 
     @classmethod
     def from_files(
@@ -269,27 +271,27 @@ class TiledVectorLayer:
         
         tiles = list(self.tiles)
 
-        if self.category_lookup:
-            print(self.category_lookup)
+        # if self.category_lookup:
+        #     print(self.category_lookup)
 
-        col_dtypes = (
-            (
-                tile.get_col_dtype(column=i)
-                for tile in tiles
-            ) 
-            for i in columns
-        )
+        # col_dtypes = (
+        #     (
+        #         tile.get_col_dtype(column=i)
+        #         for tile in tiles
+        #     ) 
+        #     for i in columns
+        # )
 
-        col_dtypes_clean = [[x for x in list(i) if x is not None] for i in col_dtypes]
-        col_dtypes_levels = [[raster_dtype_levels.index(x) for x in i] for i in col_dtypes_clean]
-        dtype = [raster_dtype_levels[max(i)] for i in col_dtypes_levels]
+        # col_dtypes_clean = [[x for x in list(i) if x is not None] for i in col_dtypes]
+        # col_dtypes_levels = [[raster_dtype_levels.index(x) for x in i] for i in col_dtypes_clean]
+        # dtype = [raster_dtype_levels[max(i)] for i in col_dtypes_levels]
 
         delayed_rasters = (
             (
-                tile.to_raster(column=i, dtype=j)
+                tile.to_raster(column=i, dtype=self.schema[i])
                 for tile in tiles
             ) 
-            for i, j in zip(columns, dtype)
+            for i in columns
         )
 
         dataset = merge(
@@ -298,9 +300,9 @@ class TiledVectorLayer:
                     delayed_arrays=i,
                     name=j,
                     metadata=self.metadata,
-                    dtype=k,
+                    dtype=self.schema[j],
                 ) 
-                for i, j, k in zip(delayed_rasters, columns, dtype)
+                for i, j in zip(delayed_rasters, columns)
             ]
         )
 
@@ -317,8 +319,9 @@ class VectorLayer:
     name: str
     gpdf: GeoDataFrame
     metadata: Optional[Metadata]
+    schema: Dict[str, str]
     category_lookup: Optional[Dict[str, Any]] = None
-
+    
     @classmethod
     def from_files(
         cls: _VectorLayer,
@@ -343,11 +346,21 @@ class VectorLayer:
         if convert_to_categorical:
             category_lookup = _get_categories(data_path, convert_to_categorical, data_kwargs=data_kwargs)
 
+        schema = {
+            k: v
+            for k, v in zip(
+                *(
+                    read_info(data_path).get(key) for key in ["fields", "dtypes"]
+                )
+            )
+        }
+
         return cls(
             name=_name,
             gpdf=gpdf,
             metadata=metadata,
             category_lookup=category_lookup,
+            schema=schema,
         )
 
     def to_tiles(self, bboxes: Tuple[BoundingBox] = BBOXES) -> TiledVectorLayer:
@@ -364,4 +377,5 @@ class VectorLayer:
             tiles=tiles,
             metadata=self.metadata,
             category_lookup=self.category_lookup,
+            schema=self.schema,
         )
