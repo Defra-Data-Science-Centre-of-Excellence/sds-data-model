@@ -95,7 +95,6 @@ RESOURCE_TYPE_XPATH = [
 ]
 
 FILE_IDENTIFIER_XPATH = [
-    "gmd:MD_Metadata",
     "gmd:fileIdentifier",
     "gco:CharacterString"
 ]
