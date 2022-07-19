@@ -32,10 +32,10 @@ copyright = f"{datetime.now().year}, {author}"
 # ones.
 extensions = [
      "sphinx.ext.autodoc",
-	 "sphinx.ext.napoleon",
+	"sphinx.ext.napoleon",
      "sphinx.ext.intersphinx",
      "sphinx.ext.githubpages",
-
+     "myst_parser"
 ]
 
 # Napoleon settings

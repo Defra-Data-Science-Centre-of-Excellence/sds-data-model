@@ -1,4 +1,4 @@
 Usage
 =====
-.. automodule:: sds_data_model
+.. automodule:: src/sds_data_model
     :noindex:

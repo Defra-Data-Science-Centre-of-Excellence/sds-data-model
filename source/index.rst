@@ -7,8 +7,8 @@ Welcome to SDS Data Model's documentation!
 ==========================================
 
 .. toctree::
-   :maxdepth: 2
-
+   :hidden:
+   :caption: Contents:
 
    usage
    reference
@@ -16,3 +16,13 @@ Welcome to SDS Data Model's documentation!
    Code of Conduct <codeofconduct>
    License <license>
    Changelog <https://github.com/EFT-Defra/sds-data-model/releases>
+
+.. include:: ../README.rst
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
