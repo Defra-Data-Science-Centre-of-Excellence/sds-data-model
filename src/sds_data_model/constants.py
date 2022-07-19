@@ -11,29 +11,45 @@ BNG_YMIN = 0
 BNG_XMAX = 700_000
 # Maximum y value of BNG in meters
 BNG_YMAX = 1_300_000
-# Height and width of bounding box in meters 
+# Height and width of bounding box in meters
 BOX_SIZE = 100_000
-# Height and width of raster cell in meters 
+# Height and width of raster cell in meters
 CELL_SIZE = 10
-# Height and width of VectorTile in cells 
+# Height and width of VectorTile in cells
 TILE_SIZE = BOX_SIZE // CELL_SIZE
-# Dimensions of VectorTile in cells 
+# Dimensions of VectorTile in cells
 OUT_SHAPE = (TILE_SIZE, TILE_SIZE)
 
-#! Ignore for now, these are XML namespaces used in Gemini Metadata
-GMD = "{http://www.isotc211.org/2005/gmd}"
-GML = "{http://www.opengis.net/gml/3.2}"
-GMX = "{http://www.isotc211.org/2005/gmx}"
-GCO = "{http://www.isotc211.org/2005/gco}"
-CHARACTER_STRING = GCO + "CharacterString"
+TITLE_XPATH = [
+    "gmd:identificationInfo",
+    "gmd:MD_DataIdentification",
+    "gmd:citation",
+    "gmd:CI_Citation",
+    "gmd:title",
+    "gco:CharacterString",
+]
 
 # Type alias, i.e. a BoundingBox is a Tuple of 4 integers
 # See https://docs.python.org/3.8/library/typing.html#type-aliases
 BoundingBox = Tuple[int, int, int, int]
 
-# Order for data types taken from rasterio docs lines 14-27 
+# Order for data types taken from rasterio docs lines 14-27
 # https://github.com/rasterio/rasterio/blob/master/rasterio/dtypes.py
-raster_dtype_levels = ['bool', 'uint8', 'int8', 'uint16', 'int16', 'uint32', 'int32', 'float32', 'float64', 'complex', 'complex64', 'complex128']
+raster_dtype_levels = [
+    "bool",
+    "uint8",
+    "int8",
+    "uint16",
+    "int16",
+    "uint32",
+    "int32",
+    "float32",
+    "float64",
+    "complex",
+    "complex64",
+    "complex128",
+]
+
 
 def _get_bboxes(
     xmin: int = BNG_XMIN,
@@ -42,13 +58,14 @@ def _get_bboxes(
     ymax: int = BNG_YMAX,
     box_size: int = BOX_SIZE,
 ) -> Tuple[BoundingBox, ...]:
-    """Returns a tuple of BoundingBox for BNG 100km grid squares.""" 
+    """Returns a tuple of BoundingBox for BNG 100km grid squares."""
     eastings = range(xmin, xmax, box_size)
     northings = range(ymax, ymin, -box_size)
 
     top_left_coordinates = product(northings, eastings)
 
     return tuple((x, y - box_size, x + box_size, y) for y, x in top_left_coordinates)
+
 
 # A tuple of BoundingBox for BNG 100km grid squares.
 BBOXES = _get_bboxes()
