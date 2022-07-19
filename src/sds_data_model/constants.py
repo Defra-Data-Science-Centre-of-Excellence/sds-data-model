@@ -79,7 +79,6 @@ LINEAGE_XPATH =[
 ]
 
 METADATA_DATE_XPATH = [
-    "gmd:MD_Metadata",
     "gmd:dateStamp",
     "gco:Date"
 ]
