@@ -111,7 +111,7 @@ This will run the `mypy` session defined in the project `noxfile.py` file.
 
 ## In your IDE (VS Code)
 
-You can tell VS Code to [use `mypy` to lint python code](https://code.visualstudio.com/docs/python/linting#_mypy) in your setting:[^1]
+You can tell VS Code to [use `mypy` to lint python code](https://code.visualstudio.com/docs/python/linting#_mypy) in your settings:[^1]
 
 ```json
 {
