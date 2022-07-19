@@ -132,12 +132,17 @@ class VectorTile:
     def get_col_dtype(
         self: _VectorTile,
         column: str,
-    ) -> str:
-        """This method calls _get_col_dtype on an individual vectortile."""
-        return _get_col_dtype(
-            gpdf=self.gpdf,
-            column=column,
-        )
+    ) -> Optional[str]:
+        """This method calls _get_col_dtype on an individual vectortile,
+        if the geodataframe of the vector tile contains data."""
+        gpdf = self.gpdf
+        if not gpdf.empty:
+            return _get_col_dtype(
+                gpdf=gpdf,
+                column=column,
+            )
+        else:
+            return None
 
 
 
