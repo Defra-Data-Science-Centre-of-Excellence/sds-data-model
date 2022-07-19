@@ -84,7 +84,6 @@ METADATA_DATE_XPATH = [
 ]
 
 METADATA_LANGUAGE_XPATH = [
-    "gmd:MD_Metadata",
     "gmd:language",
     "gmd:LanguageCode"
 ]
