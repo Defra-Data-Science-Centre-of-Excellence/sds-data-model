@@ -89,7 +89,6 @@ METADATA_LANGUAGE_XPATH = [
 ]
 
 RESOURCE_TYPE_XPATH = [
-    "gmd:MD_Metadata",
     "gmd:hierarchyLevel",
     "gmd:MD_ScopeCode"
 ]
