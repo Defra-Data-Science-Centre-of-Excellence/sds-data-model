@@ -7,6 +7,7 @@ from affine import Affine
 from dask.delayed import Delayed
 from geopandas import GeoDataFrame, read_file
 from pandas import DataFrame, Series
+from pyogrio import read_info
 from shapely.geometry import box
 from xarray import DataArray, Dataset, merge
 
@@ -312,6 +313,7 @@ class VectorLayer:
     name: str
     gpdf: GeoDataFrame
     metadata: Optional[Metadata]
+    schema: Dict[str, str]
 
     @classmethod
     def from_files(
@@ -333,10 +335,21 @@ class VectorLayer:
 
         _name = name if name else metadata["title"]
 
+
+        schema = {
+            k: v
+            for k, v in zip(
+                *(
+                    read_info(data_path).get(key) for key in ["fields", "dtypes"]
+                )
+            )
+        }
+
         return cls(
             name=_name,
             gpdf=gpdf,
             metadata=metadata,
+            schema=schema,
         )
 
     def to_tiles(self, bboxes: Tuple[BoundingBox] = BBOXES) -> TiledVectorLayer:
