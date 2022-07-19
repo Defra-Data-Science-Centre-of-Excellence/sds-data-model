@@ -145,5 +145,4 @@ This project uses GitHub Actions for Continuous Integration. The CI workflow is 
 ## `mypy` configuration
 
 This project uses a `pyproject.toml` file for configuration. For information on how to configure `mypy` using this file,
-see: [Using a pyproject.toml file](h
-ttps://mypy.readthedocs.io/en/stable/config_file.html#using-a-pyproject-toml-file) in the `mypy` documentation.
+see: [Using a pyproject.toml file](https://mypy.readthedocs.io/en/stable/config_file.html#using-a-pyproject-toml-file) in the `mypy` documentation.
