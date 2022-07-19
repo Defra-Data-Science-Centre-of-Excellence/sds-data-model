@@ -3,7 +3,7 @@ from typing import Dict, List, TypeVar, Union
 
 from lxml.etree import Element, parse
 
-from sds_data_model.constants import TITLE_XPATH, ABSTRACT_XPATH, LINEAGE_XPATH, METADATA_DATE_XPATH, METADATA_LANGUAGE_XPATH, SPATIAL_DATA_SERVICE_TYPE_XPATH,RESOURCE_TYPE_XPATH, FILE_IDENTIFIER_XPATH
+from sds_data_model.constants import TITLE_XPATH, ABSTRACT_XPATH, LINEAGE_XPATH, METADATA_DATE_XPATH, METADATA_LANGUAGE_XPATH, RESOURCE_TYPE_XPATH, FILE_IDENTIFIER_XPATH
 
 MetadataType = TypeVar("MetadataType", bound="Metadata")
 
