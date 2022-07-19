@@ -63,7 +63,6 @@ TITLE_XPATH = [
 ]
 
 ABSTRACT_XPATH = [
-    "gmd:MD_Metadata",
     "gmd:identificationInfo",
     "gmd:MD_DataIdentification",
     "gmd:abstract",
