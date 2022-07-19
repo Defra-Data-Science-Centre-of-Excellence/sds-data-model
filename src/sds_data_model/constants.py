@@ -73,10 +73,10 @@ LINEAGE_XPATH =[
     "gmd:MD_Metadata",
     "gmd:dataQualityInfo",
     "gmd:DQ_DataQuality",
-    "gmd:scope",
-    "gmd:DQ_Scope",
-    "gmd:level",
-    "gmd:MD_ScopeCode"
+    "gmd:lineage",
+    "gmd:LI_Lineage",
+    "gmd:statement",
+    "gco:CharacterString",
 ]
 
 METADATA_DATE_XPATH = [
