@@ -269,6 +269,9 @@ class TiledVectorLayer:
         
         tiles = list(self.tiles)
 
+        if self.category_lookup:
+            print(self.category_lookup)
+
         col_dtypes = (
             (
                 tile.get_col_dtype(column=i)
@@ -314,7 +317,7 @@ class VectorLayer:
     name: str
     gpdf: GeoDataFrame
     metadata: Optional[Metadata]
-    category_lookup: Optional[Dict[str, Any]]
+    category_lookup: Optional[Dict[str, Any]] = None
 
     @classmethod
     def from_files(
