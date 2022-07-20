@@ -30,7 +30,7 @@ nox.options.sessions = (
     # "pre-commit",
     # "safety",
     "mypy",
-    # "tests",
+    "tests",
     # "typeguard",
     # "xdoctest",
     # "docs-build",
