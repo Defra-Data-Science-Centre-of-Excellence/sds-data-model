@@ -20,15 +20,6 @@ TILE_SIZE = BOX_SIZE // CELL_SIZE
 # Dimensions of VectorTile in cells
 OUT_SHAPE = (TILE_SIZE, TILE_SIZE)
 
-TITLE_XPATH = [
-    "gmd:identificationInfo",
-    "gmd:MD_DataIdentification",
-    "gmd:citation",
-    "gmd:CI_Citation",
-    "gmd:title",
-    "gco:CharacterString",
-]
-
 # Type alias, i.e. a BoundingBox is a Tuple of 4 integers
 # See https://docs.python.org/3.8/library/typing.html#type-aliases
 BoundingBox = Tuple[int, int, int, int]
@@ -69,3 +60,99 @@ def _get_bboxes(
 
 # A tuple of BoundingBox for BNG 100km grid squares.
 BBOXES = _get_bboxes()
+
+TITLE_XPATH = [
+    "gmd:identificationInfo",
+    "gmd:MD_DataIdentification",
+    "gmd:citation",
+    "gmd:CI_Citation",
+    "gmd:title",
+    "gco:CharacterString",
+    "/text()",
+]
+
+DATASET_LANGUAGE_XPATH = [
+    "gmd:identificationInfo",
+    "gmd:MD_DataIdentification",
+    "gmd:language",
+    "gmd:LanguageCode",
+    "/text()",
+]
+
+TOPIC_CATEGORY_XPATH = [
+    "gmd:identificationInfo",
+    "gmd:MD_DataIdentification",
+    "gmd:topicCategory",
+    "gmd:MD_TopicCategoryCode",
+    "/text()",
+]
+
+KEYWORD_XPATH = [
+    "gmd:identificationInfo",
+    "gmd:MD_DataIdentification",
+    "gmd:descriptiveKeywords",
+    "gmd:MD_Keywords",
+    "gmd:keyword",
+    "gco:CharacterString",
+    "/text()",
+]
+
+QUALITY_SCOPE_XPATH = [
+    "gmd:dataQualityInfo",
+    "gmd:DQ_DataQuality",
+    "gmd:scope",
+    "gmd:DQ_Scope",
+    "gmd:level",
+    "gmd:MD_ScopeCode",
+    "/text()",
+]
+
+SPATIAL_REPRESENTATION_TYPE_XPATH = [
+    "gmd:identificationInfo",
+    "gmd:MD_DataIdentification",
+    "gmd:spatialRepresentationType",
+    "gmd:MD_SpatialRepresentationTypeCode",
+    "@codeListValue"
+]
+
+ABSTRACT_XPATH = [
+    "gmd:identificationInfo",
+    "gmd:MD_DataIdentification",
+    "gmd:abstract",
+    "gco:CharacterString",
+    "/text()",
+]
+
+LINEAGE_XPATH = [
+    "gmd:dataQualityInfo",
+    "gmd:DQ_DataQuality",
+    "gmd:lineage",
+    "gmd:LI_Lineage",
+    "gmd:statement",
+    "gco:CharacterString",
+    "/text()",
+]
+
+METADATA_DATE_XPATH = [
+    "gmd:dateStamp",
+    "gco:Date",
+    "/text()",
+]
+
+METADATA_LANGUAGE_XPATH = [
+    "gmd:language",
+    "gmd:LanguageCode",
+    "/text()",
+]
+
+RESOURCE_TYPE_XPATH = [
+    "gmd:hierarchyLevel",
+    "gmd:MD_ScopeCode",
+    "/text()",
+]
+
+FILE_IDENTIFIER_XPATH = [
+    "gmd:fileIdentifier",
+    "gco:CharacterString",
+    "/text()",
+]
