@@ -176,7 +176,7 @@ def _from_delayed_to_data_array(
     )
 
 def _check_projection(
-    vector_data: str, **data_kwargs
+    path: str, **kwargs
 ) -> None:
     """This function acquires the 'projcrs' attribute from an OGR compatible vector file and checks whether it matches BNG projection strings used within the data model."""
     if "layer" in data_kwargs:
