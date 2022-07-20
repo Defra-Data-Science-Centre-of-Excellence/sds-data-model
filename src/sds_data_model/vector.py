@@ -19,7 +19,7 @@ from sds_data_model._vector import (
     _to_raster,
     _where,
     _get_col_dtype,
-    _check_projection
+    _check_layer_projection
 )
 from sds_data_model.constants import (
     BBOXES,
@@ -322,7 +322,7 @@ class VectorLayer:
         metadata_path: Optional[str] = None,
         name: Optional[str] = None,
     ) -> _VectorLayer:
-        _check_projection(data_path)
+        _check_layer_projection(data_path)
         gpdf = read_file(data_path, **data_kwargs)
 
         if not metadata_path:

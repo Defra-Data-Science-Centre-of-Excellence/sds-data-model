@@ -15,7 +15,7 @@ from rasterio.dtypes import get_minimum_dtype
 from shapely.geometry import box
 from shapely.geometry.base import BaseGeometry
 from xarray import DataArray
-from osgeo.ogr import Open
+from osgeo.ogr import Open, Layer
 from sds_data_model.constants import (
     BNG,
     BNG_XMAX,
@@ -175,17 +175,41 @@ def _from_delayed_to_data_array(
         attrs=_metadata,
     )
 
-def _check_projection(
-    vector_data: str, **data_kwargs
-) -> None:
-    """This function acquires the 'projcrs' attribute from an OGR compatible vector file and checks whether it matches BNG projection strings used within the data model."""
-    if "layer" in data_kwargs:
-        iLayer = data_kwargs.get("layer")
+def _get_layer(
+    path: str, **kwargs
+) -> Layer:
+    """Returns a single layer from an OGR-compatible vector file.
+
+    If no layer identifier is provided then the first (0th) layer is returned.
+
+    Args:
+        path (str): Path to OGR-compatible vector file. 
+
+    Returns:
+        Layer: An ogr.Layer object.
+    """
+    if "layer" in kwargs:
+        iLayer = kwargs.get("layer")
     else:
         iLayer = 0
-    # read in data and pull out Spatial Ref information
-    dataset = Open(vector_data)
+
+    dataset = Open(path)
     layer = dataset.GetLayer(iLayer=iLayer)
+
+    return(layer)
+
+def _check_layer_projection(
+    path: str, **kwargs
+) -> None:
+    """Checks whether the projection of an OGR-compatible vector layer is British National Grid (EPSG:27700).
+
+    Args:
+        path (str): Path to OGR-compatible vector file.
+
+    Raises:
+        Exception: When projection of input layer does not match the British National Grid Spatial Reference System. 
+    """    
+    layer = _get_layer(path, **kwargs)
     layer_prj = layer.GetSpatialRef()
     
     # check if projection of input data matches BNG stated in constants
@@ -193,4 +217,4 @@ def _check_projection(
         # add any logging requirements
         print("Logging gubbins to go here")
     else:
-        raise Exception("Input dataset not in British National Grid. Reproject before proceeding.")
+        raise Exception("Input dataset not in British National Grid. Reproject source data.")
