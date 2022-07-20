@@ -10,6 +10,7 @@ from geopandas import GeoDataFrame, read_file
 from more_itertools import chunked
 from numpy import arange, ones, zeros
 from pandas import DataFrame, Series, merge
+from pyogrio.core import ogr_read_info
 from rasterio.features import geometry_mask, rasterize
 from rasterio.dtypes import get_minimum_dtype
 from shapely.geometry import box
@@ -172,3 +173,19 @@ def _from_delayed_to_data_array(
         name=name,
         attrs=_metadata,
     )
+
+
+def _get_schema(
+    data_path: str,
+    **kwargs,
+) -> Dict[str, str]:
+    """Uses pyogrio.core.ogr_read_info to read file fields and dtypes and return as dict"""
+    return {
+        fields: dtypes 
+        for fields, dtypes in zip(
+            *map(
+                ogr_read_info(data_path, **kwargs).get, ["fields", "dtypes"]
+            )
+        )
+    }
+    

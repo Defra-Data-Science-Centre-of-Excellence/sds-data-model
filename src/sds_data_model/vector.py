@@ -7,7 +7,6 @@ from affine import Affine
 from dask.delayed import Delayed
 from geopandas import GeoDataFrame, read_file
 from pandas import DataFrame, Series
-from pyogrio import read_info
 from shapely.geometry import box
 from xarray import DataArray, Dataset, merge
 
@@ -20,6 +19,7 @@ from sds_data_model._vector import (
     _to_raster,
     _where,
     _get_col_dtype,
+    _get_schema,
 )
 from sds_data_model.constants import (
     BBOXES,
@@ -150,6 +150,7 @@ class TiledVectorLayer:
     name: str
     tiles: Generator[VectorTile, None, None]
     metadata: Optional[Metadata]
+    schema: Dict[str, str]
 
     @classmethod
     def from_files(
@@ -185,10 +186,13 @@ class TiledVectorLayer:
 
         _name = name if name else metadata["title"]
 
+        schema = _get_schema(data_path=data_path, **data_kwargs)
+
         return cls(
             name=_name,
             tiles=tiles,
             metadata=metadata,
+            schema=schema,
         )
 
     def select(self: _TiledVectorLayer, columns: List[str]) -> _TiledVectorLayer:
@@ -335,15 +339,7 @@ class VectorLayer:
 
         _name = name if name else metadata["title"]
 
-
-        schema = {
-            k: v
-            for k, v in zip(
-                *(
-                    read_info(data_path).get(key) for key in ["fields", "dtypes"]
-                )
-            )
-        }
+        schema = _get_schema(data_path=data_path, **data_kwargs)
 
         return cls(
             name=_name,
