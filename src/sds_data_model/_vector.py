@@ -113,14 +113,6 @@ def _get_shapes(
         for geometry, value in zip(gpdf["geometry"], gpdf[column])
     )
 
-# def _get_col_dtype(
-#     gpdf: GeoDataFrame,
-#     column: str,
-# ) -> str:
-#     """This method takes a vectortile and returns the minimum rasterio data type required to represent the data in the column of interest."""
-#     return get_minimum_dtype(gpdf[column])
-
-
 @delayed
 def _to_raster(
     gpdf: GeoDataFrame,
@@ -188,16 +180,12 @@ def _get_categories(
 
 def _recode_categorical_strings(
         gpdf: GeoDataFrame,
-        columns: str,
+        column: str,
         lookup: Dict[str, Any]
-    ) -> Delayed:
+    ) -> GeoDataFrame:
     
-        for column in columns:
-            if column in lookup.keys():
+        gpdf[f'{column}_code']=gpdf[column].apply(lambda x: list(lookup[column].keys())[list(lookup[column].values()).index(x)])
+            
+        gpdf = gpdf.drop(columns=[f'{column}']).rename(columns={f'{column}_code' : f'{column}'})
 
-                gpdf[f'{column}_code']=gpdf[column].apply(lambda x: list(lookup[column].keys())[list(lookup[column].values()).index(x)])
-                
-                print("f'{column}'")
-                # DataFrame(gpdf).rename(columns={"f'{column}'" : f'{column}_string'}, errors="raise")#, f'{column}_code' : f'{column}'})
-        # print(gpdf)
         return gpdf

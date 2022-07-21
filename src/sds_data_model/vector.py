@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import json
 from logging import INFO, info, basicConfig
+from msilib import schema
 from typing import Any, Dict, Generator, List, Optional, TypeVar, Tuple, Union
 
 from affine import Affine
@@ -132,30 +133,19 @@ class VectorTile:
 
         return raster
     
-    def recode_tile(
+    def recode_column(
         self: _VectorTile,
-        columns: str,
+        column: str,
         lookup: Dict[str, Any]
     ) -> _VectorTile:
+        
         recoded_data = _recode_categorical_strings(
             gpdf=self.gpdf,
-            columns=columns,
+            column=column,
             lookup=lookup,
         )
 
-        print(recoded_data)
-    
-    # def get_col_dtype(
-    #     self: _VectorTile,
-    #     column: str,
-    # ) -> str:
-    #     """This method calls _get_col_dtype on an individual vectortile."""
-    #     return _get_col_dtype(
-    #         gpdf=self.gpdf,
-    #         column=column,
-    #     )
-
-
+        return recoded_data
 
 _TiledVectorLayer = TypeVar("_TiledVectorLayer", bound="TiledVectorLayer")
 
@@ -278,55 +268,38 @@ class TiledVectorLayer:
         self: _TiledVectorLayer,
         columns: List[str],
     ) -> Dataset:
-        """This method instantiates the tiles so that they can be used in subsequent methods.
-        get_col_dtypes is called on all vectortiles, removes None (due to tiles on irish sea), 
-        Gets the index location of each dtype from the constant list and returns the maximum index 
-        location (most complex data type) to accomodate all tiles in the layer, for every column provided"""
-        
-        # tiles = list(self.tiles)
+        """This method rasterises the specified columns using a schema defined in VectorLayer. 
+        It also recodes categorical variables if those columns have been specfied by the user, 
+        if columns ahve been recoded it updates the schema to uint32. This could be refined to 
+        use the length of the lookup to pick the least costly data type."""
+ 
+        delayed_rasters = (
+            (
+                tile.recode_column(i, self.category_lookup[i]).to_raster(column=i, dtype='uint32') 
+                if i in self.category_lookup.keys()
+                else tile.to_raster(column=i, dtype=self.schema[i])
+                for tile in self.tiles
+            ) 
+            for i in columns
+        )
 
-        # if self.category_lookup:
-        #     print(self.category_lookup)
+        self.schema = {k:'uint32' if k in self.category_lookup.keys() else v for (k,v) in self.schema.items()}
 
-        # col_dtypes = (
-        #     (
-        #         tile.get_col_dtype(column=i)
-        #         for tile in tiles
-        #     ) 
-        #     for i in columns
-        # )
-
-        # col_dtypes_clean = [[x for x in list(i) if x is not None] for i in col_dtypes]
-        # col_dtypes_levels = [[raster_dtype_levels.index(x) for x in i] for i in col_dtypes_clean]
-        # dtype = [raster_dtype_levels[max(i)] for i in col_dtypes_levels]
-
-        # print(self.category_lookup)
-
-        to_rasterise = [tile.recode_tile(columns, self.category_lookup) if self.category_lookup else tile for tile in self.tiles]
-
-        # delayed_rasters = (
-        #     (
-        #         tile.to_raster(column=i, dtype=self.schema[i])
-        #         for tile in self.tiles
-        #     ) 
-        #     for i in columns
-        # )
-
-        # dataset = merge(
-        #     [
-        #         _from_delayed_to_data_array(
-        #             delayed_arrays=i,
-        #             name=j,
-        #             metadata=self.metadata,
-        #             dtype=self.schema[j],
-        #         ) 
-        #         for i, j in zip(delayed_rasters, columns)
-        #     ]
-        # )
+        dataset = merge(
+            [
+                _from_delayed_to_data_array(
+                    delayed_arrays=i,
+                    name=j,
+                    metadata=self.metadata,
+                    dtype=self.schema[j],
+                ) 
+                for i, j in zip(delayed_rasters, columns)
+            ]
+        )
 
         info(f"Converted to Dataset as raster.")
 
-        # return dataset
+        return dataset
 
 
 _VectorLayer = TypeVar("_VectorLayer", bound="VectorLayer")
