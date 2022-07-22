@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import json
 from logging import INFO, info, basicConfig
-from msilib import schema
+# from msilib import schema
 from typing import Any, Dict, Generator, List, Optional, TypeVar, Tuple, Union
 
 from affine import Affine
@@ -20,7 +20,6 @@ from sds_data_model._vector import (
     _select,
     _to_raster,
     _where,
-    # _get_col_dtype,
     _get_categories,
     _recode_categorical_strings,
 )
@@ -30,7 +29,6 @@ from sds_data_model.constants import (
     BNG,
     BoundingBox,
     OUT_SHAPE,
-    raster_dtype_levels,
 )
 from sds_data_model.metadata import Metadata
 
@@ -273,17 +271,27 @@ class TiledVectorLayer:
         if columns ahve been recoded it updates the schema to uint32. This could be refined to 
         use the length of the lookup to pick the least costly data type."""
  
+        # delayed_rasters = (
+        #     (
+        #         tile.recode_column(i, self.category_lookup[i]).to_raster(column=i, dtype='uint32') 
+        #         if i in self.category_lookup.keys()
+        #         else tile.to_raster(column=i, dtype=self.schema[i])
+        #         for tile in self.tiles
+        #     ) 
+        #     for i in columns
+        # )
+        # self.schema = {k:'uint32' if k in self.category_lookup.keys() else v for (k,v) in self.schema.items()}
+
         delayed_rasters = (
             (
-                tile.recode_column(i, self.category_lookup[i]).to_raster(column=i, dtype='uint32') 
-                if i in self.category_lookup.keys()
-                else tile.to_raster(column=i, dtype=self.schema[i])
+                tile.to_raster(column=i, dtype=self.schema[i])
                 for tile in self.tiles
             ) 
             for i in columns
         )
 
-        self.schema = {k:'uint32' if k in self.category_lookup.keys() else v for (k,v) in self.schema.items()}
+        print(self.schema[i] for i in columns)
+        # print(columns)
 
         dataset = merge(
             [
@@ -336,6 +344,8 @@ class VectorLayer:
 
         if convert_to_categorical:
             category_lookup = _get_categories(data_path, convert_to_categorical, data_kwargs=data_kwargs)
+        else:
+            category_lookup = {}
 
         schema = {
             k: v
