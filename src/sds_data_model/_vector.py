@@ -170,6 +170,7 @@ def _get_categories(
         convert_to_categorical: List[str],
         data_kwargs: Dict[str, Any],
     ) -> dict:
+        """Returns a nested dictionary of {column : {Integer:String}}, one per column specified as categorical by the user."""
         gpdf_non_spatial = read_file(data_path, ignore_geometry=True, **data_kwargs)
 
         cat_col_lookup = [dict(enumerate(gpdf_non_spatial[col].astype("category").cat.categories)) for col in convert_to_categorical]
@@ -183,7 +184,8 @@ def _recode_categorical_strings(
         column: str,
         lookup: Dict[str, Any]
     ) -> GeoDataFrame:
-    
+        """Returns a GeoDataFrame where an integer representation of a categorical column specified by the user is assigned 
+        to the GeoDataFrame - string representation is dropped but mapping is stored in self.category_lookup."""    
         gpdf[f'{column}_code']=gpdf[column].apply(lambda x: list(lookup[column].keys())[list(lookup[column].values()).index(x)])
             
         gpdf = gpdf.drop(columns=[f'{column}']).rename(columns={f'{column}_code' : f'{column}'})

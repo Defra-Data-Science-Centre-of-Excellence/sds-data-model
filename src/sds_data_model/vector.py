@@ -42,6 +42,7 @@ _VectorTile = TypeVar("_VectorTile", bound="VectorTile")
 class VectorTile:
     bbox: BoundingBox
     gpdf: Delayed
+    category_lookup: Optional[Dict[str, Any]]
 
     @property
     def transform(self: _VectorTile) -> Affine:
@@ -121,8 +122,19 @@ class VectorTile:
         out_shape: Tuple[int, int] = OUT_SHAPE,
         dtype: str = "uint8",
     ) -> Delayed:
+        
+        if column in self.category_lookup.keys():
+            data = _recode_categorical_strings(
+                gpdf=self.gpdf,
+                column=column,
+                lookup=self.category_lookup,
+            )
+
+        else:
+            data = self.gpdf
+
         raster = _to_raster(
-            gpdf=self.gpdf,
+            gpdf=data,
             column=column,
             out_shape=out_shape,
             transform=self.transform,
@@ -130,20 +142,6 @@ class VectorTile:
         )
 
         return raster
-    
-    def recode_column(
-        self: _VectorTile,
-        column: str,
-        lookup: Dict[str, Any]
-    ) -> _VectorTile:
-        
-        recoded_data = _recode_categorical_strings(
-            gpdf=self.gpdf,
-            column=column,
-            lookup=lookup,
-        )
-
-        return recoded_data
 
 _TiledVectorLayer = TypeVar("_TiledVectorLayer", bound="TiledVectorLayer")
 
@@ -267,31 +265,19 @@ class TiledVectorLayer:
         columns: List[str],
     ) -> Dataset:
         """This method rasterises the specified columns using a schema defined in VectorLayer. 
-        It also recodes categorical variables if those columns have been specfied by the user, 
-        if columns ahve been recoded it updates the schema to uint32. This could be refined to 
-        use the length of the lookup to pick the least costly data type."""
+        If columns have been specified as categorical by the user it updates the schema to uint32."""
  
-        # delayed_rasters = (
-        #     (
-        #         tile.recode_column(i, self.category_lookup[i]).to_raster(column=i, dtype='uint32') 
-        #         if i in self.category_lookup.keys()
-        #         else tile.to_raster(column=i, dtype=self.schema[i])
-        #         for tile in self.tiles
-        #     ) 
-        #     for i in columns
-        # )
-        # self.schema = {k:'uint32' if k in self.category_lookup.keys() else v for (k,v) in self.schema.items()}
+        tiles = list(self.tiles)
 
+        self.schema = {k:'uint32' if k in self.category_lookup.keys() else v for (k,v) in self.schema.items()}
+        
         delayed_rasters = (
             (
                 tile.to_raster(column=i, dtype=self.schema[i])
-                for tile in self.tiles
+                for tile in tiles
             ) 
             for i in columns
         )
-
-        print(self.schema[i] for i in columns)
-        # print(columns)
 
         dataset = merge(
             [
@@ -369,6 +355,7 @@ class VectorLayer:
             VectorTile(
                 bbox=bbox,
                 gpdf=self.gpdf.clip(box(*bbox)),
+                category_lookup=self.category_lookup,
             )
             for bbox in bboxes
         )
