@@ -63,4 +63,4 @@ jobs:
       - name: Setup
         uses: ./actions/setup-environment
       - name: Run nox
-        run: poetry run nox -s flake8
+        run: poetry run nox -s lint
