@@ -33,7 +33,7 @@ nox.options.sessions = (
     # "tests",
     # "typeguard",
     # "xdoctest",
-    # "docs-build",
+    "docs-build",
 )
 
 
@@ -201,7 +201,9 @@ def docs_build(session: Session) -> None:
         args.insert(0, "--color")
 
     session.install(".")
-    session.install("sphinx")
+    session.install(
+        "sphinx"
+        )
 
     build_dir = Path("_build")
     html_dir = Path("_build/html")
