@@ -60,6 +60,16 @@ This will run the `pytest` session defined in the project `noxfile.py` file.
 
 ## In VS Code
 
+```Json
+{
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}
+```
+
 You can use the Testing tab to configure tests you have written which sorts the tests by repository, folder, file and each test function you have written as an individual test that can be run by pressing the "Run Test" button. Allowing to run individual parts, groups or all of the tests easily. 
 
 
