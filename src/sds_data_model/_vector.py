@@ -179,15 +179,35 @@ def _get_categories(
 
         return cat_lookup
 
-def _recode_categorical_strings(
-        gpdf: GeoDataFrame,
-        column: str,
-        lookup: Dict[str, Any]
-    ) -> GeoDataFrame:
-        """Returns a GeoDataFrame where an integer representation of a categorical column specified by the user is assigned 
-        to the GeoDataFrame - string representation is dropped but mapping is stored in self.category_lookup."""    
-        gpdf[f'{column}_code']=gpdf[column].apply(lambda x: list(lookup[column].keys())[list(lookup[column].values()).index(x)])
-            
-        gpdf = gpdf.drop(columns=[f'{column}']).rename(columns={f'{column}_code' : f'{column}'})
+def _get_index_of_category(
+    category_lookup: CategoryLookup,
+    category: str,
+) -> int:
+    return list(category_lookup.values()).index(category)
 
-        return gpdf
+
+def _get_code_for_category(
+    category_lookup: CategoryLookup,
+    category: str,
+) -> str:
+    index = _get_index_of_category(
+        category_lookup=category_lookup,
+        category=category,
+    )
+    return list(category_lookup.keys())[index]
+
+
+def _recode_categorical_strings_ed(
+    gpdf: GeoDataFrame,
+    column: str,
+    category_lookups: CategoryLookups,
+) -> GeoDataFrame:
+    """Returns a GeoDataFrame where an integer representation of a categorical column specified by the user is assigned
+    to the GeoDataFrame - string representation is dropped but mapping is stored in self.category_lookup."""
+    gpdf.loc[:, column] = gpdf.loc[:, column].apply(
+        lambda category: _get_code_for_category(
+            category_lookup=category_lookups[column],
+            category=category,
+        )
+    )
+    return gpdf
