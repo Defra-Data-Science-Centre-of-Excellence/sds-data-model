@@ -36,6 +36,63 @@ SDS Data Model
    :alt: Black
 
 
+Aim
+---
+
+In spatial data science, we want data that is easy to use.
+We consider data that is easy to use as aligned to the `FAIR guiding principles <https://www.go-fair.org/fair-principles/>`_:
+
+**F**\ indable
+
+We want data that has clear provenance - we understand where
+it has come from and its subsequent transformation history. This means capturing metadata
+and logging transformations in a standard way.
+This will aid discovery and allow users to unambiguously document their data.
+
+**A**\ ccessible
+
+We want consolidated data that can be accessed centrally.
+We want to work with free and open source data as much as possible, eliminating restrictions to use.
+However, where licensing is the reality, we want to be clear about who can use data and restrictions to sharing.
+
+**I**\ nteroperable
+
+We want data that works together.
+This means that we can easily combine different datasets because they share a common coordinate reference system,
+spatial extent and resolution.
+It should also be possible to understand the relative uncertainty in different datasets through the metadata available.
+
+**R**\ eusable
+
+We want data that is easy to use and reuse across different projects.
+This means that data pipelines are well described and transparent such that data can be used in multiple settings.
+It also means that the data are useful and relevant to different activities, forming a common foundation for analysis.
+
+The aim of the data model is to provide the tooling that enables easy to use *analysis ready* data.
+The data model is a library of code that can help us organise and standardise data using reproducible pipelines.
+Reproducible pipelines, implemented in DataBricks notebooks and stored in github, will openly and transparently
+document data provenance and log transformation history.
+
+The core components of the release 0.1 data model library are:
+
+1. Data classes for non-spatial rectangular data, spatial vector data, and spatial array ('raster') data.  
+2. Data classes that read and store metadata belonging to the original data source(s).  
+3. A 'logging tool' that records all transformations datasets undergo, writing a transformation history.  
+4. A specification for the spatial extent, resolution and coordinate reference system of the transformed output.  
+5. The ability to write a standardised output to a known and consistent data format that includes all relevant metadata.  
+6. The ability to read a data format on disk to a python object that can then be used analytically.  
+7. The ability to work with 4 key data types: integers, booleans, decimal/floating point numbers, and nominal categories.
+8. Sufficient documentation to allow use by the core Spatial Data Science team.  
+
+Future functionality could include:
+
+1. Drawing directed acyclic graphs (DAGs) to represent transformation history graphically.
+2. Implementing an ordinal categorical data type.  
+3. Tools for finding/indexing data created for greater discoverability.  
+4. Applications on restricted/sensitive data.
+5. Pipeline orchestration and renewal when new data becomes available.
+6. Detailed tutorial and documentation to support wider uptake and use.
+
 Features
 --------
 
