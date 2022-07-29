@@ -165,19 +165,66 @@ def _from_delayed_to_data_array(
         attrs=_metadata,
     )
 
-def _get_categories(
-        data_path: str,
-        convert_to_categorical: List[str],
-        data_kwargs: Dict[str, Any],
-    ) -> dict:
-        """Returns a nested dictionary of {column : {Integer:String}}, one per column specified as categorical by the user."""
-        gpdf_non_spatial = read_file(data_path, ignore_geometry=True, **data_kwargs)
+from typing import Tuple, Optional
 
-        cat_col_lookup = [dict(enumerate(gpdf_non_spatial[col].astype("category").cat.categories)) for col in convert_to_categorical]
+from pandas import DataFrame, Series
 
-        cat_lookup={col:cat_col_lookup[convert_to_categorical.index(col)] for col in convert_to_categorical}
+CategoryLookup = Dict[str, Dict[int, str]]
+CategoryLookups = Dict[str, CategoryLookup]
+Schema = Dict[str, str]
 
-        return cat_lookup
+def _get_categorical_column(
+    df: DataFrame,
+    column_name: str,
+) -> Series:
+    column = df.loc[:, column_name]
+    return column.astype("category")
+
+def _get_category_lookup(
+    categorical_column: Series,
+) -> CategoryLookup:
+    return {index: category for index, category in enumerate(categorical_column.cat.categories)}
+
+def _get_category_dtype(
+    categorical_column: Series,    
+) -> str:
+    return str(categorical_column.cat.codes.dtype)
+
+def _get_categories_and_dtypes(
+    data_path: str,
+    convert_to_categorical: List[str],
+    data_kwargs: Optional[Dict[str, str]] = None,
+) -> Tuple[CategoryLookups, Schema]:
+            """Category and dtype looks for each column."""
+    if data_kwargs:
+        df = read_dataframe(
+            data_path,
+            read_geometry=False,
+            columns=[convert_to_categorical],
+            **data_kwargs,
+        )
+    else:
+        df = read_dataframe(
+            data_path,
+            read_geometry=False,
+            columns=[convert_to_categorical],
+        )
+    categorical_columns = tuple(
+        (
+            column_name,
+            _get_categorical_column(
+                df=df,
+                column_name=column_name,
+            ),
+         ) for column_name in convert_to_categorical
+    )
+    category_lookups = {
+        column_name: _get_category_lookup(categorical_column) for column_name, categorical_column in categorical_columns
+    }
+    category_dtypes = {
+        column_name: _get_category_dtype(categorical_column) for column_name, categorical_column in categorical_columns
+    }
+    return (category_lookups, category_dtypes)
 
 def _get_index_of_category(
     category_lookup: CategoryLookup,
