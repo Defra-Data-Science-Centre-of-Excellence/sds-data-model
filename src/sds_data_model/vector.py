@@ -328,20 +328,28 @@ class VectorLayer:
 
         _name = name if name else metadata["title"]
 
-        if convert_to_categorical:
-            category_lookup = _get_categories(data_path, convert_to_categorical, data_kwargs=data_kwargs)
-        else:
-            category_lookup = {}
-
         schema = {
             k: v
             for k, v in zip(
-                *(
-                    read_info(data_path).get(key) for key in ["fields", "dtypes"]
-                )
+                *(read_info(data_path).get(key) for key in ["fields", "dtypes"])
             )
         }
 
+        if convert_to_categorical:
+            category_lookups, dtype_lookup = _get_categories_and_dtypes(
+                data_path=data_path,
+                convert_to_categorical=convert_to_categorical,
+                data_kwargs=data_kwargs,
+            )
+            for column in convert_to_categorical:
+                gpdf = _recode_categorical_strings(
+                    gpdf=gpdf,
+                    column=column,
+                    category_lookups=category_lookups,
+                )
+            schema = {**schema, **dtype_lookup}
+        else:
+            category_lookups = None
         return cls(
             name=_name,
             gpdf=gpdf,
