@@ -16,7 +16,9 @@ from rasterio.dtypes import get_minimum_dtype
 from shapely.geometry import box
 from shapely.geometry.base import BaseGeometry
 from xarray import DataArray
+from osgeo.ogr import Open, Layer
 from sds_data_model.constants import (
+    BNG,
     BNG_XMAX,
     BNG_XMIN,
     BNG_YMAX,
@@ -189,3 +191,47 @@ def _get_schema(
         )
     }
     
+
+def _get_layer(
+    path: str, **kwargs
+) -> Layer:
+    """Returns a single layer from an OGR-compatible vector file.
+
+    If no layer identifier is provided then the first (0th) layer is returned.
+
+    Args:
+        path (str): Path to OGR-compatible vector file. 
+
+    Returns:
+        Layer: An ogr.Layer object.
+    """
+    if "layer" in kwargs:
+        iLayer = kwargs.get("layer")
+    else:
+        iLayer = 0
+
+    dataset = Open(path)
+    layer = dataset.GetLayer(iLayer=iLayer)
+
+    return(layer)
+
+def _check_layer_projection(
+    path: str, **kwargs
+) -> None:
+    """Checks whether the projection of an OGR-compatible vector layer is British National Grid (EPSG:27700).
+
+    Args:
+        path (str): Path to OGR-compatible vector file.
+
+    Raises:
+        Exception: When projection of input layer does not match the British National Grid Spatial Reference System. 
+    """    
+    layer = _get_layer(path, **kwargs)
+    layer_prj = layer.GetSpatialRef()
+    
+    # check if projection of input data matches BNG stated in constants
+    if(layer_prj.IsSame(BNG)):
+        # add any logging requirements
+        print("Logging gubbins to go here")
+    else:
+        raise Exception("Input dataset not in British National Grid. Reproject source data.")

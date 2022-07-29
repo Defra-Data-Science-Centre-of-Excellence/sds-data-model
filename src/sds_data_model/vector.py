@@ -20,6 +20,7 @@ from sds_data_model._vector import (
     _where,
     _get_col_dtype,
     _get_schema,
+    _check_layer_projection
 )
 from sds_data_model.constants import (
     BBOXES,
@@ -133,12 +134,17 @@ class VectorTile:
     def get_col_dtype(
         self: _VectorTile,
         column: str,
-    ) -> str:
-        """This method calls _get_col_dtype on an individual vectortile."""
-        return _get_col_dtype(
-            gpdf=self.gpdf,
-            column=column,
-        )
+    ) -> Optional[str]:
+        """This method calls _get_col_dtype on an individual vectortile,
+        if the geodataframe of the vector tile contains data."""
+        gpdf = self.gpdf
+        if not gpdf.empty:
+            return _get_col_dtype(
+                gpdf=gpdf,
+                column=column,
+            )
+        else:
+            return None
 
 
 
@@ -327,10 +333,8 @@ class VectorLayer:
         metadata_path: Optional[str] = None,
         name: Optional[str] = None,
     ) -> _VectorLayer:
+        _check_layer_projection(data_path)
         gpdf = read_file(data_path, **data_kwargs)
-
-        if gpdf.crs.name not in BNG:
-            raise TypeError(f"CRS must be one of {BNG}, not {gpdf.crs.name}")
 
         if not metadata_path:
             metadata = None
