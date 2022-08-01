@@ -10,7 +10,7 @@ from geopandas import GeoDataFrame, read_file
 from more_itertools import chunked
 from numpy import arange, ones, zeros
 from pandas import DataFrame, Series, merge
-from pyogrio.core import ogr_read_info
+from pyogrio import read_dataframe, read_info
 from rasterio.features import geometry_mask, rasterize
 from rasterio.dtypes import get_minimum_dtype
 from shapely.geometry import box
@@ -27,12 +27,11 @@ from sds_data_model.constants import (
     CELL_SIZE,
     OUT_SHAPE,
     BoundingBox,
+    CategoryLookup,
+    CategoryLookups,
+    Schema,
 )
 from sds_data_model.metadata import Metadata
-
-CategoryLookup = Dict[str, Dict[int, str]]
-CategoryLookups = Dict[str, CategoryLookup]
-Schema = Dict[str, str]
 
 
 @delayed
@@ -116,9 +115,9 @@ def _get_shapes(
 ) -> Generator[Tuple[BaseGeometry, Any], None, None]:
     """Yields (Geometry, value) tuples for every row in a GeoDataFrame."""
     return (
-        (geometry, value)
-        for geometry, value in zip(gpdf["geometry"], gpdf[column])
+        (geometry, value) for geometry, value in zip(gpdf["geometry"], gpdf[column])
     )
+
 
 @delayed
 def _to_raster(
@@ -173,20 +172,43 @@ def _from_delayed_to_data_array(
     )
 
 
-def _get_schema(
+def _get_info(
     data_path: str,
-    **kwargs,
-) -> Dict[str, str]:
-    """Uses pyogrio.core.ogr_read_info to read file fields and dtypes and return as dict"""
-    return {
-        fields: dtypes 
-        for fields, dtypes in zip(
-            *map(
-                ogr_read_info(data_path, **kwargs).get, ["fields", "dtypes"]
-            )
+    data_kwargs: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    if data_kwargs:
+        return read_info(
+            data_path,
+            **data_kwargs,
         )
-    }
-    
+    else:
+        return read_info(
+            data_path,
+        )
+
+
+def _get_schema(
+    info: Dict[str, Any],
+) -> Dict[str, str]:
+    """Generate schema from info returned by `_get_info`."""
+    zipped_fields_and_dtypes = zip(*tuple(info[key] for key in ("fields", "dtypes")))
+    return {field: dtype for field, dtype in zipped_fields_and_dtypes}
+
+
+def _get_gpdf(
+    data_path: str,
+    data_kwargs: Optional[Dict[str, Any]] = None,
+) -> GeoDataFrame:
+    if data_kwargs:
+        return read_dataframe(
+            data_path,
+            **data_kwargs,
+        )
+    else:
+        return read_dataframe(
+            data_path,
+        )
+
 
 def _get_categorical_column(
     df: DataFrame,
@@ -195,22 +217,32 @@ def _get_categorical_column(
     column = df.loc[:, column_name]
     return column.astype("category")
 
+
 def _get_category_lookup(
     categorical_column: Series,
 ) -> CategoryLookup:
-    return {index: category for index, category in enumerate(categorical_column.cat.categories)}
+    return {
+        index + 1: category
+        for index, category in enumerate(categorical_column.cat.categories)
+    }
+
 
 def _get_category_dtype(
-    categorical_column: Series,    
+    categorical_column: Series,
 ) -> str:
-    return str(categorical_column.cat.codes.dtype)
+    dtype = categorical_column.cat.codes.dtype
+    if dtype == "int8":
+        return "uint8"
+    else:
+        return str(dtype)
+
 
 def _get_categories_and_dtypes(
     data_path: str,
     convert_to_categorical: List[str],
     data_kwargs: Optional[Dict[str, str]] = None,
 ) -> Tuple[CategoryLookups, Schema]:
-            """Category and dtype looks for each column."""
+    """Category and dtype looks for each column."""
     if data_kwargs:
         df = read_dataframe(
             data_path,
@@ -231,15 +263,19 @@ def _get_categories_and_dtypes(
                 df=df,
                 column_name=column_name,
             ),
-         ) for column_name in convert_to_categorical
+        )
+        for column_name in convert_to_categorical
     )
     category_lookups = {
-        column_name: _get_category_lookup(categorical_column) for column_name, categorical_column in categorical_columns
+        column_name: _get_category_lookup(categorical_column)
+        for column_name, categorical_column in categorical_columns
     }
     category_dtypes = {
-        column_name: _get_category_dtype(categorical_column) for column_name, categorical_column in categorical_columns
+        column_name: _get_category_dtype(categorical_column)
+        for column_name, categorical_column in categorical_columns
     }
     return (category_lookups, category_dtypes)
+
 
 def _get_index_of_category(
     category_lookup: CategoryLookup,
@@ -259,7 +295,7 @@ def _get_code_for_category(
     return list(category_lookup.keys())[index]
 
 
-def _recode_categorical_strings_ed(
+def _recode_categorical_strings(
     gpdf: GeoDataFrame,
     column: str,
     category_lookups: CategoryLookups,
@@ -275,46 +311,19 @@ def _recode_categorical_strings_ed(
     return gpdf
 
 
-def _get_layer(
-    path: str, **kwargs
-) -> Layer:
-    """Returns a single layer from an OGR-compatible vector file.
-
-    If no layer identifier is provided then the first (0th) layer is returned.
-
-    Args:
-        path (str): Path to OGR-compatible vector file. 
-
-    Returns:
-        Layer: An ogr.Layer object.
-    """
-    if "layer" in kwargs:
-        iLayer = kwargs.get("layer")
-    else:
-        iLayer = 0
-
-    dataset = Open(path)
-    layer = dataset.GetLayer(iLayer=iLayer)
-
-    return(layer)
-
 def _check_layer_projection(
-    path: str, **kwargs
+    info: Dict[str, Any],
 ) -> None:
-    """Checks whether the projection of an OGR-compatible vector layer is British National Grid (EPSG:27700).
+    """Checks whether the projection is British National Grid (EPSG:27700)
 
     Args:
-        path (str): Path to OGR-compatible vector file.
+        info (Dict[str, Any]): The dictionary of information returned by `_get_info`.
 
     Raises:
-        Exception: When projection of input layer does not match the British National Grid Spatial Reference System. 
-    """    
-    layer = _get_layer(path, **kwargs)
-    layer_prj = layer.GetSpatialRef()
-    
-    # check if projection of input data matches BNG stated in constants
-    if(layer_prj.IsSame(BNG)):
-        # add any logging requirements
-        print("Logging gubbins to go here")
-    else:
-        raise Exception("Input dataset not in British National Grid. Reproject source data.")
+        TypeError: When projection is not British National Grid.
+    """
+    crs = info["crs"]
+    if crs != "EPSG:27700":
+        raise TypeError(
+            f"Projection is {crs}, not British National Grid (EPSG:27700). Reproject source data."
+        )
