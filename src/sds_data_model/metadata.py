@@ -22,7 +22,40 @@ MetadataType = TypeVar("MetadataType", bound="Metadata")
 
 
 def _get_xpath(xpath: Union[str, List[str]]) -> str:
-    """Construct an xpath query from a string or list of strings."""
+    """Construct an `XPath`_ query from a string or list of strings.
+
+    Examples:
+        >>> TITLE_XPATH = [
+            "gmd:identificationInfo",
+            "gmd:MD_DataIdentification",
+            "gmd:citation",
+            "gmd:CI_Citation",
+            "gmd:title",
+            "gco:CharacterString",
+            "/text()",
+        ]
+        >>> _get_xpath(TITLE_XPATH)
+        'gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString//text()'
+
+        For a string, this is a `no-op`_.
+        >>> TITLE_XPATH = 'gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString//text()'
+        >>> _get_xpath(TITLE_XPATH)
+        'gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString//text()'
+
+    Args:
+        xpath (Union[str, List[str]]): A string or list of strings that represent
+        an XPath query.
+
+    Returns:
+        str: An XPath query.
+
+    .. _XPath:
+        https://www.w3.org/TR/xpath-3/
+
+    .. _no-op:
+        https://en.wikipedia.org/wiki/NOP_(code)
+
+    """
     if isinstance(xpath, str):
         _xpath = xpath
     elif isinstance(xpath, list):
@@ -35,7 +68,37 @@ def _get_target_elements(
     xpath: Union[str, List[str]],
     namespaces: Dict[str, str],
 ) -> List[Element]:
-    """Get a list of Elements using a xpath query."""
+    """Get a list of Elements using a `XPath`_ query.
+
+    Examples:
+        >>> from lxml.etree import parse
+        >>> from sds_data_model.constants import TITLE_XPATH
+        >>> xml = parse("tests/test_metadata/ramsar.xml")
+        >>> root_element = xml.getroot()
+        >>> namespaces = root_element.nsmap
+        >>> _get_target_elements(
+            root_element=root_element,
+            xpath=TITLE_XPATH,
+            namespaces=namespaces,
+        )
+        ['Ramsar (England)']
+
+    Args:
+        root_element (Element): The starting point of the XPath query.
+        xpath (Union[str, List[str]]): A string or list of strings that represent
+        an XPath query.
+        namespaces (Dict[str, str]): A dictionary of XML `namespaces`_.
+
+    Returns:
+        List[Element]: A list of XML elements returned by the XPath query.
+
+    .. _XPath:
+        https://www.w3.org/TR/xpath-3/
+
+    .. _namespaces:
+        https://www.w3.org/TR/xml-names/
+
+    """
     _xpath = _get_xpath(xpath)
     target_elements: List[Element] = root_element.xpath(_xpath, namespaces=namespaces)
     return target_elements
@@ -46,7 +109,37 @@ def _get_value(
     xpath: Union[str, List[str]],
     namespaces: Dict[str, str],
 ) -> str:
-    """Get a single text value from a xpath query."""
+    """Get a single text value from a `XPath`_ query.
+
+    Examples:
+        >>> from lxml.etree import parse
+        >>> from sds_data_model.constants import TITLE_XPATH
+        >>> xml = parse("tests/test_metadata/ramsar.xml")
+        >>> root_element = xml.getroot()
+        >>> namespaces = root_element.nsmap
+        >>> _get_value(
+            root_element=root_element,
+            xpath=TITLE_XPATH,
+            namespaces=namespaces,
+        )
+        'Ramsar (England)'
+
+    Args:
+        root_element (Element): The starting point of the XPath query.
+        xpath (Union[str, List[str]]): A string or list of strings that represent
+        an XPath query.
+        namespaces (Dict[str, str]): A dictionary of XML `namespaces`_.
+
+    Returns:
+        str: The text value of the first element returned by the XPath query.
+
+    .. _XPath:
+        https://www.w3.org/TR/xpath-3/
+
+    .. _namespaces:
+        https://www.w3.org/TR/xml-names/
+
+    """
     target_elements = _get_target_elements(
         root_element,
         xpath=xpath,
@@ -61,7 +154,37 @@ def _get_values(
     xpath: Union[str, List[str]],
     namespaces: Dict[str, str],
 ) -> Tuple[str, ...]:
-    """Get a sequence of text values from a xpath query."""
+    """Get a tuple of text values from a `XPath`_ query.
+
+    Examples:
+        >>> from lxml.etree import parse
+        >>> from sds_data_model.constants import KEYWORD_XPATH
+        >>> xml = parse("tests/test_metadata/ramsar.xml")
+        >>> root_element = xml.getroot()
+        >>> namespaces = root_element.nsmap
+        >>> _get_values(
+            root_element=root_element,
+            xpath=KEYWORD_XPATH,
+            namespaces=namespaces,
+        )
+        ('OpenData', 'NEbatch4', 'Protected sites')
+
+    Args:
+        root_element (Element): The starting point of the XPath query.
+        xpath (Union[str, List[str]]): A string or list of strings that represent
+        an XPath query.
+        namespaces (Dict[str, str]): A dictionary of XML `namespaces`_.
+
+    Returns:
+        str: A tuple of text values returned by the XPath query.
+
+    .. _XPath:
+        https://www.w3.org/TR/xpath-3/
+
+    .. _namespaces:
+        https://www.w3.org/TR/xml-names/
+
+    """
     target_elements = _get_target_elements(
         root_element,
         xpath=xpath,
