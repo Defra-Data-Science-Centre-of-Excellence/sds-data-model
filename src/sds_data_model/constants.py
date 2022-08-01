@@ -1,10 +1,10 @@
 from itertools import product
 from typing import Tuple
-from osr import SpatialReference
+from osgeo.osr import SpatialReference
 
 # British National Grid Projection SpatialReference Object
 BNG = SpatialReference()
-BNG.ImportFromEPSG(27700) 
+BNG.ImportFromEPSG(27700)
 # Minimum x value of BNG in meters
 BNG_XMIN = 0
 # Minimum y value of BNG in meters
@@ -114,7 +114,7 @@ SPATIAL_REPRESENTATION_TYPE_XPATH = [
     "gmd:MD_DataIdentification",
     "gmd:spatialRepresentationType",
     "gmd:MD_SpatialRepresentationTypeCode",
-    "@codeListValue"
+    "@codeListValue",
 ]
 
 ABSTRACT_XPATH = [
