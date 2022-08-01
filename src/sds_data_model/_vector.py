@@ -243,18 +243,14 @@ def _get_categories_and_dtypes(
     data_kwargs: Optional[Dict[str, str]] = None,
 ) -> Tuple[CategoryLookups, Schema]:
     """Category and dtype looks for each column."""
-    if data_kwargs:
-        df = read_dataframe(
-            data_path,
-            read_geometry=False,
-            columns=[convert_to_categorical],
+
+    df = _get_gpdf(
+        data_path=data_path,
+        data_kwargs={
+            "read_geometry": False,
+            "columns": [convert_to_categorical],
             **data_kwargs,
-        )
-    else:
-        df = read_dataframe(
-            data_path,
-            read_geometry=False,
-            columns=[convert_to_categorical],
+        }
         )
     categorical_columns = tuple(
         (
