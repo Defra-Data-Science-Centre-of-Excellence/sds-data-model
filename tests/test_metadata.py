@@ -22,7 +22,7 @@ expected = Metadata(
 
 
 def test_from_file(datadir: Path) -> None:
-    """Returns an expected `Metadata` object, given the path to a known XML file."""
+    """Returns the expected `Metadata` object, given the path to a known XML file."""
     # Arrange
     metadata_path = datadir / "ramsar.xml"
     metadata_path_string = str(metadata_path)
