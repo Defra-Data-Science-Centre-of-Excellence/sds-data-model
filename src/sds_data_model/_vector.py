@@ -176,6 +176,43 @@ def _get_info(
     data_path: str,
     data_kwargs: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
+    """Get information about a vector file using `pyogrio.read_info`_.
+
+    This is a thin wrapper around `pyogrio.read_info`_ that will unpack
+    `data_kwargs` if it exists.
+
+    Examples:
+        >>> from pathlib import Path
+        >>> from pprint import pprint
+        >>> info = _get_info(
+            data_path=f"/vsizip/{Path.cwd()}/tests/data/Countries__December_2021__GB_BUC.zip",
+        )
+        >>> pprint(info)
+        {'capabilities': {'fast_set_next_by_index': 1,
+                        'fast_spatial_filter': 0,
+                        'random_read': 1},
+        'crs': 'EPSG:27700',
+        'dtypes': array(['int32', 'object', 'object', 'object', 'int32', 'int32', 'float64',
+            'float64', 'object', 'float64', 'float64'], dtype=object),
+        'encoding': 'UTF-8',
+        'features': 3,
+        'fields': array(['OBJECTID', 'CTRY21CD', 'CTRY21NM', 'CTRY21NMW', 'BNG_E', 'BNG_N',
+            'LONG', 'LAT', 'GlobalID', 'SHAPE_Leng', 'SHAPE_Area'],
+            dtype=object),
+        'geometry_type': 'Polygon'}
+
+    Args:
+        data_path (str): Path to the vector file.
+        data_kwargs (Optional[Dict[str, Any]], optional): A dictionary of key word arguments to be 
+            passed to`pyogrio.read_info`_. Defaults to None.
+
+    Returns:
+        Dict[str, Any]: A dictionary of information about the vector file.
+
+    .. _pyogrio.read_info:
+        https://pyogrio.readthedocs.io/en/latest/api.html#pyogrio.read_info
+
+    """
     if data_kwargs:
         return read_info(
             data_path,
@@ -189,8 +226,36 @@ def _get_info(
 
 def _get_schema(
     info: Dict[str, Any],
-) -> Dict[str, str]:
-    """Generate schema from info returned by `_get_info`."""
+) -> Schema:
+    """Generate schema from info returned by :func:`_get_info`.
+
+    Examples:
+        >>> from pathlib import Path
+        >>> from pprint import pprint
+        >>> info = _get_info(
+            data_path=f"/vsizip/{Path.cwd()}/tests/data/Countries__December_2021__GB_BUC.zip",
+        )
+        >>> schema = _get_schema(info)
+        >>> pprint(schema)
+        {'BNG_E': 'int32',
+        'BNG_N': 'int32',
+        'CTRY21CD': 'object',
+        'CTRY21NM': 'object',
+        'CTRY21NMW': 'object',
+        'GlobalID': 'object',
+        'LAT': 'float64',
+        'LONG': 'float64',
+        'OBJECTID': 'int32',
+        'SHAPE_Area': 'float64',
+        'SHAPE_Leng': 'float64'}
+
+    Args:
+        info (Dict[str, Any]): The dictionary of information about the vector file
+            returned by :func:`_get_info`.
+
+    Returns:
+        Schema: A dictionary that maps column names to data types.
+    """
     zipped_fields_and_dtypes = zip(*tuple(info[key] for key in ("fields", "dtypes")))
     return {field: dtype for field, dtype in zipped_fields_and_dtypes}
 
@@ -199,6 +264,36 @@ def _get_gpdf(
     data_path: str,
     data_kwargs: Optional[Dict[str, Any]] = None,
 ) -> GeoDataFrame:
+    """Read a vector file into a `geopandas.GeoDataFrame`_ using `pyogrio.read_dataframe`_.
+
+    This is a thin wrapper around `pyogrio.read_dataframe`_ that will unpack
+    `data_kwargs` if it exists.
+
+    Examples:
+        >>> from pathlib import Path
+        >>> _get_gpdf(
+            data_path=f"/vsizip/{Path.cwd()}/tests/data/Countries__December_2021__GB_BUC.zip",
+        )
+        OBJECTID   CTRY21CD  CTRY21NM CTRY21NMW   BNG_E   BNG_N     LONG        LAT                                GlobalID    SHAPE_Leng    SHAPE_Area                                           geometry
+        0         1  E92000001   England    Lloegr  394883  370883 -2.07811  53.235001  {40A19681-7FE5-401C-A464-E58C7667E4D9}  4.616392e+06  1.306811e+11  MULTIPOLYGON (((87767.569 8868.285, 89245.065 ...
+        1         2  S92000003  Scotland  Yr Alban  277744  700060 -3.97094  56.177399  {605FF196-6A26-498B-B944-DF9E6C2A726D}  9.816915e+06  7.865483e+10  MULTIPOLYGON (((202636.001 599689.300, 201891....
+        2         3  W92000004     Wales     Cymru  263405  242881 -3.99417  52.067402  {D31B6005-7F16-4EF2-9BD1-B8CD8CCA5E66}  1.555750e+06  2.081868e+10  MULTIPOLYGON (((215005.297 196592.421, 214331....
+
+    Args:
+        data_path (str): Path to the vector file.
+        data_kwargs (Optional[Dict[str, Any]], optional): A dictionary of key word arguments to be 
+            passed to`pyogrio.read_dataframe`_. Defaults to None.
+
+    Returns:
+        GeoDataFrame: The `geopandas.GeoDataFrame`_ returned by `pyogrio.read_dataframe`_.
+
+    .. _geopandas.GeoDataFrame:
+        https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html
+
+    .. _pyogrio.read_dataframe:
+        https://pyogrio.readthedocs.io/en/latest/api.html#pyogrio.read_dataframe
+
+    """
     if data_kwargs:
         return read_dataframe(
             data_path,
@@ -251,7 +346,7 @@ def _get_categories_and_dtypes(
             "columns": [convert_to_categorical],
             **data_kwargs,
         }
-        )
+    )
     categorical_columns = tuple(
         (
             column_name,
