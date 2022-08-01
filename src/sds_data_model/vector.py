@@ -20,6 +20,8 @@ from sds_data_model._vector import (
     _select,
     _to_raster,
     _where,
+    _get_col_dtype,
+    _get_schema,
     _get_categories,
     _recode_categorical_strings,
     _check_layer_projection
@@ -189,10 +191,13 @@ class TiledVectorLayer:
 
         _name = name if name else metadata["title"]
 
+        schema = _get_schema(data_path=data_path, **data_kwargs)
+
         return cls(
             name=_name,
             tiles=tiles,
             metadata=metadata,
+            schema=schema,
         )
 
     def select(self: _TiledVectorLayer, columns: List[str]) -> _TiledVectorLayer:
@@ -307,7 +312,7 @@ class VectorLayer:
     metadata: Optional[Metadata]
     schema: Dict[str, str]
     category_lookup: Optional[Dict[str, Any]] = None
-    
+
     @classmethod
     def from_files(
         cls: _VectorLayer,
@@ -326,6 +331,8 @@ class VectorLayer:
             metadata = Metadata.from_file(metadata_path)
 
         _name = name if name else metadata["title"]
+
+        schema = _get_schema(data_path=data_path, **data_kwargs)
 
         schema = {
             k: v
@@ -349,6 +356,7 @@ class VectorLayer:
             schema = {**schema, **dtype_lookup}
         else:
             category_lookups = None
+
         return cls(
             name=_name,
             gpdf=gpdf,
