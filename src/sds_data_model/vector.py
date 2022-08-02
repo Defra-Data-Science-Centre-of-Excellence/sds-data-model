@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from logging import INFO, info, basicConfig
-from typing import Any, Dict, Generator, List, Optional, TypeVar, Tuple
+from logging import INFO, basicConfig, info
+from typing import Any, Dict, Generator, List, Optional, Tuple, TypeVar
 
 from affine import Affine
 from dask.delayed import Delayed
@@ -9,33 +9,32 @@ from pandas import DataFrame, Series
 from shapely.geometry import box
 from xarray import DataArray, Dataset, merge
 
-from sds_data_model._helpers import _read_metadata
 from sds_data_model._vector import (
+    _check_layer_projection,
     _from_delayed_to_data_array,
     _from_file,
+    _get_categories_and_dtypes,
+    _get_gpdf,
+    _get_info,
     _get_mask,
+    _get_metadata,
+    _get_schema,
     _join,
+    _recode_categorical_strings,
     _select,
     _to_raster,
     _where,
-    _get_schema,
-    _get_categories_and_dtypes,
-    _recode_categorical_strings,
-    _get_info,
-    _check_layer_projection,
-    _get_gpdf,
 )
 from sds_data_model.constants import (
     BBOXES,
     CELL_SIZE,
-    BoundingBox,
     OUT_SHAPE,
+    BoundingBox,
     CategoryLookups,
     Schema,
 )
+from sds_data_model.logger import log
 from sds_data_model.metadata import Metadata
-from sds_data_model.logger import log, graph
-
 
 basicConfig(format="%(levelname)s:%(asctime)s:%(message)s", level=INFO)
 
@@ -53,7 +52,6 @@ class VectorTile:
         return Affine(CELL_SIZE, 0, xmin, 0, -CELL_SIZE, ymax)
 
     @classmethod
-    @log
     def from_file(
         cls: _VectorTile,
         data_path: str,
@@ -71,7 +69,6 @@ class VectorTile:
             gpdf=gpdf,
         )
 
-    @log
     def select(self: _VectorTile, columns: List[str]) -> _VectorTile:
         gpdf = _select(gpdf=self.gpdf, columns=columns)
         return VectorTile(
@@ -79,7 +76,6 @@ class VectorTile:
             gpdf=gpdf,
         )
 
-    @log
     def where(self: _VectorTile, condition: Series) -> _VectorTile:
         gpdf = _where(gpdf=self.gpdf, condition=condition)
         return VectorTile(
@@ -87,7 +83,6 @@ class VectorTile:
             gpdf=gpdf,
         )
 
-    @log
     def join(
         self: _VectorTile,
         other: DataFrame,
@@ -107,7 +102,6 @@ class VectorTile:
             gpdf=gpdf,
         )
 
-    @log
     def to_mask(
         self: _VectorTile,
         out_shape: Tuple[int, int] = OUT_SHAPE,
@@ -124,7 +118,6 @@ class VectorTile:
 
         return mask
 
-    @log
     def to_raster(
         self: _VectorTile,
         column: str,
@@ -149,11 +142,12 @@ _TiledVectorLayer = TypeVar("_TiledVectorLayer", bound="TiledVectorLayer")
 class TiledVectorLayer:
     name: str
     tiles: Generator[VectorTile, None, None]
-    metadata: Optional[Metadata]
-    category_lookups: Optional[CategoryLookups]
     schema: Schema
+    metadata: Optional[Metadata] = None
+    category_lookups: Optional[CategoryLookups] = None
 
     @classmethod
+    @log
     def from_files(
         cls: _TiledVectorLayer,
         data_path: str,
@@ -171,19 +165,15 @@ class TiledVectorLayer:
             for bbox in bboxes
         )
 
-        info(f"Read data from {data_path}.")
-
         # ? How are we going to check the crs?
         # ? __post_init__ method on VectorTile instead?
         # if gpdf.crs.name != BNG:
         #     raise TypeError(f"CRS must be {BNG}, not {gpdf.crs.name}")
 
-        metadata = _read_metadata(
+        metadata = _get_metadata(
             data_path=data_path,
             metadata_path=metadata_path,
         )
-
-        info(f"Read metadata from {metadata_path}.")
 
         _name = name if name else metadata["title"]
 
@@ -196,6 +186,7 @@ class TiledVectorLayer:
             schema=schema,
         )
 
+    @log
     def select(self: _TiledVectorLayer, columns: List[str]) -> _TiledVectorLayer:
         tiles = tuple(tile.select(columns) for tile in self.tiles)
 
@@ -203,12 +194,12 @@ class TiledVectorLayer:
             name=self.name,
             tiles=tiles,
             metadata=self.metadata,
+            schema=self.schema,
         )
-
-        info(f"Selected columns: {columns}.")
 
         return tiled_vector_layer
 
+    @log
     def where(self: _TiledVectorLayer, condition: Series) -> _TiledVectorLayer:
         tiles = tuple(tile.where(condition) for tile in self.tiles)
 
@@ -216,12 +207,12 @@ class TiledVectorLayer:
             name=self.name,
             tiles=tiles,
             metadata=self.metadata,
+            schema=self.schema,
         )
-
-        info(f"Selected rows where {condition}.")
 
         return tiled_vector_layer
 
+    @log
     def join(
         self: _TiledVectorLayer,
         other: DataFrame,
@@ -243,12 +234,12 @@ class TiledVectorLayer:
             name=self.name,
             tiles=tiles,
             metadata=self.metadata,
+            schema=self.schema,
         )
-
-        info(f"Joined to {other.info()}.")
 
         return tiled_vector_layer
 
+    @log
     def to_data_array_as_mask(self: _TiledVectorLayer) -> DataArray:
         delayed_masks = (tile.to_mask() for tile in self.tiles)
 
@@ -257,11 +248,9 @@ class TiledVectorLayer:
             name=self.name,
             metadata=self.metadata,
         )
-
-        info(f"Converted to DataArray as mask.")
-
         return data_array
 
+    @log
     def to_dataset_as_raster(
         self: _TiledVectorLayer,
         columns: List[str],
@@ -288,8 +277,6 @@ class TiledVectorLayer:
             ]
         )
 
-        info(f"Converted to Dataset as raster.")
-
         return dataset
 
 
@@ -305,6 +292,7 @@ class VectorLayer:
     category_lookups: Optional[CategoryLookups] = None
 
     @classmethod
+    @log
     def from_files(
         cls: _VectorLayer,
         data_path: str,
@@ -331,7 +319,7 @@ class VectorLayer:
 
         gpdf = _get_gpdf(
             data_path=data_path,
-            data_kwargs=data_kwargs,            
+            data_kwargs=data_kwargs,
         )
 
         if convert_to_categorical:
@@ -358,6 +346,7 @@ class VectorLayer:
             schema=schema,
         )
 
+    @log
     def to_tiles(self, bboxes: Tuple[BoundingBox] = BBOXES) -> TiledVectorLayer:
         tiles = (
             VectorTile(

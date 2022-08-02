@@ -1,13 +1,13 @@
 from ctypes import Union
 from functools import wraps
-from logging import basicConfig, info, INFO, exception
-from inspect import signature, getouterframes, currentframe
-from inspect import types
+from inspect import currentframe, getouterframes, signature, types
+from logging import INFO, basicConfig, exception, info
 from re import search
 from types import FunctionType
 from typing import Any, Callable, Tuple
-from xxlimited import Str
+
 from graphviz import Digraph
+from xxlimited import Str
 
 basicConfig(format="%(levelname)s:%(asctime)s:%(message)s", level=INFO)
 

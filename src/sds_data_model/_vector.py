@@ -1,6 +1,7 @@
-from asyncio import run
 from dataclasses import asdict
-from typing import Any, Dict, Generator, List, Optional, Tuple, Union
+from json import load
+from pathlib import Path
+from typing import Any, Dict, Generator, List, Optional, Tuple
 
 from affine import Affine
 from dask import delayed
@@ -12,11 +13,9 @@ from numpy import arange, ones, zeros
 from pandas import DataFrame, Series, merge
 from pyogrio import read_dataframe, read_info
 from rasterio.features import geometry_mask, rasterize
-from rasterio.dtypes import get_minimum_dtype
 from shapely.geometry import box
 from shapely.geometry.base import BaseGeometry
 from xarray import DataArray
-from osgeo.ogr import Open, Layer
 
 from sds_data_model.constants import (
     BNG,
@@ -203,7 +202,7 @@ def _get_info(
 
     Args:
         data_path (str): Path to the vector file.
-        data_kwargs (Optional[Dict[str, Any]], optional): A dictionary of key word arguments to be 
+        data_kwargs (Optional[Dict[str, Any]], optional): A dictionary of key word arguments to be
             passed to`pyogrio.read_info`_. Defaults to None.
 
     Returns:
@@ -281,7 +280,7 @@ def _get_gpdf(
 
     Args:
         data_path (str): Path to the vector file.
-        data_kwargs (Optional[Dict[str, Any]], optional): A dictionary of key word arguments to be 
+        data_kwargs (Optional[Dict[str, Any]], optional): A dictionary of key word arguments to be
             passed to`pyogrio.read_dataframe`_. Defaults to None.
 
     Returns:
@@ -339,13 +338,21 @@ def _get_categories_and_dtypes(
 ) -> Tuple[CategoryLookups, Schema]:
     """Category and dtype looks for each column."""
 
-    df = _get_gpdf(
-        data_path=data_path,
-        data_kwargs={
+    if data_kwargs:
+        _data_kwargs = {
             "read_geometry": False,
             "columns": [convert_to_categorical],
             **data_kwargs,
         }
+    else:
+        _data_kwargs = {
+            "read_geometry": False,
+            "columns": [convert_to_categorical],
+        }
+
+    df = _get_gpdf(
+        data_path=data_path,
+        data_kwargs=_data_kwargs,
     )
     categorical_columns = tuple(
         (
@@ -418,3 +425,16 @@ def _check_layer_projection(
         raise TypeError(
             f"Projection is {crs}, not British National Grid (EPSG:27700). Reproject source data."
         )
+
+
+def _get_metadata(data_path: str, metadata_path: str) -> Optional[Metadata]:
+    """Read metadata from path, or json sidecar, or return None."""
+    json_sidecar = Path(f"{data_path}-metadata.json")
+    if not metadata_path and json_sidecar.exists():
+        with open(json_sidecar, "r") as json_metadata:
+            metadata = load(json_metadata)
+    elif not metadata_path:
+        metadata = None
+    else:
+        metadata = Metadata.from_file(metadata_path)
+    return metadata
