@@ -13,6 +13,7 @@ from numpy import arange, ones, zeros
 from pandas import DataFrame, Series, merge
 from pyogrio import read_dataframe, read_info
 from rasterio.features import geometry_mask, rasterize
+from rasterio.dtypes import get_minimum_dtype
 from shapely.geometry import box
 from shapely.geometry.base import BaseGeometry
 from xarray import DataArray
@@ -31,6 +32,10 @@ from sds_data_model.constants import (
     Schema,
 )
 from sds_data_model.metadata import Metadata
+
+CategoryLookup = Dict[str, Dict[int, str]]
+CategoryLookups = Dict[str, CategoryLookup]
+Schema = Dict[str, str]
 
 
 @delayed
@@ -116,7 +121,6 @@ def _get_shapes(
     return (
         (geometry, value) for geometry, value in zip(gpdf["geometry"], gpdf[column])
     )
-
 
 @delayed
 def _to_raster(
@@ -330,6 +334,15 @@ def _get_category_dtype(
     else:
         return str(dtype)
 
+def _get_category_lookup(
+    categorical_column: Series,
+) -> CategoryLookup:
+    return {index: category for index, category in enumerate(categorical_column.cat.categories)}
+
+def _get_category_dtype(
+    categorical_column: Series,    
+) -> str:
+    return str(categorical_column.cat.codes.dtype)
 
 def _get_categories_and_dtypes(
     data_path: str,

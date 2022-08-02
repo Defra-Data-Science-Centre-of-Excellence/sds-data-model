@@ -6,6 +6,7 @@ from affine import Affine
 from dask.delayed import Delayed
 from geopandas import GeoDataFrame
 from pandas import DataFrame, Series
+from pyogrio import read_info
 from shapely.geometry import box
 from xarray import DataArray, Dataset, merge
 
@@ -24,6 +25,11 @@ from sds_data_model._vector import (
     _select,
     _to_raster,
     _where,
+    _get_col_dtype,
+    _get_schema,
+    _get_categories,
+    _recode_categorical_strings,
+    _check_layer_projection
 )
 from sds_data_model.constants import (
     BBOXES,
@@ -45,6 +51,7 @@ _VectorTile = TypeVar("_VectorTile", bound="VectorTile")
 class VectorTile:
     bbox: BoundingBox
     gpdf: Delayed
+    category_lookup: Optional[Dict[str, Any]]
 
     @property
     def transform(self: _VectorTile) -> Affine:
@@ -321,6 +328,14 @@ class VectorLayer:
             data_path=data_path,
             data_kwargs=data_kwargs,
         )
+        schema = _get_schema(data_path=data_path, **data_kwargs)
+
+        schema = {
+            k: v
+            for k, v in zip(
+                *(read_info(data_path).get(key) for key in ["fields", "dtypes"])
+            )
+        }
 
         if convert_to_categorical:
             category_lookups, dtype_lookup = _get_categories_and_dtypes(
@@ -352,6 +367,7 @@ class VectorLayer:
             VectorTile(
                 bbox=bbox,
                 gpdf=self.gpdf.clip(box(*bbox)),
+                category_lookup=self.category_lookup,
             )
             for bbox in bboxes
         )
