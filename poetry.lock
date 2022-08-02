@@ -385,7 +385,7 @@ python-versions = ">=3.6,<4.0"
 
 [[package]]
 name = "dask"
-version = "2022.7.0"
+version = "2022.7.1"
 description = "Parallel PyData with Task Scheduling"
 category = "main"
 optional = false
@@ -403,10 +403,10 @@ toolz = ">=0.8.2"
 
 [package.extras]
 array = ["numpy (>=1.18)"]
-complete = ["bokeh (>=2.4.2)", "distributed (==2022.7.0)", "jinja2", "numpy (>=1.18)", "pandas (>=1.0)"]
+complete = ["bokeh (>=2.4.2)", "distributed (==2022.7.1)", "jinja2", "numpy (>=1.18)", "pandas (>=1.0)"]
 dataframe = ["numpy (>=1.18)", "pandas (>=1.0)"]
 diagnostics = ["bokeh (>=2.4.2)", "jinja2"]
-distributed = ["distributed (==2022.7.0)"]
+distributed = ["distributed (==2022.7.1)"]
 test = ["pytest", "pytest-rerunfailures", "pytest-xdist", "pre-commit"]
 
 [[package]]
@@ -700,7 +700,7 @@ gitdb = ">=4.0.1,<5"
 
 [[package]]
 name = "graphviz"
-version = "0.20"
+version = "0.20.1"
 description = "Simple Python interface for Graphviz"
 category = "main"
 optional = false
@@ -708,7 +708,7 @@ python-versions = ">=3.7"
 
 [package.extras]
 dev = ["tox (>=3)", "flake8", "pep8-naming", "wheel", "twine"]
-docs = ["sphinx (>=4)", "sphinx-autodoc-typehints", "sphinx-rtd-theme"]
+docs = ["sphinx (>=5)", "sphinx-autodoc-typehints", "sphinx-rtd-theme"]
 test = ["pytest (>=7)", "pytest-mock (>=3)", "mock (>=4)", "pytest-cov", "coverage"]
 
 [[package]]
@@ -1040,21 +1040,6 @@ cftime = "*"
 numpy = ">=1.9"
 
 [[package]]
-name = "networkx"
-version = "2.8.4"
-description = "Python package for creating and manipulating graphs and networks"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-
-[package.extras]
-default = ["numpy (>=1.19)", "scipy (>=1.8)", "matplotlib (>=3.4)", "pandas (>=1.3)"]
-developer = ["pre-commit (>=2.19)", "mypy (>=0.960)"]
-doc = ["sphinx (>=5)", "pydata-sphinx-theme (>=0.9)", "sphinx-gallery (>=0.10)", "numpydoc (>=1.4)", "pillow (>=9.1)", "nb2plots (>=0.6)", "texext (>=0.6.6)"]
-extra = ["lxml (>=4.6)", "pygraphviz (>=1.9)", "pydot (>=1.4.2)", "sympy (>=1.10)"]
-test = ["pytest (>=7.1)", "pytest-cov (>=3.0)", "codecov (>=2.1)"]
-
-[[package]]
 name = "nodeenv"
 version = "1.6.0"
 description = "Node.js virtual environment builder"
@@ -1354,6 +1339,24 @@ description = "Pygments is a syntax highlighting package written in Python."
 category = "dev"
 optional = false
 python-versions = ">=3.5"
+
+[[package]]
+name = "pyogrio"
+version = "0.4.0"
+description = "Vectorized spatial vector file format I/O using GDAL/OGR"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+certifi = "*"
+numpy = "*"
+
+[package.extras]
+test = ["pytest-cov", "pytest"]
+geopandas = ["geopandas", "pygeos"]
+dev = ["cython"]
+benchmark = ["pytest-benchmark"]
 
 [[package]]
 name = "pyparsing"
@@ -2025,7 +2028,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.8"
-content-hash = "7b97e5d1b01c313438456bdca880d2db2d4828b691f124e20ad0842ba45bc943"
+content-hash = "8655e44d0caed09fb12bb52d4db6a114f0801c6163b176c1c52f9e81d51ce034"
 
 [metadata.files]
 affine = [
@@ -2822,7 +2825,6 @@ netcdf4 = [
     {file = "netCDF4-1.5.8-cp39-cp39-win_amd64.whl", hash = "sha256:318ef7dd29b365f3921f9b359ba54f62cfe3aa46ab4464f45c43624d15c4bf55"},
     {file = "netCDF4-1.5.8.tar.gz", hash = "sha256:ca3d468f4812c0999df86e3f428851fb0c17ac34ce0827115c246b0b690e4e84"},
 ]
-networkx = []
 nodeenv = [
     {file = "nodeenv-1.6.0-py2.py3-none-any.whl", hash = "sha256:621e6b7076565ddcacd2db0294c0381e01fd28945ab36bcf00f41c5daf63bef7"},
     {file = "nodeenv-1.6.0.tar.gz", hash = "sha256:3ef13ff90291ba2a4a7a4ff9a979b63ffdd00a464dbe04acf0ea6471517a4c2b"},
@@ -3056,6 +3058,7 @@ pygments = [
     {file = "Pygments-2.11.2-py3-none-any.whl", hash = "sha256:44238f1b60a76d78fc8ca0528ee429702aae011c265fe6a8dd8b63049ae41c65"},
     {file = "Pygments-2.11.2.tar.gz", hash = "sha256:4e426f72023d88d03b2fa258de560726ce890ff3b630f88c21cbb8b2503b8c6a"},
 ]
+pyogrio = []
 pyparsing = [
     {file = "pyparsing-3.0.7-py3-none-any.whl", hash = "sha256:a6c06a88f252e6c322f65faf8f418b16213b51bdfaece0524c1c1bc30c63c484"},
     {file = "pyparsing-3.0.7.tar.gz", hash = "sha256:18ee9022775d270c55187733956460083db60b37d0d0fb357445f3094eed3eea"},
