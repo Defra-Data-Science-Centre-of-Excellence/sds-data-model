@@ -1,5 +1,5 @@
 from itertools import product
-from typing import Tuple
+from typing import Dict, Tuple
 from osgeo.osr import SpatialReference
 
 # British National Grid Projection SpatialReference Object
@@ -26,6 +26,11 @@ OUT_SHAPE = (TILE_SIZE, TILE_SIZE)
 # See https://docs.python.org/3.8/library/typing.html#type-aliases
 BoundingBox = Tuple[int, int, int, int]
 
+
+CategoryLookup = Dict[str, Dict[int, str]]
+CategoryLookups = Dict[str, CategoryLookup]
+Schema = Dict[str, str]
+
 # Order for data types taken from rasterio docs lines 14-27
 # https://github.com/rasterio/rasterio/blob/master/rasterio/dtypes.py
 raster_dtype_levels = [
@@ -42,6 +47,7 @@ raster_dtype_levels = [
     "complex64",
     "complex128",
 ]
+
 
 
 def _get_bboxes(

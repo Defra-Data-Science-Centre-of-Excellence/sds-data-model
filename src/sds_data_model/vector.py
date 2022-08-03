@@ -1,14 +1,11 @@
 from dataclasses import dataclass
-import json
 from logging import INFO, info, basicConfig
-# from msilib import schema
-from typing import Any, Dict, Generator, List, Optional, TypeVar, Tuple, Union
+from typing import Any, Dict, Generator, List, Optional, TypeVar, Tuple
 
 from affine import Affine
 from dask.delayed import Delayed
-from geopandas import GeoDataFrame, read_file
+from geopandas import GeoDataFrame
 from pandas import DataFrame, Series
-from pyogrio import read_info
 from shapely.geometry import box
 from xarray import DataArray, Dataset, merge
 
@@ -20,18 +17,20 @@ from sds_data_model._vector import (
     _select,
     _to_raster,
     _where,
-    _get_col_dtype,
     _get_schema,
-    _get_categories,
+    _get_categories_and_dtypes,
     _recode_categorical_strings,
-    _check_layer_projection
+    _get_info,
+    _check_layer_projection,
+    _get_gpdf,
 )
 from sds_data_model.constants import (
     BBOXES,
     CELL_SIZE,
-    BNG,
     BoundingBox,
     OUT_SHAPE,
+    CategoryLookups,
+    Schema,
 )
 from sds_data_model.metadata import Metadata
 
@@ -45,7 +44,6 @@ _VectorTile = TypeVar("_VectorTile", bound="VectorTile")
 class VectorTile:
     bbox: BoundingBox
     gpdf: Delayed
-    category_lookup: Optional[Dict[str, Any]]
 
     @property
     def transform(self: _VectorTile) -> Affine:
@@ -125,19 +123,8 @@ class VectorTile:
         out_shape: Tuple[int, int] = OUT_SHAPE,
         dtype: str = "uint8",
     ) -> Delayed:
-        
-        if column in self.category_lookup.keys():
-            data = _recode_categorical_strings(
-                gpdf=self.gpdf,
-                column=column,
-                lookup=self.category_lookup,
-            )
-
-        else:
-            data = self.gpdf
-
         raster = _to_raster(
-            gpdf=data,
+            gpdf=self.gpdf,
             column=column,
             out_shape=out_shape,
             transform=self.transform,
@@ -145,6 +132,7 @@ class VectorTile:
         )
 
         return raster
+
 
 _TiledVectorLayer = TypeVar("_TiledVectorLayer", bound="TiledVectorLayer")
 
@@ -154,8 +142,8 @@ class TiledVectorLayer:
     name: str
     tiles: Generator[VectorTile, None, None]
     metadata: Optional[Metadata]
-    category_lookup: Optional[Dict[str, Any]]
-    schema: Dict[str, str]
+    category_lookups: Optional[CategoryLookups]
+    schema: Schema
 
     @classmethod
     def from_files(
@@ -270,18 +258,13 @@ class TiledVectorLayer:
         self: _TiledVectorLayer,
         columns: List[str],
     ) -> Dataset:
-        """This method rasterises the specified columns using a schema defined in VectorLayer. 
+        """This method rasterises the specified columns using a schema defined in VectorLayer.
         If columns have been specified as categorical by the user it updates the schema to uint32."""
- 
+
         tiles = list(self.tiles)
 
-        self.schema = {k:'uint32' if k in self.category_lookup.keys() else v for (k,v) in self.schema.items()}
-        
         delayed_rasters = (
-            (
-                tile.to_raster(column=i, dtype=self.schema[i])
-                for tile in tiles
-            ) 
+            (tile.to_raster(column=i, dtype=self.schema[i]) for tile in tiles)
             for i in columns
         )
 
@@ -292,7 +275,7 @@ class TiledVectorLayer:
                     name=j,
                     metadata=self.metadata,
                     dtype=self.schema[j],
-                ) 
+                )
                 for i, j in zip(delayed_rasters, columns)
             ]
         )
@@ -309,21 +292,27 @@ _VectorLayer = TypeVar("_VectorLayer", bound="VectorLayer")
 class VectorLayer:
     name: str
     gpdf: GeoDataFrame
-    metadata: Optional[Metadata]
-    schema: Dict[str, str]
-    category_lookup: Optional[Dict[str, Any]] = None
+    schema: Schema
+    metadata: Optional[Metadata] = None
+    category_lookups: Optional[CategoryLookups] = None
 
     @classmethod
     def from_files(
         cls: _VectorLayer,
         data_path: str,
-        data_kwargs: Dict[str, Any],
+        data_kwargs: Optional[Dict[str, Any]] = None,
         convert_to_categorical: List[str] = None,
         metadata_path: Optional[str] = None,
         name: Optional[str] = None,
     ) -> _VectorLayer:
-        _check_layer_projection(data_path)
-        gpdf = read_file(data_path, **data_kwargs)
+        info = _get_info(
+            data_path=data_path,
+            data_kwargs=data_kwargs,
+        )
+
+        _check_layer_projection(info)
+
+        schema = _get_schema(info)
 
         if not metadata_path:
             metadata = None
@@ -332,14 +321,10 @@ class VectorLayer:
 
         _name = name if name else metadata["title"]
 
-        schema = _get_schema(data_path=data_path, **data_kwargs)
-
-        schema = {
-            k: v
-            for k, v in zip(
-                *(read_info(data_path).get(key) for key in ["fields", "dtypes"])
-            )
-        }
+        gpdf = _get_gpdf(
+            data_path=data_path,
+            data_kwargs=data_kwargs,            
+        )
 
         if convert_to_categorical:
             category_lookups, dtype_lookup = _get_categories_and_dtypes(
@@ -361,7 +346,7 @@ class VectorLayer:
             name=_name,
             gpdf=gpdf,
             metadata=metadata,
-            category_lookup=category_lookup,
+            category_lookups=category_lookups,
             schema=schema,
         )
 
@@ -370,7 +355,6 @@ class VectorLayer:
             VectorTile(
                 bbox=bbox,
                 gpdf=self.gpdf.clip(box(*bbox)),
-                category_lookup=self.category_lookup,
             )
             for bbox in bboxes
         )
@@ -379,6 +363,6 @@ class VectorLayer:
             name=self.name,
             tiles=tiles,
             metadata=self.metadata,
-            category_lookup=self.category_lookup,
+            category_lookups=self.category_lookups,
             schema=self.schema,
         )
