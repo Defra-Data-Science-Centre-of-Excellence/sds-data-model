@@ -25,9 +25,7 @@ from sds_data_model._vector import (
     _select,
     _to_raster,
     _where,
-    _get_col_dtype,
     _get_schema,
-    _get_categories,
     _recode_categorical_strings,
     _check_layer_projection
 )
