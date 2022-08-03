@@ -144,6 +144,7 @@ class TiledVectorLayer:
     metadata: Optional[Metadata]
     category_lookups: Optional[CategoryLookups]
     schema: Schema
+    category_lookups: Optional[CategoryLookups] = None
 
     @classmethod
     def from_files(
