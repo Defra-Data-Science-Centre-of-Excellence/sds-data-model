@@ -2,30 +2,23 @@
 
 ## What?
 
-This project uses [`pytest`](https://pycqa.github.io/isort/index.html) and [`coverage`](https://black.readthedocs.io/en/stable/index.html) for formatting.
+This project uses [`pytest`](https://docs.pytest.org/en/7.1.x/) and [`coverage`](https://coverage.readthedocs.io/en/6.4.2/) for testing.
 
-`pytest` is "a Python utility / library to sort imports alphabetically, and automatically separated into sections and by type."[^1]
+`pytest` is "a framework that makes it easy to write small, readable tests, and can scale to support complex functional testing for applications and libraries."[^1]
 
-`coverage` is a [PEP 8](https://peps.python.org/pep-0008/), Python's official style guide, "compliant opinionated formatter with its own style.".[^2]
+`coverage` is "a tool for measuring code coverage of Python programs. It monitors your program, noting which parts of the code have been executed, then analyzes the source to identify code that could have been executed but was not.".[^2]
 
 ## Why?
 
 Testing allows to test different sections of the code in a formalised and systematic manner to reduce errors and bugs. Python comes with a default testing framework called `unittest`. The advantage of using `pytest` over `unittest` is that the test reports are more comprehensive showcasing where the tests have failed and which files were run. It is also easy to setup tests with `pytest` than with `unittest` making it easier to use and less code to write. 
 
 
-
-Similarly, there are quite a few import sorters but `isort` is my choice because it's maintained by the [Python Code Quality Authority](https://meta.pycqa.org/) and it integrates well with `black`.[^3]
-
-### Do we really need a separate formatter for imports?
-
-Yes, as, at the moment at least, the `black` maintainers have no plans to offer import sorting.[^4]
-
 ## How?
 
 There are several ways you can run these formatters:
 
-1. ad-hoc via the command-line
-1. ad-hoc via your IDE
+1. Via the command-line
+1. In VS Code
 1. After you push to GitHub, as part of a CI pipeline
 
 
@@ -52,10 +45,10 @@ This will run the version of `pytest` installed within your current `poetry virt
 However, we'll generally be running `pytest` via `nox`, a test runner that will provide a consistent interface for all our automated checks and tests:
 
 ```sh
-poetry run nox -s pytest
+poetry run nox -s tests
 ```
 
-This will run the `pytest` session defined in the project `noxfile.py` file.
+This will run the `pytest` session defined in the project `noxfile.py` file. `coverage ` is also run as a part of the nox session. 
 
 
 ## In VS Code
@@ -72,15 +65,9 @@ This will run the `pytest` session defined in the project `noxfile.py` file.
 
 You can use the Testing tab to configure tests you have written which sorts the tests by repository, folder, file and each test function you have written as an individual test that can be run by pressing the "Run Test" button. Allowing to run individual parts, groups or all of the tests easily. 
 
-
-
 ## As part of a CI pipeline
 
 This project uses GitHub Actions for Continuous Integration. The CI workflow is defined in `.github/workflows/python-package.yml`. This workflow will run  `pytest` and `coverage` sessions as part of the `test` job, whenever code is pushed to the `develop` branch or pull requests into `develop` are triggered.
 
-[^1]: https://pycqa.github.io/isort/index.html
-[^2]: https://black.readthedocs.io/en/stable/the_black_code_style/index.html
-[^3]: <https://pycqa.github.io/isort/docs/configuration/black_compatibility.html>
-[^4]: <https://github.com/psf/black/issues/333#issuecomment-1153637034>
-[^5]: https://code.visualstudio.com/docs/python/editing#_formatting
-[^6]: You can open your settings by selecting File > Preferences > Settings or by using the keyboard shortcut `Ctrl + ,`. You can then switch to the JSON view by clicking the icon of a file with an arrow in the top-right hand corner of the screen.
+[^1]: https://docs.pytest.org/en/7.1.x/
+[^2]: https://coverage.readthedocs.io/en/6.4.2/
