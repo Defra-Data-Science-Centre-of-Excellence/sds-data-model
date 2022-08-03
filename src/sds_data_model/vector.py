@@ -141,9 +141,8 @@ _TiledVectorLayer = TypeVar("_TiledVectorLayer", bound="TiledVectorLayer")
 class TiledVectorLayer:
     name: str
     tiles: Generator[VectorTile, None, None]
-    metadata: Optional[Metadata]
-    category_lookups: Optional[CategoryLookups]
     schema: Schema
+    metadata: Optional[Metadata] = None
     category_lookups: Optional[CategoryLookups] = None
 
     @classmethod
