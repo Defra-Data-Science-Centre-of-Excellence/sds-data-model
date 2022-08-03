@@ -223,6 +223,8 @@ class TiledVectorLayer:
             name=self.name,
             tiles=tiles,
             metadata=self.metadata,
+            category_lookups=self.category_lookups,
+            schema=self.schema,
         )
 
         info(f"Selected columns: {columns}.")
@@ -236,6 +238,8 @@ class TiledVectorLayer:
             name=self.name,
             tiles=tiles,
             metadata=self.metadata,
+            category_lookups=self.category_lookups,
+            schema=self.schema,
         )
 
         info(f"Selected rows where {condition}.")
@@ -263,6 +267,8 @@ class TiledVectorLayer:
             name=self.name,
             tiles=tiles,
             metadata=self.metadata,
+            category_lookups=self.category_lookups,
+            schema=self.schema,
         )
 
         info(f"Joined to {other.info()}.")
