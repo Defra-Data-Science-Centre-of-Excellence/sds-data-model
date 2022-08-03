@@ -23,6 +23,8 @@ from sds_data_model._vector import (
     _get_info,
     _check_layer_projection,
     _get_gpdf,
+    _get_name,
+    _get_metadata,
 )
 from sds_data_model.constants import (
     BBOXES,
@@ -55,12 +57,16 @@ class VectorTile:
         cls: _VectorTile,
         data_path: str,
         bbox: BoundingBox,
-        **kwargs: Dict[str, Any],
+        convert_to_categorical: Optional[List[str]] = None,
+        category_lookups: Optional[CategoryLookups] = None,
+        data_kwargs: Optional[Dict[str, Any]] = None,
     ) -> _VectorTile:
         gpdf = _from_file(
             data_path=data_path,
             bbox=bbox,
-            **kwargs,
+            convert_to_categorical=convert_to_categorical,
+            category_lookups=category_lookups,
+            data_kwargs=data_kwargs,
         )
 
         return cls(
@@ -149,42 +155,64 @@ class TiledVectorLayer:
     def from_files(
         cls: _TiledVectorLayer,
         data_path: str,
-        data_kwargs: Dict[str, Any],
         bboxes: Tuple[BoundingBox] = BBOXES,
+        data_kwargs: Optional[Dict[str, Any]] = None,
+        convert_to_categorical: Optional[List[str]] = None,
         metadata_path: Optional[str] = None,
         name: Optional[str] = None,
     ) -> _TiledVectorLayer:
-        tiles = tuple(
-            VectorTile.from_file(
-                data_path=data_path,
-                bbox=bbox,
-                **data_kwargs,
-            )
-            for bbox in bboxes
+        info = _get_info(
+            data_path=data_path,
+            data_kwargs=data_kwargs,
         )
 
-        info(f"Read data from {data_path}.")
+        _check_layer_projection(info)
 
-        # ? How are we going to check the crs?
-        # ? __post_init__ method on VectorTile instead?
-        # if gpdf.crs.name != BNG:
-        #     raise TypeError(f"CRS must be {BNG}, not {gpdf.crs.name}")
+        schema = _get_schema(info)
 
-        if not metadata_path:
-            metadata = None
+        metadata = _get_metadata(
+            data_path=data_path,
+            metadata_path=metadata_path,
+        )
+
+        _name = _get_name(
+            name=name,
+            metadata=metadata,
+        )
+
+        if convert_to_categorical:
+            category_lookups, dtype_lookup = _get_categories_and_dtypes(
+                data_path=data_path,
+                convert_to_categorical=convert_to_categorical,
+                data_kwargs=data_kwargs,
+            )
+            tiles = tuple(
+                VectorTile.from_file(
+                    data_path=data_path,
+                    bbox=bbox,
+                    convert_to_categorical=convert_to_categorical,
+                    category_lookups=category_lookups,
+                    data_kwargs=data_kwargs,
+                )
+                for bbox in bboxes
+            )
+            schema = {**schema, **dtype_lookup}
         else:
-            metadata = Metadata.from_file(metadata_path)
-
-        info(f"Read metadata from {metadata_path}.")
-
-        _name = name if name else metadata["title"]
-
-        schema = _get_schema(data_path=data_path, **data_kwargs)
+            category_lookups = None
+            tiles = tuple(
+                VectorTile.from_file(
+                    data_path=data_path,
+                    bbox=bbox,
+                    data_kwargs=data_kwargs,
+                )
+                for bbox in bboxes
+            )
 
         return cls(
             name=_name,
             tiles=tiles,
             metadata=metadata,
+            category_lookups=category_lookups,
             schema=schema,
         )
 
@@ -301,7 +329,7 @@ class VectorLayer:
         cls: _VectorLayer,
         data_path: str,
         data_kwargs: Optional[Dict[str, Any]] = None,
-        convert_to_categorical: List[str] = None,
+        convert_to_categorical: Optional[List[str]] = None,
         metadata_path: Optional[str] = None,
         name: Optional[str] = None,
     ) -> _VectorLayer:
@@ -314,16 +342,19 @@ class VectorLayer:
 
         schema = _get_schema(info)
 
-        if not metadata_path:
-            metadata = None
-        else:
-            metadata = Metadata.from_file(metadata_path)
+        metadata = _get_metadata(
+            data_path=data_path,
+            metadata_path=metadata_path,
+        )
 
-        _name = name if name else metadata["title"]
+        _name = _get_name(
+            name=name,
+            metadata=metadata,
+        )
 
         gpdf = _get_gpdf(
             data_path=data_path,
-            data_kwargs=data_kwargs,            
+            data_kwargs=data_kwargs,
         )
 
         if convert_to_categorical:
