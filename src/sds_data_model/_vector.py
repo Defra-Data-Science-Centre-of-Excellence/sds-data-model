@@ -499,7 +499,7 @@ def _get_name(
     metadata: Optional[Metadata] = None,
     name: Optional[str] = None,
 ) -> str:
-    """Returns `name`, `metadata.title`, or raises an error.
+    """Returns the provided name, the associated metadata title, or raises an error.
 
     Examples:
         If `name` is provided, the function returns that name:
