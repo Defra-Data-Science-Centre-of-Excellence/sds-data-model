@@ -35,11 +35,11 @@ I came up with the following in `mermaid`:
 
 ```mermaid
 graph TD;
- data_path(["data input:\ntests/data/Ramsar__England__.zip"]) --> from_files[[function:\nVectorLayer.from_files]]
- metadata_path(["metadata input:\ntests/data/Ramsar__England__.xml"]) --> from_files[[function:\nVectorLayer.from_files]]
- from_files[[function:\nVectorLayer.from_files]] --> vector_layer[/"output:\nVectorLayer"/]
- vector_layer[/"output:\nVectorLayer"/] --> to_tiles[[function:\nVectorLayer.to_tiles]]
- to_tiles[[function:\nVectorLayer.to_tiles]] --> tiled_vector_layer[/"output:\nTiledVectorLayer"/]
- tiled_vector_layer[/"output:\nTiledVectorLayer"/] --> to_data_array_as_mask[[function:\nTiledVectorLayer.to_data_array_as_mask]]
- to_data_array_as_mask[[function:\nTiledVectorLayer.to_data_array_as_mask]] --> data_array[/"output:\nxarray.DataArray"/]
+ data_path(["data input:\ntests/data/Ramsar__England__.zip"]) --> from_files[function:\nVectorLayer.from_files]
+ metadata_path(["metadata input:\ntests/data/Ramsar__England__.xml"]) --> from_files[function:\nVectorLayer.from_files]
+ from_files[function:\nVectorLayer.from_files] --> vector_layer[/"output:\nVectorLayer"/]
+ vector_layer[/"output:\nVectorLayer"/] --> to_tiles[function:\nVectorLayer.to_tiles]
+ to_tiles[function:\nVectorLayer.to_tiles] --> tiled_vector_layer[/"output:\nTiledVectorLayer"/]
+ tiled_vector_layer[/"output:\nTiledVectorLayer"/] --> to_data_array_as_mask[function:\nTiledVectorLayer.to_data_array_as_mask]
+ to_data_array_as_mask[function:\nTiledVectorLayer.to_data_array_as_mask] --> data_array[/"output:\nxarray.DataArray"/]
 ```
