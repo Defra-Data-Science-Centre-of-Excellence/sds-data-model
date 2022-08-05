@@ -282,6 +282,7 @@ class TiledVectorLayer:
             delayed_arrays=delayed_masks,
             name=self.name,
             metadata=self.metadata,
+            dtype="uint8",
         )
 
         info(f"Converted to DataArray as mask.")
