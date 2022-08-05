@@ -307,7 +307,7 @@ def to_tiles(self, bboxes: Tuple[BoundingBox] = BBOXES) -> TiledVectorLayer:
 
 ```
 
-Unfortunately, this doesn't work, as, it turns out, I'm comparing a `graphviz.Digraph` object in memory to a `graphviz.Source` object in memory. However, both objects have a `.source` property that will allow me to compare the "generated DOT source code".
+Unfortunately, this doesn't turn the test green as, it turns out, I'm comparing a `graphviz.Digraph` object in memory to a `graphviz.Source` object in memory. However, both objects have a `.source` property that will allow me to compare the "generated DOT source code". String comparison to the rescue!
 
 ```diff
 # test_graph.py
