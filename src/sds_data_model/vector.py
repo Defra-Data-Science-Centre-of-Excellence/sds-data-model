@@ -5,6 +5,7 @@ from typing import Any, Dict, Generator, List, Optional, TypeVar, Tuple
 from affine import Affine
 from dask.delayed import Delayed
 from geopandas import GeoDataFrame
+from graphviz import Digraph
 from pandas import DataFrame, Series
 from shapely.geometry import box
 from xarray import DataArray, Dataset, merge
@@ -148,6 +149,7 @@ class TiledVectorLayer:
     name: str
     tiles: Generator[VectorTile, None, None]
     schema: Schema
+    graph: Digraph
     metadata: Optional[Metadata] = None
     category_lookups: Optional[CategoryLookups] = None
 
@@ -282,6 +284,7 @@ class TiledVectorLayer:
             delayed_arrays=delayed_masks,
             name=self.name,
             metadata=self.metadata,
+            dtype="uint8",
         )
 
         info(f"Converted to DataArray as mask.")
@@ -327,6 +330,7 @@ class VectorLayer:
     name: str
     gpdf: GeoDataFrame
     schema: Schema
+    graph: Digraph
     metadata: Optional[Metadata] = None
     category_lookups: Optional[CategoryLookups] = None
 
@@ -379,12 +383,30 @@ class VectorLayer:
         else:
             category_lookups = None
 
+        graph = Digraph()
+
+        graph.node("data_path", label=f"data input:\n{data_path}", shape="oval")
+        graph.node(
+            "metadata_path", label=f"metadata input:\n{metadata_path}", shape="oval"
+        )
+        graph.node(
+            "VectorLayer.from_files",
+            label="function:\nVectorLayer.from_files",
+            shape="box",
+        )
+        graph.node("VectorLayer", label="output:\nVectorLayer", shape="parallelogram")
+
+        graph.edge("data_path", "VectorLayer.from_files")
+        graph.edge("metadata_path", "VectorLayer.from_files")
+        graph.edge("VectorLayer.from_files", "VectorLayer")
+
         return cls(
             name=_name,
             gpdf=gpdf,
             metadata=metadata,
             category_lookups=category_lookups,
             schema=schema,
+            graph=graph,
         )
 
     def to_tiles(self, bboxes: Tuple[BoundingBox] = BBOXES) -> TiledVectorLayer:
@@ -396,10 +418,21 @@ class VectorLayer:
             for bbox in bboxes
         )
 
+        self.graph.node(
+            "VectorLayer.to_tiles", label="function:\nVectorLayer.to_tiles", shape="box"
+        )
+        self.graph.node(
+            "TiledVectorLayer", label="output:\nTiledVectorLayer", shape="parallelogram"
+        )
+
+        self.graph.edge("VectorLayer", "VectorLayer.to_tiles")
+        self.graph.edge("VectorLayer.to_tiles", "TiledVectorLayer")
+
         return TiledVectorLayer(
             name=self.name,
             tiles=tiles,
             metadata=self.metadata,
             category_lookups=self.category_lookups,
             schema=self.schema,
+            graph=self.graph,
         )
