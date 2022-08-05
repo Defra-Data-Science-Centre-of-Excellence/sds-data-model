@@ -14,7 +14,7 @@ I will use flowchart convention of representing the beginning and end of the pro
 
 ## A simple example for testing
 
-The simplest example I can think of is reading data and metadata into a `VectorLayer`, converting this to a `TiledVectorLayer`, then converting that to a `xarray.DataArray` as a mask. i.e.:
+The simplest example I can think of is reading data and metadata into a `VectorLayer`, then convert it to a `TiledVectorLayer`:
 
 ```python
 from sds_data_model.vector import VectorLayer
@@ -25,9 +25,9 @@ vector_layer = VectorLayer.from_files(
 )
 
 tiled_vector_layer = vector_layer.to_tiles()
-
-data_array = tiled_vector_layer.to_data_array_as_mask()
 ```
+
+## A DAG for this example
 
 So, what would the DAG for this look like?
 
@@ -40,6 +40,87 @@ graph TD;
  from_files[<dl><dt>function:</dt><dd>VectorLayer.from_files</dd></dl>] --> vector_layer[/<dl><dt>output:</dt><dd>VectorLayer</dd></dl>/]
  vector_layer[/<dl><dt>output:</dt><dd>VectorLayer</dd></dl>/] --> to_tiles[<dl><dt>function:</dt><dd>VectorLayer.to_tiles</dd></dl>]
  to_tiles[<dl><dt>function:</dt><dd>VectorLayer.to_tiles</dd></dl>] --> tiled_vector_layer[/<dl><dt>output:</dt><dd>TiledVectorLayer</dd></dl>/]
- tiled_vector_layer[/<dl><dt>output:</dt><dd>TiledVectorLayer</dd></dl>/] --> to_data_array_as_mask[<dl><dt>function:</dt><dd>TiledVectorLayer.to_data_array_as_mask</dd></dl>]
- to_data_array_as_mask[<dl><dt>function:</dt><dd>TiledVectorLayer.to_data_array_as_mask</dd></dl>] --> data_array[/<dl><dt>output:</dt><dd>xarray.DataArray</dd></dl>/]
 ```
+
+Which I then wrote in python using `graphviz`:
+
+```python
+from graphviz import Digraph
+
+dag = Digraph()
+
+dag.node("data_path", label="data input:\ntests/data/Ramsar__England__.zip", shape="oval")
+dag.node("metadata_path", label="metadata input:\ntests/data/Ramsar__England__.xml", shape="oval")
+dag.node("VectorLayer.from_files", label="function:\nVectorLayer.from_files", shape="box")
+dag.node("VectorLayer", label="output:\nVectorLayer", shape="parallelogram")
+
+dag.edge("data_path", "VectorLayer.from_files")
+dag.edge("metadata_path", "VectorLayer.from_files")
+dag.edge("VectorLayer.from_files", "VectorLayer")
+
+dag.node("VectorLayer.to_tiles", label="function:\nVectorLayer.to_tiles", shape="box")
+dag.node("TiledVectorLayer", label="output:\nTiledVectorLayer", shape="parallelogram")
+
+dag.edge("VectorLayer", "VectorLayer.to_tiles")
+dag.edge("VectorLayer.to_tiles", "TiledVectorLayer")
+
+dag.save("tests/data/ramsar_dag.dot")
+```
+
+![ramsar_dag](../tests/data/ramsar_dag.dot)
+
+## The Red
+
+Now we have an expected output, we can write a test.
+
+First, though, we need to access that expected output.
+
+```python
+from pathlib import Path
+
+from graphviz import Digraph, Source
+from pytest import fixture
+
+
+@fixture
+def expected_dag(shared_datadir: Path) -> Digraph:
+    path_to_dot_file = shared_datadir / "ramsar_dag.dot"
+    return Source.from_file(path_to_dot_file)
+```
+
+Here, I'm capturing the expected dag in a `pytest.fixture` and I'm using `pytest-datadir`.
+
+Then, I write a test I know will fail:
+
+```diff
+from pathlib import Path
+
+from graphviz import Digraph, Source
+from pytest import fixture
+
++from sds_data_model.vector import VectorLayer
+
+@fixture
+def expected_dag(shared_datadir: Path) -> Digraph:
+    path_to_dot_file = shared_datadir / "ramsar_dag.dot"
+    return Source.from_file(path_to_dot_file)
+
+
++def test_graph(shared_datadir: Path, expected_dag: Digraph) -> None:
++    data_path = str(shared_datadir / "Ramsar__England__.zip")
++    metadata_path = str(shared_datadir / "Ramsar__England__.xml")
++
++    vector_layer = VectorLayer.from_files(
++        data_path=data_path, metadata_path=metadata_path
++    )
++
++    tiled_vector_layer = vector_layer.to_tiles()
++
++    assert tiled_vector_layer.graph == expected_dag
+```
+
+Which it does, with an `AttributeError` as the `'TiledVectorLayer' object has no attribute 'graph'`.
+
+Perfect, now I just have to make this test pass!
+
+## The Green
