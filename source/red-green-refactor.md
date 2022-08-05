@@ -35,11 +35,11 @@ I came up with the following in `mermaid`:
 
 ```mermaid
 graph TD;
- data_path([<dl><dt>data input:</dt><dd>tests/data/Ramsar__England__.zip</dd></dl>]) --> from_files[function:\nVectorLayer.from_files]
- metadata_path(["metadata input:\ntests/data/Ramsar__England__.xml"]) --> from_files[function:\nVectorLayer.from_files]
- from_files[function:\nVectorLayer.from_files] --> vector_layer[/"output:\nVectorLayer"/]
- vector_layer[/"output:\nVectorLayer"/] --> to_tiles[function:\nVectorLayer.to_tiles]
- to_tiles[function:\nVectorLayer.to_tiles] --> tiled_vector_layer[/"output:\nTiledVectorLayer"/]
- tiled_vector_layer[/"output:\nTiledVectorLayer"/] --> to_data_array_as_mask[function:\nTiledVectorLayer.to_data_array_as_mask]
- to_data_array_as_mask[function:\nTiledVectorLayer.to_data_array_as_mask] --> data_array[/"output:\nxarray.DataArray"/]
+ data_path([<dl><dt>data input:</dt><dd>tests/data/Ramsar__England__.zip</dd></dl>]) --> from_files[<dl><dt>function:</dt><dd>VectorLayer.from_files</dd></dl>]
+ metadata_path([<dl><dt>metadata input:</dt><dd>tests/data/Ramsar__England__.xml</dd></dl>]) --> from_files[<dl><dt>function:</dt><dd>VectorLayer.from_files</dd></dl>]
+ from_files[<dl><dt>function:</dt><dd>VectorLayer.from_files</dd></dl>] --> vector_layer[/<dl><dt>output:</dt><dd>VectorLayer</dd></dl>/]
+ vector_layer[/<dl><dt>output:</dt><dd>VectorLayer</dd></dl>/] --> to_tiles[<dl><dt>function:</dt><dd>VectorLayer.to_tiles</dd></dl>]
+ to_tiles[<dl><dt>function:</dt><dd>VectorLayer.to_tiles</dd></dl>] --> tiled_vector_layer[/<dl><dt>output:</dt><dd>TiledVectorLayer</dd></dl>/]
+ tiled_vector_layer[/<dl><dt>output:</dt><dd>TiledVectorLayer</dd></dl>/] --> to_data_array_as_mask[<dl><dt>function:</dt><dd>TiledVectorLayer.to_data_array_as_mask</dd></dl>]
+ to_data_array_as_mask[<dl><dt>function:</dt><dd>TiledVectorLayer.to_data_array_as_mask</dd></dl>] --> data_array[/<dl><dt>output:</dt><dd>xarray.DataArray</dd></dl>/]
 ```
