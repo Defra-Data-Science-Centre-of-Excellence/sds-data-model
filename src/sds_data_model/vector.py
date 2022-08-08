@@ -262,6 +262,9 @@ class TiledVectorLayer:
             )
             for tile in self.tiles
         )
+        schema_df = other.dtypes.apply(lambda x: x.name).to_dict()
+        schema = self.schema
+        schema = schema.update(schema_df)
 
         tiled_vector_layer = TiledVectorLayer(
             name=self.name,
