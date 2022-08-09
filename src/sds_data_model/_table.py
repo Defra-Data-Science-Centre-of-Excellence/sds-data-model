@@ -4,7 +4,6 @@ import pandas as pd
 def _update_datatypes(
     df 
 ):    
-    df = df.infer_objects()
     fcols = df.select_dtypes('float').columns
     icols = df.select_dtypes('integer').columns
 
@@ -19,5 +18,7 @@ def _update_datatypes(
             return col.astype(str(dtype))
 
     df[icols] = df[icols].apply(convert_int_dtype)
+    
+    df = df.convert_dtypes(convert_integer = False, convert_floating = False)
     
     return df
