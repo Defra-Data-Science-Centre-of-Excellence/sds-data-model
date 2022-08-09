@@ -68,6 +68,8 @@ to data reader.
 
         df = file_reader[suffix](data_path, **data_kwargs)
         
+        # update data types so they are not the default dtypes when read in using pandas. 
+        #Pandas default to the largest dtype (eg. int64) which takes up unnecessary space
         df = _update_datatypes(df)
         
         if not metadata_path:
