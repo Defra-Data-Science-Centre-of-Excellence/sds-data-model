@@ -304,6 +304,7 @@ class VectorLayer:
         convert_to_categorical: List[str] = None,
         metadata_path: Optional[str] = None,
         name: Optional[str] = None,
+        schema: Optional[Dict[str, Any]] = None
     ) -> _VectorLayer:
         info = _get_info(
             data_path=data_path,
@@ -312,7 +313,10 @@ class VectorLayer:
 
         _check_layer_projection(info)
 
-        schema = _get_schema(info)
+        if schema is not None:
+            schema = schema
+        else:
+            schema = _get_schema(info)
 
         if not metadata_path:
             metadata = None
