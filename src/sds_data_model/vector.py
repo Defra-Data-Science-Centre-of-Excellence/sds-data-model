@@ -36,6 +36,7 @@ from sds_data_model.constants import (
     Schema,
 )
 from sds_data_model.metadata import Metadata
+from sds_data_model.graph import initialise_graph, update_graph
 
 
 basicConfig(format="%(levelname)s:%(asctime)s:%(message)s", level=INFO)
@@ -383,22 +384,11 @@ class VectorLayer:
         else:
             category_lookups = None
 
-        graph = Digraph()
-
-        graph.node("data_path", label=f"data input:\n{data_path}", shape="oval")
-        graph.node(
-            "metadata_path", label=f"metadata input:\n{metadata_path}", shape="oval"
+        graph = initialise_graph(
+            data_path=data_path,
+            metadata_path=metadata_path,
+            class_name="VectorLayer",
         )
-        graph.node(
-            "VectorLayer.from_files",
-            label="function:\nVectorLayer.from_files",
-            shape="box",
-        )
-        graph.node("VectorLayer", label="output:\nVectorLayer", shape="parallelogram")
-
-        graph.edge("data_path", "VectorLayer.from_files")
-        graph.edge("metadata_path", "VectorLayer.from_files")
-        graph.edge("VectorLayer.from_files", "VectorLayer")
 
         return cls(
             name=_name,
@@ -418,15 +408,11 @@ class VectorLayer:
             for bbox in bboxes
         )
 
-        self.graph.node(
-            "VectorLayer.to_tiles", label="function:\nVectorLayer.to_tiles", shape="box"
+        graph = update_graph(
+            graph=self.graph,
+            method="to_tiles",
+            output_class_name="TiledVectorLayer",
         )
-        self.graph.node(
-            "TiledVectorLayer", label="output:\nTiledVectorLayer", shape="parallelogram"
-        )
-
-        self.graph.edge("VectorLayer", "VectorLayer.to_tiles")
-        self.graph.edge("VectorLayer.to_tiles", "TiledVectorLayer")
 
         return TiledVectorLayer(
             name=self.name,
@@ -434,5 +420,5 @@ class VectorLayer:
             metadata=self.metadata,
             category_lookups=self.category_lookups,
             schema=self.schema,
-            graph=self.graph,
+            graph=graph,
         )

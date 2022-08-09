@@ -1,4 +1,3 @@
-from ctypes import Union
 from functools import wraps
 from inspect import currentframe, getouterframes, signature, types
 from logging import INFO, basicConfig, exception, info
@@ -7,7 +6,6 @@ from types import FunctionType
 from typing import Any, Callable, Tuple
 
 from graphviz import Digraph
-from xxlimited import Str
 
 basicConfig(format="%(levelname)s:%(asctime)s:%(message)s", level=INFO)
 

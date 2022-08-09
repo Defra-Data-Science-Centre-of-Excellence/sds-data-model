@@ -49,7 +49,6 @@ raster_dtype_levels = [
 ]
 
 
-
 def _get_bboxes(
     xmin: int = BNG_XMIN,
     ymin: int = BNG_YMIN,
