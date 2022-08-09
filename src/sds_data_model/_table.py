@@ -1,4 +1,4 @@
-import pandas as pd  
+from pandas import to_numeric
    
 # Updates datatypes to smaller memory allocation, except dtype int8 which is not accepted by rasterio package, so converted to int16
 def _update_datatypes(
@@ -8,8 +8,8 @@ def _update_datatypes(
     fcols = df.select_dtypes('float').columns
     icols = df.select_dtypes('integer').columns
 
-    df[fcols] = df[fcols].apply(pd.to_numeric, downcast = 'float')
-    df[icols] = df[icols].apply(pd.to_numeric, downcast = 'integer')
+    df[fcols] = df[fcols].apply(to_numeric, downcast = 'float')
+    df[icols] = df[icols].apply(to_numeric, downcast = 'integer')
 
     def convert_int_dtype(col):
         dtype = col.dtypes
