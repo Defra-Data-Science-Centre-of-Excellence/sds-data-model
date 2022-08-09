@@ -3,7 +3,7 @@ import json
 from typing import Any, Dict, List, Optional, TypeVar, Union
 from pathlib import Path
 from pandas import (DataFrame, Series,
-                    read_csv, read_json, read_excel, read_parquet)
+                    read_csv, read_json, read_excel, read_parquet, to_numeric)
 
 from sds_data_model.metadata import Metadata
 
@@ -66,7 +66,23 @@ to data reader.
             raise NotImplementedError(f"File format '{suffix}' not supported.")
 
         df = file_reader[suffix](data_path, **data_kwargs)
+        
+        df = df.infer_objects()
+        fcols = df.select_dtypes('float').columns
+        icols = df.select_dtypes('integer').columns
 
+        df[fcols] = df[fcols].apply(to_numeric, downcast = 'float')
+        df[icols] = df[icols].apply(to_numeric, downcast = 'integer')
+        
+        def upcast_dtype(col):
+            dtype = col.dtypes
+            if dtype == "int8":
+                return col.astype("int16")
+            else:
+                return col.astype(str(dtype))
+            
+        df[icols] = df[icols].apply(upcast_dtype)
+        
         if not metadata_path:
             try:
                 # This is the default for csvw
