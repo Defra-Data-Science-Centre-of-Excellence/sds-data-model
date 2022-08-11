@@ -1,18 +1,32 @@
 from pandas import DataFrame, to_numeric
 
 def _convert_int_dtype(col):
-    """Converts dtype int8 which is not accepted by rasterio package, so converted to int16
+    """Converts dtype int8 to int16, as int8 is not accepted by rasterio package
 
     Example:
-        >>> col = 
+        >>> from pprint import pprint
 
-        >>> _convert_int_dtype(col)
+        >>> from pandas import DataFrame, to_numeric, read_csv
+
+        >>> df = pd.read_csv( "s3://s3-ranch-019/30by30/lpis_ceh_lookup.csv")
+
+        >>> icols = df.select_dtypes('integer').columns
+
+        >>> df.loc[:, icols] = df.loc[:, icols].apply(pd.to_numeric, downcast = 'integer')
+    
+        >>> pprint(df.dtypes)
+        
+        >>> df.loc[:, icols] =df.loc[:, icols].apply(_convert_int_dtype)
+
+        >>> pprint(df.dtypes)
+
+        >>> df.dtypes != 'int8'
 
     Args:
-        col (_type_): Dataframe column 
+        col (_type_): Data frame columns
 
     Returns:
-        str(dtype): _description_
+        str(dtype): string of column dtype
     """
     dtype = col.dtypes
     if dtype == "int8":
@@ -27,11 +41,18 @@ def _update_datatypes(
     """Updates column datatypes to smaller memory allocation, apart from int8 types, which are converted to int16
 
     Example:
-        >>> df = read_in_dataframe
+
+        >>> from pprint import pprint
+
+        >>> from pandas import DataFrame, to_numeric
+
+        >>> df = pd.read_csv( "s3://s3-ranch-019/30by30/lpis_ceh_lookup.csv")
+
+        >>> pprint(df.dtypes)
 
         >>> updated_df = _update_datatypes(df)
 
-        >>> print(updated_df.dtypes)
+        >>> pprint(updated_df.dtypes)
 
 
     Returns:
