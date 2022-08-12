@@ -56,6 +56,7 @@ pyupgrade = "^2.29.1"
 ipykernel = "^6.9.2"
 nox-poetry = "^1.0.1"
 isort = "^5.10.1"
+myst-parser = "^0.18.0"
 
 [tool.isort]
 profile = "black"
