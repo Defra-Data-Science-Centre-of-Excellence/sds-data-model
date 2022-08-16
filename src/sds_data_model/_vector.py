@@ -215,6 +215,7 @@ def _to_raster(
         return rasterize(
             shapes=shapes,
             out_shape=out_shape,
+            fill=-1,
             transform=transform,
             dtype=dtype,
             **kwargs,
