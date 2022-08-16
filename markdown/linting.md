@@ -49,7 +49,7 @@ By default, the `settings.json` file will have "Linting in general" and "Linting
 
 ### As part of a CI pipeline
 
-This project uses GitHub Actions for Continuous Integration. The CI workflow is defined in `.github/workflows/python-package.yml`. This workflow will run the  `black` and `isort` sessions as part of the `format` job, whenever code is pushed to the `develop` branch or pull requests into `develop` are triggered.
+This project uses GitHub Actions for Continuous Integration. The CI workflow is defined in `.github/workflows/python-package.yml`. This workflow will run the  `lint` job, whenever code is pushed to the `develop` branch or pull requests into `develop` are triggered.
 
 It appears that `flake8` cannot be configured with a `pyproject.toml` configuration file (used by many other developer tools). Workarounds such as [`Flake8-pyproject`](https://pypi.org/project/Flake8-pyproject/) have been developed if this approach is desired. Otherwise a `.flake8` config file within the directory/repo is required.  
 
