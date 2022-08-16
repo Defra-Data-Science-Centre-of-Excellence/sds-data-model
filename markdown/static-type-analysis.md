@@ -78,7 +78,7 @@ def greeting(name: Optional[str] = None) -> str:
 
 ### Do we need `mypy` if we're using other linters?
 
-Yes, though `mypy` could be described as a linter; see, for example [the VS Code docs](https://code.visualstudio.com/docs/python/linting#_mypy). I would arguing that `mypy` is more specific and therefore more narrowly useful than a general linter. Where linters highlight common errors and bad practices, mypy focuses on the correct declaration and usage of types. `mypy` therefore augments other linters instead of replacing them.
+Yes, though `mypy` could be described as a linter; see, for example [the VS Code docs](https://code.visualstudio.com/docs/python/linting#_mypy). I would argue that `mypy` is more specific and therefore more narrowly useful than a general linter. Where linters highlight common errors and bad practices, mypy focuses on the correct declaration and usage of types. `mypy` therefore augments other linters instead of replacing them.
 
 ## How?
 
@@ -111,7 +111,7 @@ This will run the `mypy` session defined in the project `noxfile.py` file.
 
 ## In your IDE (VS Code)
 
-You can tell VS Code to [use `mypy` to lint python code](https://code.visualstudio.com/docs/python/linting#_mypy) in your setting:[^1]
+You can tell VS Code to [use `mypy` to lint python code](https://code.visualstudio.com/docs/python/linting#_mypy) in your settings:[^1]
 
 ```json
 {
@@ -145,5 +145,4 @@ This project uses GitHub Actions for Continuous Integration. The CI workflow is 
 ## `mypy` configuration
 
 This project uses a `pyproject.toml` file for configuration. For information on how to configure `mypy` using this file,
-see: [Using a pyproject.toml file](h
-ttps://mypy.readthedocs.io/en/stable/config_file.html#using-a-pyproject-toml-file) in the `mypy` documentation.
+see: [Using a pyproject.toml file](https://mypy.readthedocs.io/en/stable/config_file.html#using-a-pyproject-toml-file) in the `mypy` documentation.

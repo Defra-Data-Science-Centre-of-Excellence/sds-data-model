@@ -28,12 +28,12 @@ nox.options.sessions = (
     "isort",
     "black",
     # "pre-commit",
-    # "safety",
+    "safety",
     "mypy",
     # "tests",
     # "typeguard",
     # "xdoctest",
-    # "docs-build",
+    "docs-build",
 )
 
 
@@ -131,7 +131,12 @@ def safety(session: Session) -> None:
     """Scan dependencies for insecure packages."""
     requirements = session.poetry.export_requirements()
     session.install("safety")
-    session.run("safety", "check", "--full-report", f"--file={requirements}")
+    session.run(
+        "safety", 
+        "check", 
+        "--full-report", 
+        f"--file={requirements}"
+    )
 
 
 @session(python=python_versions)
@@ -201,7 +206,7 @@ def docs_build(session: Session) -> None:
         args.insert(0, "--color")
 
     session.install(".")
-    session.install("sphinx")
+    session.install("sphinx", "myst-parser")
 
     build_dir = Path("_build")
     html_dir = Path("_build/html")
