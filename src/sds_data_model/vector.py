@@ -262,7 +262,12 @@ class TiledVectorLayer:
             )
             for tile in self.tiles
         )
-
+        
+        #Update schema to include columns names and dtypes from dataframe being joined
+        schema_df = other.dtypes.apply(lambda col: col.name).to_dict()
+        schema = self.schema
+        schema = schema.update(schema_df)
+        
         tiled_vector_layer = TiledVectorLayer(
             name=self.name,
             tiles=tiles,
