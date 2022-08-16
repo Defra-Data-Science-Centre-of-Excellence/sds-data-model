@@ -10,11 +10,11 @@ def _convert_int_dtype(
 
         >>> from pandas import DataFrame, to_numeric, read_csv
 
-        >>> df = pd.read_csv( "s3://s3-ranch-019/30by30/lpis_ceh_lookup.csv")
+        >>> df = read_csv( "s3://s3-ranch-019/30by30/lpis_ceh_lookup.csv")
 
         >>> icols = df.select_dtypes('integer').columns
 
-        >>> df.loc[:, icols] = df.loc[:, icols].apply(pd.to_numeric, downcast = 'integer')
+        >>> df.loc[:, icols] = df.loc[:, icols].apply(to_numeric, downcast = 'integer')
     
         >>> pprint(df.dtypes)
         
@@ -46,9 +46,9 @@ def _update_datatypes(
 
         >>> from pprint import pprint
 
-        >>> from pandas import DataFrame, to_numeric
+        >>> from pandas import DataFrame, to_numeric, read_csv
 
-        >>> df = pd.read_csv( "s3://s3-ranch-019/30by30/lpis_ceh_lookup.csv")
+        >>> df = read_csv( "s3://s3-ranch-019/30by30/lpis_ceh_lookup.csv")
 
         >>> pprint(df.dtypes)
 
