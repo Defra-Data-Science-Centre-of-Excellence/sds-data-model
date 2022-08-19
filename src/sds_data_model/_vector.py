@@ -288,9 +288,10 @@ def _get_info(
 
     """
     if data_kwargs:
+        _get_info_kwargs = {key: data_kwargs[key] for key in data_kwargs.keys() & {"layer", "encoding"}}
         return read_info(
             data_path,
-            **data_kwargs,
+            **_get_info_kwargs,
         )
     else:
         return read_info(
