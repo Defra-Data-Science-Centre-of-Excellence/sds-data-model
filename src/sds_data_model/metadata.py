@@ -1,7 +1,9 @@
 from dataclasses import dataclass
+from io import BytesIO
 from typing import Dict, List, Tuple, Type, TypeVar, Union
 
-from lxml.etree import Element, parse
+from requests import get
+from lxml.etree import Element, parse, ElementTree
 
 from sds_data_model.constants import (
     TITLE_XPATH,
@@ -193,6 +195,34 @@ def _get_values(
     return tuple(target_element.strip() for target_element in target_elements)
 
 
+def _get_xml(path: str) -> ElementTree:
+    """Parses XML from remote URL or local file path.
+
+    Examples:
+        Parse XML from a remote URL:
+        >>> xml = _get_xml("https://ckan.publishing.service.gov.uk/harvest/object/715bc6a9-1008-4061-8783-d12e9e7f38a9")
+        >>> xml.docinfo.root_name
+        'MD_Metadata'
+
+        Parse XML from a local file path:
+        >>> xml = _get_xml("../../tests/test_metadata/ramsar.xml")
+        >>> xml.docinfo.root_name
+        'MD_Metadata'
+
+    Args:
+        path (str): A remote URL or local file path.
+
+    Returns:
+        Element: an ElementTree representation of the XML.
+    """
+    if path.startswith("http"):
+        response = get(path)
+        buffered_content = BytesIO(response.content)
+        return parse(buffered_content)
+    else:
+        return parse(path)
+
+
 @dataclass
 class Metadata:
     title: str
@@ -236,7 +266,7 @@ class Metadata:
     @classmethod
     def from_file(cls: Type[MetadataType], xml_path: str) -> MetadataType:
 
-        xml = parse(xml_path)
+        xml = _get_xml(xml_path)
 
         root_element = xml.getroot()
 
