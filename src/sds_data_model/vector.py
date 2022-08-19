@@ -163,7 +163,7 @@ class TiledVectorLayer:
             VectorTile.from_file(
                 data_path=data_path,
                 bbox=bbox,
-                **data_kwargs,
+                data_kwargs=data_kwargs,
             )
             for bbox in bboxes
         )
@@ -180,7 +180,10 @@ class TiledVectorLayer:
 
         _name = name if name else metadata["title"]
 
-        schema = _get_schema(data_path=data_path, **data_kwargs)
+        schema = _get_schema(
+            data_path=data_path,
+            data_kwargs=data_kwargs,
+        )
 
         return cls(
             name=_name,
@@ -324,7 +327,10 @@ class VectorLayer:
             data_path=data_path,
             data_kwargs=data_kwargs,
         )
-        schema = _get_schema(data_path=data_path, **data_kwargs)
+        schema = _get_schema(
+            data_path=data_path,
+            data_kwargs=data_kwargs,
+        )
 
         schema = {
             k: v
