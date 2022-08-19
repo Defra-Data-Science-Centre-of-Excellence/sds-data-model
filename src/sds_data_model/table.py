@@ -3,9 +3,10 @@ import json
 from typing import Any, Dict, List, Optional, TypeVar, Union
 from pathlib import Path
 from pandas import (DataFrame, Series,
-                    read_csv, read_json, read_excel, read_parquet)
+                    read_csv, read_json, read_excel, read_parquet, to_numeric)
 
 from sds_data_model.metadata import Metadata
+from sds_data_model._table import _update_datatypes
 
 _TableLayer = TypeVar("_TableLayer", bound="TableLayer")
 
@@ -66,7 +67,11 @@ to data reader.
             raise NotImplementedError(f"File format '{suffix}' not supported.")
 
         df = file_reader[suffix](data_path, **data_kwargs)
-
+        
+        # update data types so they are not the default dtypes when read in using pandas. 
+        #Pandas default to the largest dtype (eg. int64) which takes up unnecessary space
+        df = _update_datatypes(df)
+        
         if not metadata_path:
             try:
                 # This is the default for csvw

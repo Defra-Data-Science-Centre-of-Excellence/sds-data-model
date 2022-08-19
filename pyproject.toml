@@ -32,7 +32,6 @@ lxml = "^4.9.1"
 xlrd = "^2.0.1"
 openpyxl = "^3.0.10"
 pyogrio = "^0.4.0"
-GDAL = "3.4.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
