@@ -9,7 +9,7 @@ from dask.array import block, from_delayed
 from dask.delayed import Delayed
 from geopandas import GeoDataFrame
 from more_itertools import chunked
-from numpy import arange, ones, zeros
+from numpy import arange, ones, full, zeros
 from pandas import DataFrame, Series, merge
 from pyogrio import read_dataframe, read_info
 from rasterio.features import geometry_mask, rasterize
@@ -203,23 +203,33 @@ def _to_raster(
 ) -> Delayed:
     """Returns a delayed boolean Numpy ndarray with values taken from a given column."""
     if all(gpdf.geometry.is_empty):
-        return zeros(
+        return full(
             shape=out_shape,
+            fill_value=-1,
             dtype=dtype,
         )
-    else:
-        shapes = _get_shapes(
-            gpdf=gpdf,
-            column=column,
-        )
+    shapes = _get_shapes(
+        gpdf=gpdf,
+        column=column,
+    )
+    if dtype == "int8":
         return rasterize(
             shapes=shapes,
             out_shape=out_shape,
             fill=-1,
             transform=transform,
-            dtype=dtype,
+            dtype="int16",
             **kwargs,
-        )
+        ).astype("int8")
+    return rasterize(
+        shapes=shapes,
+        out_shape=out_shape,
+        fill=-1,
+        transform=transform,
+        dtype=dtype,
+        **kwargs,
+    )
+
 
 
 def _from_delayed_to_data_array(
@@ -391,20 +401,19 @@ def _get_categorical_column(
 def _get_category_lookup(
     categorical_column: Series,
 ) -> CategoryLookup:
-    return {
+    category_lookup = {
         index: category
         for index, category in enumerate(categorical_column.cat.categories)
     }
+    category_lookup.update({-1: "No data"})
+    return category_lookup
+
 
 
 def _get_category_dtype(
     categorical_column: Series,
 ) -> str:
-    dtype = categorical_column.cat.codes.dtype
-    if dtype == "int8":
-        return "int16"
-    else:
-        return str(dtype)
+    return categorical_column.cat.codes.dtype
 
 
 def _get_categories_and_dtypes(
@@ -437,7 +446,7 @@ def _get_categories_and_dtypes(
     category_lookups = {
         column_name: _get_category_lookup(categorical_column)
         for column_name, categorical_column in categorical_columns
-    }
+    } 
     category_dtypes = {
         column_name: _get_category_dtype(categorical_column)
         for column_name, categorical_column in categorical_columns
@@ -447,9 +456,10 @@ def _get_categories_and_dtypes(
 
 def _get_index_of_category(
     category_lookup: CategoryLookup,
-    category: str,
+    category: Optional[str],
 ) -> int:
-    return list(category_lookup.values()).index(category)
+    _category = category if category else "No data"
+    return list(category_lookup.values()).index(_category)
 
 
 def _get_code_for_category(
