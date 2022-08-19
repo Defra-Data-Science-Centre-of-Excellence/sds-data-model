@@ -32,7 +32,19 @@ def _get_anonymous_function_string(
     code_input = getouterframes(frame, 100)
     code_context_string = "".join(code_input[5].code_context)
     function_call_string_matches = search(
-        rf"\.{func_name}\(\s*([\w|\W]+)\s*\)\s*\.", code_context_string
+        # "\." =            a literal dot 
+        # "{func_name}" =   the name of the function
+        # "\(" =            a literal opening bracket 
+        # "\s*" =           0 or more whitespace characters, e.g. space, newline, etc
+        # "(" =             begin capture group
+        # "[\w|\W]+" =      1 or more word (\w) or non-word (\W) characters
+        # "[\)|\"|\']" =    a literal closing bracket, double quote mark, or single quote mark  
+        # ")" =             end capture group
+        # "\s*" =           0 or more whitespace characters, e.g. space, newline, etc
+        # "\)" =            a literal closing bracket 
+        # "\s*" =           0 or more whitespace characters, e.g. space, newline, etc
+        # "\." =            a literal dot 
+        rf"\.{func_name}\(\s*([\w|\W]+[\)|\"|\'])\s*\)\s*\.", code_context_string
     )
     if not function_call_string_matches:
         print(code_input)
