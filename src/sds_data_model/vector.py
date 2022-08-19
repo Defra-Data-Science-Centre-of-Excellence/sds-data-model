@@ -27,7 +27,7 @@ from sds_data_model._vector import (
     _where,
     _get_schema,
     _recode_categorical_strings,
-    _check_layer_projection
+    _check_layer_projection,
 )
 from sds_data_model.constants import (
     BBOXES,
@@ -39,8 +39,6 @@ from sds_data_model.constants import (
 )
 from sds_data_model.logger import log
 from sds_data_model.metadata import Metadata
-
-basicConfig(format="%(levelname)s:%(asctime)s:%(message)s", level=INFO)
 
 _VectorTile = TypeVar("_VectorTile", bound="VectorTile")
 
