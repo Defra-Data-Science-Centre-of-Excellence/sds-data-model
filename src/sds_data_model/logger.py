@@ -34,7 +34,10 @@ def _get_anonymous_function_string(
     function_call_strings = search(
         rf"\.{func_name}\(\s*([\w|\W]+?\))\s*\)", code_context_string
     ).group(1)
-    return function_call_strings
+    if not function_call_strings:
+        print(code_input)
+    else:
+        return function_call_strings
 
 
 def _get_parameter_and_argument_tuples(
