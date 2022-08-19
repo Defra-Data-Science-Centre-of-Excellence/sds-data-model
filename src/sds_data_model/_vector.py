@@ -1,25 +1,22 @@
 from dataclasses import asdict
+from typing import Any, Dict, Generator, List, Optional, Tuple
 from json import load
 from pathlib import Path
-from typing import Any, Dict, Generator, List, Optional, Tuple
 
 from affine import Affine
 from dask import delayed
 from dask.array import block, from_delayed
 from dask.delayed import Delayed
-from geopandas import GeoDataFrame, read_file
+from geopandas import GeoDataFrame
 from more_itertools import chunked
 from numpy import arange, ones, zeros
 from pandas import DataFrame, Series, merge
 from pyogrio import read_dataframe, read_info
 from rasterio.features import geometry_mask, rasterize
-from rasterio.dtypes import get_minimum_dtype
-from shapely.geometry import box
 from shapely.geometry.base import BaseGeometry
 from xarray import DataArray
 
 from sds_data_model.constants import (
-    BNG,
     BNG_XMAX,
     BNG_XMIN,
     BNG_YMAX,
@@ -33,23 +30,95 @@ from sds_data_model.constants import (
 )
 from sds_data_model.metadata import Metadata
 
-CategoryLookup = Dict[str, Dict[int, str]]
-CategoryLookups = Dict[str, CategoryLookup]
-Schema = Dict[str, str]
+
+def _combine_kwargs(
+    additional_kwargs: Dict[str, Any],
+    data_kwargs: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """Combines `additional_kwargs` with `data_kwargs` if it exists.
+
+    Examples:
+        If `data_kwargs` exists the two dictionaries are merged, with
+        `additional_kwargs` over-writing `data_kwargs`
+
+        >>> additional_kwargs = {
+                "read_geometry": False,
+                "columns": ["CTRY21NM"],
+        }
+        >>> data_kwargs = {
+            "layer": "CTRY_DEC_2021_GB_BUC"
+        }
+        >>> _combine_kwargs(
+            additional_kwargs=additional_kwargs,
+            data_kwargs=data_kwargs,
+        )
+        {'layer': 'CTRY_DEC_2021_GB_BUC', 'read_geometry': False, 'columns': ['CTRY21NM']}
+
+        If `data_kwargs` doesn't exist, this is a no-op:
+        >>> additional_kwargs = {
+                "read_geometry": False,
+                "columns": ["CTRY21NM"],
+        }
+        >>> _combine_kwargs(
+            additional_kwargs=additional_kwargs,
+        )
+        {'read_geometry': False, 'columns': ['CTRY21NM']}
+
+    Args:
+        additional_kwargs (Dict[str, Any]): Additional keyword arguments that we
+            need to pass to `pyogrio.read_dataframe`_ for a private function to do
+            what it's supposed to.
+        data_kwargs (Optional[Dict[str, Any]], optional): Keyword arguments supplied
+            by the caller that we need to pass to `pyogrio.read_dataframe`_. Defaults
+            to None.
+
+    Returns:
+        Dict[str, Any]: A dictionary of keyword arguments to be to pass
+            to `pyogrio.read_dataframe`_.
+
+    .. _pyogrio.read_dataframe:
+        https://pyogrio.readthedocs.io/en/latest/api.html#pyogrio.read_dataframe
+
+    """
+    if data_kwargs and additional_kwargs:
+        return {
+            **data_kwargs,
+            **additional_kwargs,
+        }
+    elif not data_kwargs and additional_kwargs:
+        return additional_kwargs
 
 
 @delayed
 def _from_file(
     data_path: str,
     bbox: BoundingBox,
-    **kwargs,
+    convert_to_categorical: Optional[List[str]] = None,
+    category_lookups: Optional[CategoryLookups] = None,
+    data_kwargs: Optional[Dict[str, Any]] = None,
 ) -> Delayed:
     """Returns a delayed GeoDataFrame clipped to a given bounding box."""
-    return read_file(
-        filename=data_path,
-        bbox=box(*bbox),
-        **kwargs,
+    combined_kwargs = _combine_kwargs(
+        additional_kwargs={
+            "bbox": bbox,
+        },
+        data_kwargs=data_kwargs,
     )
+
+    gpdf = _get_gpdf(
+        data_path=data_path,
+        data_kwargs=combined_kwargs,
+    )
+
+    if convert_to_categorical and category_lookups:
+        for column in convert_to_categorical:
+            gpdf = _recode_categorical_strings(
+                gpdf=gpdf,
+                column=column,
+                category_lookups=category_lookups,
+            )
+
+    return gpdf
 
 
 @delayed
@@ -121,6 +190,7 @@ def _get_shapes(
     return (
         (geometry, value) for geometry, value in zip(gpdf["geometry"], gpdf[column])
     )
+
 
 @delayed
 def _to_raster(
@@ -320,7 +390,7 @@ def _get_category_lookup(
     categorical_column: Series,
 ) -> CategoryLookup:
     return {
-        index + 1: category
+        index: category
         for index, category in enumerate(categorical_column.cat.categories)
     }
 
@@ -330,19 +400,10 @@ def _get_category_dtype(
 ) -> str:
     dtype = categorical_column.cat.codes.dtype
     if dtype == "int8":
-        return "uint8"
+        return "int16"
     else:
         return str(dtype)
 
-def _get_category_lookup(
-    categorical_column: Series,
-) -> CategoryLookup:
-    return {index: category for index, category in enumerate(categorical_column.cat.categories)}
-
-def _get_category_dtype(
-    categorical_column: Series,    
-) -> str:
-    return str(categorical_column.cat.codes.dtype)
 
 def _get_categories_and_dtypes(
     data_path: str,
@@ -350,22 +411,16 @@ def _get_categories_and_dtypes(
     data_kwargs: Optional[Dict[str, str]] = None,
 ) -> Tuple[CategoryLookups, Schema]:
     """Category and dtype looks for each column."""
-
-    if data_kwargs:
-        _data_kwargs = {
+    combined_kwargs = _combine_kwargs(
+        additional_kwargs={
             "read_geometry": False,
             "columns": [convert_to_categorical],
-            **data_kwargs,
-        }
-    else:
-        _data_kwargs = {
-            "read_geometry": False,
-            "columns": [convert_to_categorical],
-        }
-
+        },
+        data_kwargs=data_kwargs,
+    )
     df = _get_gpdf(
         data_path=data_path,
-        data_kwargs=_data_kwargs,
+        data_kwargs=combined_kwargs,
     )
     categorical_columns = tuple(
         (
@@ -440,14 +495,123 @@ def _check_layer_projection(
         )
 
 
-def _get_metadata(data_path: str, metadata_path: str) -> Optional[Metadata]:
-    """Read metadata from path, or json sidecar, or return None."""
-    json_sidecar = Path(f"{data_path}-metadata.json")
-    if not metadata_path and json_sidecar.exists():
-        with open(json_sidecar, "r") as json_metadata:
-            metadata = load(json_metadata)
-    elif not metadata_path:
-        metadata = None
+def _get_name(
+    metadata: Optional[Metadata] = None,
+    name: Optional[str] = None,
+) -> str:
+    """Returns the provided name, the associated metadata title, or raises an error.
+
+    Examples:
+        If `name` is provided, the function returns that name:
+        >>> _get_name(
+            name="ramsar",
+        )
+        'ramsar'
+    
+        If `name` isn't provided but a :class: Metadata object is, the function returns
+        `metadata.title`:
+        >>> metadata = _get_metadata(
+            data_path="tests/test_metadata/ramsar.gpkg",
+            metadata_path="tests/test_metadata/ramsar.xml",
+        )
+        >>> _get_name(
+            metadata=metadata,
+        )
+        'Ramsar (England)'
+
+        If both are provided, `name` is preferred:
+        >>> metadata = _get_metadata(
+            data_path="tests/test_metadata/ramsar.gpkg",
+            metadata_path="tests/test_metadata/ramsar.xml",
+        )
+        >>> _get_name(
+            name="ramsar",
+            metadata=metadata,
+        )
+        'ramsar'
+
+        If neither are provided, an error is raised:
+        >>> _get_name()
+        ValueError: If there isn't any metadata, a name must be supplied.
+
+    Args:
+        metadata (Optional[Metadata]): A :class: Metadata object containing information
+            parsed from GEMINI XML. Defaults to None.
+        name (Optional[str]): A name, provided by the caller. Defaults to None.
+
+    Raises:
+        ValueError: If neither a name nor a `Metadata` are provided.
+
+    Returns:
+        str: A name for the dataset.
+    """
+    if name:
+        return name
+    elif metadata:
+        return metadata.title
     else:
+        raise ValueError("If there isn't any metadata, a name must be supplied.")
+
+
+def _get_metadata(
+    data_path: str,
+    metadata_path: Optional[str] = None,
+) -> Optional[Metadata]:
+    """Read metadata from path, or json sidecar, or return None.
+
+    Examples:
+        If `metadata_path` is provided, the function will read that:
+        >>> metadata = _get_metadata(
+            data_path="tests/test_metadata/ramsar.gpkg",
+            metadata_path="tests/test_metadata/ramsar.xml",
+        )
+        >>> metadata.title
+        'Ramsar (England)'
+
+        If `metadata_path` isn't provided but a json `sidecar`_ file exists, the
+        function will read that:
+        >>> from os import listdir
+        >>> listdir("tests/test_metadata")
+        ['ramsar.gpkg', 'ramsar.gpkg-metadata.json']
+        >>> metadata = _get_metadata(
+            data_path="tests/test_metadata/ramsar.gpkg",
+        )
+        >>> metadata.title
+        'Ramsar (England)'
+
+        If `metadata_path` isn't provided and there isn't a json sidecar file, the
+        function will return `None`:
+        >>> from os import listdir
+        >>> listdir("tests/test_metadata")
+        ['ramsar.gpkg']
+        >>> metadata = _get_metadata(
+            data_path="tests/test_metadata/ramsar.gpkg",
+        )
+        >>> metadata is None
+        True
+
+    Args:
+        data_path (str): Path to the vector file.
+        metadata_path (Optional[str]): Path to a `UK GEMINI`_ metadata file. 
+        Defaults to None.
+
+    Returns:
+        Optional[Metadata]: An instance of :class: Metadata
+
+    .. _`UK GEMINI`:
+        https://www.agi.org.uk/uk-gemini/
+
+    .. _`sidecar`:
+        https://en.wikipedia.org/wiki/Sidecar_file
+
+    """
+    json_sidecar = Path(f"{data_path}-metadata.json")
+    if metadata_path:
         metadata = Metadata.from_file(metadata_path)
+    elif not metadata_path and json_sidecar.exists():
+        with open(json_sidecar, "r") as json_metadata:
+            metadata_dictionary = load(json_metadata)
+            metadata = Metadata(**metadata_dictionary)
+    else:
+        metadata = None
     return metadata
