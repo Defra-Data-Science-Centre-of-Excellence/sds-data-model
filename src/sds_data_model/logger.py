@@ -30,7 +30,7 @@ def _get_anonymous_function_string(
 ) -> str:
     """Get the input code arguments to a function as a string."""
     code_input = getouterframes(frame, 100)
-    code_context_string = "".join(code_input[-1].code_context)
+    code_context_string = "".join(code_input[4].code_context)
     function_call_strings = search(
         rf"\.{func_name}\(\s*([\w|\W]+?\))\s*\)", code_context_string
     ).group(1)
