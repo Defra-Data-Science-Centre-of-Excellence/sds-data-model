@@ -240,8 +240,6 @@ class TiledVectorLayer:
             schema=self.schema,
         )
 
-        info(f"Selected rows where {condition}.")
-
         return tiled_vector_layer
 
     @log
