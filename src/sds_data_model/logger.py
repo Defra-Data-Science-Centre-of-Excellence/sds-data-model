@@ -32,7 +32,7 @@ def _get_anonymous_function_string(
     code_input = getouterframes(frame, 100)
     code_context_string = "".join(code_input[5].code_context)
     function_call_string_matches = search(
-        rf"\.{func_name}\(\s*([\w|\W]+?\))\s*\)", code_context_string
+        rf"\.{func_name}\(\s*([\w|\W]+\)?)\s*\)", code_context_string
     )
     if not function_call_string_matches:
         print(code_input)
