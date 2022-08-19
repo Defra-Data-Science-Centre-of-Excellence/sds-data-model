@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from logging import INFO, info, basicConfig
 from typing import Any, Dict, Generator, List, Optional, TypeVar, Tuple
 
 from affine import Affine
@@ -35,9 +34,7 @@ from sds_data_model.constants import (
     Schema,
 )
 from sds_data_model.metadata import Metadata
-
-
-basicConfig(format="%(levelname)s:%(asctime)s:%(message)s", level=INFO)
+from sds_data_model.logger import log
 
 _VectorTile = TypeVar("_VectorTile", bound="VectorTile")
 
@@ -152,6 +149,7 @@ class TiledVectorLayer:
     category_lookups: Optional[CategoryLookups] = None
 
     @classmethod
+    @log
     def from_files(
         cls: _TiledVectorLayer,
         data_path: str,
@@ -216,6 +214,7 @@ class TiledVectorLayer:
             schema=schema,
         )
 
+    @log
     def select(self: _TiledVectorLayer, columns: List[str]) -> _TiledVectorLayer:
         tiles = tuple(tile.select(columns) for tile in self.tiles)
 
@@ -227,10 +226,9 @@ class TiledVectorLayer:
             schema=self.schema,
         )
 
-        info(f"Selected columns: {columns}.")
-
         return tiled_vector_layer
 
+    @log
     def where(self: _TiledVectorLayer, condition: Series) -> _TiledVectorLayer:
         tiles = tuple(tile.where(condition) for tile in self.tiles)
 
@@ -246,6 +244,7 @@ class TiledVectorLayer:
 
         return tiled_vector_layer
 
+    @log
     def join(
         self: _TiledVectorLayer,
         other: DataFrame,
@@ -262,12 +261,12 @@ class TiledVectorLayer:
             )
             for tile in self.tiles
         )
-        
-        #Update schema to include columns names and dtypes from dataframe being joined
+
+        # Update schema to include columns names and dtypes from dataframe being joined
         schema_df = other.dtypes.apply(lambda col: col.name).to_dict()
         schema = self.schema
         schema = schema.update(schema_df)
-        
+
         tiled_vector_layer = TiledVectorLayer(
             name=self.name,
             tiles=tiles,
@@ -276,10 +275,9 @@ class TiledVectorLayer:
             schema=self.schema,
         )
 
-        info(f"Joined to {other.info()}.")
-
         return tiled_vector_layer
 
+    @log
     def to_data_array_as_mask(self: _TiledVectorLayer) -> DataArray:
         delayed_masks = (tile.to_mask() for tile in self.tiles)
 
@@ -290,10 +288,9 @@ class TiledVectorLayer:
             dtype="uint8",
         )
 
-        info(f"Converted to DataArray as mask.")
-
         return data_array
 
+    @log
     def to_dataset_as_raster(
         self: _TiledVectorLayer,
         columns: List[str],
@@ -320,8 +317,6 @@ class TiledVectorLayer:
             ]
         )
 
-        info(f"Converted to Dataset as raster.")
-
         return dataset
 
 
@@ -337,6 +332,7 @@ class VectorLayer:
     category_lookups: Optional[CategoryLookups] = None
 
     @classmethod
+    @log
     def from_files(
         cls: _VectorLayer,
         data_path: str,
@@ -393,6 +389,7 @@ class VectorLayer:
             schema=schema,
         )
 
+    @log
     def to_tiles(self, bboxes: Tuple[BoundingBox] = BBOXES) -> TiledVectorLayer:
         tiles = (
             VectorTile(
