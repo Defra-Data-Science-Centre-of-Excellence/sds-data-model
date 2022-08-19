@@ -1,15 +1,27 @@
 from ctypes import Union
 from functools import wraps
 from inspect import currentframe, getouterframes, signature, types
-from logging import INFO, basicConfig, exception, info
+from logging import getLogger, INFO, StreamHandler, Formatter
 from re import search
 from types import FunctionType
 from typing import Any, Callable, Tuple
 
-from graphviz import Digraph
-from xxlimited import Str
+# create logger and set level to info
+logger = getLogger("sds")
+logger.setLevel(INFO)
 
-basicConfig(format="%(levelname)s:%(asctime)s:%(message)s", level=INFO)
+# create stream handler and set level to info
+stream_handler = StreamHandler()
+stream_handler.setLevel(INFO)
+
+# create formatter
+formatter = Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
+# add formatter to stream handler
+stream_handler.setFormatter(formatter)
+
+# add stream handler to logger
+logger.addHandler(stream_handler)
 
 
 def _get_anonymous_function_string(
@@ -90,11 +102,11 @@ def log(func):
         try:
             result = func(*args, **kwargs)
             callable_string = stringify_callable(func, *args, **kwargs)
-            info(f"{callable_string}")
+            logger.info(f"{callable_string}")
             return result
         except Exception as e:
             callable_string = stringify_callable(func, *args, **kwargs)
-            exception(f"{callable_string} raised exception: {str(e)}")
+            logger.exception(f"{callable_string} raised exception: {str(e)}")
             raise e
 
     return wrapper
