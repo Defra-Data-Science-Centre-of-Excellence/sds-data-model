@@ -110,26 +110,3 @@ def log(func):
             raise e
 
     return wrapper
-
-
-def graph(func):
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        function_name = func.__qualname__
-        if function_name == "VectorLayer.from_files":
-            func_signature = signature(func)
-            bound_arguments = func_signature.bind_partial(*args, **kwargs)
-            bound_arguments.apply_defaults()
-            argument_dictionary = {
-                parameter: argument
-                for parameter, argument in bound_arguments.arguments.items()
-            }
-            graph = Digraph()
-            graph.node("data_path", label=argument_dictionary["data_path"])
-            graph.node("metadata_path", label=argument_dictionary["metadata_path"])
-            graph.node("return_value", label="VectorLayer")
-            graph.edge("data_path", "return_value", label=function_name)
-            graph.edge("metadata_path", "return_value", label=function_name)
-            self["graph"] = graph
-
-    return wrapper
