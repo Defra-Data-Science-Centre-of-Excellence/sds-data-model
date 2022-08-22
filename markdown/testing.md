@@ -10,7 +10,7 @@ This project uses [`pytest`](https://docs.pytest.org/en/7.1.x/) and [`coverage`]
 
 ## Why?
 
-Testing allows to test different sections of the code in a formalised and systematic manner to reduce errors and bugs. Python comes with a default testing framework called `unittest`. The advantage of using `pytest` over `unittest` is that the test reports are more comprehensive showcasing where the tests have failed and which files were run. It is also easy to setup tests with `pytest` than with `unittest` making it easier to use and less code to write. 
+Testing allows us to test different sections of the code in a formalised and systematic manner to reduce errors and bugs. Python comes with a default testing framework called `unittest`. The advantage of using `pytest` over `unittest` is that the test reports are more comprehensive, showcasing where the tests have failed and which files were run. It is also easier to setup tests with `pytest` than with `unittest` making it easier to use and less code to write. 
 
 
 ## How?
