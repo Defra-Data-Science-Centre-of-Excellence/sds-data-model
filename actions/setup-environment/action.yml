@@ -12,6 +12,3 @@ runs:
     - name: Install nox-poetry
       run: pip install nox-poetry
       shell: bash
-    - name: Install pytest
-      run: pip install pytest
-      shell: bash
