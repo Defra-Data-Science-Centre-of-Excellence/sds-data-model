@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, Generator, List, Optional, TypeVar, Tuple
+from typing import Any, Dict, Generator, List, Optional, Tuple, TypeVar
 
 from affine import Affine
 from dask.delayed import Delayed
@@ -9,32 +9,32 @@ from shapely.geometry import box
 from xarray import DataArray, Dataset, merge
 
 from sds_data_model._vector import (
+    _check_layer_projection,
     _from_delayed_to_data_array,
     _from_file,
+    _get_categories_and_dtypes,
+    _get_gpdf,
+    _get_info,
     _get_mask,
+    _get_metadata,
+    _get_name,
+    _get_schema,
     _join,
+    _recode_categorical_strings,
     _select,
     _to_raster,
     _where,
-    _get_schema,
-    _get_categories_and_dtypes,
-    _recode_categorical_strings,
-    _get_info,
-    _check_layer_projection,
-    _get_gpdf,
-    _get_name,
-    _get_metadata,
 )
 from sds_data_model.constants import (
     BBOXES,
     CELL_SIZE,
-    BoundingBox,
     OUT_SHAPE,
+    BoundingBox,
     CategoryLookups,
     Schema,
 )
-from sds_data_model.metadata import Metadata
 from sds_data_model.logger import log
+from sds_data_model.metadata import Metadata
 
 _VectorTile = TypeVar("_VectorTile", bound="VectorTile")
 

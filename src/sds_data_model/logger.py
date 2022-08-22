@@ -1,7 +1,7 @@
 from ctypes import Union
 from functools import wraps
 from inspect import currentframe, getouterframes, signature, types
-from logging import getLogger, INFO, StreamHandler, Formatter
+from logging import INFO, Formatter, StreamHandler, getLogger
 from re import search
 from types import FunctionType
 from typing import Any, Callable, Tuple
@@ -32,19 +32,20 @@ def _get_anonymous_function_string(
     code_input = getouterframes(frame, 100)
     code_context_string = "".join(code_input[5].code_context)
     function_call_string_matches = search(
-        # "\." =            a literal dot 
+        # "\." =            a literal dot
         # "{func_name}" =   the name of the function
-        # "\(" =            a literal opening bracket 
+        # "\(" =            a literal opening bracket
         # "\s*" =           0 or more whitespace characters, e.g. space, newline, etc
         # "(" =             begin capture group
         # "[\w|\W]+" =      1 or more word (\w) or non-word (\W) characters
-        # "[\)|\"|\']" =    a literal closing bracket, double quote mark, or single quote mark  
+        # "[\)|\"|\']" =    a literal closing bracket, double quote mark, or single quote mark
         # ")" =             end capture group
         # "\s*" =           0 or more whitespace characters, e.g. space, newline, etc
-        # "\)" =            a literal closing bracket 
+        # "\)" =            a literal closing bracket
         # "\s*" =           0 or more whitespace characters, e.g. space, newline, etc
-        # "\." =            a literal dot 
-        rf"\.{func_name}\(\s*([\w|\W]+[\)|\"|\'])\s*\)\s*\.", code_context_string
+        # "\." =            a literal dot
+        rf"\.{func_name}\(\s*([\w|\W]+[\)|\"|\'])\s*\)\s*\.",
+        code_context_string,
     )
     if not function_call_string_matches:
         print(code_input)

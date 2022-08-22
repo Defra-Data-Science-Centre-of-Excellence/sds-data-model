@@ -2,8 +2,8 @@ from pathlib import Path
 
 from pytest import fixture
 
-from sds_data_model.vector import VectorLayer, TiledVectorLayer
-from sds_data_model.constants import Schema, CategoryLookups
+from sds_data_model.constants import CategoryLookups, Schema
+from sds_data_model.vector import TiledVectorLayer, VectorLayer
 
 
 @fixture

@@ -4,18 +4,18 @@ from typing import Dict, List, Tuple, Type, TypeVar, Union
 from lxml.etree import Element, parse
 
 from sds_data_model.constants import (
-    TITLE_XPATH,
     ABSTRACT_XPATH,
+    DATASET_LANGUAGE_XPATH,
+    FILE_IDENTIFIER_XPATH,
+    KEYWORD_XPATH,
     LINEAGE_XPATH,
     METADATA_DATE_XPATH,
     METADATA_LANGUAGE_XPATH,
-    RESOURCE_TYPE_XPATH,
-    FILE_IDENTIFIER_XPATH,
-    DATASET_LANGUAGE_XPATH,
-    TOPIC_CATEGORY_XPATH,
-    KEYWORD_XPATH,
     QUALITY_SCOPE_XPATH,
+    RESOURCE_TYPE_XPATH,
     SPATIAL_REPRESENTATION_TYPE_XPATH,
+    TITLE_XPATH,
+    TOPIC_CATEGORY_XPATH,
 )
 
 MetadataType = TypeVar("MetadataType", bound="Metadata")

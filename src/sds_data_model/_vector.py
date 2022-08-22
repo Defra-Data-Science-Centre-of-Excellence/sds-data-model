@@ -1,7 +1,7 @@
 from dataclasses import asdict
-from typing import Any, Dict, Generator, List, Optional, Tuple
 from json import load
 from pathlib import Path
+from typing import Any, Dict, Generator, List, Optional, Tuple
 
 from affine import Affine
 from dask import delayed
@@ -507,7 +507,7 @@ def _get_name(
             name="ramsar",
         )
         'ramsar'
-    
+
         If `name` isn't provided but a :class: Metadata object is, the function returns
         `metadata.title`:
         >>> metadata = _get_metadata(
@@ -592,7 +592,7 @@ def _get_metadata(
 
     Args:
         data_path (str): Path to the vector file.
-        metadata_path (Optional[str]): Path to a `UK GEMINI`_ metadata file. 
+        metadata_path (Optional[str]): Path to a `UK GEMINI`_ metadata file.
         Defaults to None.
 
     Returns:

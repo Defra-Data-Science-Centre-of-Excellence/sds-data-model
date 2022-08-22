@@ -1,5 +1,6 @@
 from itertools import product
 from typing import Dict, Tuple
+
 from osgeo.osr import SpatialReference
 
 # British National Grid Projection SpatialReference Object
@@ -47,7 +48,6 @@ raster_dtype_levels = [
     "complex64",
     "complex128",
 ]
-
 
 
 def _get_bboxes(
