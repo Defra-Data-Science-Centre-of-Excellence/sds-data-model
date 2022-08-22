@@ -231,7 +231,6 @@ def _to_raster(
     )
 
 
-
 def _from_delayed_to_data_array(
     delayed_arrays: Tuple[Delayed],
     name: str,
@@ -298,7 +297,11 @@ def _get_info(
 
     """
     if data_kwargs:
-        _get_info_kwargs = {key: data_kwargs[key] for key in data_kwargs.keys() & {"layer", "encoding"}}
+        _get_info_kwargs = {
+            key: data_kwargs[key]
+            for key in data_kwargs.keys()
+            if key in ("layer", "encoding")
+        }
         return read_info(
             data_path,
             **_get_info_kwargs,
@@ -409,7 +412,6 @@ def _get_category_lookup(
     return category_lookup
 
 
-
 def _get_category_dtype(
     categorical_column: Series,
 ) -> str:
@@ -446,7 +448,7 @@ def _get_categories_and_dtypes(
     category_lookups = {
         column_name: _get_category_lookup(categorical_column)
         for column_name, categorical_column in categorical_columns
-    } 
+    }
     category_dtypes = {
         column_name: _get_category_dtype(categorical_column)
         for column_name, categorical_column in categorical_columns
@@ -519,7 +521,7 @@ def _get_name(
             name="ramsar",
         )
         'ramsar'
-    
+
         If `name` isn't provided but a :class: Metadata object is, the function returns
         `metadata.title`:
         >>> metadata = _get_metadata(
@@ -604,7 +606,7 @@ def _get_metadata(
 
     Args:
         data_path (str): Path to the vector file.
-        metadata_path (Optional[str]): Path to a `UK GEMINI`_ metadata file. 
+        metadata_path (Optional[str]): Path to a `UK GEMINI`_ metadata file.
         Defaults to None.
 
     Returns:
