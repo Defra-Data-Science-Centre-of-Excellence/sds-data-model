@@ -1,12 +1,9 @@
-import json
 from dataclasses import dataclass
-from logging import INFO, basicConfig, info
-from typing import Any, Dict, Generator, List, Optional, Tuple, Type, TypeVar
+from typing import Any, Dict, Generator, List, Optional, TypeVar, Tuple
 
 from affine import Affine
 from dask.delayed import Delayed
-from geopandas import GeoDataFrame, read_file
-from numpy.typing import NDArray
+from geopandas import GeoDataFrame
 from pandas import DataFrame, Series
 from shapely.geometry import box
 from xarray import DataArray, Dataset, merge
@@ -14,28 +11,32 @@ from xarray import DataArray, Dataset, merge
 from sds_data_model._vector import (
     _from_delayed_to_data_array,
     _from_file,
-    _get_col_dtype,
     _get_mask,
-    _get_name,
     _join,
     _select,
     _to_raster,
     _where,
+    _get_schema,
+    _get_categories_and_dtypes,
+    _recode_categorical_strings,
+    _get_info,
+    _check_layer_projection,
+    _get_gpdf,
+    _get_name,
+    _get_metadata,
 )
 from sds_data_model.constants import (
     BBOXES,
-    BNG,
     CELL_SIZE,
-    OUT_SHAPE,
     BoundingBox,
-    raster_dtype_levels,
+    OUT_SHAPE,
+    CategoryLookups,
+    Schema,
 )
 from sds_data_model.metadata import Metadata
+from sds_data_model.logger import log
 
-basicConfig(format="%(levelname)s:%(asctime)s:%(message)s", level=INFO)
-
-
-_VectorTileType = TypeVar("_VectorTileType", bound="VectorTile")
+_VectorTile = TypeVar("_VectorTile", bound="VectorTile")
 
 
 @dataclass
@@ -44,21 +45,25 @@ class VectorTile:
     gpdf: Delayed
 
     @property
-    def transform(self) -> Affine:
+    def transform(self: _VectorTile) -> Affine:
         xmin, _, _, ymax = self.bbox
         return Affine(CELL_SIZE, 0, xmin, 0, -CELL_SIZE, ymax)
 
     @classmethod
     def from_file(
-        cls: Type[_VectorTileType],
+        cls: _VectorTile,
         data_path: str,
         bbox: BoundingBox,
-        **kwargs: Dict[str, Any],
-    ) -> _VectorTileType:
+        convert_to_categorical: Optional[List[str]] = None,
+        category_lookups: Optional[CategoryLookups] = None,
+        data_kwargs: Optional[Dict[str, Any]] = None,
+    ) -> _VectorTile:
         gpdf = _from_file(
             data_path=data_path,
             bbox=bbox,
-            **kwargs,
+            convert_to_categorical=convert_to_categorical,
+            category_lookups=category_lookups,
+            data_kwargs=data_kwargs,
         )
 
         return cls(
@@ -66,39 +71,46 @@ class VectorTile:
             gpdf=gpdf,
         )
 
-    def select(self: _VectorTileType, columns: List[str]) -> _VectorTileType:
-        self.gpdf = _select(gpdf=self.gpdf, columns=columns)
-        return self
+    def select(self: _VectorTile, columns: List[str]) -> _VectorTile:
+        gpdf = _select(gpdf=self.gpdf, columns=columns)
+        return VectorTile(
+            bbox=self.bbox,
+            gpdf=gpdf,
+        )
 
-    def where(self: _VectorTileType, condition: Series) -> _VectorTileType:
-        self.gpdf = _where(gpdf=self.gpdf, condition=condition)
-        return self
+    def where(self: _VectorTile, condition: Series) -> _VectorTile:
+        gpdf = _where(gpdf=self.gpdf, condition=condition)
+        return VectorTile(
+            bbox=self.bbox,
+            gpdf=gpdf,
+        )
 
     def join(
-        self: _VectorTileType,
+        self: _VectorTile,
         other: DataFrame,
         how: str,
         fillna: Optional[Dict[str, Any]] = None,
         **kwargs,
-    ) -> _VectorTileType:
-        self.gpdf = _join(
+    ) -> _VectorTile:
+        gpdf = _join(
             gpdf=self.gpdf,
             other=other,
             how=how,
             fillna=fillna,
             **kwargs,
         )
-        return self
+        return VectorTile(
+            bbox=self.bbox,
+            gpdf=gpdf,
+        )
 
     def to_mask(
-        self: _VectorTileType,
+        self: _VectorTile,
         out_shape: Tuple[int, int] = OUT_SHAPE,
         invert: bool = True,
         dtype: str = "uint8",
-    ) -> NDArray[Any]:
-        #! `mask` must be explicitly typed because `mypy` thinks that `_get_mask`
-        #!  returns `Any`
-        mask: NDArray[Any] = _get_mask(
+    ) -> Delayed:
+        mask = _get_mask(
             gpdf=self.gpdf,
             out_shape=out_shape,
             transform=self.transform,
@@ -109,14 +121,12 @@ class VectorTile:
         return mask
 
     def to_raster(
-        self: _VectorTileType,
+        self: _VectorTile,
         column: str,
         out_shape: Tuple[int, int] = OUT_SHAPE,
         dtype: str = "uint8",
-    ) -> NDArray[Any]:
-        #! `raster` must be explicitly typed because `mypy` thinks that `_to_raster`
-        #!  returns `Any`
-        raster: NDArray[Any] = _to_raster(
+    ) -> Delayed:
+        raster = _to_raster(
             gpdf=self.gpdf,
             column=column,
             out_shape=out_shape,
@@ -126,21 +136,6 @@ class VectorTile:
 
         return raster
 
-    def get_col_dtype(
-        self: _VectorTileType,
-        column: str,
-    ) -> Optional[str]:
-        """This method calls _get_col_dtype on an individual vectortile,
-        if the geodataframe of the vector tile contains data."""
-        gpdf = self.gpdf
-        if not gpdf.empty:
-            return _get_col_dtype(
-                gpdf=gpdf,
-                column=column,
-            )
-        else:
-            return None
-
 
 _TiledVectorLayer = TypeVar("_TiledVectorLayer", bound="TiledVectorLayer")
 
@@ -149,68 +144,105 @@ _TiledVectorLayer = TypeVar("_TiledVectorLayer", bound="TiledVectorLayer")
 class TiledVectorLayer:
     name: str
     tiles: Generator[VectorTile, None, None]
-    metadata: Optional[Metadata]
+    schema: Schema
+    metadata: Optional[Metadata] = None
+    category_lookups: Optional[CategoryLookups] = None
 
     @classmethod
+    @log
     def from_files(
-        cls: Type[_TiledVectorLayer],
+        cls: _TiledVectorLayer,
         data_path: str,
-        bboxes: Tuple[BoundingBox, ...] = BBOXES,
+        bboxes: Tuple[BoundingBox] = BBOXES,
         data_kwargs: Optional[Dict[str, Any]] = None,
+        convert_to_categorical: Optional[List[str]] = None,
         metadata_path: Optional[str] = None,
         name: Optional[str] = None,
     ) -> _TiledVectorLayer:
-        if data_kwargs:
-            tiles = (
-                VectorTile.from_file(
-                    data_path=data_path,
-                    bbox=bbox,
-                    **data_kwargs,
-                )
-                for bbox in bboxes
-            )
-        else:
-            tiles = (
-                VectorTile.from_file(
-                    data_path=data_path,
-                    bbox=bbox,
-                )
-                for bbox in bboxes
-            )
+        info = _get_info(
+            data_path=data_path,
+            data_kwargs=data_kwargs,
+        )
 
-        info(f"Read data from {data_path}.")
+        _check_layer_projection(info)
 
-        # ? How are we going to check the crs?
-        # ? __post_init__ method on VectorTile instead?
-        # if gpdf.crs.name != BNG:
-        #     raise TypeError(f"CRS must be {BNG}, not {gpdf.crs.name}")
+        schema = _get_schema(info)
 
-        if not metadata_path:
-            metadata = None
-        else:
-            metadata = Metadata.from_file(metadata_path)
-
-        info(f"Read metadata from {metadata_path}.")
+        metadata = _get_metadata(
+            data_path=data_path,
+            metadata_path=metadata_path,
+        )
 
         _name = _get_name(
-            metadata=metadata,
             name=name,
+            metadata=metadata,
         )
+
+        if convert_to_categorical:
+            category_lookups, dtype_lookup = _get_categories_and_dtypes(
+                data_path=data_path,
+                convert_to_categorical=convert_to_categorical,
+                data_kwargs=data_kwargs,
+            )
+            tiles = tuple(
+                VectorTile.from_file(
+                    data_path=data_path,
+                    bbox=bbox,
+                    convert_to_categorical=convert_to_categorical,
+                    category_lookups=category_lookups,
+                    data_kwargs=data_kwargs,
+                )
+                for bbox in bboxes
+            )
+            schema = {**schema, **dtype_lookup}
+        else:
+            category_lookups = None
+            tiles = tuple(
+                VectorTile.from_file(
+                    data_path=data_path,
+                    bbox=bbox,
+                    data_kwargs=data_kwargs,
+                )
+                for bbox in bboxes
+            )
 
         return cls(
             name=_name,
             tiles=tiles,
             metadata=metadata,
+            category_lookups=category_lookups,
+            schema=schema,
         )
 
+    @log
     def select(self: _TiledVectorLayer, columns: List[str]) -> _TiledVectorLayer:
-        self.tiles = (tile.select(columns) for tile in self.tiles)
-        return self
+        tiles = tuple(tile.select(columns) for tile in self.tiles)
 
+        tiled_vector_layer = TiledVectorLayer(
+            name=self.name,
+            tiles=tiles,
+            metadata=self.metadata,
+            category_lookups=self.category_lookups,
+            schema=self.schema,
+        )
+
+        return tiled_vector_layer
+
+    @log
     def where(self: _TiledVectorLayer, condition: Series) -> _TiledVectorLayer:
-        self.tiles = (tile.where(condition) for tile in self.tiles)
-        return self
+        tiles = tuple(tile.where(condition) for tile in self.tiles)
 
+        tiled_vector_layer = TiledVectorLayer(
+            name=self.name,
+            tiles=tiles,
+            metadata=self.metadata,
+            category_lookups=self.category_lookups,
+            schema=self.schema,
+        )
+
+        return tiled_vector_layer
+
+    @log
     def join(
         self: _TiledVectorLayer,
         other: DataFrame,
@@ -218,7 +250,7 @@ class TiledVectorLayer:
         fillna: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> _TiledVectorLayer:
-        self.tiles = (
+        tiles = tuple(
             tile.join(
                 other=other,
                 how=how,
@@ -228,8 +260,22 @@ class TiledVectorLayer:
             for tile in self.tiles
         )
 
-        return self
+        # Update schema to include columns names and dtypes from dataframe being joined
+        schema_df = other.dtypes.apply(lambda col: col.name).to_dict()
+        schema = self.schema
+        schema = schema.update(schema_df)
 
+        tiled_vector_layer = TiledVectorLayer(
+            name=self.name,
+            tiles=tiles,
+            metadata=self.metadata,
+            category_lookups=self.category_lookups,
+            schema=self.schema,
+        )
+
+        return tiled_vector_layer
+
+    @log
     def to_data_array_as_mask(self: _TiledVectorLayer) -> DataArray:
         delayed_masks = (tile.to_mask() for tile in self.tiles)
 
@@ -237,35 +283,24 @@ class TiledVectorLayer:
             delayed_arrays=delayed_masks,
             name=self.name,
             metadata=self.metadata,
-            dtype="unit8",
+            dtype="uint8",
         )
-
-        info(f"Converted to DataArray as mask.")
 
         return data_array
 
+    @log
     def to_dataset_as_raster(
         self: _TiledVectorLayer,
         columns: List[str],
     ) -> Dataset:
-        """This method instantiates the tiles so that they can be used in subsequent methods.
-        get_col_dtypes is called on all vectortiles, removes None (due to tiles on irish sea),
-        Gets the index location of each dtype from the constant list and returns the maximum index
-        location (most complex data type) to accommodate all tiles in the layer, for every column provided"""
+        """This method rasterises the specified columns using a schema defined in VectorLayer.
+        If columns have been specified as categorical by the user it updates the schema to uint32."""
 
         tiles = list(self.tiles)
 
-        col_dtypes = ((tile.get_col_dtype(column=i) for tile in tiles) for i in columns)
-
-        col_dtypes_clean = [[x for x in list(i) if x is not None] for i in col_dtypes]
-        col_dtypes_levels = [
-            [raster_dtype_levels.index(x) for x in i] for i in col_dtypes_clean
-        ]
-        dtype = [raster_dtype_levels[max(i)] for i in col_dtypes_levels]
-
         delayed_rasters = (
-            (tile.to_raster(column=i, dtype=j) for tile in tiles)
-            for i, j in zip(columns, dtype)
+            (tile.to_raster(column=i, dtype=self.schema[i]) for tile in tiles)
+            for i in columns
         )
 
         dataset = merge(
@@ -274,13 +309,11 @@ class TiledVectorLayer:
                     delayed_arrays=i,
                     name=j,
                     metadata=self.metadata,
-                    dtype=k,
+                    dtype=self.schema[j],
                 )
-                for i, j, k in zip(delayed_rasters, columns, dtype)
+                for i, j in zip(delayed_rasters, columns)
             ]
         )
-
-        info(f"Converted to Dataset as raster.")
 
         return dataset
 
@@ -292,49 +325,70 @@ _VectorLayer = TypeVar("_VectorLayer", bound="VectorLayer")
 class VectorLayer:
     name: str
     gpdf: GeoDataFrame
-    metadata: Optional[Metadata]
+    schema: Schema
+    metadata: Optional[Metadata] = None
+    category_lookups: Optional[CategoryLookups] = None
 
     @classmethod
+    @log
     def from_files(
-        cls: Type[_VectorLayer],
+        cls: _VectorLayer,
         data_path: str,
         data_kwargs: Optional[Dict[str, Any]] = None,
+        convert_to_categorical: Optional[List[str]] = None,
         metadata_path: Optional[str] = None,
         name: Optional[str] = None,
     ) -> _VectorLayer:
-        if data_kwargs:
-            gpdf = read_file(data_path, **data_kwargs)
-        else:
-            gpdf = read_file(data_path)
+        info = _get_info(
+            data_path=data_path,
+            data_kwargs=data_kwargs,
+        )
 
-        if gpdf.crs.name not in BNG:
-            raise TypeError(f"CRS must be one of {BNG}, not {gpdf.crs.name}")
+        _check_layer_projection(info)
 
-        if not metadata_path:
-            metadata = None
-        else:
-            metadata = Metadata.from_file(metadata_path)
+        schema = _get_schema(info)
+
+        metadata = _get_metadata(
+            data_path=data_path,
+            metadata_path=metadata_path,
+        )
 
         _name = _get_name(
-            metadata=metadata,
             name=name,
+            metadata=metadata,
         )
+
+        gpdf = _get_gpdf(
+            data_path=data_path,
+            data_kwargs=data_kwargs,
+        )
+
+        if convert_to_categorical:
+            category_lookups, dtype_lookup = _get_categories_and_dtypes(
+                data_path=data_path,
+                convert_to_categorical=convert_to_categorical,
+                data_kwargs=data_kwargs,
+            )
+            for column in convert_to_categorical:
+                gpdf = _recode_categorical_strings(
+                    gpdf=gpdf,
+                    column=column,
+                    category_lookups=category_lookups,
+                )
+            schema = {**schema, **dtype_lookup}
+        else:
+            category_lookups = None
 
         return cls(
             name=_name,
             gpdf=gpdf,
             metadata=metadata,
+            category_lookups=category_lookups,
+            schema=schema,
         )
 
-    def select(self: _VectorLayer, columns: List[str]) -> _VectorLayer:
-        self.gpdf = _select(gpdf=self.gpdf, columns=columns)
-        return self
-
-    def where(self: _VectorLayer, condition: Series) -> _VectorLayer:
-        self.gpdf = _where(self.gpdf, condition=condition)
-        return self
-
-    def to_tiles(self, bboxes: Tuple[BoundingBox, ...] = BBOXES) -> TiledVectorLayer:
+    @log
+    def to_tiles(self, bboxes: Tuple[BoundingBox] = BBOXES) -> TiledVectorLayer:
         tiles = (
             VectorTile(
                 bbox=bbox,
@@ -347,4 +401,6 @@ class VectorLayer:
             name=self.name,
             tiles=tiles,
             metadata=self.metadata,
+            category_lookups=self.category_lookups,
+            schema=self.schema,
         )

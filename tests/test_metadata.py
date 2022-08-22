@@ -1,6 +1,5 @@
 from pathlib import Path
-
-from src.sds_data_model.metadata import Metadata
+from sds_data_model.metadata import Metadata
 
 expected = Metadata(
     title="Ramsar (England)",
@@ -23,6 +22,7 @@ expected = Metadata(
 
 
 def test_from_file(datadir: Path) -> None:
+    """Returns the expected `Metadata` object, given the path to a known XML file."""
     # Arrange
     metadata_path = datadir / "ramsar.xml"
     metadata_path_string = str(metadata_path)

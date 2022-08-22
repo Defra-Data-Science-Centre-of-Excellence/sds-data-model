@@ -1,8 +1,10 @@
 from itertools import product
-from typing import Tuple
+from typing import Dict, Tuple
+from osgeo.osr import SpatialReference
 
-# British National Grid (BNG) name strings
-BNG = ("OSGB 1936 / British National Grid", "OSGB36 / British National Grid")
+# British National Grid Projection SpatialReference Object
+BNG = SpatialReference()
+BNG.ImportFromEPSG(27700)
 # Minimum x value of BNG in meters
 BNG_XMIN = 0
 # Minimum y value of BNG in meters
@@ -24,6 +26,11 @@ OUT_SHAPE = (TILE_SIZE, TILE_SIZE)
 # See https://docs.python.org/3.8/library/typing.html#type-aliases
 BoundingBox = Tuple[int, int, int, int]
 
+
+CategoryLookup = Dict[str, Dict[int, str]]
+CategoryLookups = Dict[str, CategoryLookup]
+Schema = Dict[str, str]
+
 # Order for data types taken from rasterio docs lines 14-27
 # https://github.com/rasterio/rasterio/blob/master/rasterio/dtypes.py
 raster_dtype_levels = [
@@ -40,6 +47,7 @@ raster_dtype_levels = [
     "complex64",
     "complex128",
 ]
+
 
 
 def _get_bboxes(
