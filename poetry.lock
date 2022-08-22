@@ -1503,6 +1503,24 @@ python-versions = ">=3.6"
 plugins = ["importlib-metadata"]
 
 [[package]]
+name = "pyogrio"
+version = "0.4.1"
+description = "Vectorized spatial vector file format I/O using GDAL/OGR"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+certifi = "*"
+numpy = "*"
+
+[package.extras]
+test = ["pytest-cov", "pytest"]
+geopandas = ["geopandas", "pygeos"]
+dev = ["cython"]
+benchmark = ["pytest-benchmark"]
+
+[[package]]
 name = "pyparsing"
 version = "3.0.9"
 description = "pyparsing module - Classes and methods to define and execute parsing grammars"
@@ -2179,7 +2197,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.8"
-content-hash = "f33c12f72bb84419eed561fa1dd94b50ffa044638c83d2f913c47914499a2e79"
+content-hash = "66baf538654849793c4fbc8a5b2ef3e92bbae659859f18ce93a02ebc9396e792"
 
 [metadata.files]
 affine = [
@@ -2986,6 +3004,7 @@ pyflakes = [
     {file = "pyflakes-2.4.0.tar.gz", hash = "sha256:05a85c2872edf37a4ed30b0cce2f6093e1d0581f8c19d7393122da7e25b2b24c"},
 ]
 pygments = []
+pyogrio = []
 pyparsing = [
     {file = "pyparsing-3.0.9-py3-none-any.whl", hash = "sha256:5026bae9a10eeaefb61dab2f09052b9f4307d44aee4eda64b309723d8d206bbc"},
     {file = "pyparsing-3.0.9.tar.gz", hash = "sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb"},
