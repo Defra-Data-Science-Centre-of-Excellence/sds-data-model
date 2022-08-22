@@ -112,7 +112,7 @@ SPATIAL_REPRESENTATION_TYPE_XPATH = [
     "gmd:MD_DataIdentification",
     "gmd:spatialRepresentationType",
     "gmd:MD_SpatialRepresentationTypeCode",
-    "@codeListValue"
+    "@codeListValue",
 ]
 
 ABSTRACT_XPATH = [

@@ -1,9 +1,9 @@
-from dataclasses import dataclass
 import json
-from typing import Any, Dict, List, Optional, TypeVar, Union
+from dataclasses import dataclass
 from pathlib import Path
-from pandas import (DataFrame, Series,
-                    read_csv, read_json, read_excel, read_parquet)
+from typing import Any, Dict, List, Optional, TypeVar, Union
+
+from pandas import DataFrame, Series, read_csv, read_excel, read_json, read_parquet
 
 from sds_data_model.metadata import Metadata
 
@@ -21,6 +21,7 @@ class TableLayer:
 
 
     """
+
     name: str
     df: DataFrame
     metadata: Metadata
@@ -50,16 +51,18 @@ to data reader.
 
 
     """
-        file_reader = {".csv": read_csv,
-                       ".json": read_json,
-                       ".xlsx": read_excel,
-                       ".xls": read_excel,
-                       ".xlsm": read_excel,
-                       ".xlsb": read_excel,
-                       ".odf": read_excel,
-                       ".ods": read_excel,
-                       ".odt": read_excel,
-                       ".parquet": read_parquet}
+        file_reader = {
+            ".csv": read_csv,
+            ".json": read_json,
+            ".xlsx": read_excel,
+            ".xls": read_excel,
+            ".xlsm": read_excel,
+            ".xlsb": read_excel,
+            ".odf": read_excel,
+            ".ods": read_excel,
+            ".odt": read_excel,
+            ".parquet": read_parquet,
+        }
         suffix = Path(data_path).suffix
 
         if suffix not in file_reader.keys():
@@ -85,34 +88,30 @@ to data reader.
             metadata=metadata,
         )
 
-    def select(self: _TableLayer,
-               columns: Union[str, List[str]]) -> _TableLayer:
+    def select(self: _TableLayer, columns: Union[str, List[str]]) -> _TableLayer:
         """Select columns from TableLayer DataFrame"""
         select_output = TableLayer(
-            name=self.name,
-            df=self.df.loc[:, columns],
-            metadata=self.metadata
+            name=self.name, df=self.df.loc[:, columns], metadata=self.metadata
         )
         return select_output
 
     def where(self: _TableLayer, condition: Series) -> _TableLayer:
         """Filter rows from TableLayer DataFrame using pandas Series object."""
         where_output = TableLayer(
-            name=self.name,
-            df=self.df.loc[condition, :],
-            metadata=self.metadata
+            name=self.name, df=self.df.loc[condition, :], metadata=self.metadata
         )
         return where_output
 
-    def join(self: _TableLayer,
-             other: _TableLayer,
-             how: str = "left",
-             kwargs: Dict[str, Any] = {}
-             ) -> _TableLayer:
+    def join(
+        self: _TableLayer,
+        other: _TableLayer,
+        how: str = "left",
+        kwargs: Dict[str, Any] = {},
+    ) -> _TableLayer:
         """Join two TableLayers using pandas merge method."""
         join_output = TableLayer(
             name=self.name,
             df=self.df.merge(right=other.df, how=how, **kwargs),
-            metadata=self.metadata
+            metadata=self.metadata,
         )
         return join_output

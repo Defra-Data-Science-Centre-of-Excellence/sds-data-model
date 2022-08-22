@@ -141,6 +141,7 @@ class VectorTile:
         else:
             return None
 
+
 _TiledVectorLayer = TypeVar("_TiledVectorLayer", bound="TiledVectorLayer")
 
 

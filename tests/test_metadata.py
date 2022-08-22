@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from src.sds_data_model.metadata import Metadata
 
 expected = Metadata(
