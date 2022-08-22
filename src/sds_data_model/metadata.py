@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from io import BytesIO
-from typing import Dict, List, Tuple, Type, TypeVar, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 from requests import get
 from lxml.etree import Element, parse, ElementTree
@@ -195,7 +195,7 @@ def _get_values(
     return tuple(target_element.strip() for target_element in target_elements)
 
 
-def _get_xml(path: str) -> ElementTree:
+def _get_xml(path: str, metadata_kwargs: Dict[str, Any]) -> ElementTree:
     """Parses XML from remote URL or local file path.
 
     Examples:
@@ -216,7 +216,7 @@ def _get_xml(path: str) -> ElementTree:
         Element: an ElementTree representation of the XML.
     """
     if path.startswith("http"):
-        response = get(path)
+        response = get(path, **metadata_kwargs)
         buffered_content = BytesIO(response.content)
         return parse(buffered_content)
     else:
@@ -264,9 +264,15 @@ class Metadata:
     # metadata_standard_version: Optional[str] #! Optional
 
     @classmethod
-    def from_file(cls: Type[MetadataType], xml_path: str) -> MetadataType:
+    def from_file(
+        cls: Type[MetadataType],
+        xml_path: str,
+        metadata_kwargs: Optional[Dict[str, Any]] = None,
+    ) -> MetadataType:
 
-        xml = _get_xml(xml_path)
+        _metadata_kwargs = metadata_kwargs if metadata_kwargs else {"verify": False}
+
+        xml = _get_xml(xml_path, _metadata_kwargs)
 
         root_element = xml.getroot()
 

@@ -159,6 +159,7 @@ class TiledVectorLayer:
         data_kwargs: Optional[Dict[str, Any]] = None,
         convert_to_categorical: Optional[List[str]] = None,
         metadata_path: Optional[str] = None,
+        metadata_kwargs: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
     ) -> _TiledVectorLayer:
         info = _get_info(
@@ -338,6 +339,7 @@ class VectorLayer:
         data_kwargs: Optional[Dict[str, Any]] = None,
         convert_to_categorical: Optional[List[str]] = None,
         metadata_path: Optional[str] = None,
+        metadata_kwargs: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
     ) -> _VectorLayer:
         info = _get_info(

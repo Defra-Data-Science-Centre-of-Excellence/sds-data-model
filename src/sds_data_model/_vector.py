@@ -570,6 +570,7 @@ def _get_name(
 def _get_metadata(
     data_path: str,
     metadata_path: Optional[str] = None,
+    metadata_kwargs: Optional[Dict[str, Any]] = None,
 ) -> Optional[Metadata]:
     """Read metadata from path, or json sidecar, or return None.
 
@@ -621,7 +622,7 @@ def _get_metadata(
     """
     json_sidecar = Path(f"{data_path}-metadata.json")
     if metadata_path:
-        metadata = Metadata.from_file(metadata_path)
+        metadata = Metadata.from_file(metadata_path, metadata_kwargs)
     elif not metadata_path and json_sidecar.exists():
         with open(json_sidecar, "r") as json_metadata:
             metadata_dictionary = load(json_metadata)
