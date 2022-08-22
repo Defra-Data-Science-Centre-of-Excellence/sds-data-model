@@ -34,7 +34,7 @@ This will run all your tests.
 ```sh
 pytest --fixtures [testpath]
 ```
-This will run tests defined by pytest fixtures allowing to run tests that have been grouped together.
+This will run tests defined by pytest fixtures[^3]. "Fixtures define the steps and data that constitute the arrange phase of a test. In pytest, they are functions you define that serve this purpose. They can also be used to define a test’s act phase; this is a powerful technique for designing more complex tests. We can tell pytest that a particular function is a fixture by decorating it with @pytest.fixture"[^4]
 
 ```sh
 poetry run pytest .
@@ -63,7 +63,7 @@ This will run the `pytest` session defined in the project `noxfile.py` file. `co
 }
 ```
 
-You can use the Testing tab to configure tests you have written which sorts the tests by repository, folder, file and each test function you have written as an individual test that can be run by pressing the "Run Test" button. Allowing to run individual parts, groups or all of the tests easily. 
+You can use the Testing[^5] tab to run tests you have written. It sorts the tests by repository, folder, file and test function. This allows you to run individual tests, groups of test, or all of the tests easily.  
 
 ## As part of a CI pipeline
 
@@ -71,3 +71,6 @@ This project uses GitHub Actions for Continuous Integration. The CI workflow is 
 
 [^1]: https://docs.pytest.org/en/7.1.x/
 [^2]: https://coverage.readthedocs.io/en/6.4.2/
+[^3]: https://docs.pytest.org/en/7.1.x/explanation/fixtures.html#about-fixtures
+[^4]: https://docs.pytest.org/en/7.1.x/how-to/fixtures.html
+[^5]: https://code.visualstudio.com/docs/python/testing
