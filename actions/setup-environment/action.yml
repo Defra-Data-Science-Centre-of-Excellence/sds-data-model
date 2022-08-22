@@ -1,5 +1,5 @@
 name: Setup workflow environment
-description: Installs poetry, nox, and nox-poetry
+description: Installs poetry, nox, nox-poetry and pytest
 runs:
   using: composite
   steps:
