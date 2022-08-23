@@ -388,7 +388,7 @@ class VectorLayer:
         )
 
     @log
-    def to_tiles(self, bboxes: Tuple[BoundingBox] = BBOXES) -> TiledVectorLayer:
+    def to_tiles(self, bboxes: Tuple[BoundingBox, ...] = BBOXES) -> TiledVectorLayer:
         tiles = (
             VectorTile(
                 bbox=bbox,

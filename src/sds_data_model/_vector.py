@@ -9,7 +9,8 @@ from dask.array import block, from_delayed
 from dask.delayed import Delayed
 from geopandas import GeoDataFrame
 from more_itertools import chunked
-from numpy import arange, ones, zeros
+from numpy import arange, ones, zeros, uint8, number
+from numpy.typing import NDArray
 from pandas import DataFrame, Series, merge
 from pyogrio import read_dataframe, read_info
 from rasterio.features import geometry_mask, rasterize
@@ -85,7 +86,7 @@ def _combine_kwargs(
             **data_kwargs,
             **additional_kwargs,
         }
-    elif not data_kwargs and additional_kwargs:
+    else:
         return additional_kwargs
 
 
@@ -96,7 +97,7 @@ def _from_file(
     convert_to_categorical: Optional[List[str]] = None,
     category_lookups: Optional[CategoryLookups] = None,
     data_kwargs: Optional[Dict[str, Any]] = None,
-) -> Delayed:
+) -> GeoDataFrame:
     """Returns a delayed GeoDataFrame clipped to a given bounding box."""
     combined_kwargs = _combine_kwargs(
         additional_kwargs={
@@ -122,25 +123,25 @@ def _from_file(
 
 
 @delayed
-def _select(gpdf: Delayed, columns: List[str]) -> Delayed:
+def _select(gpdf: GeoDataFrame, columns: List[str]) -> GeoDataFrame:
     """Returns given columns from a delayed GeoDataFrame."""
     return gpdf[columns]
 
 
 @delayed
-def _where(gpdf: Delayed, condition: Series) -> Delayed:
+def _where(gpdf: GeoDataFrame, condition: Series) -> GeoDataFrame:
     """Returns a delayed GeoDataFrame filtered by a given condition."""
     return gpdf[condition]
 
 
 @delayed
 def _join(
-    gpdf: Delayed,
+    gpdf: GeoDataFrame,
     other: DataFrame,
     how: str,
     fillna: Optional[Dict[str, Any]] = None,
     **kwargs,
-) -> Delayed:
+) -> GeoDataFrame:
     """Returns a delayed GeoDataFrame joined to a given DataFrame."""
     _gpdf = merge(
         left=gpdf,
@@ -161,7 +162,7 @@ def _get_mask(
     out_shape: Tuple[int, int],
     dtype: str,
     transform: Affine,
-) -> Delayed:
+) -> NDArray[uint8]:
     """Returns a delayed boolean Numpy ndarray where 1 means the pixel overlaps a geometry."""
     if all(gpdf.geometry.is_empty) and invert:
         return zeros(
@@ -174,12 +175,13 @@ def _get_mask(
             dtype=dtype,
         )
     else:
-        return geometry_mask(
+        mask: NDArray[uint8] = geometry_mask(
             geometries=gpdf.geometry,
             out_shape=out_shape,
             transform=transform,
             invert=invert,
         ).astype(dtype)
+        return mask
 
 
 def _get_shapes(
@@ -200,7 +202,7 @@ def _to_raster(
     dtype: str,
     transform: Affine,
     **kwargs,
-) -> Delayed:
+) -> NDArray[number]:
     """Returns a delayed boolean Numpy ndarray with values taken from a given column."""
     if all(gpdf.geometry.is_empty):
         return zeros(
@@ -287,14 +289,15 @@ def _get_info(
 
     """
     if data_kwargs:
-        return read_info(
+        info: Dict[str, Any] = read_info(
             data_path,
             **data_kwargs,
         )
     else:
-        return read_info(
+        info: Dict[str, Any] = read_info(
             data_path,
         )
+    return info
 
 
 def _get_schema(
@@ -447,7 +450,8 @@ def _get_index_of_category(
     category_lookup: CategoryLookup,
     category: str,
 ) -> int:
-    return list(category_lookup.values()).index(category)
+    category_values = list(category_lookup.values())
+    return category_values.index(category)
 
 
 def _get_code_for_category(

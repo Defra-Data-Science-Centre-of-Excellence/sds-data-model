@@ -1,10 +1,10 @@
 from ctypes import Union
 from functools import wraps
-from inspect import currentframe, getouterframes, signature, types
+from inspect import currentframe, getouterframes, signature
 from logging import INFO, Formatter, StreamHandler, getLogger
 from re import search
-from types import FunctionType
-from typing import Any, Callable, Tuple
+from types import FunctionType, FrameType
+from typing import Any, Callable, Optional, Tuple
 
 # create logger and set level to info
 logger = getLogger("sds")
@@ -26,11 +26,16 @@ logger.addHandler(stream_handler)
 
 def _get_anonymous_function_string(
     func_name: str,
-    frame: types.FrameType,
-) -> str:
+    frame: Optional[FrameType],
+) -> Optional[str]:
     """Get the input code arguments to a function as a string."""
+    if not frame:
+        raise ValueError("Not possible to return current frame.")
     code_input = getouterframes(frame, 100)
-    code_context_string = "".join(code_input[5].code_context)
+    code_context = code_input[5].code_context
+    if not code_context:
+        raise ValueError("FrameInfo 5 has no `code_context`")
+    code_context_string = "".join(code_context)
     function_call_string_matches = search(
         # "\." =            a literal dot
         # "{func_name}" =   the name of the function
@@ -48,7 +53,7 @@ def _get_anonymous_function_string(
         code_context_string,
     )
     if not function_call_string_matches:
-        print(code_input)
+        raise ValueError(f"`{func_name}` not found in `code_context`")
     else:
         function_call_strings = function_call_string_matches.group(1)
         return function_call_strings

@@ -28,7 +28,7 @@ OUT_SHAPE = (TILE_SIZE, TILE_SIZE)
 BoundingBox = Tuple[int, int, int, int]
 
 
-CategoryLookup = Dict[str, Dict[int, str]]
+CategoryLookup = Dict[int, str]
 CategoryLookups = Dict[str, CategoryLookup]
 Schema = Dict[str, str]
 

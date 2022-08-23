@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, TypeVar, Union
+from typing import Any, Dict, List, Optional, Type, TypeVar, Union
 
 from pandas import (
     DataFrame,
@@ -12,6 +12,7 @@ from pandas import (
     read_parquet,
     to_numeric,
 )
+from typing_extensions import Self
 
 from sds_data_model._table import _update_datatypes
 from sds_data_model.metadata import Metadata
@@ -37,7 +38,7 @@ class TableLayer:
 
     @classmethod
     def from_file(
-        cls: _TableLayer,
+        cls: Type[_TableLayer],
         data_path: str,
         data_kwargs: Optional[Dict[str, Any]] = {},
         metadata_path: Optional[str] = None,
@@ -101,14 +102,14 @@ to data reader.
             metadata=metadata,
         )
 
-    def select(self: _TableLayer, columns: Union[str, List[str]]) -> _TableLayer:
+    def select(self: Type[_TableLayer], columns: Union[str, List[str]]) -> _TableLayer:
         """Select columns from TableLayer DataFrame"""
         select_output = TableLayer(
             name=self.name, df=self.df.loc[:, columns], metadata=self.metadata
         )
         return select_output
 
-    def where(self: _TableLayer, condition: Series) -> _TableLayer:
+    def where(self: Type[_TableLayer], condition: Series) -> _TableLayer:
         """Filter rows from TableLayer DataFrame using pandas Series object."""
         where_output = TableLayer(
             name=self.name, df=self.df.loc[condition, :], metadata=self.metadata
@@ -116,8 +117,8 @@ to data reader.
         return where_output
 
     def join(
-        self: _TableLayer,
-        other: _TableLayer,
+        self: Type[_TableLayer],
+        other: Type[_TableLayer],
         how: str = "left",
         kwargs: Dict[str, Any] = {},
     ) -> _TableLayer:
