@@ -23,10 +23,13 @@ from sds_data_model.constants import (
 MetadataType = TypeVar("MetadataType", bound="Metadata")
 
 
-def _get_xpath(xpath: Union[str, List[str]]) -> str:
-    """Construct an `XPath`_ query from a string or list of strings.
+from typing import Union, List
+
+def _get_xpath(xpath: Union[str, List[str], List[List[str]]]) -> str:
+    """Construct an `XPath`_ query from a string, list of strings, or list of lists of strings.
 
     Examples:
+        A list of strings will be concatenated with "/" as the separator. This should produce an XPath query:
         >>> TITLE_XPATH = [
             "gmd:identificationInfo",
             "gmd:MD_DataIdentification",
@@ -38,6 +41,23 @@ def _get_xpath(xpath: Union[str, List[str]]) -> str:
         ]
         >>> _get_xpath(TITLE_XPATH)
         'gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString//text()'
+
+        Each list in a list of lists of strings will be concatenated with "/" as the separator, then the lists will be concatenated
+        with "|" as a separator. This should produce an OR XPath query:
+        >>> METADATA_DATE_XPATH = [
+            [
+                "gmd:dateStamp",
+                "gco:Date",
+                "/text()",
+            ],
+            [
+                "gmd:dateStamp",
+                "gco:DateTime",
+                "/text()",
+            ],
+        ]
+        >>> _get_xpath(METADATA_DATE_XPATH)
+        'gmd:dateStamp/gco:Date//text()|gmd:dateStamp/gco:DateTime//text()'
 
         For a string, this is a `no-op`_.
         >>> TITLE_XPATH = 'gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString//text()'
@@ -59,10 +79,11 @@ def _get_xpath(xpath: Union[str, List[str]]) -> str:
 
     """
     if isinstance(xpath, str):
-        _xpath = xpath
-    elif isinstance(xpath, list):
-        _xpath = "/".join(xpath)
-    return _xpath
+        return xpath
+    elif isinstance(xpath, list) and isinstance(xpath[0], str):
+        return "/".join(xpath)
+    elif isinstance(xpath, list) and isinstance(xpath[0], list):
+        return "|".join("/".join(list_of_str) for list_of_str in xpath)
 
 
 def _get_target_elements(

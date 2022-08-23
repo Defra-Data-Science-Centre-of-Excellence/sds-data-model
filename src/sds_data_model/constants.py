@@ -142,9 +142,16 @@ LINEAGE_XPATH = [
 ]
 
 METADATA_DATE_XPATH = [
-    "gmd:dateStamp",
-    "gco:Date",
-    "/text()",
+    [
+        "gmd:dateStamp",
+        "gco:Date",
+        "/text()",
+    ],
+    [
+        "gmd:dateStamp",
+        "gco:DateTime",
+        "/text()",
+    ],
 ]
 
 METADATA_LANGUAGE_XPATH = [
