@@ -35,6 +35,7 @@ from sds_data_model.constants import (
 )
 from sds_data_model.logger import log
 from sds_data_model.metadata import Metadata
+from sds_data_model.logger import log
 
 _VectorTile = TypeVar("_VectorTile", bound="VectorTile")
 

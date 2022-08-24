@@ -16,6 +16,7 @@ from typing_extensions import Self
 
 from sds_data_model._table import _update_datatypes
 from sds_data_model.metadata import Metadata
+from sds_data_model._table import _update_datatypes
 
 _TableLayer = TypeVar("_TableLayer", bound="TableLayer")
 

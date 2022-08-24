@@ -511,7 +511,7 @@ def _get_name(
             name="ramsar",
         )
         'ramsar'
-
+    
         If `name` isn't provided but a :class: Metadata object is, the function returns
         `metadata.title`:
         >>> metadata = _get_metadata(
