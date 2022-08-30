@@ -1,10 +1,6 @@
 from itertools import product
 from typing import Dict, Tuple
-from osgeo.osr import SpatialReference
 
-# British National Grid Projection SpatialReference Object
-BNG = SpatialReference()
-BNG.ImportFromEPSG(27700)
 # Minimum x value of BNG in meters
 BNG_XMIN = 0
 # Minimum y value of BNG in meters
@@ -27,7 +23,7 @@ OUT_SHAPE = (TILE_SIZE, TILE_SIZE)
 BoundingBox = Tuple[int, int, int, int]
 
 
-CategoryLookup = Dict[str, Dict[int, str]]
+CategoryLookup = Dict[int, str]
 CategoryLookups = Dict[str, CategoryLookup]
 Schema = Dict[str, str]
 

@@ -2,8 +2,8 @@ from pathlib import Path
 
 from pytest import fixture
 
-from sds_data_model.vector import VectorLayer, TiledVectorLayer
-from sds_data_model.constants import Schema, CategoryLookups
+from sds_data_model.constants import CategoryLookups, Schema
+from sds_data_model.vector import TiledVectorLayer, VectorLayer
 
 
 @fixture
@@ -21,7 +21,7 @@ def expected_schema() -> Schema:
     return {
         "OBJECTID": "int32",
         "CTRY21CD": "object",
-        "CTRY21NM": "uint8",
+        "CTRY21NM": "int16",
         "CTRY21NMW": "object",
         "BNG_E": "int32",
         "BNG_N": "int32",
@@ -37,9 +37,9 @@ def expected_schema() -> Schema:
 def expected_category_lookups() -> CategoryLookups:
     return {
         "CTRY21NM": {
-            1: "England",
-            2: "Scotland",
-            3: "Wales",
+            0: "England",
+            1: "Scotland",
+            2: "Wales",
         },
     }
 

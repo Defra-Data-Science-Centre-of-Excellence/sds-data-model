@@ -1,0 +1,14 @@
+name: Setup workflow environment
+description: Installs poetry, nox, nox-poetry and pytest
+runs:
+  using: composite
+  steps:
+    - name: Install poetry
+      run: curl -sSL https://install.python-poetry.org | python3 -
+      shell: bash
+    - name: Install nox
+      run: pip install nox
+      shell: bash
+    - name: Install nox-poetry
+      run: pip install nox-poetry
+      shell: bash
