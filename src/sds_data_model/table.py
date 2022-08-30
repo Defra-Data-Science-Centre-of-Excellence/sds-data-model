@@ -1,12 +1,12 @@
-from dataclasses import dataclass
 import json
-from typing import Any, Dict, List, Optional, TypeVar, Union
+from dataclasses import dataclass
 from pathlib import Path
-from pandas import (DataFrame, Series,
-                    read_csv, read_json, read_excel, read_parquet, to_numeric)
+from typing import Any, Dict, List, Optional, Type, TypeVar, Union
 
-from sds_data_model.metadata import Metadata
+from pandas import DataFrame, Series, read_csv, read_excel, read_json, read_parquet
+
 from sds_data_model._table import _update_datatypes
+from sds_data_model.metadata import Metadata
 
 _TableLayer = TypeVar("_TableLayer", bound="TableLayer")
 
@@ -22,13 +22,14 @@ class TableLayer:
 
 
     """
+
     name: str
     df: DataFrame
     metadata: Metadata
 
     @classmethod
     def from_file(
-        cls: _TableLayer,
+        cls: Type[_TableLayer],
         data_path: str,
         data_kwargs: Optional[Dict[str, Any]] = {},
         metadata_path: Optional[str] = None,
@@ -51,27 +52,29 @@ to data reader.
 
 
     """
-        file_reader = {".csv": read_csv,
-                       ".json": read_json,
-                       ".xlsx": read_excel,
-                       ".xls": read_excel,
-                       ".xlsm": read_excel,
-                       ".xlsb": read_excel,
-                       ".odf": read_excel,
-                       ".ods": read_excel,
-                       ".odt": read_excel,
-                       ".parquet": read_parquet}
+        file_reader = {
+            ".csv": read_csv,
+            ".json": read_json,
+            ".xlsx": read_excel,
+            ".xls": read_excel,
+            ".xlsm": read_excel,
+            ".xlsb": read_excel,
+            ".odf": read_excel,
+            ".ods": read_excel,
+            ".odt": read_excel,
+            ".parquet": read_parquet,
+        }
         suffix = Path(data_path).suffix
 
         if suffix not in file_reader.keys():
             raise NotImplementedError(f"File format '{suffix}' not supported.")
 
         df = file_reader[suffix](data_path, **data_kwargs)
-        
-        # update data types so they are not the default dtypes when read in using pandas. 
-        #Pandas default to the largest dtype (eg. int64) which takes up unnecessary space
+
+        # update data types so they are not the default dtypes when read in using pandas.
+        # Pandas default to the largest dtype (eg. int64) which takes up unnecessary space
         df = _update_datatypes(df)
-        
+
         if not metadata_path:
             try:
                 # This is the default for csvw
@@ -90,34 +93,22 @@ to data reader.
             metadata=metadata,
         )
 
-    def select(self: _TableLayer,
-               columns: Union[str, List[str]]) -> _TableLayer:
+    def select(self: _TableLayer, columns: Union[str, List[str]]) -> _TableLayer:
         """Select columns from TableLayer DataFrame"""
-        select_output = TableLayer(
-            name=self.name,
-            df=self.df.loc[:, columns],
-            metadata=self.metadata
-        )
-        return select_output
+        self.df = self.df.loc[:, columns]
+        return self
 
     def where(self: _TableLayer, condition: Series) -> _TableLayer:
         """Filter rows from TableLayer DataFrame using pandas Series object."""
-        where_output = TableLayer(
-            name=self.name,
-            df=self.df.loc[condition, :],
-            metadata=self.metadata
-        )
-        return where_output
+        self.df = self.df.loc[condition, :]
+        return self
 
-    def join(self: _TableLayer,
-             other: _TableLayer,
-             how: str = "left",
-             kwargs: Dict[str, Any] = {}
-             ) -> _TableLayer:
+    def join(
+        self: _TableLayer,
+        other: _TableLayer,
+        how: str = "left",
+        kwargs: Dict[str, Any] = {},
+    ) -> _TableLayer:
         """Join two TableLayers using pandas merge method."""
-        join_output = TableLayer(
-            name=self.name,
-            df=self.df.merge(right=other.df, how=how, **kwargs),
-            metadata=self.metadata
-        )
-        return join_output
+        self.df = self.df.merge(right=other.df, how=how, **kwargs)
+        return self

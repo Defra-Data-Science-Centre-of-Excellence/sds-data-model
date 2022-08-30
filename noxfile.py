@@ -1,15 +1,14 @@
 """Nox sessions."""
 import os
-from shutil import rmtree, copytree
 import sys
 from pathlib import Path
+from shutil import copytree, rmtree
 from textwrap import dedent
 
 import nox
 
 try:
-    from nox_poetry import Session
-    from nox_poetry import session
+    from nox_poetry import Session, session
 except ImportError:
     message = f"""\
     Nox failed to import the 'nox-poetry' package.
@@ -22,15 +21,19 @@ except ImportError:
 
 package = "sds_data_model"
 python_versions = ["3.8"]
+locations = "src", "tests", "noxfile.py"
+
 nox.needs_version = ">= 2021.6.6"
 nox.options.sessions = (
+    "isort",
+    "black",
     # "pre-commit",
-    # "safety",
-    # "mypy",
-    # "tests",
+    "safety",
+    "mypy",
+    "tests",
     # "typeguard",
     # "xdoctest",
-    # "docs-build",
+    "docs-build",
 )
 
 
@@ -84,6 +87,22 @@ def activate_virtualenv_in_precommit_hooks(session: Session) -> None:
         hook.write_text("\n".join(lines))
 
 
+@session(python=python_versions)
+def isort(session: Session) -> None:
+    """Sort imports with isort."""
+    args = session.posargs or locations
+    session.install("isort")
+    session.run("isort", *args)
+
+
+@session(python=python_versions)
+def black(session: Session) -> None:
+    """Run black code formatter."""
+    args = session.posargs or locations
+    session.install("black")
+    session.run("black", *args)
+
+
 @session(name="pre-commit", python="3.8")
 def precommit(session: Session) -> None:
     """Lint using pre-commit."""
@@ -130,7 +149,7 @@ def mypy(session: Session) -> None:
 def tests(session: Session) -> None:
     """Run the test suite."""
     session.install(".")
-    session.install("coverage[toml]", "pytest", "pygments")
+    session.install("coverage[toml]", "pytest", "pygments", "pytest-datadir")
     try:
         session.run("coverage", "run", "--parallel", "-m", "pytest", *session.posargs)
     finally:
@@ -182,7 +201,7 @@ def docs_build(session: Session) -> None:
         args.insert(0, "--color")
 
     session.install(".")
-    session.install("sphinx")
+    session.install("sphinx", "myst-parser")
 
     build_dir = Path("_build")
     html_dir = Path("_build/html")
@@ -198,3 +217,23 @@ def docs_build(session: Session) -> None:
     no_jekyll.touch()
 
     rmtree(build_dir)
+
+
+@session(name="lint", python="3.8")
+def lint(session: Session) -> None:
+    """Lint using flake8."""
+    args = session.posargs
+    session.install(".")
+    deps = [
+        "flake8",
+        "flake8-annotations",
+        "flake8-bandit",
+        "flake8-black",
+        "flake8-bugbear",
+        "flake8-docstrings",
+        "flake8-isort",
+        "darglint",
+    ]
+    session.install(*deps)
+    session.install("flake8")
+    session.run("flake8", *args)
