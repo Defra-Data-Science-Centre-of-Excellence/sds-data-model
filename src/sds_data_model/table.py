@@ -3,20 +3,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Type, TypeVar, Union
 
-from pandas import (
-    DataFrame,
-    Series,
-    read_csv,
-    read_excel,
-    read_json,
-    read_parquet,
-    to_numeric,
-)
-from typing_extensions import Self
+from pandas import DataFrame, Series, read_csv, read_excel, read_json, read_parquet
 
 from sds_data_model._table import _update_datatypes
 from sds_data_model.metadata import Metadata
-from sds_data_model._table import _update_datatypes
 
 _TableLayer = TypeVar("_TableLayer", bound="TableLayer")
 
@@ -103,30 +93,22 @@ to data reader.
             metadata=metadata,
         )
 
-    def select(self: Type[_TableLayer], columns: Union[str, List[str]]) -> _TableLayer:
+    def select(self: _TableLayer, columns: Union[str, List[str]]) -> _TableLayer:
         """Select columns from TableLayer DataFrame"""
-        select_output = TableLayer(
-            name=self.name, df=self.df.loc[:, columns], metadata=self.metadata
-        )
-        return select_output
+        self.df = self.df.loc[:, columns]
+        return self
 
-    def where(self: Type[_TableLayer], condition: Series) -> _TableLayer:
+    def where(self: _TableLayer, condition: Series) -> _TableLayer:
         """Filter rows from TableLayer DataFrame using pandas Series object."""
-        where_output = TableLayer(
-            name=self.name, df=self.df.loc[condition, :], metadata=self.metadata
-        )
-        return where_output
+        self.df = self.df.loc[condition, :]
+        return self
 
     def join(
-        self: Type[_TableLayer],
-        other: Type[_TableLayer],
+        self: _TableLayer,
+        other: _TableLayer,
         how: str = "left",
         kwargs: Dict[str, Any] = {},
     ) -> _TableLayer:
         """Join two TableLayers using pandas merge method."""
-        join_output = TableLayer(
-            name=self.name,
-            df=self.df.merge(right=other.df, how=how, **kwargs),
-            metadata=self.metadata,
-        )
-        return join_output
+        self.df = self.df.merge(right=other.df, how=how, **kwargs)
+        return self

@@ -1,8 +1,9 @@
 from pandas import DataFrame, Series, to_numeric
 
+
 def _convert_int_dtype(
     col: Series,
-    ):
+):
     """Converts dtype int8 to int16, as int8 is not accepted by rasterio package
 
     Example:
@@ -26,12 +27,12 @@ def _convert_int_dtype(
     if dtype == "int8":
         return col.astype("int16")
     else:
-        return col.astype(str(dtype))  
+        return col.astype(str(dtype))
 
 
 def _update_datatypes(
-    df : DataFrame,
-):    
+    df: DataFrame,
+):
     """Updates column datatypes to smaller memory allocation, apart from int8 types, which are converted to int16
 
     Example:

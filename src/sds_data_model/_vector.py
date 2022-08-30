@@ -9,7 +9,7 @@ from dask.array import block, from_delayed
 from dask.delayed import Delayed
 from geopandas import GeoDataFrame
 from more_itertools import chunked
-from numpy import arange, ones, zeros, uint8, number
+from numpy import arange, number, ones, uint8, zeros
 from numpy.typing import NDArray
 from pandas import DataFrame, Series, merge
 from pyogrio import read_dataframe, read_info
@@ -214,19 +214,20 @@ def _to_raster(
             gpdf=gpdf,
             column=column,
         )
-        return rasterize(
+        raster: NDArray[number] = rasterize(
             shapes=shapes,
             out_shape=out_shape,
             transform=transform,
             dtype=dtype,
             **kwargs,
         )
+        return raster
 
 
 def _from_delayed_to_data_array(
-    delayed_arrays: Tuple[Delayed],
+    delayed_arrays: Tuple[NDArray[number], ...],
     name: str,
-    metadata: Metadata,
+    metadata: Optional[Metadata],
     dtype: str,
 ) -> DataArray:
     """Converts a 1D delayed Numpy array into a 2D DataArray."""
@@ -288,13 +289,14 @@ def _get_info(
         https://pyogrio.readthedocs.io/en/latest/api.html#pyogrio.read_info
 
     """
+    info: Dict[str, Any]
     if data_kwargs:
-        info: Dict[str, Any] = read_info(
+        info = read_info(
             data_path,
             **data_kwargs,
         )
     else:
-        info: Dict[str, Any] = read_info(
+        info = read_info(
             data_path,
         )
     return info
@@ -457,7 +459,7 @@ def _get_index_of_category(
 def _get_code_for_category(
     category_lookup: CategoryLookup,
     category: str,
-) -> str:
+) -> int:
     index = _get_index_of_category(
         category_lookup=category_lookup,
         category=category,
@@ -511,7 +513,7 @@ def _get_name(
             name="ramsar",
         )
         'ramsar'
-    
+
         If `name` isn't provided but a :class: Metadata object is, the function returns
         `metadata.title`:
         >>> metadata = _get_metadata(
