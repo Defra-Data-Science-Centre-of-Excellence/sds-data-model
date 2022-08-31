@@ -1,10 +1,10 @@
-"""Logging decorator."""
+from ctypes import Union
 from functools import wraps
 from inspect import currentframe, getouterframes, signature
 from logging import INFO, Formatter, StreamHandler, getLogger
 from re import search
 from types import FrameType, FunctionType
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any, Callable, Optional, Tuple
 
 # create logger and set level to info
 logger = getLogger("sds")
@@ -28,20 +28,7 @@ def _get_anonymous_function_string(
     func_name: str,
     frame: Optional[FrameType],
 ) -> Optional[str]:
-    """Get the input code arguments to a function as a string.
-
-    Args:
-        func_name (str): _description_
-        frame (Optional[FrameType]): _description_
-
-    Raises:
-        ValueError: _description_
-        ValueError: _description_
-        ValueError: _description_
-
-    Returns:
-        Optional[str]: _description_
-    """
+    """Get the input code arguments to a function as a string."""
     if not frame:
         raise ValueError("Not possible to return current frame.")
     code_input = getouterframes(frame, 100)
@@ -56,7 +43,7 @@ def _get_anonymous_function_string(
         # "\s*" =           0 or more whitespace characters, e.g. space, newline, etc
         # "(" =             begin capture group
         # "[\w|\W]+" =      1 or more word (\w) or non-word (\W) characters
-        # "[\)|\"|\']" =    a literal closing bracket, double, or single quote mark
+        # "[\)|\"|\']" =    a literal closing bracket, double quote mark, or single quote mark
         # ")" =             end capture group
         # "\s*" =           0 or more whitespace characters, e.g. space, newline, etc
         # "\)" =            a literal closing bracket
@@ -74,19 +61,9 @@ def _get_anonymous_function_string(
 
 def _get_parameter_and_argument_tuples(
     func: Callable,
-    *args: str,
-    **kwargs: Dict[str, Any],
-) -> Tuple[Tuple[str, str], ...]:
-    """# TODO.
-
-    Args:
-        func (Callable): _description_
-        *args (str): _description_.
-        **kwargs (Dict[str, Any]): _description_.
-
-    Returns:
-        Tuple[Tuple[str, str], ...]: _description_
-    """
+    *args,
+    **kwargs,
+) -> Tuple[Tuple[str, Any], ...]:
     func_signature = signature(func)
     bound_arguments = func_signature.bind_partial(*args, **kwargs)
     bound_arguments.apply_defaults()
@@ -98,23 +75,11 @@ def _get_parameter_and_argument_tuples(
 
 def _format_parameter_and_argument(
     parameter: str,
-    argument: str,
+    argument: Any,
     func: Callable,
 ) -> str:
-    """# TODO.
-
-    Args:
-        parameter (str): _description_
-        argument (str): _description_
-        func (Callable): _description_
-
-    Returns:
-        str: _description_
-    """
     if isinstance(argument, FunctionType):
-        return f"""{parameter}={
-            _get_anonymous_function_string(func.__name__, currentframe())
-        }"""
+        return f"{parameter}={_get_anonymous_function_string(func.__name__, currentframe())}"
     elif parameter in ("self", "cls"):
         return f"{parameter}"
     else:
@@ -125,34 +90,13 @@ def _format_parameter_and_argument_tuples(
     parameter_and_argument_tuples: Tuple[Tuple[str, Any], ...],
     func: Callable,
 ) -> str:
-    """# TODO.
-
-    Args:
-        parameter_and_argument_tuples (Tuple[Tuple[str, Any], ...]): _description_
-        func (Callable): _description_
-
-    Returns:
-        str: _description_
-    """
     return ",\n\t".join(
         _format_parameter_and_argument(parameter, argument, func)
         for parameter, argument in parameter_and_argument_tuples
     )
 
 
-def _format_function_string(
-    func_name: str,
-    parameter_and_argument_string: str,
-) -> str:
-    """# TODO.
-
-    Args:
-        func_name (str): _description_
-        parameter_and_argument_string (str): _description_
-
-    Returns:
-        str: _description_
-    """
+def _format_function_string(func_name: str, parameter_and_argument_string: str) -> str:
     return f"""
     {func_name}(
         {parameter_and_argument_string}
@@ -160,21 +104,7 @@ def _format_function_string(
     """
 
 
-def stringify_callable(
-    func: Callable,
-    *args: str,
-    **kwargs: Dict[str, Any],
-) -> str:
-    """# TODO.
-
-    Args:
-        func (Callable): _description_
-        *args (str): _description_.
-        **kwargs (Dict[str, Any]): _description_.
-
-    Returns:
-        str: _description_
-    """
+def stringify_callable(func: Callable, *args, **kwargs) -> str:
     parameter_and_argument_tuples = _get_parameter_and_argument_tuples(
         func, *args, **kwargs
     )
@@ -188,35 +118,11 @@ def stringify_callable(
     )
 
 
-def log(func: Callable) -> Callable:
-    """# TODO.
-
-    Args:
-        func (Callable): _description_
-
-    Returns:
-        Callable: _description_
-    """
-
+def log(func):
     @wraps(func)
-    def wrapper(
-        *args: str,
-        **kwargs: Dict[str, Any],
-    ) -> Callable:
-        """# TODO.
-
-        Args:
-            *args (str): _description_.
-            **kwargs (Dict[str, Any]): _description_.
-
-        Raises:
-            Exception: _description_
-
-        Returns:
-            Callable: _description_
-        """
+    def wrapper(*args, **kwargs):
         try:
-            result: Callable = func(*args, **kwargs)
+            result = func(*args, **kwargs)
             callable_string = stringify_callable(func, *args, **kwargs)
             logger.info(f"{callable_string}")
             return result

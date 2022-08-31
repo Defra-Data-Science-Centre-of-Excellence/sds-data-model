@@ -87,7 +87,7 @@ def activate_virtualenv_in_precommit_hooks(session: Session) -> None:
         hook.write_text("\n".join(lines))
 
 
-@session(python=python_versions, tags=["format", "local"])  # type: ignore[call-overload]
+@session(python=python_versions)
 def isort(session: Session) -> None:
     """Sort imports with isort."""
     args = session.posargs or locations
@@ -95,7 +95,7 @@ def isort(session: Session) -> None:
     session.run("isort", *args)
 
 
-@session(python=python_versions, tags=["format", "local"])  # type: ignore[call-overload]
+@session(python=python_versions)
 def black(session: Session) -> None:
     """Run black code formatter."""
     args = session.posargs or locations
@@ -103,30 +103,30 @@ def black(session: Session) -> None:
     session.run("black", *args)
 
 
-# @session(name="pre-commit", python="3.8")
-# def precommit(session: Session) -> None:
-#     """Lint using pre-commit."""
-#     args = session.posargs or ["run", "--all-files", "--show-diff-on-failure"]
-#     session.install(
-#         "black",
-#         "darglint",
-#         "flake8",
-#         "flake8-bandit",
-#         "flake8-bugbear",
-#         "flake8-docstrings",
-#         "flake8-rst-docstrings",
-#         "pep8-naming",
-#         "pre-commit",
-#         "pre-commit-hooks",
-#         "pyupgrade",
-#         "reorder-python-imports",
-#     )
-#     session.run("pre-commit", *args)
-#     if args and args[0] == "install":
-#         activate_virtualenv_in_precommit_hooks(session)
+@session(name="pre-commit", python="3.8")
+def precommit(session: Session) -> None:
+    """Lint using pre-commit."""
+    args = session.posargs or ["run", "--all-files", "--show-diff-on-failure"]
+    session.install(
+        "black",
+        "darglint",
+        "flake8",
+        "flake8-bandit",
+        "flake8-bugbear",
+        "flake8-docstrings",
+        "flake8-rst-docstrings",
+        "pep8-naming",
+        "pre-commit",
+        "pre-commit-hooks",
+        "pyupgrade",
+        "reorder-python-imports",
+    )
+    session.run("pre-commit", *args)
+    if args and args[0] == "install":
+        activate_virtualenv_in_precommit_hooks(session)
 
 
-@session(python="3.8", tags=["local"])  # type: ignore[call-overload]
+@session(python="3.8")
 def safety(session: Session) -> None:
     """Scan dependencies for insecure packages."""
     requirements = session.poetry.export_requirements()
@@ -134,10 +134,10 @@ def safety(session: Session) -> None:
     session.run("safety", "check", "--full-report", f"--file={requirements}")
 
 
-@session(python=python_versions, tags=["local"])  # type: ignore[call-overload]
+@session(python=python_versions)
 def mypy(session: Session) -> None:
     """Type-check using mypy."""
-    args = session.posargs or locations
+    args = session.posargs or ["src", "tests"]
     session.install(".")
     session.install("mypy", "pytest")
     session.run("mypy", *args)
@@ -145,7 +145,7 @@ def mypy(session: Session) -> None:
         session.run("mypy", f"--python-executable={sys.executable}", "noxfile.py")
 
 
-@session(python=python_versions, tags=["local"])  # type: ignore[call-overload]
+@session(python=python_versions)
 def tests(session: Session) -> None:
     """Run the test suite."""
     session.install(".")
@@ -170,27 +170,27 @@ def coverage(session: Session) -> None:
     session.run("coverage", *args)
 
 
-# @session(python=python_versions)
-# def typeguard(session: Session) -> None:
-#     """Runtime type checking using Typeguard."""
-#     session.install(".")
-#     session.install("pytest", "typeguard", "pygments")
-#     session.run("pytest", f"--typeguard-packages={package}", *session.posargs)
+@session(python=python_versions)
+def typeguard(session: Session) -> None:
+    """Runtime type checking using Typeguard."""
+    session.install(".")
+    session.install("pytest", "typeguard", "pygments")
+    session.run("pytest", f"--typeguard-packages={package}", *session.posargs)
 
 
-# @session(python=python_versions)
-# def xdoctest(session: Session) -> None:
-#     """Run examples with xdoctest."""
-#     if session.posargs:
-#         args = [package, *session.posargs]
-#     else:
-#         args = [f"--modname={package}", "--command=all"]
-#         if "FORCE_COLOR" in os.environ:
-#             args.append("--colored=1")
+@session(python=python_versions)
+def xdoctest(session: Session) -> None:
+    """Run examples with xdoctest."""
+    if session.posargs:
+        args = [package, *session.posargs]
+    else:
+        args = [f"--modname={package}", "--command=all"]
+        if "FORCE_COLOR" in os.environ:
+            args.append("--colored=1")
 
-#     session.install(".")
-#     session.install("xdoctest[colors]")
-#     session.run("python", "-m", "xdoctest", *args)
+    session.install(".")
+    session.install("xdoctest[colors]")
+    session.run("python", "-m", "xdoctest", *args)
 
 
 @session(name="docs-build", python="3.8")
@@ -219,10 +219,10 @@ def docs_build(session: Session) -> None:
     rmtree(build_dir)
 
 
-@session(name="lint", python="3.8", tags=["local"])  # type: ignore[call-overload]
+@session(name="lint", python="3.8")
 def lint(session: Session) -> None:
     """Lint using flake8."""
-    args = session.posargs or locations
+    args = session.posargs
     session.install(".")
     deps = [
         "flake8",

@@ -1,4 +1,3 @@
-"""Constants."""
 from itertools import product
 from typing import Dict, Tuple
 
@@ -53,18 +52,7 @@ def _get_bboxes(
     ymax: int = BNG_YMAX,
     box_size: int = BOX_SIZE,
 ) -> Tuple[BoundingBox, ...]:
-    """Returns a tuple of BoundingBox for BNG 100km grid squares.
-
-    Args:
-        xmin (int): _description_. Defaults to BNG_XMIN.
-        ymin (int): _description_. Defaults to BNG_YMIN.
-        xmax (int): _description_. Defaults to BNG_XMAX.
-        ymax (int): _description_. Defaults to BNG_YMAX.
-        box_size (int): _description_. Defaults to BOX_SIZE.
-
-    Returns:
-        Tuple[BoundingBox, ...]: _description_
-    """
+    """Returns a tuple of BoundingBox for BNG 100km grid squares."""
     eastings = range(xmin, xmax, box_size)
     northings = range(ymax, ymin, -box_size)
 
