@@ -11,7 +11,8 @@ from sds_data_model.vector import VectorLayer
 @fixture
 def expected_dag(shared_datadir: Path) -> str:
     path_to_dot_file = shared_datadir / "ramsar_dag.dot"
-    return Source.from_file(path_to_dot_file).source
+    dag: str = Source.from_file(path_to_dot_file).source
+    return dag
 
 
 def test_graph(shared_datadir: Path, expected_dag: Digraph) -> None:

@@ -725,6 +725,19 @@ python-versions = ">=3.7"
 gitdb = ">=4.0.1,<5"
 
 [[package]]
+name = "graphviz"
+version = "0.20.1"
+description = "Simple Python interface for Graphviz"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+dev = ["tox (>=3)", "flake8", "pep8-naming", "wheel", "twine"]
+docs = ["sphinx (>=5)", "sphinx-autodoc-typehints", "sphinx-rtd-theme"]
+test = ["pytest (>=7)", "pytest-mock (>=3)", "mock (>=4)", "pytest-cov", "coverage"]
+
+[[package]]
 name = "identify"
 version = "2.5.3"
 description = "File identification library for Python"
@@ -1087,7 +1100,7 @@ yaml = ["PyYAML (>=5.1.0)"]
 
 [[package]]
 name = "mypy"
-version = "0.980+dev.61a9b92297e1363b5bd99855df51e9a84be8da69"
+version = "0.980+dev.840a310f0b6c4a4bd7edfb141c8d1731ba4dd027"
 description = "Optional static typing for Python"
 category = "dev"
 optional = false
@@ -1108,7 +1121,7 @@ reports = ["lxml"]
 type = "git"
 url = "https://github.com/python/mypy.git"
 reference = "master"
-resolved_reference = "61a9b92297e1363b5bd99855df51e9a84be8da69"
+resolved_reference = "840a310f0b6c4a4bd7edfb141c8d1731ba4dd027"
 
 [[package]]
 name = "mypy-extensions"
@@ -2197,7 +2210,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.8"
-content-hash = "39bb2dd6f17c1505807256e7c4eaae69773f3ff0e2b498484160691f3c79aac3"
+content-hash = "0655e185f43e87c4ae2e3ac38e54f467b876cc9573d36e11e52888baeaa27ccd"
 
 [metadata.files]
 affine = [
@@ -2576,6 +2589,7 @@ gitpython = [
     {file = "GitPython-3.1.27-py3-none-any.whl", hash = "sha256:5b68b000463593e05ff2b261acff0ff0972df8ab1b70d3cdbd41b546c8b8fc3d"},
     {file = "GitPython-3.1.27.tar.gz", hash = "sha256:1c885ce809e8ba2d88a29befeb385fcea06338d3640712b59ca623c220bb5704"},
 ]
+graphviz = []
 identify = []
 idna = [
     {file = "idna-3.3-py3-none-any.whl", hash = "sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff"},

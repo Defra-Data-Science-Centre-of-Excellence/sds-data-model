@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from typing import Any, Dict, Generator, List, Optional, Tuple, Type, TypeVar
+from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
 
 from affine import Affine
 from dask.delayed import Delayed
-from graphviz import Digraph
 from geopandas import GeoDataFrame
+from graphviz import Digraph
 from numpy import number, uint8
 from numpy.typing import NDArray
 from pandas import DataFrame, Series
@@ -36,9 +36,9 @@ from sds_data_model.constants import (
     CategoryLookups,
     Schema,
 )
+from sds_data_model.graph import initialise_graph, update_graph
 from sds_data_model.logger import log
 from sds_data_model.metadata import Metadata
-from sds_data_model.graph import initialise_graph, update_graph
 
 _VectorTile = TypeVar("_VectorTile", bound="VectorTile")
 
@@ -142,6 +142,7 @@ class TiledVectorLayer:
     schema: Schema
     metadata: Optional[Metadata] = None
     category_lookups: Optional[CategoryLookups] = None
+    graph: Optional[Digraph] = None
 
     @classmethod
     @log
