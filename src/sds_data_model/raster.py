@@ -4,10 +4,12 @@ from typing import Generator
 
 from fsspec import get_mapper
 from numpy import arange, ndarray
-from xarray import DataArray
+from xarray import DataArray, Dataset, open_dataset
+from rasterio.drivers import raster_driver_extensions
 
 from sds_data_model.constants import CELL_SIZE, BoundingBox
 from sds_data_model.metadata import Metadata
+from sds_data_model._vector import _check_layer_projection
 
 
 @dataclass
@@ -62,3 +64,51 @@ class TiledMaskLayer:
             data_arrays=data_arrays,
             metadata=self.metadata,
         )
+
+
+def read_dataset_from_file(
+    data_path: str,
+    categorical: bool=False, 
+    nodata: float=None,
+    band: int=1,
+    engine: str=None,
+    decode_coords="all",
+    **data_kwargs,
+) -> Dataset:
+    suffix = Path(data_path).suffixes[0]
+    
+    if engine:
+        pass
+    elif suffix == ".zarr":
+        engine = "zarr"
+    elif suffix[1:] in raster_driver_extensions().keys():
+        engine = "rasterio"
+        decode_coords = None
+    
+    raster = open_dataset(
+        data_path,
+        engine=engine,
+        decode_coords=decode_coords,
+        mask_and_scale=False,
+        **data_kwargs,
+    )
+    
+    _check_layer_projection({"crs" : raster.rio.crs.to_string()})
+    
+    if raster.band.ndim:
+        raster = raster.sel(band=band)
+    
+    if _check_pixel_size(raster.rio.transform()):
+        raster = _resample_to_10m(
+            raster=raster.to_array().squeeze(),
+            categorical=categorical,
+        )
+    
+    if _check_shape_and_extent(raster):
+        raster = _to_bng_extent(
+            raster=raster.to_array().squeeze(),
+            nodata=nodata,
+        )
+    
+    return raster
+
