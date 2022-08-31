@@ -137,7 +137,7 @@ def safety(session: Session) -> None:
 @session(python=python_versions, tags=["local"])  # type: ignore[call-overload]
 def mypy(session: Session) -> None:
     """Type-check using mypy."""
-    args = session.posargs or ["src", "tests"]
+    args = session.posargs or locations
     session.install(".")
     session.install("mypy", "pytest")
     session.run("mypy", *args)
@@ -222,7 +222,7 @@ def docs_build(session: Session) -> None:
 @session(name="lint", python="3.8", tags=["local"])  # type: ignore[call-overload]
 def lint(session: Session) -> None:
     """Lint using flake8."""
-    args = session.posargs
+    args = session.posargs or locations
     session.install(".")
     deps = [
         "flake8",
