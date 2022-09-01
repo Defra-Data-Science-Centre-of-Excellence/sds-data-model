@@ -87,7 +87,7 @@ def activate_virtualenv_in_precommit_hooks(session: Session) -> None:
         hook.write_text("\n".join(lines))
 
 
-@session(python=python_versions, tags=["format", "local"])  # type: ignore[call-overload]
+@session(python=python_versions, tags=["format", "local"])  # type: ignore[call-overload]  # noqa: B950
 def isort(session: Session) -> None:
     """Sort imports with isort."""
     args = session.posargs or locations
@@ -95,7 +95,7 @@ def isort(session: Session) -> None:
     session.run("isort", *args)
 
 
-@session(python=python_versions, tags=["format", "local"])  # type: ignore[call-overload]
+@session(python=python_versions, tags=["format", "local"])  # type: ignore[call-overload]  # noqa: B950
 def black(session: Session) -> None:
     """Run black code formatter."""
     args = session.posargs or locations
@@ -226,6 +226,7 @@ def lint(session: Session) -> None:
     session.install(".")
     deps = [
         "flake8",
+        "flake8-pyproject",
         "flake8-annotations",
         "flake8-bandit",
         "flake8-black",
