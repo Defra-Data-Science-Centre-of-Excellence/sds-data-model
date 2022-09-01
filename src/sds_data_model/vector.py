@@ -306,7 +306,46 @@ class VectorLayer:
         convert_to_categorical: Optional[List[str]] = None,
         metadata_path: Optional[str] = None,
         name: Optional[str] = None,
+        schema: Optional[Dict[str, Any]] = None
     ) -> _VectorLayer:
+
+        """Get a GeoDataframe with accompanying information on name, metadata and schema.
+
+        Examples:
+            >>> from vector import VectorLayer
+            >>> aw = read_file("https://services.arcgis.com/JJzESW51TqeY9uat/arcgis/rest/services/Ancient_Woodland_England/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson").to_crs("epsg:27700")
+            >>> aw.to_file("aw.gpkg", layer='aw', driver="GPKG")
+            >>> aw_dict = {
+                'OBJECTID': 'int32',
+                'NAME': 'object',
+                'THEME': 'object',
+                'THEMNAME': 'object',
+                'THEMID': 'int64',
+                'STATUS': 'object',
+                'PERIMETER': 'float64',
+                'AREA': 'float64',
+                'X_COORD': 'int64',
+                'Y_COORD': 'int64',
+                'Shape__Area': 'float64',
+                'Shape__Length': 'float64'
+                }
+            >>> VectorLayer.from_files(
+                data_path = "aw.gpkg",
+                name = "Ancient Woodland - test dataset",
+                schema = aw_dict)
+        
+        Args:
+            data_path (str): file path to dataset.
+            data_kwargs (Optional[Dict[str, Any]]): 
+            convert_to_categorical (List[str]): 
+            metadata_path (Optional[str]): 
+            name (Optional[str]): optional name to give VectorLayer output.
+            schema (Optional[Dict[str, Any]]): optional dictionary of user-defined schema to pass, will get schema from dataset if none provided. User-defined dictionary should have the column as the "key", and the data type as the "value". 
+        
+        Returns:
+            VectorLayer class of dataset. 
+    """
+
         info = _get_info(
             data_path=data_path,
             data_kwargs=data_kwargs,
@@ -314,7 +353,10 @@ class VectorLayer:
 
         _check_layer_projection(info)
 
-        schema = _get_schema(info)
+        if schema is not None:
+            schema = schema
+        else:
+            schema = _get_schema(info)
 
         metadata = _get_metadata(
             data_path=data_path,
