@@ -9,6 +9,7 @@ from rasterio.drivers import raster_driver_extensions
 
 from sds_data_model.constants import CELL_SIZE, BoundingBox
 from sds_data_model.metadata import Metadata
+from sds_data_model._raster import _check_cellsize, _check_shape_and_extent, _resample_cellsize, _to_bng_extent
 from sds_data_model._vector import _check_layer_projection
 
 
@@ -98,8 +99,8 @@ def read_dataset_from_file(
     if raster.band.ndim:
         raster = raster.sel(band=band)
     
-    if _check_pixel_size(raster.rio.transform()):
-        raster = _resample_to_10m(
+    if _check_cellsize(raster.rio.transform()):
+        raster = _resample_cellsize(
             raster=raster.to_array().squeeze(),
             categorical=categorical,
         )

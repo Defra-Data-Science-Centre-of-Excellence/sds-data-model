@@ -5,7 +5,7 @@ from xarray import DataArray, Dataset
 
 from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, CELL_SIZE
 
-def _check_pixel_size(
+def _check_cellsize(
     transform: Affine,
 ) -> bool:
     if (
@@ -54,7 +54,7 @@ def _get_resample_shape(
     ).round().astype("int")
 
 
-def _resample_to_10m(
+def _resample_cellsize(
     raster: DataArray,
     categorical: bool=False,
 ) -> ndarray:
@@ -105,7 +105,7 @@ def _to_bng_extent(
             array(
                 [BNG_YMAX, BNG_XMAX]
             ) / CELL_SIZE
-        ).round().astype("int"),
+        ).astype("int"),
         fill_value=raster.rio.nodata,
         dtype=raster.dtype   
     )
