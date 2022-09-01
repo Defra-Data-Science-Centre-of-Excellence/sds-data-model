@@ -526,7 +526,8 @@ def _get_categories_and_dtypes(
     Args:
         data_path (str): _description_
         convert_to_categorical (List[str]): _description_
-        data_kwargs (Optional[Dict[str, str]], optional): _description_. Defaults to None.
+        data_kwargs (Optional[Dict[str, str]], optional): _description_. Defaults to
+            None.
 
     Returns:
         Tuple[CategoryLookups, Schema]: _description_
@@ -605,7 +606,7 @@ def _recode_categorical_strings(
     column: str,
     category_lookups: CategoryLookups,
 ) -> GeoDataFrame:
-    """_summary_
+    """# TODO.
 
     Returns a GeoDataFrame where an integer representation of a categorical column
     specified by the user is assigned to the GeoDataFrame - string representation
@@ -631,7 +632,7 @@ def _recode_categorical_strings(
 def _check_layer_projection(
     info: Dict[str, Any],
 ) -> None:
-    """Checks whether the projection is British National Grid (EPSG:27700)
+    """Checks whether the projection is British National Grid (EPSG:27700).
 
     Args:
         info (Dict[str, Any]): The dictionary of information returned by `_get_info`.
@@ -642,7 +643,7 @@ def _check_layer_projection(
     crs = info["crs"]
     if crs != "EPSG:27700":
         raise TypeError(
-            f"Projection is {crs}, not British National Grid (EPSG:27700). Reproject source data."
+            f"Projection is {crs}, not British National Grid (EPSG:27700). Reproject source data."  # noqa: B950
         )
 
 
@@ -744,7 +745,7 @@ def _get_metadata(
     Args:
         data_path (str): Path to the vector file.
         metadata_path (Optional[str]): Path to a `UK GEMINI`_ metadata file.
-        Defaults to None.
+            Defaults to None.
 
     Returns:
         Optional[Metadata]: An instance of :class: Metadata
