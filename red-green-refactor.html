@@ -1,0 +1,472 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Red-Green-Refactor &#8212; SDS Data Model  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="red-green-refactor">
+<h1>Red-Green-Refactor<a class="headerlink" href="#red-green-refactor" title="Permalink to this headline">¶</a></h1>
+<p>I’ve mentioned the Red-Green-Refactor testing strategy a few times, claiming that it’s just a more explicit version of what we’re already doing when we develop code, but the discussion has been quite abstract: what does it actually look like in practice?</p>
+<p>Well, I’m currently working on <a class="reference external" href="https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model/issues/56">Implement transformation history as a DAG</a>, and I thought this might be as good an opportunity as any to practice what I preach.</p>
+<section id="goal">
+<h2>Goal<a class="headerlink" href="#goal" title="Permalink to this headline">¶</a></h2>
+<p>So, first things first, what am I trying to do?</p>
+<p>I want to visualise the process of reading vector data and associated metadata from disc and transforming it into our common raster specification. I’ve decided that the best way to do this is to generate a Directed Acyclic Graph (DAG) which captures the data states and transformations as nodes with edges indicating the flow from one to another.</p>
+<p>I will use flowchart convention of representing the beginning and end of the process with “terminal” nodes (i.e. oval nodes), “process” nodes (i.e. rectangular nodes) to represent transformations, and “input/output” nodes (i.e. rhomboid nodes) to represent data states. For my purposes, the “terminal” nodes will represent data on disk, the “process” nodes will represent functions and methods, and the “input/output” nodes will represent data in memory.</p>
+</section>
+<section id="a-simple-example-for-testing">
+<h2>A simple example for testing<a class="headerlink" href="#a-simple-example-for-testing" title="Permalink to this headline">¶</a></h2>
+<p>The simplest example I can think of is reading data and metadata into a <code class="docutils literal notranslate"><span class="pre">VectorLayer</span></code>, then convert it to a <code class="docutils literal notranslate"><span class="pre">TiledVectorLayer</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sds_data_model.vector</span> <span class="kn">import</span> <span class="n">VectorLayer</span>
+
+<span class="n">vector_layer</span> <span class="o">=</span> <span class="n">VectorLayer</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;tests/data/Ramsar__England__.zip&quot;</span><span class="p">,</span>
+    <span class="n">metadata_path</span><span class="o">=</span><span class="s2">&quot;tests/data/Ramsar__England__.xml&quot;</span>
+<span class="p">)</span>
+
+<span class="n">tiled_vector_layer</span> <span class="o">=</span> <span class="n">vector_layer</span><span class="o">.</span><span class="n">to_tiles</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="a-dag-for-this-example">
+<h2>A DAG for this example<a class="headerlink" href="#a-dag-for-this-example" title="Permalink to this headline">¶</a></h2>
+<p>So, what would the DAG for this look like?</p>
+<p>I came up with the following in <code class="docutils literal notranslate"><span class="pre">mermaid</span></code>:</p>
+<div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>graph TD;
+ data_path([&lt;dl&gt;&lt;dt&gt;data input:&lt;/dt&gt;&lt;dd&gt;tests/data/Ramsar__England__.zip&lt;/dd&gt;&lt;/dl&gt;]) --&gt; from_files[&lt;dl&gt;&lt;dt&gt;function:&lt;/dt&gt;&lt;dd&gt;VectorLayer.from_files&lt;/dd&gt;&lt;/dl&gt;]
+ metadata_path([&lt;dl&gt;&lt;dt&gt;metadata input:&lt;/dt&gt;&lt;dd&gt;tests/data/Ramsar__England__.xml&lt;/dd&gt;&lt;/dl&gt;]) --&gt; from_files[&lt;dl&gt;&lt;dt&gt;function:&lt;/dt&gt;&lt;dd&gt;VectorLayer.from_files&lt;/dd&gt;&lt;/dl&gt;]
+ from_files[&lt;dl&gt;&lt;dt&gt;function:&lt;/dt&gt;&lt;dd&gt;VectorLayer.from_files&lt;/dd&gt;&lt;/dl&gt;] --&gt; vector_layer[/&lt;dl&gt;&lt;dt&gt;output:&lt;/dt&gt;&lt;dd&gt;VectorLayer&lt;/dd&gt;&lt;/dl&gt;/]
+ vector_layer[/&lt;dl&gt;&lt;dt&gt;output:&lt;/dt&gt;&lt;dd&gt;VectorLayer&lt;/dd&gt;&lt;/dl&gt;/] --&gt; to_tiles[&lt;dl&gt;&lt;dt&gt;function:&lt;/dt&gt;&lt;dd&gt;VectorLayer.to_tiles&lt;/dd&gt;&lt;/dl&gt;]
+ to_tiles[&lt;dl&gt;&lt;dt&gt;function:&lt;/dt&gt;&lt;dd&gt;VectorLayer.to_tiles&lt;/dd&gt;&lt;/dl&gt;] --&gt; tiled_vector_layer[/&lt;dl&gt;&lt;dt&gt;output:&lt;/dt&gt;&lt;dd&gt;TiledVectorLayer&lt;/dd&gt;&lt;/dl&gt;/]
+</pre></div>
+</div>
+<p>Which I then wrote in python using <code class="docutils literal notranslate"><span class="pre">graphviz</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">graphviz</span> <span class="kn">import</span> <span class="n">Digraph</span>
+
+<span class="n">dag</span> <span class="o">=</span> <span class="n">Digraph</span><span class="p">()</span>
+
+<span class="n">dag</span><span class="o">.</span><span class="n">node</span><span class="p">(</span><span class="s2">&quot;data_path&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;data input:</span><span class="se">\n</span><span class="s2">tests/data/Ramsar__England__.zip&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;oval&quot;</span><span class="p">)</span>
+<span class="n">dag</span><span class="o">.</span><span class="n">node</span><span class="p">(</span><span class="s2">&quot;metadata_path&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;metadata input:</span><span class="se">\n</span><span class="s2">tests/data/Ramsar__England__.xml&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;oval&quot;</span><span class="p">)</span>
+<span class="n">dag</span><span class="o">.</span><span class="n">node</span><span class="p">(</span><span class="s2">&quot;VectorLayer.from_files&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;function:</span><span class="se">\n</span><span class="s2">VectorLayer.from_files&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;box&quot;</span><span class="p">)</span>
+<span class="n">dag</span><span class="o">.</span><span class="n">node</span><span class="p">(</span><span class="s2">&quot;VectorLayer&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;output:</span><span class="se">\n</span><span class="s2">VectorLayer&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;parallelogram&quot;</span><span class="p">)</span>
+
+<span class="n">dag</span><span class="o">.</span><span class="n">edge</span><span class="p">(</span><span class="s2">&quot;data_path&quot;</span><span class="p">,</span> <span class="s2">&quot;VectorLayer.from_files&quot;</span><span class="p">)</span>
+<span class="n">dag</span><span class="o">.</span><span class="n">edge</span><span class="p">(</span><span class="s2">&quot;metadata_path&quot;</span><span class="p">,</span> <span class="s2">&quot;VectorLayer.from_files&quot;</span><span class="p">)</span>
+<span class="n">dag</span><span class="o">.</span><span class="n">edge</span><span class="p">(</span><span class="s2">&quot;VectorLayer.from_files&quot;</span><span class="p">,</span> <span class="s2">&quot;VectorLayer&quot;</span><span class="p">)</span>
+
+<span class="n">dag</span><span class="o">.</span><span class="n">node</span><span class="p">(</span><span class="s2">&quot;VectorLayer.to_tiles&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;function:</span><span class="se">\n</span><span class="s2">VectorLayer.to_tiles&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;box&quot;</span><span class="p">)</span>
+<span class="n">dag</span><span class="o">.</span><span class="n">node</span><span class="p">(</span><span class="s2">&quot;TiledVectorLayer&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;output:</span><span class="se">\n</span><span class="s2">TiledVectorLayer&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;parallelogram&quot;</span><span class="p">)</span>
+
+<span class="n">dag</span><span class="o">.</span><span class="n">edge</span><span class="p">(</span><span class="s2">&quot;VectorLayer&quot;</span><span class="p">,</span> <span class="s2">&quot;VectorLayer.to_tiles&quot;</span><span class="p">)</span>
+<span class="n">dag</span><span class="o">.</span><span class="n">edge</span><span class="p">(</span><span class="s2">&quot;VectorLayer.to_tiles&quot;</span><span class="p">,</span> <span class="s2">&quot;TiledVectorLayer&quot;</span><span class="p">)</span>
+
+<span class="n">dag</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;tests/data/ramsar_dag.dot&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Which produces this:</p>
+<div class="highlight-dot notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">!--</span><span class="w"> </span><span class="nt">ramsar_dag.dot</span><span class="w"> </span><span class="nt">--</span><span class="p">&gt;</span><span class="w"></span>
+<span class="k">digraph</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">data_path</span><span class="w"> </span><span class="p">[</span><span class="na">label</span><span class="p">=</span><span class="s2">&quot;data input:</span>
+<span class="s2">    tests/data/Ramsar__England__.zip&quot;</span><span class="w"> </span><span class="na">shape</span><span class="p">=</span><span class="s">oval</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="nt">metadata_path</span><span class="w"> </span><span class="p">[</span><span class="na">label</span><span class="p">=</span><span class="s2">&quot;metadata input:</span>
+<span class="s2">    tests/data/Ramsar__England__.xml&quot;</span><span class="w"> </span><span class="na">shape</span><span class="p">=</span><span class="s">oval</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;VectorLayer.from_files&quot;</span><span class="w"> </span><span class="p">[</span><span class="na">label</span><span class="p">=</span><span class="s2">&quot;function:</span>
+<span class="s2">    VectorLayer.from_files&quot;</span><span class="w"> </span><span class="na">shape</span><span class="p">=</span><span class="s">box</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="nt">VectorLayer</span><span class="w"> </span><span class="p">[</span><span class="na">label</span><span class="p">=</span><span class="s2">&quot;output:</span>
+<span class="s2">    VectorLayer&quot;</span><span class="w"> </span><span class="na">shape</span><span class="p">=</span><span class="s">parallelogram</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="nt">data_path</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nt">&quot;VectorLayer.from_files&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">metadata_path</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nt">&quot;VectorLayer.from_files&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;VectorLayer.from_files&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nt">VectorLayer</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;VectorLayer.to_tiles&quot;</span><span class="w"> </span><span class="p">[</span><span class="na">label</span><span class="p">=</span><span class="s2">&quot;function:</span>
+<span class="s2">    VectorLayer.to_tiles&quot;</span><span class="w"> </span><span class="na">shape</span><span class="p">=</span><span class="s">box</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="nt">TiledVectorLayer</span><span class="w"> </span><span class="p">[</span><span class="na">label</span><span class="p">=</span><span class="s2">&quot;output:</span>
+<span class="s2">    TiledVectorLayer&quot;</span><span class="w"> </span><span class="na">shape</span><span class="p">=</span><span class="s">parallelogram</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="nt">VectorLayer</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nt">&quot;VectorLayer.to_tiles&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;VectorLayer.to_tiles&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nt">TiledVectorLayer</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Which renders as this:</p>
+<p><img alt="Ramsar DAG" src="../tests/data/ramsar_dag.svg" /></p>
+</section>
+<section id="the-red">
+<h2>The Red<a class="headerlink" href="#the-red" title="Permalink to this headline">¶</a></h2>
+<p>Now we have an expected output, we can write a test.</p>
+<p>First, though, we need to access that expected output.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># test_graph.py</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span> <span class="nn">graphviz</span> <span class="kn">import</span> <span class="n">Digraph</span><span class="p">,</span> <span class="n">Source</span>
+<span class="kn">from</span> <span class="nn">pytest</span> <span class="kn">import</span> <span class="n">fixture</span>
+
+
+<span class="nd">@fixture</span>
+<span class="k">def</span> <span class="nf">expected_dag</span><span class="p">(</span><span class="n">shared_datadir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Digraph</span><span class="p">:</span>
+    <span class="n">path_to_dot_file</span> <span class="o">=</span> <span class="n">shared_datadir</span> <span class="o">/</span> <span class="s2">&quot;ramsar_dag.dot&quot;</span>
+    <span class="k">return</span> <span class="n">Source</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path_to_dot_file</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here, I’m capturing the expected dag in a <code class="docutils literal notranslate"><span class="pre">pytest.fixture</span></code> and I’m using <code class="docutils literal notranslate"><span class="pre">pytest-datadir</span></code>.</p>
+<p>Then, I write a test I know will fail:</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span><span class="w"># test_graph.py</span>
+<span class="w">from pathlib import Path</span>
+
+<span class="w">from graphviz import Digraph, Source</span>
+<span class="w">from pytest import fixture</span>
+
+<span class="gi">+from sds_data_model.vector import VectorLayer</span><span class="w"></span>
+
+<span class="gu">@fixture</span><span class="w"></span>
+<span class="w">def expected_dag(shared_datadir: Path) -&gt; Digraph:</span>
+<span class="w"> </span>   path_to_dot_file = shared_datadir / &quot;ramsar_dag.dot&quot;<span class="w"></span>
+<span class="w"> </span>   return Source.from_file(path_to_dot_file)<span class="w"></span>
+
+
+<span class="gi">+def test_graph(shared_datadir: Path, expected_dag: Digraph) -&gt; None:</span><span class="w"></span>
+<span class="gi">+    data_path = str(shared_datadir / &quot;Ramsar__England__.zip&quot;)</span><span class="w"></span>
+<span class="gi">+    metadata_path = str(shared_datadir / &quot;Ramsar__England__.xml&quot;)</span><span class="w"></span>
+<span class="gi">+</span><span class="w"></span>
+<span class="gi">+    vector_layer = VectorLayer.from_files(</span><span class="w"></span>
+<span class="gi">+        data_path=data_path, metadata_path=metadata_path</span><span class="w"></span>
+<span class="gi">+    )</span><span class="w"></span>
+<span class="gi">+</span><span class="w"></span>
+<span class="gi">+    tiled_vector_layer = vector_layer.to_tiles()</span><span class="w"></span>
+<span class="gi">+</span><span class="w"></span>
+<span class="gi">+    assert tiled_vector_layer.graph == expected_dag</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Which it does, with an <code class="docutils literal notranslate"><span class="pre">AttributeError</span></code> as the <code class="docutils literal notranslate"><span class="pre">'TiledVectorLayer'</span> <span class="pre">object</span> <span class="pre">has</span> <span class="pre">no</span> <span class="pre">attribute</span> <span class="pre">'graph'</span></code>.</p>
+<p>Perfect, now I just have to make this test pass!</p>
+</section>
+<section id="the-green">
+<h2>The Green<a class="headerlink" href="#the-green" title="Permalink to this headline">¶</a></h2>
+<p>My first thought it to use the same approach I did to generate the DAG manually, so I add a <code class="docutils literal notranslate"><span class="pre">graph</span></code> attribute to <code class="docutils literal notranslate"><span class="pre">VectorLayer</span></code> and <code class="docutils literal notranslate"><span class="pre">TiledVectorLayer</span></code>:</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span><span class="w">#vector.py</span>
+
+<span class="w">...</span>
+
+<span class="gu">@dataclass</span><span class="w"></span>
+<span class="w">class VectorLayer:</span>
+<span class="w"> </span>   name: str<span class="w"></span>
+<span class="w"> </span>   gpdf: GeoDataFrame<span class="w"></span>
+<span class="w"> </span>   schema: Schema<span class="w"></span>
+<span class="gi">+    graph: Digraph</span><span class="w"></span>
+<span class="w"> </span>   metadata: Optional[Metadata] = None<span class="w"></span>
+<span class="w"> </span>   category_lookups: Optional[CategoryLookups] = None<span class="w"></span>
+
+<span class="w">...</span>
+</pre></div>
+</div>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span><span class="w">#vector.py</span>
+
+<span class="w">...</span>
+
+<span class="gu">@dataclass</span><span class="w"></span>
+<span class="w">class TiledVectorLayer:</span>
+<span class="w"> </span>   name: str<span class="w"></span>
+<span class="w"> </span>   tiles: Generator[VectorTile, None, None]<span class="w"></span>
+<span class="w"> </span>   schema: Schema<span class="w"></span>
+<span class="gi">+    graph: Digraph</span><span class="w"></span>
+<span class="w"> </span>   metadata: Optional[Metadata] = None<span class="w"></span>
+<span class="w"> </span>   category_lookups: Optional[CategoryLookups] = None<span class="w"></span>
+
+<span class="w">...</span>
+</pre></div>
+</div>
+<p>The, I instantiate a <code class="docutils literal notranslate"><span class="pre">Digraph</span></code> in <code class="docutils literal notranslate"><span class="pre">VectorLayer.from_files</span></code>:</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span><span class="w">#vector.py</span>
+
+<span class="w">...</span>
+
+<span class="gu">@classmethod</span><span class="w"></span>
+<span class="w">def from_files(</span>
+<span class="w"> </span>   cls: _VectorLayer,<span class="w"></span>
+<span class="w"> </span>   data_path: str,<span class="w"></span>
+<span class="w"> </span>   data_kwargs: Optional[Dict[str, Any]] = None,<span class="w"></span>
+<span class="w"> </span>   convert_to_categorical: Optional[List[str]] = None,<span class="w"></span>
+<span class="w"> </span>   metadata_path: Optional[str] = None,<span class="w"></span>
+<span class="w"> </span>   name: Optional[str] = None,<span class="w"></span>
+<span class="w">) -&gt; _VectorLayer:</span>
+<span class="w"> </span>   info = _get_info(<span class="w"></span>
+<span class="w"> </span>       data_path=data_path,<span class="w"></span>
+<span class="w"> </span>       data_kwargs=data_kwargs,<span class="w"></span>
+<span class="w"> </span>   )<span class="w"></span>
+
+<span class="w"> </span>   _check_layer_projection(info)<span class="w"></span>
+
+<span class="w"> </span>   schema = _get_schema(info)<span class="w"></span>
+
+<span class="w"> </span>   metadata = _get_metadata(<span class="w"></span>
+<span class="w"> </span>       data_path=data_path,<span class="w"></span>
+<span class="w"> </span>       metadata_path=metadata_path,<span class="w"></span>
+<span class="w"> </span>   )<span class="w"></span>
+
+<span class="w"> </span>   _name = _get_name(<span class="w"></span>
+<span class="w"> </span>       name=name,<span class="w"></span>
+<span class="w"> </span>       metadata=metadata,<span class="w"></span>
+<span class="w"> </span>   )<span class="w"></span>
+
+<span class="w"> </span>   gpdf = _get_gpdf(<span class="w"></span>
+<span class="w"> </span>       data_path=data_path,<span class="w"></span>
+<span class="w"> </span>       data_kwargs=data_kwargs,<span class="w"></span>
+<span class="w"> </span>   )<span class="w"></span>
+
+<span class="w"> </span>   if convert_to_categorical:<span class="w"></span>
+<span class="w"> </span>       category_lookups, dtype_lookup = _get_categories_and_dtypes(<span class="w"></span>
+<span class="w"> </span>           data_path=data_path,<span class="w"></span>
+<span class="w"> </span>           convert_to_categorical=convert_to_categorical,<span class="w"></span>
+<span class="w"> </span>           data_kwargs=data_kwargs,<span class="w"></span>
+<span class="w"> </span>       )<span class="w"></span>
+<span class="w"> </span>       for column in convert_to_categorical:<span class="w"></span>
+<span class="w"> </span>           gpdf = _recode_categorical_strings(<span class="w"></span>
+<span class="w"> </span>               gpdf=gpdf,<span class="w"></span>
+<span class="w"> </span>               column=column,<span class="w"></span>
+<span class="w"> </span>               category_lookups=category_lookups,<span class="w"></span>
+<span class="w"> </span>           )<span class="w"></span>
+<span class="w"> </span>       schema = {**schema, **dtype_lookup}<span class="w"></span>
+<span class="w"> </span>   else:<span class="w"></span>
+<span class="w"> </span>       category_lookups = None<span class="w"></span>
+
+<span class="gi">+    graph = Digraph()</span><span class="w"></span>
+<span class="gi">+</span><span class="w"></span>
+<span class="gi">+    graph.node(&quot;data_path&quot;, label=f&quot;data input:\n{data_path}&quot;, shape=&quot;oval&quot;)</span><span class="w"></span>
+<span class="gi">+    graph.node(&quot;metadata_path&quot;, label=f&quot;metadata input:\n{metadata_path}&quot;, shape=&quot;oval&quot;)</span><span class="w"></span>
+<span class="gi">+    graph.node(&quot;VectorLayer.from_files&quot;, label=&quot;function:\nVectorLayer.from_files&quot;, shape=&quot;box&quot;)</span><span class="w"></span>
+<span class="gi">+    graph.node(&quot;VectorLayer&quot;, label=&quot;output:\nVectorLayer&quot;, shape=&quot;parallelogram&quot;)</span><span class="w"></span>
+
+<span class="gi">+    graph.edge(&quot;data_path&quot;, &quot;VectorLayer.from_files&quot;)</span><span class="w"></span>
+<span class="gi">+    graph.edge(&quot;metadata_path&quot;, &quot;VectorLayer.from_files&quot;)</span><span class="w"></span>
+<span class="gi">+    graph.edge(&quot;VectorLayer.from_files&quot;, &quot;VectorLayer&quot;)</span><span class="w"></span>
+
+<span class="w"> </span>   return cls(<span class="w"></span>
+<span class="w"> </span>       name=_name,<span class="w"></span>
+<span class="w"> </span>       gpdf=gpdf,<span class="w"></span>
+<span class="w"> </span>       metadata=metadata,<span class="w"></span>
+<span class="w"> </span>       category_lookups=category_lookups,<span class="w"></span>
+<span class="w"> </span>       schema=schema,<span class="w"></span>
+<span class="gi">+        graph=graph,</span><span class="w"></span>
+<span class="w"> </span>   )<span class="w"></span>
+
+<span class="w">...</span>
+</pre></div>
+</div>
+<p>And update it in <code class="docutils literal notranslate"><span class="pre">VectorLayer.to_tiles</span></code>:</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span><span class="w">#vector.py</span>
+
+<span class="w">...</span>
+
+<span class="w">def to_tiles(self, bboxes: Tuple[BoundingBox] = BBOXES) -&gt; TiledVectorLayer:</span>
+<span class="w"> </span>   tiles = (<span class="w"></span>
+<span class="w"> </span>       VectorTile(<span class="w"></span>
+<span class="w"> </span>           bbox=bbox,<span class="w"></span>
+<span class="w"> </span>           gpdf=self.gpdf.clip(box(*bbox)),<span class="w"></span>
+<span class="w"> </span>       )<span class="w"></span>
+<span class="w"> </span>       for bbox in bboxes<span class="w"></span>
+<span class="w"> </span>   )<span class="w"></span>
+
+<span class="gi">+    self.graph.node(&quot;VectorLayer.to_tiles&quot;, label=&quot;function:\nVectorLayer.to_tiles&quot;, shape=&quot;box&quot;)</span><span class="w"></span>
+<span class="gi">+    self.graph.node(&quot;TiledVectorLayer&quot;, label=&quot;output:\nTiledVectorLayer&quot;, shape=&quot;parallelogram&quot;)</span><span class="w"></span>
+<span class="gi">+</span><span class="w"></span>
+<span class="gi">+    self.graph.edge(&quot;VectorLayer&quot;, &quot;VectorLayer.to_tiles&quot;)</span><span class="w"></span>
+<span class="gi">+    self.graph.edge(&quot;VectorLayer.to_tiles&quot;, &quot;TiledVectorLayer&quot;)</span><span class="w"></span>
+
+<span class="w"> </span>   return TiledVectorLayer(<span class="w"></span>
+<span class="w"> </span>       name=self.name,<span class="w"></span>
+<span class="w"> </span>       tiles=tiles,<span class="w"></span>
+<span class="w"> </span>       metadata=self.metadata,<span class="w"></span>
+<span class="w"> </span>       category_lookups=self.category_lookups,<span class="w"></span>
+<span class="w"> </span>       schema=self.schema,<span class="w"></span>
+<span class="gi">+        graph=self.graph</span><span class="w"></span>
+<span class="w"> </span>   )<span class="w"></span>
+
+<span class="w">...</span>
+</pre></div>
+</div>
+<p>Unfortunately, this doesn’t turn the test green as, it turns out, I’m comparing a <code class="docutils literal notranslate"><span class="pre">graphviz.Digraph</span></code> object in memory to a <code class="docutils literal notranslate"><span class="pre">graphviz.Source</span></code> object in memory. However, both objects have a <code class="docutils literal notranslate"><span class="pre">.source</span></code> property that will allow me to compare the “generated DOT source code”. String comparison to the rescue!</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span><span class="w"># test_graph.py</span>
+
+<span class="w">...</span>
+
+<span class="gu">@fixture</span><span class="w"></span>
+<span class="gd">-def expected_dag(shared_datadir: Path) -&gt; Digraph:</span><span class="w"></span>
+<span class="gi">+def expected_dag(shared_datadir: Path) -&gt; str:</span><span class="w"></span>
+<span class="w"> </span>   path_to_dot_file = shared_datadir / &quot;ramsar_dag.dot&quot;<span class="w"></span>
+<span class="gd">-    return Source.from_file(path_to_dot_file)</span><span class="w"></span>
+<span class="gi">+    return Source.from_file(path_to_dot_file).source</span><span class="w"></span>
+
+<span class="gd">-def test_graph(shared_datadir: Path, expected_dag: Digraph) -&gt; None:</span><span class="w"></span>
+<span class="gi">+def test_graph(shared_datadir: Path, expected_dag: str) -&gt; None:</span><span class="w"></span>
+<span class="w"> </span>   data_path = str(shared_datadir / &quot;Ramsar__England__.zip&quot;)<span class="w"></span>
+<span class="w"> </span>   metadata_path = str(shared_datadir / &quot;Ramsar__England__.xml&quot;)<span class="w"></span>
+
+<span class="w"> </span>   vector_layer = VectorLayer.from_files(<span class="w"></span>
+<span class="w"> </span>       data_path=data_path, metadata_path=metadata_path<span class="w"></span>
+<span class="w"> </span>   )<span class="w"></span>
+
+<span class="w"> </span>   tiled_vector_layer = vector_layer.to_tiles()<span class="w"></span>
+
+<span class="gd">-    assert tiled_vector_layer.graph == expected_dag</span><span class="w"></span>
+<span class="gi">+    assert tiled_vector_layer.graph.source == expected_dag</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Okay, we’re getting closer. Now the test is failing because the original dag read the input files from <code class="docutils literal notranslate"><span class="pre">tests/data/</span></code> whereas the test is reading them to a tmp directory generated at runtime by <code class="docutils literal notranslate"><span class="pre">pytest</span></code>. For this run, it was expecting <code class="docutils literal notranslate"><span class="pre">tests/data/Ramsar__England__.zip</span></code> but got <code class="docutils literal notranslate"><span class="pre">/tmp/pytest-of-edfawcetttaylor/pytest-3/test_graph0/data/Ramsar__England__.zip</span></code>.</p>
+<p>Not to worry, we can clean this up with some regex.</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span><span class="w"># test_graph.py</span>
+<span class="gi">+from getpass import getuser</span><span class="w"></span>
+<span class="w">from pathlib import Path</span>
+<span class="gi">+from re import sub</span><span class="w"></span>
+
+<span class="w">from graphviz import Digraph, Source</span>
+<span class="w">from pytest import fixture</span>
+
+<span class="w">from sds_data_model.vector import VectorLayer</span>
+
+
+<span class="gu">@fixture</span><span class="w"></span>
+<span class="w">def expected_dag(shared_datadir: Path) -&gt; str:</span>
+<span class="w"> </span>   path_to_dot_file = shared_datadir / &quot;ramsar_dag.dot&quot;<span class="w"></span>
+<span class="w"> </span>   return Source.from_file(path_to_dot_file).source<span class="w"></span>
+
+
+<span class="w">def test_graph(shared_datadir: Path, expected_dag: Digraph) -&gt; None:</span>
+<span class="w"> </span>   data_path = str(shared_datadir / &quot;Ramsar__England__.zip&quot;)<span class="w"></span>
+<span class="w"> </span>   metadata_path = str(shared_datadir / &quot;Ramsar__England__.xml&quot;)<span class="w"></span>
+
+<span class="w"> </span>   vector_layer = VectorLayer.from_files(<span class="w"></span>
+<span class="w"> </span>       data_path=data_path, metadata_path=metadata_path<span class="w"></span>
+<span class="w"> </span>   )<span class="w"></span>
+
+<span class="w"> </span>   tiled_vector_layer = vector_layer.to_tiles()<span class="w"></span>
+
+<span class="gi">+    current_user = getuser()</span><span class="w"></span>
+<span class="gi">+</span><span class="w"></span>
+<span class="gi">+    received_dag = sub(</span><span class="w"></span>
+<span class="gi">+        pattern=rf&quot;/tmp/pytest-of-{current_user}/pytest-\d+/test_graph\d+/&quot;,</span><span class="w"></span>
+<span class="gi">+        repl=r&quot;tests/&quot;,</span><span class="w"></span>
+<span class="gi">+        string=tiled_vector_layer.graph.source,</span><span class="w"></span>
+<span class="gi">+    )</span><span class="w"></span>
+
+<span class="gd">-    assert tiled_vector_layer.graph.source == expected_dag</span><span class="w"></span>
+<span class="gi">+    assert received_dag == expected_dag</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Victory, the test passes!</p>
+<p>For those playing along at home, executing the following in a Jupyter Notebook:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sds_data_model.vector</span> <span class="kn">import</span> <span class="n">VectorLayer</span>
+
+<span class="n">vector_layer</span> <span class="o">=</span> <span class="n">VectorLayer</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;tests/data/Ramsar__England__.zip&quot;</span><span class="p">,</span>
+    <span class="n">metadata_path</span><span class="o">=</span><span class="s2">&quot;tests/data/Ramsar__England__.xml&quot;</span>
+<span class="p">)</span>
+
+<span class="n">tiled_vector_layer</span> <span class="o">=</span> <span class="n">vector_layer</span><span class="o">.</span><span class="n">to_tiles</span><span class="p">()</span>
+
+<span class="n">tiled_vector_layer</span><span class="o">.</span><span class="n">graph</span>
+</pre></div>
+</div>
+<p>Should output:</p>
+<p><img alt="Ramsar DAG" src="../tests/data/ramsar_dag.svg" /></p>
+<p>The problem is, this isn’t going to scale, as it’s going to involve updating the graph in every possible function. Time to refactor!</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">SDS Data Model</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributor Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codeofconduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/EFT-Defra/sds-data-model/releases">Changelog</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Piumi Algamagedona, Tim Ashelford, James Duffy, Ed Fawcett-Taylor, Samuel Flint, James Kenyon, Daniel Lewis, Jordan Pinder, Lara Spearman.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/red-green-refactor.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
