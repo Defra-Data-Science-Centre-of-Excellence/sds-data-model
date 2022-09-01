@@ -438,7 +438,7 @@ class VectorLayer:
         convert_to_categorical: Optional[List[str]] = None,
         metadata_path: Optional[str] = None,
         name: Optional[str] = None,
-        schema: Optional[Dict[str, Any]] = None
+        schema: Optional[Dict[str, Any]] = None,
     ) -> _VectorLayer:
         """Get a GeoDataframe with accompanying information on name, metadata and schema.
 
@@ -464,18 +464,18 @@ class VectorLayer:
                 data_path = "aw.gpkg",
                 name = "Ancient Woodland - test dataset",
                 schema = aw_dict)
-        
+
         Args:
             data_path (str): file path to dataset.
-            data_kwargs (Optional[Dict[str, Any]]): 
-            convert_to_categorical (List[str]): 
-            metadata_path (Optional[str]): 
+            data_kwargs (Optional[Dict[str, Any]]):
+            convert_to_categorical (List[str]):
+            metadata_path (Optional[str]):
             name (Optional[str]): optional name to give VectorLayer output.
-            schema (Optional[Dict[str, Any]]): optional dictionary of user-defined schema to pass, will get schema from dataset if none provided. User-defined dictionary should have the column as the "key", and the data type as the "value". 
-        
+            schema (Optional[Dict[str, Any]]): optional dictionary of user-defined schema to pass, will get schema from dataset if none provided. User-defined dictionary should have the column as the "key", and the data type as the "value".
+
         Returns:
-            VectorLayer class of dataset. 
-    """
+            VectorLayer class of dataset.
+        """
         info = _get_info(
             data_path=data_path,
             data_kwargs=data_kwargs,
