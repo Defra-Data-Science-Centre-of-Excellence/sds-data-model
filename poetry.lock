@@ -613,6 +613,21 @@ python-versions = "*"
 flake8 = "*"
 
 [[package]]
+name = "flake8-pyproject"
+version = "1.1.0.post0"
+description = "Flake8 plug-in loading the configuration from pyproject.toml"
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+Flake8 = ">=5,<6"
+TOMLi = {version = "*", markers = "python_version < \"3.11\""}
+
+[package.extras]
+test = ["pytest", "pytest-cov"]
+
+[[package]]
 name = "flake8-rst-docstrings"
 version = "0.2.7"
 description = "Python docstring reStructuredText (RST) validator"
@@ -2195,7 +2210,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.8"
-content-hash = "1fb1796dc8dbf44ec55a7d8853f8a77b84e91c65b2ae149c30f17f73e9cb739f"
+content-hash = "fc135b89e395311ab15bbb15338de400c8d3b1174703b671b52237a54cd0d87d"
 
 [metadata.files]
 affine = []
@@ -2250,6 +2265,7 @@ flake8-bandit = []
 flake8-bugbear = []
 flake8-docstrings = []
 flake8-polyfill = []
+flake8-pyproject = []
 flake8-rst-docstrings = []
 fonttools = []
 frozenlist = []
