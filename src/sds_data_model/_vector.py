@@ -100,17 +100,17 @@ def _from_file(
     """Returns a delayed GeoDataFrame clipped to a given bounding box.
 
     Args:
-        data_path (str): _description_
-        bbox (BoundingBox): _description_
-        convert_to_categorical (Optional[List[str]], optional): _description_.
+        data_path (str): # TODO
+        bbox (BoundingBox): # TODO
+        convert_to_categorical (Optional[List[str]], optional): # TODO.
             Defaults to None.
-        category_lookups (Optional[CategoryLookups], optional): _description_.
+        category_lookups (Optional[CategoryLookups], optional): # TODO.
             Defaults to None.
-        data_kwargs (Optional[Dict[str, Any]], optional): _description_. Defaults to
+        data_kwargs (Optional[Dict[str, Any]], optional): # TODO. Defaults to
             None.
 
     Returns:
-        GeoDataFrame: _description_
+        GeoDataFrame: # TODO
     """
     combined_kwargs = _combine_kwargs(
         additional_kwargs={
@@ -140,11 +140,11 @@ def _select(gpdf: GeoDataFrame, columns: List[str]) -> GeoDataFrame:
     """Returns given columns from a delayed GeoDataFrame.
 
     Args:
-        gpdf (GeoDataFrame): _description_
-        columns (List[str]): _description_
+        gpdf (GeoDataFrame): # TODO
+        columns (List[str]): # TODO
 
     Returns:
-        GeoDataFrame: _description_
+        GeoDataFrame: # TODO
     """
     return gpdf[columns]
 
@@ -154,11 +154,11 @@ def _where(gpdf: GeoDataFrame, condition: Series) -> GeoDataFrame:
     """Returns a delayed GeoDataFrame filtered by a given condition.
 
     Args:
-        gpdf (GeoDataFrame): _description_
-        condition (Series): _description_
+        gpdf (GeoDataFrame): # TODO
+        condition (Series): # TODO
 
     Returns:
-        GeoDataFrame: _description_
+        GeoDataFrame: # TODO
     """
     return gpdf[condition]
 
@@ -174,14 +174,14 @@ def _join(
     """Returns a delayed GeoDataFrame joined to a given DataFrame.
 
     Args:
-        gpdf (GeoDataFrame): _description_
-        other (DataFrame): _description_
-        how (str): _description_
-        fillna (Optional[Dict[str, Any]], optional): _description_. Defaults to None.
-        **kwargs (Dict[str, Any]): _description_.
+        gpdf (GeoDataFrame): # TODO
+        other (DataFrame): # TODO
+        how (str): # TODO
+        fillna (Optional[Dict[str, Any]], optional): # TODO. Defaults to None.
+        **kwargs (Dict[str, Any]): # TODO.
 
     Returns:
-        GeoDataFrame: _description_
+        GeoDataFrame: # TODO
     """
     _gpdf = merge(
         left=gpdf,
@@ -206,14 +206,14 @@ def _get_mask(
     """Returns a delayed Numpy ndarray where 1 means the pixel overlaps a geometry.
 
     Args:
-        gpdf (GeoDataFrame): _description_
-        invert (bool): _description_
-        out_shape (Tuple[int, int]): _description_
-        dtype (str): _description_
-        transform (Affine): _description_
+        gpdf (GeoDataFrame): # TODO
+        invert (bool): # TODO
+        out_shape (Tuple[int, int]): # TODO
+        dtype (str): # TODO
+        transform (Affine): # TODO
 
     Returns:
-        NDArray[uint8]: _description_
+        NDArray[uint8]: # TODO
     """
     if all(gpdf.geometry.is_empty) and invert:
         return zeros(
@@ -242,11 +242,11 @@ def _get_shapes(
     """Yields (Geometry, value) tuples for every row in a GeoDataFrame.
 
     Args:
-        gpdf (GeoDataFrame): _description_
-        column (str): _description_
+        gpdf (GeoDataFrame): # TODO
+        column (str): # TODO
 
     Returns:
-        Generator[Tuple[BaseGeometry, Any], None, None]: _description_
+        Generator[Tuple[BaseGeometry, Any], None, None]: # TODO
     """
     return (
         (geometry, value) for geometry, value in zip(gpdf["geometry"], gpdf[column])
@@ -265,15 +265,15 @@ def _to_raster(
     """Returns a delayed boolean Numpy ndarray with values taken from a given column.
 
     Args:
-        gpdf (GeoDataFrame): _description_
-        column (str): _description_
-        out_shape (Tuple[int, int]): _description_
-        dtype (str): _description_
-        transform (Affine): _description_
-        **kwargs (Dict[str, Any]): _description_.
+        gpdf (GeoDataFrame): # TODO
+        column (str): # TODO
+        out_shape (Tuple[int, int]): # TODO
+        dtype (str): # TODO
+        transform (Affine): # TODO
+        **kwargs (Dict[str, Any]): # TODO.
 
     Returns:
-        NDArray[number]: _description_
+        NDArray[number]: # TODO
     """
     if all(gpdf.geometry.is_empty):
         return zeros(
@@ -304,13 +304,13 @@ def _from_delayed_to_data_array(
     """Converts a 1D delayed Numpy array into a 2D DataArray.
 
     Args:
-        delayed_arrays (Tuple[NDArray[number], ...]): _description_
-        name (str): _description_
-        metadata (Optional[Metadata]): _description_
-        dtype (str): _description_
+        delayed_arrays (Tuple[NDArray[number], ...]): # TODO
+        name (str): # TODO
+        metadata (Optional[Metadata]): # TODO
+        dtype (str): # TODO
 
     Returns:
-        DataArray: _description_
+        DataArray: # TODO
     """
     dask_arrays = tuple(
         from_delayed(mask, dtype=dtype, shape=OUT_SHAPE) for mask in delayed_arrays
@@ -471,11 +471,11 @@ def _get_categorical_column(
     """# TODO.
 
     Args:
-        df (DataFrame): _description_
-        column_name (str): _description_
+        df (DataFrame): # TODO
+        column_name (str): # TODO
 
     Returns:
-        Series: _description_
+        Series: # TODO
     """
     column = df.loc[:, column_name]
     return column.astype("category")
@@ -487,10 +487,10 @@ def _get_category_lookup(
     """# TODO.
 
     Args:
-        categorical_column (Series): _description_
+        categorical_column (Series): # TODO
 
     Returns:
-        CategoryLookup: _description_
+        CategoryLookup: # TODO
     """
     return {
         index: category
@@ -504,10 +504,10 @@ def _get_category_dtype(
     """# TODO.
 
     Args:
-        categorical_column (Series): _description_
+        categorical_column (Series): # TODO
 
     Returns:
-        str: _description_
+        str: # TODO
     """
     dtype = categorical_column.cat.codes.dtype
     if dtype == "int8":
@@ -524,13 +524,13 @@ def _get_categories_and_dtypes(
     """Category and dtype looks for each column.
 
     Args:
-        data_path (str): _description_
-        convert_to_categorical (List[str]): _description_
-        data_kwargs (Optional[Dict[str, str]], optional): _description_. Defaults to
+        data_path (str): # TODO
+        convert_to_categorical (List[str]): # TODO
+        data_kwargs (Optional[Dict[str, str]], optional): # TODO. Defaults to
             None.
 
     Returns:
-        Tuple[CategoryLookups, Schema]: _description_
+        Tuple[CategoryLookups, Schema]: # TODO
     """
     combined_kwargs = _combine_kwargs(
         additional_kwargs={
@@ -571,11 +571,11 @@ def _get_index_of_category(
     """# TODO.
 
     Args:
-        category_lookup (CategoryLookup): _description_
-        category (str): _description_
+        category_lookup (CategoryLookup): # TODO
+        category (str): # TODO
 
     Returns:
-        int: _description_
+        int: # TODO
     """
     category_values = list(category_lookup.values())
     return category_values.index(category)
@@ -588,11 +588,11 @@ def _get_code_for_category(
     """# TODO.
 
     Args:
-        category_lookup (CategoryLookup): _description_
-        category (str): _description_
+        category_lookup (CategoryLookup): # TODO
+        category (str): # TODO
 
     Returns:
-        int: _description_
+        int: # TODO
     """
     index = _get_index_of_category(
         category_lookup=category_lookup,
@@ -613,12 +613,12 @@ def _recode_categorical_strings(
     is dropped but mapping is stored in self.category_lookup.
 
     Args:
-        gpdf (GeoDataFrame): _description_
-        column (str): _description_
-        category_lookups (CategoryLookups): _description_
+        gpdf (GeoDataFrame): # TODO
+        column (str): # TODO
+        category_lookups (CategoryLookups): # TODO
 
     Returns:
-        GeoDataFrame: _description_
+        GeoDataFrame: # TODO
     """
     gpdf.loc[:, column] = gpdf.loc[:, column].apply(
         lambda category: _get_code_for_category(

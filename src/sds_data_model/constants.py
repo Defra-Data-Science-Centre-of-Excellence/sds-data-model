@@ -56,14 +56,14 @@ def _get_bboxes(
     """Returns a tuple of BoundingBox for BNG 100km grid squares.
 
     Args:
-        xmin (int): _description_. Defaults to BNG_XMIN.
-        ymin (int): _description_. Defaults to BNG_YMIN.
-        xmax (int): _description_. Defaults to BNG_XMAX.
-        ymax (int): _description_. Defaults to BNG_YMAX.
-        box_size (int): _description_. Defaults to BOX_SIZE.
+        xmin (int): # TODO. Defaults to BNG_XMIN.
+        ymin (int): # TODO. Defaults to BNG_YMIN.
+        xmax (int): # TODO. Defaults to BNG_XMAX.
+        ymax (int): # TODO. Defaults to BNG_YMAX.
+        box_size (int): # TODO. Defaults to BOX_SIZE.
 
     Returns:
-        Tuple[BoundingBox, ...]: _description_
+        Tuple[BoundingBox, ...]: # TODO
     """
     eastings = range(xmin, xmax, box_size)
     northings = range(ymax, ymin, -box_size)

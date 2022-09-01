@@ -54,7 +54,7 @@ class VectorTile:
         """# TODO.
 
         Returns:
-            Affine: _description_
+            Affine: # TODO
         """
         xmin, _, _, ymax = self.bbox
         return Affine(CELL_SIZE, 0, xmin, 0, -CELL_SIZE, ymax)
@@ -71,17 +71,17 @@ class VectorTile:
         """#TODO.
 
         Args:
-            data_path (str): _description_
-            bbox (BoundingBox): _description_
-            convert_to_categorical (Optional[List[str]], optional): _description_.
+            data_path (str): # TODO
+            bbox (BoundingBox): # TODO
+            convert_to_categorical (Optional[List[str]], optional): # TODO.
                 Defaults to None.
-            category_lookups (Optional[CategoryLookups], optional): _description_.
+            category_lookups (Optional[CategoryLookups], optional): # TODO.
                 Defaults to None.
-            data_kwargs (Optional[Dict[str, Any]], optional): _description_. Defaults
+            data_kwargs (Optional[Dict[str, Any]], optional): # TODO. Defaults
                 to None.
 
         Returns:
-            _VectorTile: _description_
+            _VectorTile: # TODO
         """
         gpdf = _from_file(
             data_path=data_path,
@@ -100,10 +100,10 @@ class VectorTile:
         """# TODO.
 
         Args:
-            columns (List[str]): _description_
+            columns (List[str]): # TODO
 
         Returns:
-            _VectorTile: _description_
+            _VectorTile: # TODO
         """
         self.gpdf = _select(gpdf=self.gpdf, columns=columns)
         return self
@@ -112,10 +112,10 @@ class VectorTile:
         """# TODO.
 
         Args:
-            condition (Series): _description_
+            condition (Series): # TODO
 
         Returns:
-            _VectorTile: _description_
+            _VectorTile: # TODO
         """
         self.gpdf = _where(gpdf=self.gpdf, condition=condition)
         return self
@@ -130,14 +130,14 @@ class VectorTile:
         """# TODO.
 
         Args:
-            other (DataFrame): _description_
-            how (str): _description_
-            fillna (Optional[Dict[str, Any]], optional): _description_. Defaults to
+            other (DataFrame): # TODO
+            how (str): # TODO
+            fillna (Optional[Dict[str, Any]], optional): # TODO. Defaults to
                 None.
-            **kwargs (Dict[str, Any]): _description_.
+            **kwargs (Dict[str, Any]): # TODO.
 
         Returns:
-            _VectorTile: _description_
+            _VectorTile: # TODO
         """
         self.gpdf = _join(
             gpdf=self.gpdf,
@@ -157,12 +157,12 @@ class VectorTile:
         """# TODO.
 
         Args:
-            out_shape (Tuple[int, int]): _description_. Defaults to OUT_SHAPE.
-            invert (bool): _description_. Defaults to True.
-            dtype (str): _description_. Defaults to "uint8".
+            out_shape (Tuple[int, int]): # TODO. Defaults to OUT_SHAPE.
+            invert (bool): # TODO. Defaults to True.
+            dtype (str): # TODO. Defaults to "uint8".
 
         Returns:
-            NDArray[uint8]: _description_
+            NDArray[uint8]: # TODO
         """
         mask: NDArray[uint8] = _get_mask(
             gpdf=self.gpdf,
@@ -183,12 +183,12 @@ class VectorTile:
         """# TODO.
 
         Args:
-            column (str): _description_
-            out_shape (Tuple[int, int]): _description_. Defaults to OUT_SHAPE.
-            dtype (str): _description_. Defaults to "uint8".
+            column (str): # TODO
+            out_shape (Tuple[int, int]): # TODO. Defaults to OUT_SHAPE.
+            dtype (str): # TODO. Defaults to "uint8".
 
         Returns:
-            NDArray[number]: _description_
+            NDArray[number]: # TODO
         """
         raster: NDArray[number] = _to_raster(
             gpdf=self.gpdf,
@@ -228,17 +228,17 @@ class TiledVectorLayer:
         """# TODO.
 
         Args:
-            data_path (str): _description_
-            bboxes (Tuple[BoundingBox, ...]): _description_. Defaults to BBOXES.
-            data_kwargs (Optional[Dict[str, Any]], optional): _description_. Defaults
+            data_path (str): # TODO
+            bboxes (Tuple[BoundingBox, ...]): # TODO. Defaults to BBOXES.
+            data_kwargs (Optional[Dict[str, Any]], optional): # TODO. Defaults
                 to None.
-            convert_to_categorical (Optional[List[str]], optional): _description_.
+            convert_to_categorical (Optional[List[str]], optional): # TODO.
                 Defaults to None.
-            metadata_path (Optional[str], optional): _description_. Defaults to None.
-            name (Optional[str], optional): _description_. Defaults to None.
+            metadata_path (Optional[str], optional): # TODO. Defaults to None.
+            name (Optional[str], optional): # TODO. Defaults to None.
 
         Returns:
-            _TiledVectorLayer: _description_
+            _TiledVectorLayer: # TODO
         """
         info = _get_info(
             data_path=data_path,
@@ -300,10 +300,10 @@ class TiledVectorLayer:
         """# TODO.
 
         Args:
-            columns (List[str]): _description_
+            columns (List[str]): # TODO
 
         Returns:
-            _TiledVectorLayer: _description_
+            _TiledVectorLayer: # TODO
         """
         self.tiles = tuple(tile.select(columns) for tile in self.tiles)
 
@@ -314,10 +314,10 @@ class TiledVectorLayer:
         """# TODO.
 
         Args:
-            condition (Series): _description_
+            condition (Series): # TODO
 
         Returns:
-            _TiledVectorLayer: _description_
+            _TiledVectorLayer: # TODO
         """
         self.tiles = tuple(tile.where(condition) for tile in self.tiles)
 
@@ -334,14 +334,14 @@ class TiledVectorLayer:
         """# TODO.
 
         Args:
-            other (DataFrame): _description_
-            how (str): _description_. Defaults to "left".
-            fillna (Optional[Dict[str, Any]], optional): _description_. Defaults to
+            other (DataFrame): # TODO
+            how (str): # TODO. Defaults to "left".
+            fillna (Optional[Dict[str, Any]], optional): # TODO. Defaults to
                 None.
-            **kwargs (Dict[str, Any]): _description_.
+            **kwargs (Dict[str, Any]): # TODO.
 
         Returns:
-            _TiledVectorLayer: _description_
+            _TiledVectorLayer: # TODO
         """
         self.tiles = tuple(
             tile.join(
@@ -366,7 +366,7 @@ class TiledVectorLayer:
         """# TODO.
 
         Returns:
-            DataArray: _description_
+            DataArray: # TODO
         """
         delayed_masks = tuple(tile.to_mask() for tile in self.tiles)
 
@@ -391,10 +391,10 @@ class TiledVectorLayer:
         updates the schema to uint32.
 
         Args:
-            columns (List[str]): _description_
+            columns (List[str]): # TODO
 
         Returns:
-            Dataset: _description_
+            Dataset: # TODO
         """
         delayed_rasters = tuple(
             tuple(tile.to_raster(column=i, dtype=self.schema[i]) for tile in self.tiles)
@@ -467,9 +467,9 @@ class VectorLayer:
 
         Args:
             data_path (str): file path to dataset.
-            data_kwargs (Optional[Dict[str, Any]]):
-            convert_to_categorical (List[str]):
-            metadata_path (Optional[str]):
+            data_kwargs (Optional[Dict[str, Any]]): # TODO.
+            convert_to_categorical (List[str]): # TODO.
+            metadata_path (Optional[str]): # TODO.
             name (Optional[str]): optional name to give VectorLayer output.
             schema (Optional[Dict[str, Any]]): optional dictionary of user-defined
                 schema to pass, will get schema from dataset if none provided.
@@ -538,11 +538,11 @@ class VectorLayer:
         """# TODO.
 
         Args:
-            bboxes (Tuple[BoundingBox, ...], optional): _description_. Defaults to
+            bboxes (Tuple[BoundingBox, ...], optional): # TODO. Defaults to
                 BBOXES.
 
         Returns:
-            TiledVectorLayer: _description_
+            TiledVectorLayer: # TODO
         """
         tiles = tuple(
             VectorTile(

@@ -199,7 +199,7 @@ class Metadata:
     """# TODO.
 
     Returns:
-        _type_: _description_
+        _type_: # TODO
     """
 
     title: str
@@ -245,10 +245,10 @@ class Metadata:
         """# TODO.
 
         Args:
-            xml_path (str): _description_
+            xml_path (str): # TODO
 
         Returns:
-            MetadataType: _description_
+            MetadataType: # TODO
         """
         xml = parse(xml_path)  # noqa: S410, S320 - assuming we can trust the XML
 

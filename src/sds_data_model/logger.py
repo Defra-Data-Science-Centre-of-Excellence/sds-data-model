@@ -31,16 +31,16 @@ def _get_anonymous_function_string(
     """Get the input code arguments to a function as a string.
 
     Args:
-        func_name (str): _description_
-        frame (Optional[FrameType]): _description_
+        func_name (str): # TODO
+        frame (Optional[FrameType]): # TODO
 
     Raises:
-        ValueError: _description_
-        ValueError: _description_
-        ValueError: _description_
+        ValueError: # TODO
+        ValueError: # TODO
+        ValueError: # TODO
 
     Returns:
-        Optional[str]: _description_
+        Optional[str]: # TODO
     """
     if not frame:
         raise ValueError("Not possible to return current frame.")
@@ -80,12 +80,12 @@ def _get_parameter_and_argument_tuples(
     """# TODO.
 
     Args:
-        func (Callable): _description_
-        *args (str): _description_.
-        **kwargs (Dict[str, Any]): _description_.
+        func (Callable): # TODO
+        *args (str): # TODO.
+        **kwargs (Dict[str, Any]): # TODO.
 
     Returns:
-        Tuple[Tuple[str, str], ...]: _description_
+        Tuple[Tuple[str, str], ...]: # TODO
     """
     func_signature = signature(func)
     bound_arguments = func_signature.bind_partial(*args, **kwargs)
@@ -104,12 +104,12 @@ def _format_parameter_and_argument(
     """# TODO.
 
     Args:
-        parameter (str): _description_
-        argument (str): _description_
-        func (Callable): _description_
+        parameter (str): # TODO
+        argument (str): # TODO
+        func (Callable): # TODO
 
     Returns:
-        str: _description_
+        str: # TODO
     """
     if isinstance(argument, FunctionType):
         return f"""{parameter}={
@@ -128,11 +128,11 @@ def _format_parameter_and_argument_tuples(
     """# TODO.
 
     Args:
-        parameter_and_argument_tuples (Tuple[Tuple[str, Any], ...]): _description_
-        func (Callable): _description_
+        parameter_and_argument_tuples (Tuple[Tuple[str, Any], ...]): # TODO
+        func (Callable): # TODO
 
     Returns:
-        str: _description_
+        str: # TODO
     """
     return ",\n\t".join(
         _format_parameter_and_argument(parameter, argument, func)
@@ -147,11 +147,11 @@ def _format_function_string(
     """# TODO.
 
     Args:
-        func_name (str): _description_
-        parameter_and_argument_string (str): _description_
+        func_name (str): # TODO
+        parameter_and_argument_string (str): # TODO
 
     Returns:
-        str: _description_
+        str: # TODO
     """
     return f"""
     {func_name}(
@@ -168,12 +168,12 @@ def stringify_callable(
     """# TODO.
 
     Args:
-        func (Callable): _description_
-        *args (str): _description_.
-        **kwargs (Dict[str, Any]): _description_.
+        func (Callable): # TODO
+        *args (str): # TODO.
+        **kwargs (Dict[str, Any]): # TODO.
 
     Returns:
-        str: _description_
+        str: # TODO
     """
     parameter_and_argument_tuples = _get_parameter_and_argument_tuples(
         func, *args, **kwargs
@@ -192,10 +192,10 @@ def log(func: Callable) -> Callable:
     """# TODO.
 
     Args:
-        func (Callable): _description_
+        func (Callable): # TODO
 
     Returns:
-        Callable: _description_
+        Callable: # TODO
     """
 
     @wraps(func)
@@ -206,14 +206,14 @@ def log(func: Callable) -> Callable:
         """# TODO.
 
         Args:
-            *args (str): _description_.
-            **kwargs (Dict[str, Any]): _description_.
+            *args (str): # TODO.
+            **kwargs (Dict[str, Any]): # TODO.
 
         Raises:
-            Exception: _description_
+            Exception: # TODO
 
         Returns:
-            Callable: _description_
+            Callable: # TODO
         """
         try:
             result: Callable = func(*args, **kwargs)
