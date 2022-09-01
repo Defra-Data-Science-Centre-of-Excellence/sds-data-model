@@ -1,3 +1,4 @@
+"""Tabular data wrapper class."""
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -31,27 +32,26 @@ class TableLayer:
     def from_file(
         cls: Type[_TableLayer],
         data_path: str,
-        data_kwargs: Optional[Dict[str, Any]] = {},
+        data_kwargs: Optional[Dict[str, Any]] = None,
         metadata_path: Optional[str] = None,
         name: Optional[str] = None,
     ) -> _TableLayer:
         """Load data from a file.
 
         Args:
-            data_path (:obj:`str`): filepath or url for data.
-            data_kwargs (:obj:`dict`, optional): Additional arguments to pass \
-to data reader.
-            metadata_path (:obj:`str`, optional): filepath or url for metadata.
-            name (:obj:`str`, optional): Name of data.
-
-        Returns:
-            TableLayer object.
+            data_path (str): filepath or url for data.
+            data_kwargs (Dict[str, Any], optional): Additional arguments to pass
+                to data reader. Defaults to None.
+            metadata_path (str, optional): filepath or url for metadata. Defaults to
+                None.
+            name (str, optional): Name of data. Defaults to None.
 
         Raises:
-            NotImplementedError
+            NotImplementedError: # TODO
 
-
-    """
+        Returns:
+            _TableLayer: TableLayer object.
+        """
         file_reader = {
             ".csv": read_csv,
             ".json": read_json,
@@ -71,8 +71,9 @@ to data reader.
 
         df = file_reader[suffix](data_path, **data_kwargs)
 
-        # update data types so they are not the default dtypes when read in using pandas.
-        # Pandas default to the largest dtype (eg. int64) which takes up unnecessary space
+        # update data types so they are not the default dtypes when read in using
+        # pandas. Pandas default to the largest dtype (eg. int64) which takes up
+        # unnecessary space
         df = _update_datatypes(df)
 
         if not metadata_path:
@@ -94,12 +95,32 @@ to data reader.
         )
 
     def select(self: _TableLayer, columns: Union[str, List[str]]) -> _TableLayer:
-        """Select columns from TableLayer DataFrame"""
+        """Select columns from TableLayer DataFrame.
+
+        Examples:
+            # TODO
+
+        Args:
+            columns (Union[str, List[str]]): # TODO
+
+        Returns:
+            _TableLayer: # TODO
+        """
         self.df = self.df.loc[:, columns]
         return self
 
     def where(self: _TableLayer, condition: Series) -> _TableLayer:
-        """Filter rows from TableLayer DataFrame using pandas Series object."""
+        """Filter rows from TableLayer DataFrame using pandas Series object.
+
+        Examples:
+            # TODO
+
+        Args:
+            condition (Series): # TODO
+
+        Returns:
+            _TableLayer: # TODO
+        """
         self.df = self.df.loc[condition, :]
         return self
 
@@ -107,8 +128,20 @@ to data reader.
         self: _TableLayer,
         other: _TableLayer,
         how: str = "left",
-        kwargs: Dict[str, Any] = {},
+        kwargs: Optional[Dict[str, Any]] = None,
     ) -> _TableLayer:
-        """Join two TableLayers using pandas merge method."""
+        """Join two TableLayers using pandas merge method.
+
+        Examples:
+            # TODO
+
+        Args:
+            other (_TableLayer): # TODO
+            how (str): # TODO. Defaults to "left".
+            kwargs (Dict[str, Any], optional): # TODO. Defaults to None.
+
+        Returns:
+            _TableLayer: # TODO
+        """
         self.df = self.df.merge(right=other.df, how=how, **kwargs)
         return self
