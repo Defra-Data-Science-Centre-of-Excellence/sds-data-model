@@ -471,11 +471,14 @@ class VectorLayer:
             convert_to_categorical (List[str]):
             metadata_path (Optional[str]):
             name (Optional[str]): optional name to give VectorLayer output.
-            schema (Optional[Dict[str, Any]]): optional dictionary of user-defined schema to pass, will get schema from dataset if none provided. User-defined dictionary should have the column as the "key", and the data type as the "value".
+            schema (Optional[Dict[str, Any]]): optional dictionary of user-defined
+                schema to pass, will get schema from dataset if none provided.
+                User-defined dictionary should have the column as the "key", and the
+                data type as the "value".
 
         Returns:
             VectorLayer class of dataset.
-        """
+        """  # noqa: B950
         info = _get_info(
             data_path=data_path,
             data_kwargs=data_kwargs,
