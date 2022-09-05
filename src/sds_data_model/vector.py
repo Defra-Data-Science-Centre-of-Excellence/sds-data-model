@@ -633,7 +633,7 @@ class Wrapper:
                 convert_to_categorical=convert_to_categorical,
                # data_kwargs=data_kwargs,
             )
-             for column in convert_to_categorical:
+            for column in convert_to_categorical:
                     data = _recode_categorical_strings(
                        data = data, column = column,category_lookups = category_lookups
                     )
