@@ -3,8 +3,8 @@ from pandas import DataFrame, Series, to_numeric
 
 def _convert_int_dtype(
     col: Series,
-):
-    """Converts dtype int8 to int16, as int8 is not accepted by rasterio package
+) -> Series:
+    """Converts dtype int8 to int16, as int8 is not accepted by rasterio package.
 
     Example:
         >>> from pprint import pprint
@@ -32,8 +32,10 @@ def _convert_int_dtype(
 
 def _update_datatypes(
     df: DataFrame,
-):
-    """Updates column datatypes to smaller memory allocation, apart from int8 types, which are converted to int16
+) -> DataFrame:
+    """Updates column datatypes to smaller memory allocation.
+
+    int8 types are converted to int16 because they can't be rasterised by rasterio.
 
     Example:
 
