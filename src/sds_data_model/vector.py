@@ -563,7 +563,8 @@ class VectorLayer:
             schema=self.schema,
         )
     
-    
+_Wrapper = TypeVar("_Wrapper", bound = "Wrapper")
+
 @dataclass
 class Wrapper:
     name: str
