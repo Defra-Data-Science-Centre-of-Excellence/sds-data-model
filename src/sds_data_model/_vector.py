@@ -532,7 +532,7 @@ def _get_categories_and_dtypes(
     Returns:
         Tuple[CategoryLookups, Schema]: # TODO
     """
-     df = read_vector_files(path=data_path, **data_kwargs).to_pandas_on_spark()
+    df = read_vector_files(path=data_path, **data_kwargs).to_pandas_on_spark()
     
     categorical_columns = tuple(
         (
