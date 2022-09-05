@@ -16,6 +16,8 @@ from rasterio.features import geometry_mask, rasterize
 from shapely.geometry.base import BaseGeometry
 from xarray import DataArray
 
+from pyspark_vector_files import read_vector_files
+
 from sds_data_model.constants import (
     BNG_XMAX,
     BNG_XMIN,
