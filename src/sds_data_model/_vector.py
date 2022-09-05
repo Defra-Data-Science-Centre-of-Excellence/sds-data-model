@@ -519,7 +519,7 @@ def _get_category_dtype(
 def _get_categories_and_dtypes(
     data_path: str,
     convert_to_categorical: List[str],
-    data_kwargs: Optional[Dict[str, str]] = None,
+    **data_kwargs: Optional[Dict[str, str]] 
 ) -> Tuple[CategoryLookups, Schema]:
     """Category and dtype looks for each column.
 
@@ -532,17 +532,8 @@ def _get_categories_and_dtypes(
     Returns:
         Tuple[CategoryLookups, Schema]: # TODO
     """
-    combined_kwargs = _combine_kwargs(
-        additional_kwargs={
-            "read_geometry": False,
-            "columns": [convert_to_categorical],
-        },
-        data_kwargs=data_kwargs,
-    )
-    df = _get_gpdf(
-        data_path=data_path,
-        data_kwargs=combined_kwargs,
-    )
+     df = read_vector_files(path=data_path, **data_kwargs).to_pandas_on_spark()
+    
     categorical_columns = tuple(
         (
             column_name,
@@ -602,10 +593,10 @@ def _get_code_for_category(
 
 
 def _recode_categorical_strings(
-    gpdf: GeoDataFrame,
+    df: DataFrame,
     column: str,
     category_lookups: CategoryLookups,
-) -> GeoDataFrame:
+) -> DataFrame:
     """# TODO.
 
     Returns a GeoDataFrame where an integer representation of a categorical column
@@ -620,13 +611,13 @@ def _recode_categorical_strings(
     Returns:
         GeoDataFrame: # TODO
     """
-    gpdf.loc[:, column] = gpdf.loc[:, column].apply(
+    df.loc[:, column] = df.loc[:, column].apply(
         lambda category: _get_code_for_category(
             category_lookup=category_lookups[column],
             category=category,
         )
     )
-    return gpdf
+    return df
 
 
 def _check_layer_projection(
