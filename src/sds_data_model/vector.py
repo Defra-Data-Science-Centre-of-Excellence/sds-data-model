@@ -627,7 +627,12 @@ class Wrapper:
             metadata=metadata,
         )
         
-        if convert_to_categorical and category_lookups:
+        if convert_to_categorical:
+            category_lookups, dtype_lookup = _get_categories_and_dtypes(
+                data_path=data_path,
+                convert_to_categorical=convert_to_categorical,
+               # data_kwargs=data_kwargs,
+            )
              for column in convert_to_categorical:
                     data = _recode_categorical_strings(
                        data = data, column = column,category_lookups = category_lookups
