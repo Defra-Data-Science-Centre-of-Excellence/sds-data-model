@@ -615,8 +615,7 @@ class Wrapper:
             data = read_vector_files(
                 data_path,
               **read_vector_file_kwargs
-            )
-            data = data.to_pandas_on_spark()
+            ).to_pandas_on_spark()
                 
        
         
@@ -631,11 +630,12 @@ class Wrapper:
             category_lookups, dtype_lookup = _get_categories_and_dtypes(
                 data_path=data_path,
                 convert_to_categorical=convert_to_categorical,
-               # data_kwargs=data_kwargs,
+                **read_vector_file_kwargs,
             )
             for column in convert_to_categorical:
                     data = _recode_categorical_strings(
-                       data = data, column = column,category_lookups = category_lookups
+                       df = data, column = column,
+                        category_lookups = category_lookups
                     )
 
         return cls(
