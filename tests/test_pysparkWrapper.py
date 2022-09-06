@@ -5,13 +5,15 @@ from pytest import fixture
 from sds_data_model.constants import CategoryLookups, Schema
 from sds_data_model.metadata import Wrapper
 
+from pyspark_vector_files import read_vector_files
+
 data_path = "data/Countries_(December_2021)_GB_BUC"
 
 expected_data = read_vector_files(
             path=data_path,
     suffix = ".shp"
         ).to_pandas_on_spark()
-
+stssta
 @fixture
 def expected_name() -> str:
     """Expected Wrapper name."""
