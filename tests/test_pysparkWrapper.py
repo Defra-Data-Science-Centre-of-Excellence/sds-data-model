@@ -1,5 +1,6 @@
 """Tests for Pyspark Wrapper."""
 from pathlib import Path
+
 from pytest import fixture
 
 from sds_data_model.constants import CategoryLookups, Schema
