@@ -7,6 +7,7 @@ from dask.delayed import Delayed
 from geopandas import GeoDataFrame
 from numpy import number, uint8
 from numpy.typing import NDArray
+<<<<<<< HEAD
 from pathlib import Path
 #from pandas import DataFrame, Series
 from pyspark.pandas import read_csv, read_excel, read_json, read_parquet, DataFrame, Series
@@ -17,6 +18,12 @@ from xarray import DataArray, Dataset, merge
 from pyspark_vector_files import read_vector_files
 
 
+=======
+from pandas import DataFrame, Series
+from shapely.geometry import box
+from xarray import DataArray, Dataset, merge
+
+>>>>>>> parent of 9346706... remove uneeded files
 from sds_data_model._vector import (
     _check_layer_projection,
     _from_delayed_to_data_array,
@@ -58,7 +65,10 @@ class VectorTile:
     @property
     def transform(self: _VectorTile) -> Affine:
         """# TODO.
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 9346706... remove uneeded files
         Returns:
             Affine: # TODO
         """
@@ -75,7 +85,10 @@ class VectorTile:
         data_kwargs: Optional[Dict[str, Any]] = None,
     ) -> _VectorTile:
         """#TODO.
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 9346706... remove uneeded files
         Args:
             data_path (str): # TODO
             bbox (BoundingBox): # TODO
@@ -85,7 +98,10 @@ class VectorTile:
                 Defaults to None.
             data_kwargs (Optional[Dict[str, Any]], optional): # TODO. Defaults
                 to None.
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 9346706... remove uneeded files
         Returns:
             _VectorTile: # TODO
         """
@@ -104,10 +120,15 @@ class VectorTile:
 
     def select(self: _VectorTile, columns: List[str]) -> _VectorTile:
         """# TODO.
+<<<<<<< HEAD
 
         Args:
             columns (List[str]): # TODO
 
+=======
+        Args:
+            columns (List[str]): # TODO
+>>>>>>> parent of 9346706... remove uneeded files
         Returns:
             _VectorTile: # TODO
         """
@@ -116,10 +137,15 @@ class VectorTile:
 
     def where(self: _VectorTile, condition: Series) -> _VectorTile:
         """# TODO.
+<<<<<<< HEAD
 
         Args:
             condition (Series): # TODO
 
+=======
+        Args:
+            condition (Series): # TODO
+>>>>>>> parent of 9346706... remove uneeded files
         Returns:
             _VectorTile: # TODO
         """
@@ -134,14 +160,20 @@ class VectorTile:
         **kwargs: Dict[str, Any],
     ) -> _VectorTile:
         """# TODO.
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 9346706... remove uneeded files
         Args:
             other (DataFrame): # TODO
             how (str): # TODO
             fillna (Optional[Dict[str, Any]], optional): # TODO. Defaults to
                 None.
             **kwargs (Dict[str, Any]): # TODO.
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 9346706... remove uneeded files
         Returns:
             _VectorTile: # TODO
         """
@@ -161,12 +193,18 @@ class VectorTile:
         dtype: str = "uint8",
     ) -> NDArray[uint8]:
         """# TODO.
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 9346706... remove uneeded files
         Args:
             out_shape (Tuple[int, int]): # TODO. Defaults to OUT_SHAPE.
             invert (bool): # TODO. Defaults to True.
             dtype (str): # TODO. Defaults to "uint8".
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 9346706... remove uneeded files
         Returns:
             NDArray[uint8]: # TODO
         """
@@ -187,12 +225,18 @@ class VectorTile:
         dtype: str = "uint8",
     ) -> NDArray[number]:
         """# TODO.
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 9346706... remove uneeded files
         Args:
             column (str): # TODO
             out_shape (Tuple[int, int]): # TODO. Defaults to OUT_SHAPE.
             dtype (str): # TODO. Defaults to "uint8".
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 9346706... remove uneeded files
         Returns:
             NDArray[number]: # TODO
         """
@@ -232,7 +276,10 @@ class TiledVectorLayer:
         name: Optional[str] = None,
     ) -> _TiledVectorLayer:
         """# TODO.
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 9346706... remove uneeded files
         Args:
             data_path (str): # TODO
             bboxes (Tuple[BoundingBox, ...]): # TODO. Defaults to BBOXES.
@@ -242,7 +289,10 @@ class TiledVectorLayer:
                 Defaults to None.
             metadata_path (Optional[str], optional): # TODO. Defaults to None.
             name (Optional[str], optional): # TODO. Defaults to None.
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 9346706... remove uneeded files
         Returns:
             _TiledVectorLayer: # TODO
         """
@@ -304,10 +354,15 @@ class TiledVectorLayer:
     @log
     def select(self: _TiledVectorLayer, columns: List[str]) -> _TiledVectorLayer:
         """# TODO.
+<<<<<<< HEAD
 
         Args:
             columns (List[str]): # TODO
 
+=======
+        Args:
+            columns (List[str]): # TODO
+>>>>>>> parent of 9346706... remove uneeded files
         Returns:
             _TiledVectorLayer: # TODO
         """
@@ -318,10 +373,15 @@ class TiledVectorLayer:
     @log
     def where(self: _TiledVectorLayer, condition: Series) -> _TiledVectorLayer:
         """# TODO.
+<<<<<<< HEAD
 
         Args:
             condition (Series): # TODO
 
+=======
+        Args:
+            condition (Series): # TODO
+>>>>>>> parent of 9346706... remove uneeded files
         Returns:
             _TiledVectorLayer: # TODO
         """
@@ -338,14 +398,20 @@ class TiledVectorLayer:
         **kwargs: Dict[str, Any],
     ) -> _TiledVectorLayer:
         """# TODO.
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 9346706... remove uneeded files
         Args:
             other (DataFrame): # TODO
             how (str): # TODO. Defaults to "left".
             fillna (Optional[Dict[str, Any]], optional): # TODO. Defaults to
                 None.
             **kwargs (Dict[str, Any]): # TODO.
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 9346706... remove uneeded files
         Returns:
             _TiledVectorLayer: # TODO
         """
@@ -370,7 +436,10 @@ class TiledVectorLayer:
     @log
     def to_data_array_as_mask(self: _TiledVectorLayer) -> DataArray:
         """# TODO.
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 9346706... remove uneeded files
         Returns:
             DataArray: # TODO
         """
@@ -391,6 +460,7 @@ class TiledVectorLayer:
         columns: List[str],
     ) -> Dataset:
         """# TODO.
+<<<<<<< HEAD
 
         This method rasterises the specified columns using a schema defined in
         VectorLayer. If columns have been specified as categorical by the user it
@@ -399,6 +469,13 @@ class TiledVectorLayer:
         Args:
             columns (List[str]): # TODO
 
+=======
+        This method rasterises the specified columns using a schema defined in
+        VectorLayer. If columns have been specified as categorical by the user it
+        updates the schema to uint32.
+        Args:
+            columns (List[str]): # TODO
+>>>>>>> parent of 9346706... remove uneeded files
         Returns:
             Dataset: # TODO
         """
@@ -447,7 +524,10 @@ class VectorLayer:
         schema: Optional[Dict[str, Any]] = None,
     ) -> _VectorLayer:
         """Get a GeoDataframe with accompanying information on name, metadata and schema.
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 9346706... remove uneeded files
         Examples:
             >>> from vector import VectorLayer
             >>> aw = read_file("https://services.arcgis.com/JJzESW51TqeY9uat/arcgis/rest/services/Ancient_Woodland_England/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson").to_crs("epsg:27700")
@@ -470,7 +550,10 @@ class VectorLayer:
                 data_path = "aw.gpkg",
                 name = "Ancient Woodland - test dataset",
                 schema = aw_dict)
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 9346706... remove uneeded files
         Args:
             data_path (str): file path to dataset.
             data_kwargs (Optional[Dict[str, Any]]): # TODO.
@@ -481,7 +564,10 @@ class VectorLayer:
                 schema to pass, will get schema from dataset if none provided.
                 User-defined dictionary should have the column as the "key", and the
                 data type as the "value".
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 9346706... remove uneeded files
         Returns:
             VectorLayer class of dataset.
         """  # noqa: B950
@@ -542,11 +628,17 @@ class VectorLayer:
         bboxes: Tuple[BoundingBox, ...] = BBOXES,
     ) -> TiledVectorLayer:
         """# TODO.
+<<<<<<< HEAD
 
         Args:
             bboxes (Tuple[BoundingBox, ...], optional): # TODO. Defaults to
                 BBOXES.
 
+=======
+        Args:
+            bboxes (Tuple[BoundingBox, ...], optional): # TODO. Defaults to
+                BBOXES.
+>>>>>>> parent of 9346706... remove uneeded files
         Returns:
             TiledVectorLayer: # TODO
         """
@@ -564,6 +656,7 @@ class VectorLayer:
             metadata=self.metadata,
             category_lookups=self.category_lookups,
             schema=self.schema,
+<<<<<<< HEAD
         )
     
 _Wrapper = TypeVar("_Wrapper", bound = "Wrapper")
@@ -644,3 +737,6 @@ class Wrapper:
             metadata= metadata,
             category_lookups = category_lookups
         )
+=======
+        )
+>>>>>>> parent of 9346706... remove uneeded files
