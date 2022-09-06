@@ -27,7 +27,7 @@ def expected_metadata() -> None:
 @fixture
 def expected_schema() -> Schema:
     """Expected Wrapper schema."""
-    return excpected_data.spark.print_schema()
+    return expected_data.spark.print_schema()
 
 @fixture
 def expected_category_lookups() -> CategoryLookups:
