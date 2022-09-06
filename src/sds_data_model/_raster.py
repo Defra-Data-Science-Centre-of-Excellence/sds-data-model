@@ -1,7 +1,8 @@
+from typing import Optional
+
 from affine import Affine
 from cv2 import INTER_LINEAR_EXACT, INTER_NEAREST_EXACT, resize
-from numpy import array, ndarray, full
-from typing import Optional
+from numpy import array, full, ndarray
 from xarray import DataArray, Dataset
 
 from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, CELL_SIZE
@@ -10,10 +11,7 @@ from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, CELL_SIZE
 def _check_cellsize(
     transform: Affine,
 ) -> Optional[bool]:
-    if (
-        transform.a != CELL_SIZE or
-        -transform.e != CELL_SIZE
-    ):
+    if transform.a != CELL_SIZE or -transform.e != CELL_SIZE:
         return True
     else:
         return None
@@ -23,9 +21,9 @@ def _check_shape_and_extent(
     raster: Dataset,
 ) -> Optional[bool]:
     if (
-        raster.rio.shape != (BNG_YMAX/CELL_SIZE, BNG_XMAX/CELL_SIZE) or
-        raster.rio.transform().f != BNG_YMAX or
-        raster.rio.transform().c != BNG_XMIN
+        raster.rio.shape != (BNG_YMAX / CELL_SIZE, BNG_XMAX / CELL_SIZE)
+        or raster.rio.transform().f != BNG_YMAX
+        or raster.rio.transform().c != BNG_XMIN
     ):
         return True
     else:
@@ -36,7 +34,7 @@ def _data_array_to_dataset(
     raster: DataArray,
     data: ndarray,
     geotransform: str,
-):
+) -> Dataset:
     return DataArray(
         data=data,
         coords={
@@ -46,7 +44,7 @@ def _data_array_to_dataset(
             )
         },
         dims=tuple(raster.dims),
-    ).to_dataset(name=raster.coords['variable'].data.tolist())
+    ).to_dataset(name=raster.coords["variable"].data.tolist())
 
 
 def _get_resample_shape(
@@ -92,8 +90,9 @@ def _check_no_data(
     if nodata is not None:
         raster.rio.write_nodata(nodata, inplace=True)
     else:
-        assert raster.rio.nodata is not None, \
-            "Input dataset does not have a nodata value. One must be provided."
+        assert (
+            raster.rio.nodata is not None
+        ), "Input dataset does not have a nodata value. One must be provided."
 
 
 def _get_bng_offset(
@@ -106,20 +105,13 @@ def _get_bng_offset(
     ).round().astype("int")
 
 
-def _to_bng_extent(
-    raster: DataArray,
-    nodata: float = None
-) -> Dataset:
+def _to_bng_extent(raster: DataArray, nodata: float = None) -> Dataset:
     _check_no_data(raster, nodata)
 
     bng = full(
-        shape=(
-            array(
-                [BNG_YMAX, BNG_XMAX]
-            ) / CELL_SIZE
-        ).astype("int"),
+        shape=(array([BNG_YMAX, BNG_XMAX]) / CELL_SIZE).astype("int"),
         fill_value=raster.rio.nodata,
-        dtype=raster.dtype
+        dtype=raster.dtype,
     )
 
     offset = _get_bng_offset(raster)

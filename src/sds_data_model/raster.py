@@ -66,17 +66,19 @@
 #             metadata=self.metadata,
 #         )
 
+
 # temporary resample & reshape function
 from pathlib import Path
-from xarray import Dataset, open_dataset
+
 from rasterio.drivers import raster_driver_extensions
+from xarray import Dataset, open_dataset
 
 from sds_data_model._raster import (
     _check_cellsize,
     _check_shape_and_extent,
     _resample_cellsize,
     _to_bng_extent,
-) 
+)
 from sds_data_model._vector import _check_layer_projection
 
 
