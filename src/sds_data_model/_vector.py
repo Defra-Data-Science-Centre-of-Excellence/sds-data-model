@@ -16,8 +16,6 @@ from rasterio.features import geometry_mask, rasterize
 from shapely.geometry.base import BaseGeometry
 from xarray import DataArray
 
-from pyspark_vector_files import read_vector_files
-
 from sds_data_model.constants import (
     BNG_XMAX,
     BNG_XMIN,
@@ -38,11 +36,9 @@ def _combine_kwargs(
     data_kwargs: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Combines `additional_kwargs` with `data_kwargs` if it exists.
-
     Examples:
         If `data_kwargs` exists the two dictionaries are merged, with
         `additional_kwargs` over-writing `data_kwargs`
-
         >>> additional_kwargs = {
                 "read_geometry": False,
                 "columns": ["CTRY21NM"],
@@ -55,7 +51,6 @@ def _combine_kwargs(
             data_kwargs=data_kwargs,
         )
         {'layer': 'CTRY_DEC_2021_GB_BUC', 'read_geometry': False, 'columns': ['CTRY21NM']}
-
         If `data_kwargs` doesn't exist, this is a no-op:
         >>> additional_kwargs = {
                 "read_geometry": False,
@@ -65,7 +60,6 @@ def _combine_kwargs(
             additional_kwargs=additional_kwargs,
         )
         {'read_geometry': False, 'columns': ['CTRY21NM']}
-
     Args:
         additional_kwargs (Dict[str, Any]): Additional keyword arguments that we
             need to pass to `pyogrio.read_dataframe`_ for a private function to do
@@ -73,14 +67,11 @@ def _combine_kwargs(
         data_kwargs (Optional[Dict[str, Any]], optional): Keyword arguments supplied
             by the caller that we need to pass to `pyogrio.read_dataframe`_. Defaults
             to None.
-
     Returns:
         Dict[str, Any]: A dictionary of keyword arguments to be to pass
             to `pyogrio.read_dataframe`_.
-
     .. _pyogrio.read_dataframe:
         https://pyogrio.readthedocs.io/en/latest/api.html#pyogrio.read_dataframe
-
     """  # noqa: B950
     if data_kwargs and additional_kwargs:
         return {
@@ -100,7 +91,6 @@ def _from_file(
     data_kwargs: Optional[Dict[str, Any]] = None,
 ) -> GeoDataFrame:
     """Returns a delayed GeoDataFrame clipped to a given bounding box.
-
     Args:
         data_path (str): # TODO
         bbox (BoundingBox): # TODO
@@ -110,7 +100,6 @@ def _from_file(
             Defaults to None.
         data_kwargs (Optional[Dict[str, Any]], optional): # TODO. Defaults to
             None.
-
     Returns:
         GeoDataFrame: # TODO
     """
@@ -140,11 +129,9 @@ def _from_file(
 @delayed
 def _select(gpdf: GeoDataFrame, columns: List[str]) -> GeoDataFrame:
     """Returns given columns from a delayed GeoDataFrame.
-
     Args:
         gpdf (GeoDataFrame): # TODO
         columns (List[str]): # TODO
-
     Returns:
         GeoDataFrame: # TODO
     """
@@ -154,11 +141,9 @@ def _select(gpdf: GeoDataFrame, columns: List[str]) -> GeoDataFrame:
 @delayed
 def _where(gpdf: GeoDataFrame, condition: Series) -> GeoDataFrame:
     """Returns a delayed GeoDataFrame filtered by a given condition.
-
     Args:
         gpdf (GeoDataFrame): # TODO
         condition (Series): # TODO
-
     Returns:
         GeoDataFrame: # TODO
     """
@@ -174,14 +159,12 @@ def _join(
     **kwargs: Dict[str, Any],
 ) -> GeoDataFrame:
     """Returns a delayed GeoDataFrame joined to a given DataFrame.
-
     Args:
         gpdf (GeoDataFrame): # TODO
         other (DataFrame): # TODO
         how (str): # TODO
         fillna (Optional[Dict[str, Any]], optional): # TODO. Defaults to None.
         **kwargs (Dict[str, Any]): # TODO.
-
     Returns:
         GeoDataFrame: # TODO
     """
@@ -206,14 +189,12 @@ def _get_mask(
     transform: Affine,
 ) -> NDArray[uint8]:
     """Returns a delayed Numpy ndarray where 1 means the pixel overlaps a geometry.
-
     Args:
         gpdf (GeoDataFrame): # TODO
         invert (bool): # TODO
         out_shape (Tuple[int, int]): # TODO
         dtype (str): # TODO
         transform (Affine): # TODO
-
     Returns:
         NDArray[uint8]: # TODO
     """
@@ -242,11 +223,9 @@ def _get_shapes(
     column: str,
 ) -> Generator[Tuple[BaseGeometry, Any], None, None]:
     """Yields (Geometry, value) tuples for every row in a GeoDataFrame.
-
     Args:
         gpdf (GeoDataFrame): # TODO
         column (str): # TODO
-
     Returns:
         Generator[Tuple[BaseGeometry, Any], None, None]: # TODO
     """
@@ -265,7 +244,6 @@ def _to_raster(
     **kwargs: Dict[str, Any],
 ) -> NDArray[number]:
     """Returns a delayed boolean Numpy ndarray with values taken from a given column.
-
     Args:
         gpdf (GeoDataFrame): # TODO
         column (str): # TODO
@@ -273,7 +251,6 @@ def _to_raster(
         dtype (str): # TODO
         transform (Affine): # TODO
         **kwargs (Dict[str, Any]): # TODO.
-
     Returns:
         NDArray[number]: # TODO
     """
@@ -304,13 +281,11 @@ def _from_delayed_to_data_array(
     dtype: str,
 ) -> DataArray:
     """Converts a 1D delayed Numpy array into a 2D DataArray.
-
     Args:
         delayed_arrays (Tuple[NDArray[number], ...]): # TODO
         name (str): # TODO
         metadata (Optional[Metadata]): # TODO
         dtype (str): # TODO
-
     Returns:
         DataArray: # TODO
     """
@@ -336,10 +311,8 @@ def _get_info(
     data_kwargs: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Get information about a vector file using `pyogrio.read_info`_.
-
     This is a thin wrapper around `pyogrio.read_info`_ that will unpack
     `data_kwargs` if it exists.
-
     Examples:
         >>> from pathlib import Path
         >>> from pprint import pprint
@@ -359,18 +332,14 @@ def _get_info(
             'LONG', 'LAT', 'GlobalID', 'SHAPE_Leng', 'SHAPE_Area'],
             dtype=object),
         'geometry_type': 'Polygon'}
-
     Args:
         data_path (str): Path to the vector file.
         data_kwargs (Optional[Dict[str, Any]], optional): A dictionary of key word arguments to be
             passed to`pyogrio.read_info`_. Defaults to None.
-
     Returns:
         Dict[str, Any]: A dictionary of information about the vector file.
-
     .. _pyogrio.read_info:
         https://pyogrio.readthedocs.io/en/latest/api.html#pyogrio.read_info
-
     """  # noqa: B950
     info: Dict[str, Any]
     if data_kwargs:
@@ -389,7 +358,6 @@ def _get_schema(
     info: Dict[str, Any],
 ) -> Schema:
     """Generate schema from info returned by :func:`_get_info`.
-
     Examples:
         >>> from pathlib import Path
         >>> from pprint import pprint
@@ -409,11 +377,9 @@ def _get_schema(
         'OBJECTID': 'int32',
         'SHAPE_Area': 'float64',
         'SHAPE_Leng': 'float64'}
-
     Args:
         info (Dict[str, Any]): The dictionary of information about the vector file
             returned by :func:`_get_info`.
-
     Returns:
         Schema: A dictionary that maps column names to data types.
     """  # noqa: B950
@@ -426,10 +392,8 @@ def _get_gpdf(
     data_kwargs: Optional[Dict[str, Any]] = None,
 ) -> GeoDataFrame:
     """Read a vector file into a `geopandas.GeoDataFrame`_ using `pyogrio.read_dataframe`_.
-
     This is a thin wrapper around `pyogrio.read_dataframe`_ that will unpack
     `data_kwargs` if it exists.
-
     Examples:
         >>> from pathlib import Path
         >>> _get_gpdf(
@@ -439,21 +403,16 @@ def _get_gpdf(
         0         1  E92000001   England    Lloegr  394883  370883 -2.07811  53.235001  {40A19681-7FE5-401C-A464-E58C7667E4D9}  4.616392e+06  1.306811e+11  MULTIPOLYGON (((87767.569 8868.285, 89245.065 ...
         1         2  S92000003  Scotland  Yr Alban  277744  700060 -3.97094  56.177399  {605FF196-6A26-498B-B944-DF9E6C2A726D}  9.816915e+06  7.865483e+10  MULTIPOLYGON (((202636.001 599689.300, 201891....
         2         3  W92000004     Wales     Cymru  263405  242881 -3.99417  52.067402  {D31B6005-7F16-4EF2-9BD1-B8CD8CCA5E66}  1.555750e+06  2.081868e+10  MULTIPOLYGON (((215005.297 196592.421, 214331....
-
     Args:
         data_path (str): Path to the vector file.
         data_kwargs (Optional[Dict[str, Any]], optional): A dictionary of key word arguments to be
             passed to`pyogrio.read_dataframe`_. Defaults to None.
-
     Returns:
         GeoDataFrame: The `geopandas.GeoDataFrame`_ returned by `pyogrio.read_dataframe`_.
-
     .. _geopandas.GeoDataFrame:
         https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html
-
     .. _pyogrio.read_dataframe:
         https://pyogrio.readthedocs.io/en/latest/api.html#pyogrio.read_dataframe
-
     """  # noqa: B950
     if data_kwargs:
         return read_dataframe(
@@ -471,11 +430,9 @@ def _get_categorical_column(
     column_name: str,
 ) -> Series:
     """# TODO.
-
     Args:
         df (DataFrame): # TODO
         column_name (str): # TODO
-
     Returns:
         Series: # TODO
     """
@@ -487,10 +444,8 @@ def _get_category_lookup(
     categorical_column: Series,
 ) -> CategoryLookup:
     """# TODO.
-
     Args:
         categorical_column (Series): # TODO
-
     Returns:
         CategoryLookup: # TODO
     """
@@ -504,10 +459,8 @@ def _get_category_dtype(
     categorical_column: Series,
 ) -> str:
     """# TODO.
-
     Args:
         categorical_column (Series): # TODO
-
     Returns:
         str: # TODO
     """
@@ -521,21 +474,28 @@ def _get_category_dtype(
 def _get_categories_and_dtypes(
     data_path: str,
     convert_to_categorical: List[str],
-    **data_kwargs: Optional[Dict[str, str]] 
+    data_kwargs: Optional[Dict[str, str]] = None,
 ) -> Tuple[CategoryLookups, Schema]:
     """Category and dtype looks for each column.
-
     Args:
         data_path (str): # TODO
         convert_to_categorical (List[str]): # TODO
         data_kwargs (Optional[Dict[str, str]], optional): # TODO. Defaults to
             None.
-
     Returns:
         Tuple[CategoryLookups, Schema]: # TODO
     """
-    df = read_vector_files(path=data_path, **data_kwargs).to_pandas_on_spark()
-    
+    combined_kwargs = _combine_kwargs(
+        additional_kwargs={
+            "read_geometry": False,
+            "columns": [convert_to_categorical],
+        },
+        data_kwargs=data_kwargs,
+    )
+    df = _get_gpdf(
+        data_path=data_path,
+        data_kwargs=combined_kwargs,
+    )
     categorical_columns = tuple(
         (
             column_name,
@@ -562,11 +522,9 @@ def _get_index_of_category(
     category: str,
 ) -> int:
     """# TODO.
-
     Args:
         category_lookup (CategoryLookup): # TODO
         category (str): # TODO
-
     Returns:
         int: # TODO
     """
@@ -579,11 +537,9 @@ def _get_code_for_category(
     category: str,
 ) -> int:
     """# TODO.
-
     Args:
         category_lookup (CategoryLookup): # TODO
         category (str): # TODO
-
     Returns:
         int: # TODO
     """
@@ -595,41 +551,36 @@ def _get_code_for_category(
 
 
 def _recode_categorical_strings(
-    df: DataFrame,
+    gpdf: GeoDataFrame,
     column: str,
     category_lookups: CategoryLookups,
-) -> DataFrame:
+) -> GeoDataFrame:
     """# TODO.
-
     Returns a GeoDataFrame where an integer representation of a categorical column
     specified by the user is assigned to the GeoDataFrame - string representation
     is dropped but mapping is stored in self.category_lookup.
-
     Args:
         gpdf (GeoDataFrame): # TODO
         column (str): # TODO
         category_lookups (CategoryLookups): # TODO
-
     Returns:
         GeoDataFrame: # TODO
     """
-    df.loc[:, column] = df.loc[:, column].apply(
+    gpdf.loc[:, column] = gpdf.loc[:, column].apply(
         lambda category: _get_code_for_category(
             category_lookup=category_lookups[column],
             category=category,
         )
     )
-    return df
+    return gpdf
 
 
 def _check_layer_projection(
     info: Dict[str, Any],
 ) -> None:
     """Checks whether the projection is British National Grid (EPSG:27700).
-
     Args:
         info (Dict[str, Any]): The dictionary of information returned by `_get_info`.
-
     Raises:
         TypeError: When projection is not British National Grid.
     """
@@ -645,14 +596,12 @@ def _get_name(
     name: Optional[str] = None,
 ) -> str:
     """Returns the provided name, the associated metadata title, or raises an error.
-
     Examples:
         If `name` is provided, the function returns that name:
         >>> _get_name(
             name="ramsar",
         )
         'ramsar'
-
         If `name` isn't provided but a :class: Metadata object is, the function returns
         `metadata.title`:
         >>> metadata = _get_metadata(
@@ -663,7 +612,6 @@ def _get_name(
             metadata=metadata,
         )
         'Ramsar (England)'
-
         If both are provided, `name` is preferred:
         >>> metadata = _get_metadata(
             data_path="tests/test_metadata/ramsar.gpkg",
@@ -674,19 +622,15 @@ def _get_name(
             metadata=metadata,
         )
         'ramsar'
-
         If neither are provided, an error is raised:
         >>> _get_name()
         ValueError: If there isn't any metadata, a name must be supplied.
-
     Args:
         metadata (Optional[Metadata]): A :class: Metadata object containing information
             parsed from GEMINI XML. Defaults to None.
         name (Optional[str]): A name, provided by the caller. Defaults to None.
-
     Raises:
         ValueError: If neither a name nor a `Metadata` are provided.
-
     Returns:
         str: A name for the dataset.
     """
@@ -703,7 +647,6 @@ def _get_metadata(
     metadata_path: Optional[str] = None,
 ) -> Optional[Metadata]:
     """Read metadata from path, or json sidecar, or return None.
-
     Examples:
         If `metadata_path` is provided, the function will read that:
         >>> metadata = _get_metadata(
@@ -712,7 +655,6 @@ def _get_metadata(
         )
         >>> metadata.title
         'Ramsar (England)'
-
         If `metadata_path` isn't provided but a json `sidecar`_ file exists, the
         function will read that:
         >>> from os import listdir
@@ -723,7 +665,6 @@ def _get_metadata(
         )
         >>> metadata.title
         'Ramsar (England)'
-
         If `metadata_path` isn't provided and there isn't a json sidecar file, the
         function will return `None`:
         >>> from os import listdir
@@ -734,21 +675,16 @@ def _get_metadata(
         )
         >>> metadata is None
         True
-
     Args:
         data_path (str): Path to the vector file.
         metadata_path (Optional[str]): Path to a `UK GEMINI`_ metadata file.
             Defaults to None.
-
     Returns:
         Optional[Metadata]: An instance of :class: Metadata
-
     .. _`UK GEMINI`:
         https://www.agi.org.uk/uk-gemini/
-
     .. _`sidecar`:
         https://en.wikipedia.org/wiki/Sidecar_file
-
     """
     json_sidecar = Path(f"{data_path}-metadata.json")
     if metadata_path:

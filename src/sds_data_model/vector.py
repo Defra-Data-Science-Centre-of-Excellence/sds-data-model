@@ -7,15 +7,9 @@ from dask.delayed import Delayed
 from geopandas import GeoDataFrame
 from numpy import number, uint8
 from numpy.typing import NDArray
-from pathlib import Path
-#from pandas import DataFrame, Series
-from pyspark.pandas import read_csv, read_excel, read_json, read_parquet, DataFrame, Series
-import pyspark.pandas as ps
+from pandas import DataFrame, Series
 from shapely.geometry import box
 from xarray import DataArray, Dataset, merge
-
-from pyspark_vector_files import read_vector_files
-
 
 from sds_data_model._vector import (
     _check_layer_projection,
@@ -58,7 +52,6 @@ class VectorTile:
     @property
     def transform(self: _VectorTile) -> Affine:
         """# TODO.
-
         Returns:
             Affine: # TODO
         """
@@ -75,7 +68,6 @@ class VectorTile:
         data_kwargs: Optional[Dict[str, Any]] = None,
     ) -> _VectorTile:
         """#TODO.
-
         Args:
             data_path (str): # TODO
             bbox (BoundingBox): # TODO
@@ -85,7 +77,6 @@ class VectorTile:
                 Defaults to None.
             data_kwargs (Optional[Dict[str, Any]], optional): # TODO. Defaults
                 to None.
-
         Returns:
             _VectorTile: # TODO
         """
@@ -104,10 +95,8 @@ class VectorTile:
 
     def select(self: _VectorTile, columns: List[str]) -> _VectorTile:
         """# TODO.
-
         Args:
             columns (List[str]): # TODO
-
         Returns:
             _VectorTile: # TODO
         """
@@ -116,10 +105,8 @@ class VectorTile:
 
     def where(self: _VectorTile, condition: Series) -> _VectorTile:
         """# TODO.
-
         Args:
             condition (Series): # TODO
-
         Returns:
             _VectorTile: # TODO
         """
@@ -134,14 +121,12 @@ class VectorTile:
         **kwargs: Dict[str, Any],
     ) -> _VectorTile:
         """# TODO.
-
         Args:
             other (DataFrame): # TODO
             how (str): # TODO
             fillna (Optional[Dict[str, Any]], optional): # TODO. Defaults to
                 None.
             **kwargs (Dict[str, Any]): # TODO.
-
         Returns:
             _VectorTile: # TODO
         """
@@ -161,12 +146,10 @@ class VectorTile:
         dtype: str = "uint8",
     ) -> NDArray[uint8]:
         """# TODO.
-
         Args:
             out_shape (Tuple[int, int]): # TODO. Defaults to OUT_SHAPE.
             invert (bool): # TODO. Defaults to True.
             dtype (str): # TODO. Defaults to "uint8".
-
         Returns:
             NDArray[uint8]: # TODO
         """
@@ -187,12 +170,10 @@ class VectorTile:
         dtype: str = "uint8",
     ) -> NDArray[number]:
         """# TODO.
-
         Args:
             column (str): # TODO
             out_shape (Tuple[int, int]): # TODO. Defaults to OUT_SHAPE.
             dtype (str): # TODO. Defaults to "uint8".
-
         Returns:
             NDArray[number]: # TODO
         """
@@ -232,7 +213,6 @@ class TiledVectorLayer:
         name: Optional[str] = None,
     ) -> _TiledVectorLayer:
         """# TODO.
-
         Args:
             data_path (str): # TODO
             bboxes (Tuple[BoundingBox, ...]): # TODO. Defaults to BBOXES.
@@ -242,7 +222,6 @@ class TiledVectorLayer:
                 Defaults to None.
             metadata_path (Optional[str], optional): # TODO. Defaults to None.
             name (Optional[str], optional): # TODO. Defaults to None.
-
         Returns:
             _TiledVectorLayer: # TODO
         """
@@ -304,10 +283,8 @@ class TiledVectorLayer:
     @log
     def select(self: _TiledVectorLayer, columns: List[str]) -> _TiledVectorLayer:
         """# TODO.
-
         Args:
             columns (List[str]): # TODO
-
         Returns:
             _TiledVectorLayer: # TODO
         """
@@ -318,10 +295,8 @@ class TiledVectorLayer:
     @log
     def where(self: _TiledVectorLayer, condition: Series) -> _TiledVectorLayer:
         """# TODO.
-
         Args:
             condition (Series): # TODO
-
         Returns:
             _TiledVectorLayer: # TODO
         """
@@ -338,14 +313,12 @@ class TiledVectorLayer:
         **kwargs: Dict[str, Any],
     ) -> _TiledVectorLayer:
         """# TODO.
-
         Args:
             other (DataFrame): # TODO
             how (str): # TODO. Defaults to "left".
             fillna (Optional[Dict[str, Any]], optional): # TODO. Defaults to
                 None.
             **kwargs (Dict[str, Any]): # TODO.
-
         Returns:
             _TiledVectorLayer: # TODO
         """
@@ -370,7 +343,6 @@ class TiledVectorLayer:
     @log
     def to_data_array_as_mask(self: _TiledVectorLayer) -> DataArray:
         """# TODO.
-
         Returns:
             DataArray: # TODO
         """
@@ -391,14 +363,11 @@ class TiledVectorLayer:
         columns: List[str],
     ) -> Dataset:
         """# TODO.
-
         This method rasterises the specified columns using a schema defined in
         VectorLayer. If columns have been specified as categorical by the user it
         updates the schema to uint32.
-
         Args:
             columns (List[str]): # TODO
-
         Returns:
             Dataset: # TODO
         """
@@ -447,7 +416,6 @@ class VectorLayer:
         schema: Optional[Dict[str, Any]] = None,
     ) -> _VectorLayer:
         """Get a GeoDataframe with accompanying information on name, metadata and schema.
-
         Examples:
             >>> from vector import VectorLayer
             >>> aw = read_file("https://services.arcgis.com/JJzESW51TqeY9uat/arcgis/rest/services/Ancient_Woodland_England/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson").to_crs("epsg:27700")
@@ -470,7 +438,6 @@ class VectorLayer:
                 data_path = "aw.gpkg",
                 name = "Ancient Woodland - test dataset",
                 schema = aw_dict)
-
         Args:
             data_path (str): file path to dataset.
             data_kwargs (Optional[Dict[str, Any]]): # TODO.
@@ -481,7 +448,6 @@ class VectorLayer:
                 schema to pass, will get schema from dataset if none provided.
                 User-defined dictionary should have the column as the "key", and the
                 data type as the "value".
-
         Returns:
             VectorLayer class of dataset.
         """  # noqa: B950
@@ -542,11 +508,9 @@ class VectorLayer:
         bboxes: Tuple[BoundingBox, ...] = BBOXES,
     ) -> TiledVectorLayer:
         """# TODO.
-
         Args:
             bboxes (Tuple[BoundingBox, ...], optional): # TODO. Defaults to
                 BBOXES.
-
         Returns:
             TiledVectorLayer: # TODO
         """
@@ -564,83 +528,4 @@ class VectorLayer:
             metadata=self.metadata,
             category_lookups=self.category_lookups,
             schema=self.schema,
-        )
-    
-_Wrapper = TypeVar("_Wrapper", bound = "Wrapper")
-
-@dataclass
-class Wrapper:
-    name: str
-    data: DataFrame
-    metadata: Optional[Dict[str, Any]]
-    category_lookups: Optional[CategoryLookups] = None
-    #graph: Optional[DiGraph]
-
-        
-    @classmethod
-    def from_files(
-            cls: _Wrapper, 
-            data_path: str,
-           # data_kwargs: Optional[Dict[str, Any]] = {},
-          
-            #suffix: Optional[str] = None,
-            metadata_path: Optional[str] = None,
-            name: Optional[str] = None,
-            convert_to_categorical: Optional[List[str]] = None,
-            category_lookups: Optional[CategoryLookups] = None,
-            **read_vector_file_kwargs: Optional[Dict[str,Any]],
-           # **read_file_kwargs: Optional[Dict[str, Any]]
-    ):
-        
-        
-        file_reader_pandas = { ".csv": read_csv,
-                       ".json": read_json,
-                       ".parquet": read_parquet,
-                        ".xlsx": read_excel,
-                       ".xls": read_excel,
-                       ".xlsm": read_excel,
-                       ".xlsb": read_excel,
-                       ".odf": read_excel,
-                       ".ods": read_excel,
-                       ".odt": read_excel}
-      
-        
-        suffix_data_path = Path(data_path).suffix 
-          
-        
-        if suffix_data_path in file_reader_pandas.keys():
-             
-            data = file_reader_pandas[suffix_data_path]( data_path)
-        else:
-            data = read_vector_files(
-                data_path,
-              **read_vector_file_kwargs
-            ).to_pandas_on_spark()
-                
-       
-        
-        metadata = _get_metadata(data_path = data_path,  metadata_path = metadata_path)
-        
-        _name = _get_name(
-            name=name,
-            metadata=metadata,
-        )
-        
-        if convert_to_categorical:
-            category_lookups, dtype_lookup = _get_categories_and_dtypes(
-                data_path=data_path,
-                convert_to_categorical=convert_to_categorical,
-                **read_vector_file_kwargs,
-            )
-            for column in convert_to_categorical:
-                    data = _recode_categorical_strings(
-                       df = data, column = column,
-                        category_lookups = category_lookups
-                    )
-
-        return cls(
-            name=_name,
-            data = data,
-            metadata= metadata,
-            category_lookups = category_lookups
         )
