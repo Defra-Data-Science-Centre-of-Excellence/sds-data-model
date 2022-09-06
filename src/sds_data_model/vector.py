@@ -641,6 +641,6 @@ class Wrapper:
         return cls(
             name=_name,
             data = data,
-            meta= metadata,
+            metadata= metadata,
             category_lookups = category_lookups
         )

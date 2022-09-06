@@ -1,6 +1,5 @@
 """Tests for Pyspark Wrapper."""
 from pathlib import Path
-
 from pytest import fixture
 
 from sds_data_model.constants import CategoryLookups, Schema
@@ -9,7 +8,7 @@ from sds_data_model.metadata import Wrapper
 data_path = "data/Countries_(December_2021)_GB_BUC"
 
 expected_data = read_vector_files(
-            path=,data_path,
+            path=data_path,
     suffix = ".shp"
         ).to_pandas_on_spark()
 
@@ -46,7 +45,7 @@ def test_from_files(
     )
     assert received.name == expected_name
     assert received.metadata == expected_metadata
-    assert received.schema == expected_schema
+    assert received.spark.print_schema == expected_schema
     assert received.category_lookups == expected_category_lookups
 
 
