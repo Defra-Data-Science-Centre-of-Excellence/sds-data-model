@@ -13,7 +13,7 @@ expected_data = read_vector_files(
             path=data_path,
     suffix = ".shp"
         ).to_pandas_on_spark()
-stssta
+
 @fixture
 def expected_name() -> str:
     """Expected Wrapper name."""
@@ -28,6 +28,18 @@ def expected_metadata() -> None:
 def expected_schema() -> Schema:
     """Expected Wrapper schema."""
     return excpected_data.spark.print_schema()
+
+@fixture
+def expected_category_lookups() -> CategoryLookups:
+    """Expected VectorLayer category lookups."""
+    return {
+        "CTRY21NM": {
+            0: "England",
+            1: "Scotland",
+            2: "Wales",
+        },
+    }
+
 
 
 def test_from_files(
