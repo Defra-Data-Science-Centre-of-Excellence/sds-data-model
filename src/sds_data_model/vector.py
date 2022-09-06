@@ -572,7 +572,7 @@ _Wrapper = TypeVar("_Wrapper", bound = "Wrapper")
 class Wrapper:
     name: str
     data: DataFrame
-    meta: Optional[Dict[str, Any]]
+    metadata: Optional[Dict[str, Any]]
     category_lookups: Optional[CategoryLookups] = None
     #graph: Optional[DiGraph]
 
