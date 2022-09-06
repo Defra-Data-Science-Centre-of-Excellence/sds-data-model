@@ -1,29 +1,34 @@
 from affine import Affine
 from cv2 import INTER_LINEAR_EXACT, INTER_NEAREST_EXACT, resize
 from numpy import array, ndarray, full
+from typing import Optional
 from xarray import DataArray, Dataset
 
 from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, CELL_SIZE
 
 def _check_cellsize(
     transform: Affine,
-) -> bool:
+) -> Optional[bool]:
     if (
         transform.a != CELL_SIZE or 
         -transform.e != CELL_SIZE
     ):
         return True
+    else:
+        return None
 
 
 def _check_shape_and_extent(
     raster: Dataset,
-) -> bool:
+) -> Optional[bool]:
     if (
         raster.rio.shape != (BNG_YMAX/CELL_SIZE, BNG_XMAX/CELL_SIZE) or 
         raster.rio.transform().f != BNG_YMAX or 
         raster.rio.transform().c != BNG_XMIN
     ):
         return True
+    else:
+        return None
     
 def _data_array_to_dataset(
     raster: DataArray,
@@ -46,18 +51,18 @@ def _get_resample_shape(
     raster: DataArray,
 ) -> ndarray:
     return (
-        raster.shape * (
+        (
             array(
                 [raster.rio.transform().a, -raster.rio.transform().e]
             ) / CELL_SIZE
-        )
+        ) * raster.shape
     ).round().astype("int")
 
 
 def _resample_cellsize(
     raster: DataArray,
     categorical: bool=False,
-) -> ndarray:
+) -> Dataset:
     if categorical:
         interpolation=INTER_NEAREST_EXACT
     else:
@@ -97,7 +102,7 @@ def _get_bng_offset(
 def _to_bng_extent(
     raster: DataArray,
     nodata: float=None
-) -> ndarray:
+) -> Dataset:
     _check_no_data(raster, nodata)
     
     bng = full(

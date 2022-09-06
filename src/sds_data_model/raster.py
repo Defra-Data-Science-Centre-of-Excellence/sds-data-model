@@ -66,7 +66,6 @@
 
 # temporary resample & reshape function
 from pathlib import Path
-from numpy import ndarray
 from xarray import DataArray, Dataset, open_dataset
 from rasterio.drivers import raster_driver_extensions
 
