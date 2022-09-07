@@ -69,28 +69,36 @@
 
 # temporary resample & reshape function
 from pathlib import Path
+from typing import List, Literal, Optional, Sequence, Union
 
 from rasterio.drivers import raster_driver_extensions
 from xarray import Dataset, open_dataset
 
-from sds_data_model._raster import (
-    _check_cellsize,
-    _check_shape_and_extent,
-    _resample_cellsize,
-    _to_bng_extent,
-)
+from sds_data_model._raster import _resample_and_reshape
 from sds_data_model._vector import _check_layer_projection
 
 
 def read_dataset_from_file(
     data_path: str,
-    categorical: bool = False,
-    nodata: float = None,
-    band: int = 1,
-    engine: str = None,
-    decode_coords="all",
-    **data_kwargs,
+    band: Union[List[int], List[str], None] = None,
+    categorical: Union[bool, Sequence[bool]] = False,
+    nodata: Optional[float] = None,
+    engine: Optional[str] = None,
+    decode_coords: Union[bool, None, Literal["coordinates", "all"]] = "all",
 ) -> Dataset:
+    """# TODO.
+
+    Args:
+        data_path (str): #TODO
+        band (Union[List[int], List[str], None], optional): #TODO. Defaults to None.
+        categorical (Union[bool, Sequence[bool]], optional): #TODO. Defaults to False.
+        nodata (Optional[float], optional): #TODO. Defaults to None.
+        engine (Optional[str], optional): #TODO. Defaults to None.
+        decode_coords (Union[bool, None, Literal["coordinates", "all"]], optional): #TODO. Defaults to "all".
+
+    Returns:
+        Dataset: #TODO
+    """
     suffix = Path(data_path).suffixes[0]
 
     if engine:
@@ -101,29 +109,18 @@ def read_dataset_from_file(
         engine = "rasterio"
         decode_coords = None
 
-    raster = open_dataset(
+    dataset = open_dataset(
         data_path,
         engine=engine,
         decode_coords=decode_coords,
         mask_and_scale=False,
-        **data_kwargs,
     )
 
-    _check_layer_projection({"crs": raster.rio.crs.to_string()})
+    _check_layer_projection({"crs": dataset.rio.crs.to_string()})
 
-    if raster.band.ndim:
-        raster = raster.sel(band=band)
-
-    if _check_cellsize(raster.rio.transform()):
-        raster = _resample_cellsize(
-            raster=raster.to_array().squeeze(),
-            categorical=categorical,
-        )
-
-    if _check_shape_and_extent(raster):
-        raster = _to_bng_extent(
-            raster=raster.to_array().squeeze(),
-            nodata=nodata,
-        )
-
-    return raster
+    return _resample_and_reshape(
+        dataset=dataset,
+        band=band,
+        categorical=categorical,
+        nodata=nodata,
+    )

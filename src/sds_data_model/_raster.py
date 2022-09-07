@@ -1,9 +1,9 @@
-from typing import Optional
+from typing import List, Optional, Sequence, Union
 
 from affine import Affine
 from cv2 import INTER_LINEAR_EXACT, INTER_NEAREST_EXACT, resize
 from numpy import array, full, ndarray
-from xarray import DataArray, Dataset
+from xarray import DataArray, Dataset, merge
 
 from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, CELL_SIZE
 
@@ -18,111 +18,173 @@ def _check_cellsize(
 
 
 def _check_shape_and_extent(
-    raster: Dataset,
+    data_array: DataArray,
 ) -> Optional[bool]:
     if (
-        raster.rio.shape != (BNG_YMAX / CELL_SIZE, BNG_XMAX / CELL_SIZE)
-        or raster.rio.transform().f != BNG_YMAX
-        or raster.rio.transform().c != BNG_XMIN
+        data_array.shape != (BNG_YMAX / CELL_SIZE, BNG_XMAX / CELL_SIZE)
+        or data_array.rio.transform().f != BNG_YMAX
+        or data_array.rio.transform().c != BNG_XMIN
     ):
         return True
     else:
         return None
 
 
-def _data_array_to_dataset(
-    raster: DataArray,
+def _create_data_array(
+    data_array: DataArray,
     data: ndarray,
     geotransform: str,
-) -> Dataset:
+) -> DataArray:
     return DataArray(
         data=data,
         coords={
-            raster.rio.grid_mapping:
-            raster[raster.rio.grid_mapping].rio.update_attrs(
-                {"GeoTransform": geotransform}
-            )
+            data_array.rio.grid_mapping: data_array[
+                data_array.rio.grid_mapping
+            ].rio.update_attrs({"GeoTransform": geotransform})
         },
-        dims=tuple(raster.dims),
-    ).to_dataset(name=raster.coords["variable"].data.tolist())
+        dims=tuple(data_array.dims),
+        attrs={"nodata": data_array.rio.nodata},
+    ).rename(data_array.name)
 
 
 def _get_resample_shape(
-    raster: DataArray,
+    data_array: DataArray,
 ) -> ndarray:
     return (
         (
-            array(
-                [raster.rio.transform().a, -raster.rio.transform().e]
-            ) / CELL_SIZE
-        ) * raster.shape
-    ).round().astype("int")
+            (
+                array([data_array.rio.transform().a, -data_array.rio.transform().e])
+                / CELL_SIZE
+            )
+            * data_array.shape
+        )
+        .round()
+        .astype("int")
+    )
 
 
 def _resample_cellsize(
-    raster: DataArray,
+    data_array: DataArray,
     categorical: bool = False,
-) -> Dataset:
+) -> DataArray:
     if categorical:
         interpolation = INTER_NEAREST_EXACT
     else:
         interpolation = INTER_LINEAR_EXACT
     resampled = resize(
-        src=raster.data,
-        dsize=_get_resample_shape(raster)[::-1],
+        src=data_array.data,
+        dsize=_get_resample_shape(data_array)[::-1],
         interpolation=interpolation,
     )
 
-    return _data_array_to_dataset(
-        raster=raster,
+    return _create_data_array(
+        data_array=data_array,
         data=resampled,
         geotransform=(
-            f"{raster.rio.transform().c} {CELL_SIZE} 0 "
-            f"{raster.rio.transform().f} 0 -{CELL_SIZE}"
+            f"{data_array.rio.transform().c} {CELL_SIZE} 0 {data_array.rio.transform().f} 0 -{CELL_SIZE}"
         ),
     )
 
 
 def _check_no_data(
-    raster: DataArray,
-    nodata: float = None,
+    data_array: DataArray,
+    nodata: Optional[float] = None,
 ) -> None:
     if nodata is not None:
-        raster.rio.write_nodata(nodata, inplace=True)
+        data_array.rio.write_nodata(nodata, inplace=True)
     else:
         assert (
-            raster.rio.nodata is not None
+            data_array.rio.nodata is not None
         ), "Input dataset does not have a nodata value. One must be provided."
 
 
 def _get_bng_offset(
-    raster: DataArray,
+    data_array: DataArray,
 ) -> ndarray:
     return (
-        array(
-            [BNG_YMAX - raster.rio.transform().f, raster.rio.transform().c]
-        ) / CELL_SIZE
-    ).round().astype("int")
+        (
+            array(
+                [BNG_YMAX - data_array.rio.transform().f, data_array.rio.transform().c]
+            )
+            / CELL_SIZE
+        )
+        .round()
+        .astype("int")
+    )
 
 
-def _to_bng_extent(raster: DataArray, nodata: float = None) -> Dataset:
-    _check_no_data(raster, nodata)
+def _to_bng_extent(
+    data_array: DataArray,
+    nodata: Optional[float] = None,
+) -> DataArray:
+    _check_no_data(data_array, nodata)
+
+    offset = _get_bng_offset(data_array)
 
     bng = full(
         shape=(array([BNG_YMAX, BNG_XMAX]) / CELL_SIZE).astype("int"),
-        fill_value=raster.rio.nodata,
-        dtype=raster.dtype,
+        fill_value=data_array.rio.nodata,
+        dtype=data_array.dtype,
     )
 
-    offset = _get_bng_offset(raster)
-
     bng[
-        offset[0]:offset[0] + raster.shape[0],
-        offset[1]:offset[1] + raster.shape[1]
-    ] = raster.data
+        offset[0] : offset[0] + data_array.shape[0],
+        offset[1] : offset[1] + data_array.shape[1],
+    ] = data_array.data
 
-    return _data_array_to_dataset(
-        raster=raster,
+    return _create_data_array(
+        data_array=data_array,
         data=bng,
         geotransform=f"{BNG_XMIN} {CELL_SIZE} 0 {BNG_YMAX} 0 -{CELL_SIZE}",
+    )
+
+
+def _select_data_arrays(
+    dataset: Dataset,
+    band: Union[List[int], List[str], None] = None,
+) -> List[DataArray]:
+    try:
+        data_arrays = [
+            data_array.rename(f"{index + 1}").drop("band")
+            for index, data_array in enumerate(dataset.band_data)
+        ]
+    except AttributeError:
+        data_arrays = [dataset[array_name] for array_name in dataset.rio.vars]
+
+    if band:
+        data_arrays = [
+            data_array
+            for data_array in data_arrays
+            if data_array.name in map(str, band)
+        ]
+    return data_arrays
+
+
+def _resample_and_reshape(
+    dataset: Dataset,
+    band: Union[List[int], List[str], None] = None,
+    categorical: Union[bool, Sequence[bool]] = False,
+    nodata: Optional[float] = None,
+) -> Dataset:
+    data_arrays = _select_data_arrays(dataset, band=band)
+    for index, _ in enumerate(data_arrays):
+        if _check_cellsize(data_arrays[index].rio.transform()):
+            if isinstance(categorical, bool):
+                categorical = [categorical] * len(data_arrays)
+            elif band:
+                categorical = list(zip(*sorted(dict(zip(band, categorical)).items())))[
+                    1
+                ]
+            data_arrays[index] = _resample_cellsize(
+                data_array=data_arrays[index],
+                categorical=categorical[index],
+            )
+
+        if _check_shape_and_extent(data_arrays[index]):
+            data_arrays[index] = _to_bng_extent(
+                data_array=data_arrays[index],
+                nodata=nodata,
+            )
+    return merge(
+        data_array.to_dataset(name=data_array.name) for data_array in data_arrays
     )
