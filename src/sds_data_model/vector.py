@@ -1,66 +1,88 @@
+"""Vector wrapper classes."""
 from dataclasses import dataclass
-from logging import INFO, info, basicConfig
-from typing import Any, Dict, Generator, List, Optional, TypeVar, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
 
 from affine import Affine
 from dask.delayed import Delayed
 from geopandas import GeoDataFrame
+from numpy import number, uint8
+from numpy.typing import NDArray
 from pandas import DataFrame, Series
 from shapely.geometry import box
 from xarray import DataArray, Dataset, merge
 
 from sds_data_model._vector import (
+    _check_layer_projection,
     _from_delayed_to_data_array,
     _from_file,
+    _get_categories_and_dtypes,
+    _get_gpdf,
+    _get_info,
     _get_mask,
+    _get_metadata,
+    _get_name,
+    _get_schema,
     _join,
+    _recode_categorical_strings,
     _select,
     _to_raster,
     _where,
-    _get_schema,
-    _get_categories_and_dtypes,
-    _recode_categorical_strings,
-    _get_info,
-    _check_layer_projection,
-    _get_gpdf,
-    _get_name,
-    _get_metadata,
 )
 from sds_data_model.constants import (
     BBOXES,
     CELL_SIZE,
-    BoundingBox,
     OUT_SHAPE,
+    BoundingBox,
     CategoryLookups,
     Schema,
 )
+from sds_data_model.logger import log
 from sds_data_model.metadata import Metadata
-
-
-basicConfig(format="%(levelname)s:%(asctime)s:%(message)s", level=INFO)
 
 _VectorTile = TypeVar("_VectorTile", bound="VectorTile")
 
 
 @dataclass
 class VectorTile:
+    """#TODO VectorTile class documentation."""
+
     bbox: BoundingBox
     gpdf: Delayed
 
     @property
     def transform(self: _VectorTile) -> Affine:
+        """# TODO.
+
+        Returns:
+            Affine: # TODO
+        """
         xmin, _, _, ymax = self.bbox
         return Affine(CELL_SIZE, 0, xmin, 0, -CELL_SIZE, ymax)
 
     @classmethod
     def from_file(
-        cls: _VectorTile,
+        cls: Type[_VectorTile],
         data_path: str,
         bbox: BoundingBox,
         convert_to_categorical: Optional[List[str]] = None,
         category_lookups: Optional[CategoryLookups] = None,
         data_kwargs: Optional[Dict[str, Any]] = None,
     ) -> _VectorTile:
+        """#TODO.
+
+        Args:
+            data_path (str): # TODO
+            bbox (BoundingBox): # TODO
+            convert_to_categorical (Optional[List[str]], optional): # TODO.
+                Defaults to None.
+            category_lookups (Optional[CategoryLookups], optional): # TODO.
+                Defaults to None.
+            data_kwargs (Optional[Dict[str, Any]], optional): # TODO. Defaults
+                to None.
+
+        Returns:
+            _VectorTile: # TODO
+        """
         gpdf = _from_file(
             data_path=data_path,
             bbox=bbox,
@@ -75,45 +97,74 @@ class VectorTile:
         )
 
     def select(self: _VectorTile, columns: List[str]) -> _VectorTile:
-        gpdf = _select(gpdf=self.gpdf, columns=columns)
-        return VectorTile(
-            bbox=self.bbox,
-            gpdf=gpdf,
-        )
+        """# TODO.
+
+        Args:
+            columns (List[str]): # TODO
+
+        Returns:
+            _VectorTile: # TODO
+        """
+        self.gpdf = _select(gpdf=self.gpdf, columns=columns)
+        return self
 
     def where(self: _VectorTile, condition: Series) -> _VectorTile:
-        gpdf = _where(gpdf=self.gpdf, condition=condition)
-        return VectorTile(
-            bbox=self.bbox,
-            gpdf=gpdf,
-        )
+        """# TODO.
+
+        Args:
+            condition (Series): # TODO
+
+        Returns:
+            _VectorTile: # TODO
+        """
+        self.gpdf = _where(gpdf=self.gpdf, condition=condition)
+        return self
 
     def join(
         self: _VectorTile,
         other: DataFrame,
         how: str,
         fillna: Optional[Dict[str, Any]] = None,
-        **kwargs,
+        **kwargs: Dict[str, Any],
     ) -> _VectorTile:
-        gpdf = _join(
+        """# TODO.
+
+        Args:
+            other (DataFrame): # TODO
+            how (str): # TODO
+            fillna (Optional[Dict[str, Any]], optional): # TODO. Defaults to
+                None.
+            **kwargs (Dict[str, Any]): # TODO.
+
+        Returns:
+            _VectorTile: # TODO
+        """
+        self.gpdf = _join(
             gpdf=self.gpdf,
             other=other,
             how=how,
             fillna=fillna,
             **kwargs,
         )
-        return VectorTile(
-            bbox=self.bbox,
-            gpdf=gpdf,
-        )
+        return self
 
     def to_mask(
         self: _VectorTile,
         out_shape: Tuple[int, int] = OUT_SHAPE,
         invert: bool = True,
         dtype: str = "uint8",
-    ) -> Delayed:
-        mask = _get_mask(
+    ) -> NDArray[uint8]:
+        """# TODO.
+
+        Args:
+            out_shape (Tuple[int, int]): # TODO. Defaults to OUT_SHAPE.
+            invert (bool): # TODO. Defaults to True.
+            dtype (str): # TODO. Defaults to "uint8".
+
+        Returns:
+            NDArray[uint8]: # TODO
+        """
+        mask: NDArray[uint8] = _get_mask(
             gpdf=self.gpdf,
             out_shape=out_shape,
             transform=self.transform,
@@ -128,8 +179,18 @@ class VectorTile:
         column: str,
         out_shape: Tuple[int, int] = OUT_SHAPE,
         dtype: str = "uint8",
-    ) -> Delayed:
-        raster = _to_raster(
+    ) -> NDArray[number]:
+        """# TODO.
+
+        Args:
+            column (str): # TODO
+            out_shape (Tuple[int, int]): # TODO. Defaults to OUT_SHAPE.
+            dtype (str): # TODO. Defaults to "uint8".
+
+        Returns:
+            NDArray[number]: # TODO
+        """
+        raster: NDArray[number] = _to_raster(
             gpdf=self.gpdf,
             column=column,
             out_shape=out_shape,
@@ -145,23 +206,41 @@ _TiledVectorLayer = TypeVar("_TiledVectorLayer", bound="TiledVectorLayer")
 
 @dataclass
 class TiledVectorLayer:
+    """# TODO."""
+
     name: str
-    tiles: Generator[VectorTile, None, None]
+    tiles: Tuple[VectorTile, ...]
     schema: Schema
     metadata: Optional[Metadata] = None
     category_lookups: Optional[CategoryLookups] = None
 
     @classmethod
+    @log
     def from_files(
-        cls: _TiledVectorLayer,
+        cls: Type[_TiledVectorLayer],
         data_path: str,
-        bboxes: Tuple[BoundingBox] = BBOXES,
+        bboxes: Tuple[BoundingBox, ...] = BBOXES,
         data_kwargs: Optional[Dict[str, Any]] = None,
         convert_to_categorical: Optional[List[str]] = None,
         metadata_path: Optional[str] = None,
         metadata_kwargs: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
     ) -> _TiledVectorLayer:
+        """# TODO.
+
+        Args:
+            data_path (str): # TODO
+            bboxes (Tuple[BoundingBox, ...]): # TODO. Defaults to BBOXES.
+            data_kwargs (Optional[Dict[str, Any]], optional): # TODO. Defaults
+                to None.
+            convert_to_categorical (Optional[List[str]], optional): # TODO.
+                Defaults to None.
+            metadata_path (Optional[str], optional): # TODO. Defaults to None.
+            name (Optional[str], optional): # TODO. Defaults to None.
+
+        Returns:
+            _TiledVectorLayer: # TODO
+        """
         info = _get_info(
             data_path=data_path,
             data_kwargs=data_kwargs,
@@ -217,44 +296,55 @@ class TiledVectorLayer:
             schema=schema,
         )
 
+    @log
     def select(self: _TiledVectorLayer, columns: List[str]) -> _TiledVectorLayer:
-        tiles = tuple(tile.select(columns) for tile in self.tiles)
+        """# TODO.
 
-        tiled_vector_layer = TiledVectorLayer(
-            name=self.name,
-            tiles=tiles,
-            metadata=self.metadata,
-            category_lookups=self.category_lookups,
-            schema=self.schema,
-        )
+        Args:
+            columns (List[str]): # TODO
 
-        info(f"Selected columns: {columns}.")
+        Returns:
+            _TiledVectorLayer: # TODO
+        """
+        self.tiles = tuple(tile.select(columns) for tile in self.tiles)
 
-        return tiled_vector_layer
+        return self
 
+    @log
     def where(self: _TiledVectorLayer, condition: Series) -> _TiledVectorLayer:
-        tiles = tuple(tile.where(condition) for tile in self.tiles)
+        """# TODO.
 
-        tiled_vector_layer = TiledVectorLayer(
-            name=self.name,
-            tiles=tiles,
-            metadata=self.metadata,
-            category_lookups=self.category_lookups,
-            schema=self.schema,
-        )
+        Args:
+            condition (Series): # TODO
 
-        info(f"Selected rows where {condition}.")
+        Returns:
+            _TiledVectorLayer: # TODO
+        """
+        self.tiles = tuple(tile.where(condition) for tile in self.tiles)
 
-        return tiled_vector_layer
+        return self
 
+    @log
     def join(
         self: _TiledVectorLayer,
         other: DataFrame,
         how: str = "left",
         fillna: Optional[Dict[str, Any]] = None,
-        **kwargs,
+        **kwargs: Dict[str, Any],
     ) -> _TiledVectorLayer:
-        tiles = tuple(
+        """# TODO.
+
+        Args:
+            other (DataFrame): # TODO
+            how (str): # TODO. Defaults to "left".
+            fillna (Optional[Dict[str, Any]], optional): # TODO. Defaults to
+                None.
+            **kwargs (Dict[str, Any]): # TODO.
+
+        Returns:
+            _TiledVectorLayer: # TODO
+        """
+        self.tiles = tuple(
             tile.join(
                 other=other,
                 how=how,
@@ -264,20 +354,22 @@ class TiledVectorLayer:
             for tile in self.tiles
         )
 
-        tiled_vector_layer = TiledVectorLayer(
-            name=self.name,
-            tiles=tiles,
-            metadata=self.metadata,
-            category_lookups=self.category_lookups,
-            schema=self.schema,
-        )
+        # Update schema to include columns names and dtypes from dataframe being joined
+        schema_df = other.dtypes.apply(lambda col: col.name).to_dict()
+        schema = self.schema
+        schema.update(schema_df)
+        self.schema = schema
 
-        info(f"Joined to {other.info()}.")
+        return self
 
-        return tiled_vector_layer
-
+    @log
     def to_data_array_as_mask(self: _TiledVectorLayer) -> DataArray:
-        delayed_masks = (tile.to_mask() for tile in self.tiles)
+        """# TODO.
+
+        Returns:
+            DataArray: # TODO
+        """
+        delayed_masks = tuple(tile.to_mask() for tile in self.tiles)
 
         data_array = _from_delayed_to_data_array(
             delayed_arrays=delayed_masks,
@@ -286,21 +378,27 @@ class TiledVectorLayer:
             dtype="uint8",
         )
 
-        info(f"Converted to DataArray as mask.")
-
         return data_array
 
+    @log
     def to_dataset_as_raster(
         self: _TiledVectorLayer,
         columns: List[str],
     ) -> Dataset:
-        """This method rasterises the specified columns using a schema defined in VectorLayer.
-        If columns have been specified as categorical by the user it updates the schema to uint32."""
+        """# TODO.
 
-        tiles = list(self.tiles)
+        This method rasterises the specified columns using a schema defined in
+        VectorLayer. If columns have been specified as categorical by the user it
+        updates the schema to uint32.
 
-        delayed_rasters = (
-            (tile.to_raster(column=i, dtype=self.schema[i]) for tile in tiles)
+        Args:
+            columns (List[str]): # TODO
+
+        Returns:
+            Dataset: # TODO
+        """
+        delayed_rasters = tuple(
+            tuple(tile.to_raster(column=i, dtype=self.schema[i]) for tile in self.tiles)
             for i in columns
         )
 
@@ -316,8 +414,6 @@ class TiledVectorLayer:
             ]
         )
 
-        info(f"Converted to Dataset as raster.")
-
         return dataset
 
 
@@ -326,6 +422,8 @@ _VectorLayer = TypeVar("_VectorLayer", bound="VectorLayer")
 
 @dataclass
 class VectorLayer:
+    """# TODO."""
+
     name: str
     gpdf: GeoDataFrame
     schema: Schema
@@ -333,15 +431,56 @@ class VectorLayer:
     category_lookups: Optional[CategoryLookups] = None
 
     @classmethod
+    @log
     def from_files(
-        cls: _VectorLayer,
+        cls: Type[_VectorLayer],
         data_path: str,
         data_kwargs: Optional[Dict[str, Any]] = None,
         convert_to_categorical: Optional[List[str]] = None,
         metadata_path: Optional[str] = None,
         metadata_kwargs: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
+        schema: Optional[Dict[str, Any]] = None,
     ) -> _VectorLayer:
+        """Get a GeoDataframe with accompanying information on name, metadata and schema.
+
+        Examples:
+            >>> from vector import VectorLayer
+            >>> aw = read_file("https://services.arcgis.com/JJzESW51TqeY9uat/arcgis/rest/services/Ancient_Woodland_England/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson").to_crs("epsg:27700")
+            >>> aw.to_file("aw.gpkg", layer='aw', driver="GPKG")
+            >>> aw_dict = {
+                'OBJECTID': 'int32',
+                'NAME': 'object',
+                'THEME': 'object',
+                'THEMNAME': 'object',
+                'THEMID': 'int64',
+                'STATUS': 'object',
+                'PERIMETER': 'float64',
+                'AREA': 'float64',
+                'X_COORD': 'int64',
+                'Y_COORD': 'int64',
+                'Shape__Area': 'float64',
+                'Shape__Length': 'float64'
+                }
+            >>> VectorLayer.from_files(
+                data_path = "aw.gpkg",
+                name = "Ancient Woodland - test dataset",
+                schema = aw_dict)
+
+        Args:
+            data_path (str): file path to dataset.
+            data_kwargs (Optional[Dict[str, Any]]): # TODO.
+            convert_to_categorical (List[str]): # TODO.
+            metadata_path (Optional[str]): # TODO.
+            name (Optional[str]): optional name to give VectorLayer output.
+            schema (Optional[Dict[str, Any]]): optional dictionary of user-defined
+                schema to pass, will get schema from dataset if none provided.
+                User-defined dictionary should have the column as the "key", and the
+                data type as the "value".
+
+        Returns:
+            VectorLayer class of dataset.
+        """  # noqa: B950
         info = _get_info(
             data_path=data_path,
             data_kwargs=data_kwargs,
@@ -349,7 +488,10 @@ class VectorLayer:
 
         _check_layer_projection(info)
 
-        schema = _get_schema(info)
+        if schema is not None:
+            schema = schema
+        else:
+            schema = _get_schema(info)
 
         metadata = _get_metadata(
             data_path=data_path,
@@ -390,8 +532,21 @@ class VectorLayer:
             schema=schema,
         )
 
-    def to_tiles(self, bboxes: Tuple[BoundingBox] = BBOXES) -> TiledVectorLayer:
-        tiles = (
+    @log
+    def to_tiles(
+        self: _VectorLayer,
+        bboxes: Tuple[BoundingBox, ...] = BBOXES,
+    ) -> TiledVectorLayer:
+        """# TODO.
+
+        Args:
+            bboxes (Tuple[BoundingBox, ...], optional): # TODO. Defaults to
+                BBOXES.
+
+        Returns:
+            TiledVectorLayer: # TODO
+        """
+        tiles = tuple(
             VectorTile(
                 bbox=bbox,
                 gpdf=self.gpdf.clip(box(*bbox)),

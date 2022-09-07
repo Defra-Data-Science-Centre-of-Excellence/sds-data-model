@@ -1,10 +1,7 @@
+"""Constants."""
 from itertools import product
 from typing import Dict, Tuple
-from osgeo.osr import SpatialReference
 
-# British National Grid Projection SpatialReference Object
-BNG = SpatialReference()
-BNG.ImportFromEPSG(27700)
 # Minimum x value of BNG in meters
 BNG_XMIN = 0
 # Minimum y value of BNG in meters
@@ -27,7 +24,7 @@ OUT_SHAPE = (TILE_SIZE, TILE_SIZE)
 BoundingBox = Tuple[int, int, int, int]
 
 
-CategoryLookup = Dict[str, Dict[int, str]]
+CategoryLookup = Dict[int, str]
 CategoryLookups = Dict[str, CategoryLookup]
 Schema = Dict[str, str]
 
@@ -56,7 +53,18 @@ def _get_bboxes(
     ymax: int = BNG_YMAX,
     box_size: int = BOX_SIZE,
 ) -> Tuple[BoundingBox, ...]:
-    """Returns a tuple of BoundingBox for BNG 100km grid squares."""
+    """Returns a tuple of BoundingBox for BNG 100km grid squares.
+
+    Args:
+        xmin (int): # TODO. Defaults to BNG_XMIN.
+        ymin (int): # TODO. Defaults to BNG_YMIN.
+        xmax (int): # TODO. Defaults to BNG_XMAX.
+        ymax (int): # TODO. Defaults to BNG_YMAX.
+        box_size (int): # TODO. Defaults to BOX_SIZE.
+
+    Returns:
+        Tuple[BoundingBox, ...]: # TODO
+    """
     eastings = range(xmin, xmax, box_size)
     northings = range(ymax, ymin, -box_size)
 

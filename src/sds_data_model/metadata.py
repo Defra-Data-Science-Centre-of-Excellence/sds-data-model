@@ -1,23 +1,24 @@
+"""Metadata parsing module."""
 from dataclasses import dataclass
 from io import BytesIO
 from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 from requests import get
-from lxml.etree import Element, parse, ElementTree
+from lxml.etree import Element, parse, ElementTree  # noqa: S410 - assuming we can trust the XML
 
 from sds_data_model.constants import (
-    TITLE_XPATH,
     ABSTRACT_XPATH,
+    DATASET_LANGUAGE_XPATH,
+    FILE_IDENTIFIER_XPATH,
+    KEYWORD_XPATH,
     LINEAGE_XPATH,
     METADATA_DATE_XPATH,
     METADATA_LANGUAGE_XPATH,
-    RESOURCE_TYPE_XPATH,
-    FILE_IDENTIFIER_XPATH,
-    DATASET_LANGUAGE_XPATH,
-    TOPIC_CATEGORY_XPATH,
-    KEYWORD_XPATH,
     QUALITY_SCOPE_XPATH,
+    RESOURCE_TYPE_XPATH,
     SPATIAL_REPRESENTATION_TYPE_XPATH,
+    TITLE_XPATH,
+    TOPIC_CATEGORY_XPATH,
 )
 
 MetadataType = TypeVar("MetadataType", bound="Metadata")
@@ -66,7 +67,7 @@ def _get_xpath(xpath: Union[str, List[str], List[List[str]]]) -> str:
 
     Args:
         xpath (Union[str, List[str]]): A string or list of strings that represent
-        an XPath query.
+            an XPath query.
 
     Returns:
         str: An XPath query.
@@ -77,7 +78,7 @@ def _get_xpath(xpath: Union[str, List[str], List[List[str]]]) -> str:
     .. _no-op:
         https://en.wikipedia.org/wiki/NOP_(code)
 
-    """
+    """  # noqa: B950 - XPath strings cannot be wrapped
     if isinstance(xpath, str):
         return xpath
     elif isinstance(xpath, list) and isinstance(xpath[0], str):
@@ -109,7 +110,7 @@ def _get_target_elements(
     Args:
         root_element (Element): The starting point of the XPath query.
         xpath (Union[str, List[str]]): A string or list of strings that represent
-        an XPath query.
+            an XPath query.
         namespaces (Dict[str, str]): A dictionary of XML `namespaces`_.
 
     Returns:
@@ -150,7 +151,7 @@ def _get_value(
     Args:
         root_element (Element): The starting point of the XPath query.
         xpath (Union[str, List[str]]): A string or list of strings that represent
-        an XPath query.
+            an XPath query.
         namespaces (Dict[str, str]): A dictionary of XML `namespaces`_.
 
     Returns:
@@ -195,7 +196,7 @@ def _get_values(
     Args:
         root_element (Element): The starting point of the XPath query.
         xpath (Union[str, List[str]]): A string or list of strings that represent
-        an XPath query.
+            an XPath query.
         namespaces (Dict[str, str]): A dictionary of XML `namespaces`_.
 
     Returns:
@@ -246,8 +247,14 @@ def _get_xml(path: str, metadata_kwargs: Dict[str, Any]) -> ElementTree:
 
 @dataclass
 class Metadata:
+    """# TODO.
+
+    Returns:
+        _type_: # TODO
+    """
+
     title: str
-    # alternative_title: Optional[List[str]] = field(default_factory=list) #! Optional
+    # alternative_title: Optional[Tuple[str, ...]] #! Optional
     dataset_language: Tuple[str, ...]
     abstract: str
     topic_category: Tuple[str, ...]
@@ -255,10 +262,10 @@ class Metadata:
     # temporal_extent: Dict[str, Any]
     # dataset_reference_date: List[str]
     lineage: str
-    # extent: Tuple[str] #! Optional
-    # vertical_extent_information: Optional[List[str]] = field(default_factory=list) #! Optional
+    # extent: Optional[Tuple[str, ...]] #! Optional
+    # vertical_extent_information: Optional[List[str]] #! Optional
     # spatial_reference_system: List[str]
-    # resource_locator: Optional[List[str]] = field(default_factory=list)  #! Conditional
+    # resource_locator: Optional[List[str]]  #! Conditional
     # data_format: List[str]
     # responsible_organisation: List[str]
     # limitations_on_public_access: List[str]
@@ -267,8 +274,8 @@ class Metadata:
     metadata_date: str
     metadata_language: str
     # metadata_point_of_contact: List[str]
-    # resource_identifier: Optional[List[str]] = field(default_factory=list)  #! Conditional
-    # coupled_resource: Optional[List[str]] = field(default_factory=list)  #! Conditional
+    # resource_identifier: Optional[List[str]]  #! Conditional
+    # coupled_resource: Optional[List[str]]  #! Conditional
     resource_type: str
     # conformity: List[str]
     # equivalent_scale: Optional[List[str]] = field(default_factory=list)  #! Optional
@@ -276,13 +283,13 @@ class Metadata:
     file_identifier: str
     # hierarchy_level_name: Optional[str]  #! Conditional
     quality_scope: Tuple[str, ...]
-    # parent_identifier: Optional[str] #! Optional
+    # parent_identifier: Optional[str]  #! Optional
     spatial_representation_type: Tuple[str, ...]
-    # character_encoding: Optional[List[str]] = field(default_factory=list)  #! Conditional
-    # data_quality: Optional[List[str]] = field(default_factory=list)  #! Conditional
-    # maintenance_information: Optional[str] #! Optional
-    # metadata_standard_name: Optional[str] #! Optional
-    # metadata_standard_version: Optional[str] #! Optional
+    # character_encoding: Optional[List[str]]  #! Conditional
+    # data_quality: Optional[List[str]]  #! Conditional
+    # maintenance_information: Optional[str]  #! Optional
+    # metadata_standard_name: Optional[str]  #! Optional
+    # metadata_standard_version: Optional[str]  #! Optional
 
     @classmethod
     def from_file(
@@ -290,10 +297,18 @@ class Metadata:
         xml_path: str,
         metadata_kwargs: Optional[Dict[str, Any]] = None,
     ) -> MetadataType:
+        """# TODO.
+
+        Args:
+            xml_path (str): # TODO
+
+        Returns:
+            MetadataType: # TODO
+        """
 
         _metadata_kwargs = metadata_kwargs if metadata_kwargs else {"verify": False}
 
-        xml = _get_xml(xml_path, _metadata_kwargs)
+        xml = _get_xml(xml_path, _metadata_kwargs)  # noqa: S410, S320 - assuming we can trust the XML
 
         root_element = xml.getroot()
 
