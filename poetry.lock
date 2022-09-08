@@ -350,7 +350,7 @@ test = ["pytest-cov"]
 
 [[package]]
 name = "cloudpickle"
-version = "2.1.0"
+version = "2.2.0"
 description = "Extended pickling support for Python objects"
 category = "main"
 optional = false
@@ -410,7 +410,7 @@ python-versions = ">=3.6,<4.0"
 
 [[package]]
 name = "dask"
-version = "2022.9.0"
+version = "2022.4.0"
 description = "Parallel PyData with Task Scheduling"
 category = "main"
 optional = false
@@ -428,11 +428,11 @@ toolz = ">=0.8.2"
 
 [package.extras]
 array = ["numpy (>=1.18)"]
-complete = ["bokeh (>=2.4.2)", "distributed (==2022.9.0)", "jinja2", "numpy (>=1.18)", "pandas (>=1.0)"]
+complete = ["bokeh (>=2.4.2)", "distributed (==2022.04.0)", "jinja2", "numpy (>=1.18)", "pandas (>=1.0)"]
 dataframe = ["numpy (>=1.18)", "pandas (>=1.0)"]
 diagnostics = ["bokeh (>=2.4.2)", "jinja2"]
-distributed = ["distributed (==2022.9.0)"]
-test = ["pandas", "pytest", "pytest-rerunfailures", "pytest-xdist", "pre-commit"]
+distributed = ["distributed (==2022.04.0)"]
+test = ["pytest", "pytest-rerunfailures", "pytest-xdist", "pre-commit"]
 
 [[package]]
 name = "debugpy"
@@ -1100,7 +1100,7 @@ yaml = ["PyYAML (>=5.1.0)"]
 
 [[package]]
 name = "mypy"
-version = "0.980+dev.c97d7e346e2871eb3e54a0bca47abd191d30ac48"
+version = "0.980+dev.4de0caa3c2b30a18dcb9fc4d4f07ac65e6e201cd"
 description = "Optional static typing for Python"
 category = "dev"
 optional = false
@@ -1121,7 +1121,7 @@ reports = ["lxml"]
 type = "git"
 url = "https://github.com/python/mypy.git"
 reference = "master"
-resolved_reference = "c97d7e346e2871eb3e54a0bca47abd191d30ac48"
+resolved_reference = "4de0caa3c2b30a18dcb9fc4d4f07ac65e6e201cd"
 
 [[package]]
 name = "mypy-extensions"
@@ -2059,6 +2059,25 @@ doc = ["sphinx-rtd-theme", "sphinx-autodoc-typehints (>=1.2.0)"]
 test = ["pytest", "typing-extensions", "mypy"]
 
 [[package]]
+name = "types-requests"
+version = "2.28.9"
+description = "Typing stubs for requests"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+types-urllib3 = "<1.27"
+
+[[package]]
+name = "types-urllib3"
+version = "1.26.24"
+description = "Typing stubs for urllib3"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "typing-extensions"
 version = "4.3.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -2081,7 +2100,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [[package]]
 name = "virtualenv"
-version = "20.16.4"
+version = "20.16.5"
 description = "Virtual Python Environment builder"
 category = "dev"
 optional = false
@@ -2210,7 +2229,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.8"
-content-hash = "fc135b89e395311ab15bbb15338de400c8d3b1174703b671b52237a54cd0d87d"
+content-hash = "283ccebda45cb1e703481f4347266f944de1f39779312c3b4f52ea777998681c"
 
 [metadata.files]
 affine = []
@@ -2379,6 +2398,8 @@ toolz = []
 tornado = []
 traitlets = []
 typeguard = []
+types-requests = []
+types-urllib3 = []
 typing-extensions = []
 urllib3 = []
 virtualenv = []
