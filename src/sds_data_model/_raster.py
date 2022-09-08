@@ -1,8 +1,9 @@
 from typing import List, Optional, Sequence, Union
 
 from affine import Affine
-from cv2 import INTER_LINEAR_EXACT, INTER_NEAREST_EXACT, resize
-from numpy import array, full, ndarray
+from cv2 import INTER_LINEAR, INTER_NEAREST, resize
+from numpy import array, full
+from numpy.typing import NDArray
 from xarray import DataArray, Dataset, merge
 
 from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, CELL_SIZE
@@ -32,7 +33,7 @@ def _check_shape_and_extent(
 
 def _create_data_array(
     data_array: DataArray,
-    data: ndarray,
+    data: NDArray,
     geotransform: str,
 ) -> DataArray:
     return DataArray(
@@ -49,7 +50,7 @@ def _create_data_array(
 
 def _get_resample_shape(
     data_array: DataArray,
-) -> ndarray:
+) -> NDArray:
     return (
         (
             (
@@ -68,9 +69,9 @@ def _resample_cellsize(
     categorical: bool = False,
 ) -> DataArray:
     if categorical:
-        interpolation = INTER_NEAREST_EXACT
+        interpolation = INTER_NEAREST
     else:
-        interpolation = INTER_LINEAR_EXACT
+        interpolation = INTER_LINEAR
     resampled = resize(
         src=data_array.data,
         dsize=_get_resample_shape(data_array)[::-1],
@@ -81,7 +82,8 @@ def _resample_cellsize(
         data_array=data_array,
         data=resampled,
         geotransform=(
-            f"{data_array.rio.transform().c} {CELL_SIZE} 0 {data_array.rio.transform().f} 0 -{CELL_SIZE}"
+            f"{data_array.rio.transform().c} {CELL_SIZE} 0 "
+            f"{data_array.rio.transform().f} 0 -{CELL_SIZE}"
         ),
     )
 
@@ -92,15 +94,15 @@ def _check_no_data(
 ) -> None:
     if nodata is not None:
         data_array.rio.write_nodata(nodata, inplace=True)
-    else:
-        assert (
-            data_array.rio.nodata is not None
-        ), "Input dataset does not have a nodata value. One must be provided."
+    elif data_array.rio.nodata is None:
+        raise Exception(
+            "Input dataset does not have a nodata value. One must be provided."
+        )
 
 
 def _get_bng_offset(
     data_array: DataArray,
-) -> ndarray:
+) -> NDArray:
     return (
         (
             array(
@@ -167,22 +169,19 @@ def _resample_and_reshape(
     nodata: Optional[float] = None,
 ) -> Dataset:
     data_arrays = _select_data_arrays(dataset, band=band)
-    for index, _ in enumerate(data_arrays):
-        if _check_cellsize(data_arrays[index].rio.transform()):
-            if isinstance(categorical, bool):
-                categorical = [categorical] * len(data_arrays)
-            elif band:
-                categorical = list(zip(*sorted(dict(zip(band, categorical)).items())))[
-                    1
-                ]
+    if _check_cellsize(dataset.rio.transform()):
+        if isinstance(categorical, bool):
+            categorical = [categorical] * len(data_arrays)
+        elif band:
+            categorical = [_bool for band, _bool in sorted(zip(band, categorical))]
+        for index, data_array in enumerate(data_arrays):
             data_arrays[index] = _resample_cellsize(
-                data_array=data_arrays[index],
-                categorical=categorical[index],
+                data_array=data_array, categorical=categorical[index]
             )
-
-        if _check_shape_and_extent(data_arrays[index]):
+    if _check_shape_and_extent(data_arrays[0]):
+        for index, data_array in enumerate(data_arrays):
             data_arrays[index] = _to_bng_extent(
-                data_array=data_arrays[index],
+                data_array=data_array,
                 nodata=nodata,
             )
     return merge(

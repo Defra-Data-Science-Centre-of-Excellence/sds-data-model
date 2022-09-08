@@ -56,9 +56,7 @@
 #     metadata: Metadata
 
 #    def to_data_arrays(self) -> TiledDataArrayLayer:
-#        data_arrays = (
-#            mask.to_data_array(name=self.name) for mask in self.masks
-#        )
+#        data_arrays = (mask.to_data_array(name=self.name) for mask in self.masks)
 
 #         return TiledDataArrayLayer(
 #             name=self.name,
@@ -67,7 +65,7 @@
 #         )
 
 
-# temporary resample & reshape function
+# temporary func to read raster + resample & reshape if necessary
 from pathlib import Path
 from typing import List, Literal, Optional, Sequence, Union
 
@@ -94,7 +92,8 @@ def read_dataset_from_file(
         categorical (Union[bool, Sequence[bool]], optional): #TODO. Defaults to False.
         nodata (Optional[float], optional): #TODO. Defaults to None.
         engine (Optional[str], optional): #TODO. Defaults to None.
-        decode_coords (Union[bool, None, Literal["coordinates", "all"]], optional): #TODO. Defaults to "all".
+        decode_coords (Union[bool, None, Literal["coordinates", "all"]], optional):
+         #TODO. Defaults to "all".
 
     Returns:
         Dataset: #TODO
