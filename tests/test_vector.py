@@ -3,14 +3,14 @@ from pathlib import Path
 
 from dask.diagnostics import ProgressBar
 from geopandas import GeoDataFrame
-from numpy import array_equal, dtype, zeros, int8, ones
+from numpy import array_equal, dtype, int8, ones, zeros
 from numpy.typing import NDArray
 from pytest import fixture
 from shapely.geometry import box
 from xarray import open_dataset
 
-from sds_data_model.vector import VectorLayer, TiledVectorLayer
-from sds_data_model.constants import BBOXES, Schema, CategoryLookups
+from sds_data_model.constants import BBOXES, CategoryLookups, Schema
+from sds_data_model.vector import TiledVectorLayer, VectorLayer
 
 
 @fixture
@@ -31,7 +31,7 @@ def expected_schema() -> Schema:
     return {
         "OBJECTID": "int32",
         "CTRY21CD": "object",
-        "CTRY21NM": "int16",
+        "CTRY21NM": "int8",
         "CTRY21NMW": "object",
         "BNG_E": "int32",
         "BNG_N": "int32",
@@ -48,6 +48,7 @@ def expected_category_lookups() -> CategoryLookups:
     """Expected VectorLayer category lookups."""
     return {
         "CTRY21NM": {
+            -1: "No data",
             0: "England",
             1: "Scotland",
             2: "Wales",
@@ -118,6 +119,7 @@ def expected_HL_array() -> NDArray[int8]:
         dtype=dtype("int8"),
     )
 
+
 @fixture
 def expected_HM_array() -> NDArray[int8]:
     """The expected array for grid cell HM."""
@@ -127,23 +129,15 @@ def expected_HM_array() -> NDArray[int8]:
     )
 
 
-@fixture
-def gpkg_path(tmp_path) -> Path:
-    return tmp_path / "test.gpkg"
-
-
-@fixture
-def zarr_path(tmp_path) -> Path:
-    return tmp_path / "test.zarr"
-
-
 def test_pipeline(
     gpdf: GeoDataFrame,
-    gpkg_path: Path,
-    zarr_path: Path,
+    tmp_path: Path,
     expected_HL_array: NDArray[int8],
     expected_HM_array: NDArray[int8],
 ) -> None:
+    gpkg_path = tmp_path / "test.gpkg"
+    zarr_path = tmp_path / "test.zarr"
+
     gpdf.to_file(gpkg_path)
 
     pipeline = (
@@ -154,14 +148,21 @@ def test_pipeline(
         )
         .to_tiles()
         .to_dataset_as_raster(columns=["category"])
-        .to_zarr(store=zarr_path, mode="w", compute=False,)
+        .to_zarr(
+            store=zarr_path,
+            mode="w",
+            compute=False,
+        )
     )
     with ProgressBar():
         pipeline.compute()
 
     dataset = open_dataset(
         zarr_path,
-        chunks={"northings": 10_000, "eastings": 10_000,},
+        chunks={
+            "northings": 10_000,
+            "eastings": 10_000,
+        },
         engine="zarr",
     )
 
@@ -172,7 +173,9 @@ def test_pipeline(
         a2=expected_HL_array,
     )
 
-    received_HM_array = dataset["category"][range(0, 10_000), range(10_000, 20_000)].values
+    received_HM_array = dataset["category"][
+        range(0, 10_000), range(10_000, 20_000)
+    ].values
 
     assert array_equal(
         a1=received_HM_array,

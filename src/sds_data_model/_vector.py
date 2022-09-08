@@ -8,7 +8,7 @@ from dask import delayed
 from dask.array import block, from_delayed
 from geopandas import GeoDataFrame
 from more_itertools import chunked
-from numpy import arange, number, ones, uint8, zeros
+from numpy import arange, full, number, ones, uint8, zeros
 from numpy.typing import NDArray
 from pandas import DataFrame, Series, merge
 from pyogrio import read_dataframe, read_info
@@ -275,17 +275,18 @@ def _to_raster(
     Returns:
         NDArray[number]: # TODO
     """
+    raster: NDArray[number]
     if all(gpdf.geometry.is_empty):
-        return full(
+        raster = full(
             shape=out_shape,
             fill_value=-1,
             dtype=dtype,
         )
+        return raster
     shapes = _get_shapes(
         gpdf=gpdf,
         column=column,
     )
-    raster: NDArray[number]
     if dtype == "int8":
         raster = rasterize(
             shapes=shapes,
@@ -389,7 +390,7 @@ def _get_info(
             for key in data_kwargs.keys()
             if key in ("layer", "encoding")
         }
-        return read_info(
+        info = read_info(
             data_path,
             **_get_info_kwargs,
         )
@@ -528,7 +529,7 @@ def _get_category_dtype(
     Returns:
         str: # TODO
     """
-    return categorical_column.cat.codes.dtype
+    return str(categorical_column.cat.codes.dtype)
 
 
 def _get_categories_and_dtypes(

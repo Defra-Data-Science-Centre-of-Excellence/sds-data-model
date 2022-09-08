@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Union
 
 import pytest
-from pytest import fixture, FixtureRequest
+from pytest import FixtureRequest, fixture
 
 from sds_data_model.metadata import Metadata
 

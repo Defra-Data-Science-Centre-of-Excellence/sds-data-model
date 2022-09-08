@@ -1,10 +1,14 @@
 """Metadata parsing module."""
 from dataclasses import dataclass
 from io import BytesIO
-from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Type, TypeVar, Union
 
+from lxml.etree import (  # noqa: S410 - assuming we can trust the XML
+    Element,
+    ElementTree,
+    parse,
+)
 from requests import get
-from lxml.etree import Element, parse, ElementTree  # noqa: S410 - assuming we can trust the XML
 
 from sds_data_model.constants import (
     ABSTRACT_XPATH,
@@ -24,9 +28,7 @@ from sds_data_model.constants import (
 MetadataType = TypeVar("MetadataType", bound="Metadata")
 
 
-from typing import Union, List
-
-def _get_xpath(xpath: Union[str, List[str], List[List[str]]]) -> str:
+def _get_xpath(xpath: Union[str, Iterable[str], Iterable[Iterable[str]]]) -> str:
     """Construct an `XPath`_ query from a string, list of strings, or list of lists of strings.
 
     Examples:
@@ -83,13 +85,13 @@ def _get_xpath(xpath: Union[str, List[str], List[List[str]]]) -> str:
         return xpath
     elif isinstance(xpath, list) and isinstance(xpath[0], str):
         return "/".join(xpath)
-    elif isinstance(xpath, list) and isinstance(xpath[0], list):
+    else:
         return "|".join("/".join(list_of_str) for list_of_str in xpath)
 
 
 def _get_target_elements(
     root_element: Element,
-    xpath: Union[str, List[str]],
+    xpath: Union[str, Iterable[str], Iterable[Iterable[str]]],
     namespaces: Dict[str, str],
 ) -> List[Element]:
     """Get a list of Elements using a `XPath`_ query.
@@ -130,7 +132,7 @@ def _get_target_elements(
 
 def _get_value(
     root_element: Element,
-    xpath: Union[str, List[str]],
+    xpath: Union[str, Iterable[str], Iterable[Iterable[str]]],
     namespaces: Dict[str, str],
 ) -> str:
     """Get a single text value from a `XPath`_ query.
@@ -175,7 +177,7 @@ def _get_value(
 
 def _get_values(
     root_element: Element,
-    xpath: Union[str, List[str]],
+    xpath: Union[str, Iterable[str], Iterable[Iterable[str]]],
     namespaces: Dict[str, str],
 ) -> Tuple[str, ...]:
     """Get a tuple of text values from a `XPath`_ query.
@@ -240,9 +242,9 @@ def _get_xml(path: str, metadata_kwargs: Dict[str, Any]) -> ElementTree:
     if path.startswith("http"):
         response = get(path, **metadata_kwargs)
         buffered_content = BytesIO(response.content)
-        return parse(buffered_content)
+        return parse(buffered_content)  # noqa: B320 - assuming we can trust the XML
     else:
-        return parse(path)
+        return parse(path)  # noqa: B320 - assuming we can trust the XML
 
 
 @dataclass
@@ -308,7 +310,9 @@ class Metadata:
 
         _metadata_kwargs = metadata_kwargs if metadata_kwargs else {"verify": False}
 
-        xml = _get_xml(xml_path, _metadata_kwargs)  # noqa: S410, S320 - assuming we can trust the XML
+        xml = _get_xml(
+            xml_path, _metadata_kwargs
+        )  # noqa: S410, S320 - assuming we can trust the XML
 
         root_element = xml.getroot()
 
