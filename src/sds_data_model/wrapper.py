@@ -15,7 +15,7 @@ from shapely.geometry import box
 from xarray import DataArray, Dataset, merge
 
 from pyspark_vector_files import read_vector_files
-
+from pyspark_vector_files.gpkg import read_gpkg
 
 from sds_data_model._wrapper import (
     _check_layer_projection,
@@ -85,8 +85,15 @@ class Wrapper:
           
         
         if suffix_data_path in file_reader_pandas.keys():
-             
-            data = file_reader_pandas[suffix_data_path]( data_path,  **read_file_kwargs)  
+            data = file_reader_pandas[suffix_data_path](
+                data_path,  
+                **read_file_kwargs
+                )  
+        elif suffix_data_path == ".gpkg":
+            data = read_gpkg(
+                data_path, 
+                **read_file_kwargs
+                    ).to_pandas_on_spark()
         else:
             data = read_vector_files(
                 data_path,
