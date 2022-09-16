@@ -31,60 +31,61 @@ nox.options.sessions = (
     "safety",
     "mypy",
     "tests",
+    "lint",
     # "typeguard",
     # "xdoctest",
     "docs-build",
 )
 
 
-def activate_virtualenv_in_precommit_hooks(session: Session) -> None:
-    """Activate virtualenv in hooks installed by pre-commit.
+# def activate_virtualenv_in_precommit_hooks(session: Session) -> None:
+#     """Activate virtualenv in hooks installed by pre-commit.
 
-    This function patches git hooks installed by pre-commit to activate the
-    session's virtual environment. This allows pre-commit to locate hooks in
-    that environment when invoked from git.
+#     This function patches git hooks installed by pre-commit to activate the
+#     session's virtual environment. This allows pre-commit to locate hooks in
+#     that environment when invoked from git.
 
-    Args:
-        session: The Session object.
-    """
-    assert session.bin is not None  # noqa: S101
+#     Args:
+#         session: The Session object.
+#     """
+#     assert session.bin is not None  # noqa: B101
 
-    virtualenv = session.env.get("VIRTUAL_ENV")
-    if virtualenv is None:
-        return
+#     virtualenv = session.env.get("VIRTUAL_ENV")
+#     if virtualenv is None:
+#         return
 
-    hookdir = Path(".git") / "hooks"
-    if not hookdir.is_dir():
-        return
+#     hookdir = Path(".git") / "hooks"
+#     if not hookdir.is_dir():
+#         return
 
-    for hook in hookdir.iterdir():
-        if hook.name.endswith(".sample") or not hook.is_file():
-            continue
+#     for hook in hookdir.iterdir():
+#         if hook.name.endswith(".sample") or not hook.is_file():
+#             continue
 
-        text = hook.read_text()
-        bindir = repr(session.bin)[1:-1]  # strip quotes
-        if not (
-            Path("A") == Path("a") and bindir.lower() in text.lower() or bindir in text
-        ):
-            continue
+#         text = hook.read_text()
+#         bindir = repr(session.bin)[1:-1]  # strip quotes
+#         if not (
+#             Path("A") == Path("a") and bindir.lower() in text.lower() or bindir in text  # noqa: B950
+#         ):
+#             continue
 
-        lines = text.splitlines()
-        if not (lines[0].startswith("#!") and "python" in lines[0].lower()):
-            continue
+#         lines = text.splitlines()
+#         if not (lines[0].startswith("#!") and "python" in lines[0].lower()):
+#             continue
 
-        header = dedent(
-            f"""\
-            import os
-            os.environ["VIRTUAL_ENV"] = {virtualenv!r}
-            os.environ["PATH"] = os.pathsep.join((
-                {session.bin!r},
-                os.environ.get("PATH", ""),
-            ))
-            """
-        )
+#         header = dedent(
+#             f"""\
+#             import os
+#             os.environ["VIRTUAL_ENV"] = {virtualenv!r}
+#             os.environ["PATH"] = os.pathsep.join((
+#                 {session.bin!r},
+#                 os.environ.get("PATH", ""),
+#             ))
+#             """
+#         )
 
-        lines.insert(1, header)
-        hook.write_text("\n".join(lines))
+#         lines.insert(1, header)
+#         hook.write_text("\n".join(lines))
 
 
 @session(python=python_versions, tags=["format", "local"])  # type: ignore[call-overload]  # noqa: B950
@@ -126,7 +127,7 @@ def black(session: Session) -> None:
 #         activate_virtualenv_in_precommit_hooks(session)
 
 
-@session(python="3.8", tags=["local"])  # type: ignore[call-overload]
+@session(python=python_versions, tags=["local"])  # type: ignore[call-overload]
 def safety(session: Session) -> None:
     """Scan dependencies for insecure packages."""
     requirements = session.poetry.export_requirements()
@@ -193,7 +194,7 @@ def coverage(session: Session) -> None:
 #     session.run("python", "-m", "xdoctest", *args)
 
 
-@session(name="docs-build", python="3.8")
+@session(name="docs-build", python=python_versions)  # type: ignore[call-overload]
 def docs_build(session: Session) -> None:
     """Build the documentation."""
     args = session.posargs or ["-M", "html", "source", "_build"]
@@ -219,7 +220,7 @@ def docs_build(session: Session) -> None:
     rmtree(build_dir)
 
 
-@session(name="lint", python="3.8", tags=["local"])  # type: ignore[call-overload]
+@session(python=python_versions, tags=["local"])  # type: ignore[call-overload]
 def lint(session: Session) -> None:
     """Lint using flake8."""
     args = session.posargs or locations
