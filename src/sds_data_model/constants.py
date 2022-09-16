@@ -149,9 +149,16 @@ LINEAGE_XPATH = [
 ]
 
 METADATA_DATE_XPATH = [
-    "gmd:dateStamp",
-    "gco:Date",
-    "/text()",
+    [
+        "gmd:dateStamp",
+        "gco:Date",
+        "/text()",
+    ],
+    [
+        "gmd:dateStamp",
+        "gco:DateTime",
+        "/text()",
+    ],
 ]
 
 METADATA_LANGUAGE_XPATH = [
@@ -163,7 +170,7 @@ METADATA_LANGUAGE_XPATH = [
 RESOURCE_TYPE_XPATH = [
     "gmd:hierarchyLevel",
     "gmd:MD_ScopeCode",
-    "/text()",
+    "@codeListValue",
 ]
 
 FILE_IDENTIFIER_XPATH = [

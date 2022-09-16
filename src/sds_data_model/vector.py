@@ -223,6 +223,7 @@ class TiledVectorLayer:
         data_kwargs: Optional[Dict[str, Any]] = None,
         convert_to_categorical: Optional[List[str]] = None,
         metadata_path: Optional[str] = None,
+        metadata_kwargs: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
     ) -> _TiledVectorLayer:
         """# TODO.
@@ -235,6 +236,8 @@ class TiledVectorLayer:
             convert_to_categorical (Optional[List[str]], optional): # TODO.
                 Defaults to None.
             metadata_path (Optional[str], optional): # TODO. Defaults to None.
+            metadata_kwargs (Dict[str, Any]): Key word arguments to be passed to the
+                requests `get`_ method when reading xml metadata from a URL.
             name (Optional[str], optional): # TODO. Defaults to None.
 
         Returns:
@@ -437,6 +440,7 @@ class VectorLayer:
         data_kwargs: Optional[Dict[str, Any]] = None,
         convert_to_categorical: Optional[List[str]] = None,
         metadata_path: Optional[str] = None,
+        metadata_kwargs: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         schema: Optional[Dict[str, Any]] = None,
     ) -> _VectorLayer:
@@ -470,6 +474,8 @@ class VectorLayer:
             data_kwargs (Optional[Dict[str, Any]]): # TODO.
             convert_to_categorical (List[str]): # TODO.
             metadata_path (Optional[str]): # TODO.
+            metadata_kwargs (Dict[str, Any]): Key word arguments to be passed to the
+                requests `get`_ method when reading xml metadata from a URL.
             name (Optional[str]): optional name to give VectorLayer output.
             schema (Optional[Dict[str, Any]]): optional dictionary of user-defined
                 schema to pass, will get schema from dataset if none provided.

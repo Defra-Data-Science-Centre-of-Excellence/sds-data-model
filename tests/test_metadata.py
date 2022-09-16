@@ -1,6 +1,9 @@
 """Tests for Metadata module."""
 from pathlib import Path
 
+import pytest
+from pytest import FixtureRequest, fixture
+
 from sds_data_model.metadata import Metadata
 
 expected = Metadata(
@@ -23,11 +26,36 @@ expected = Metadata(
 )
 
 
-def test_from_file(datadir: Path) -> None:
+@fixture
+def remote_url() -> str:
+    """Ramsar metadata URL."""
+    return "https://ckan.publishing.service.gov.uk/harvest/object/715bc6a9-1008-4061-8783-d12e9e7f38a9"  # noqa: B950 - URL
+
+
+@fixture
+def local_file_path(datadir: Path) -> str:
+    """Ramsar metadata local file path."""
+    metadata_path = datadir / "ramsar.xml"
+    return str(metadata_path)
+
+
+@pytest.mark.parametrize(
+    argnames=[
+        "path",
+    ],
+    argvalues=[
+        ("remote_url",),
+        ("local_file_path",),
+    ],
+    ids=[
+        "Remote url",
+        "Local file path",
+    ],
+)
+def test_from_file(request: FixtureRequest, path: str) -> None:
     """Returns the expected `Metadata` object, given the path to a known XML file."""
     # Arrange
-    metadata_path = datadir / "ramsar.xml"
-    metadata_path_string = str(metadata_path)
+    metadata_path_string = request.getfixturevalue(path)
     # Act
     received = Metadata.from_file(metadata_path_string)
     # Assert

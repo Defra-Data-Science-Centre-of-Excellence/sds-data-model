@@ -8,7 +8,7 @@ from dask import delayed
 from dask.array import block, from_delayed
 from geopandas import GeoDataFrame
 from more_itertools import chunked
-from numpy import arange, number, ones, uint8, zeros
+from numpy import arange, full, number, ones, uint8, zeros
 from numpy.typing import NDArray
 from pandas import DataFrame, Series, merge
 from pyogrio import read_dataframe, read_info
@@ -275,24 +275,37 @@ def _to_raster(
     Returns:
         NDArray[number]: # TODO
     """
+    raster: NDArray[number]
     if all(gpdf.geometry.is_empty):
-        return zeros(
+        raster = full(
             shape=out_shape,
+            fill_value=-1,
             dtype=dtype,
         )
-    else:
-        shapes = _get_shapes(
-            gpdf=gpdf,
-            column=column,
-        )
-        raster: NDArray[number] = rasterize(
+        return raster
+    shapes = _get_shapes(
+        gpdf=gpdf,
+        column=column,
+    )
+    if dtype == "int8":
+        raster = rasterize(
             shapes=shapes,
             out_shape=out_shape,
+            fill=-1,
+            transform=transform,
+            dtype="int16",
+            **kwargs,
+        ).astype("int8")
+    else:
+        raster = rasterize(
+            shapes=shapes,
+            out_shape=out_shape,
+            fill=-1,
             transform=transform,
             dtype=dtype,
             **kwargs,
         )
-        return raster
+    return raster
 
 
 def _from_delayed_to_data_array(
@@ -372,9 +385,14 @@ def _get_info(
     """  # noqa: B950
     info: Dict[str, Any]
     if data_kwargs:
+        _get_info_kwargs = {
+            key: data_kwargs[key]
+            for key in data_kwargs.keys()
+            if key in ("layer", "encoding")
+        }
         info = read_info(
             data_path,
-            **data_kwargs,
+            **_get_info_kwargs,
         )
     else:
         info = read_info(
@@ -492,10 +510,12 @@ def _get_category_lookup(
     Returns:
         CategoryLookup: # TODO
     """
-    return {
+    category_lookup = {
         index: category
         for index, category in enumerate(categorical_column.cat.categories)
     }
+    category_lookup.update({-1: "No data"})
+    return category_lookup
 
 
 def _get_category_dtype(
@@ -509,11 +529,7 @@ def _get_category_dtype(
     Returns:
         str: # TODO
     """
-    dtype = categorical_column.cat.codes.dtype
-    if dtype == "int8":
-        return "int16"
-    else:
-        return str(dtype)
+    return str(categorical_column.cat.codes.dtype)
 
 
 def _get_categories_and_dtypes(
@@ -566,7 +582,7 @@ def _get_categories_and_dtypes(
 
 def _get_index_of_category(
     category_lookup: CategoryLookup,
-    category: str,
+    category: Optional[str],
 ) -> int:
     """# TODO.
 
@@ -577,8 +593,8 @@ def _get_index_of_category(
     Returns:
         int: # TODO
     """
-    category_values = list(category_lookup.values())
-    return category_values.index(category)
+    _category = category if category else "No data"
+    return list(category_lookup.values()).index(_category)
 
 
 def _get_code_for_category(
@@ -708,6 +724,7 @@ def _get_name(
 def _get_metadata(
     data_path: str,
     metadata_path: Optional[str] = None,
+    metadata_kwargs: Optional[Dict[str, Any]] = None,
 ) -> Optional[Metadata]:
     """Read metadata from path, or json sidecar, or return None.
 
@@ -746,6 +763,9 @@ def _get_metadata(
         data_path (str): Path to the vector file.
         metadata_path (Optional[str]): Path to a `UK GEMINI`_ metadata file.
             Defaults to None.
+        metadata_kwargs (Optional[Dict[str, Any]]): Key word arguments to be passed to
+            the requests `get`_ method when reading xml metadata from a URL. Defaults
+            to None.
 
     Returns:
         Optional[Metadata]: An instance of :class: Metadata
@@ -759,7 +779,7 @@ def _get_metadata(
     """
     json_sidecar = Path(f"{data_path}-metadata.json")
     if metadata_path:
-        metadata = Metadata.from_file(metadata_path)
+        metadata = Metadata.from_file(metadata_path, metadata_kwargs)
     elif not metadata_path and json_sidecar.exists():
         with open(json_sidecar, "r") as json_metadata:
             metadata_dictionary = load(json_metadata)
