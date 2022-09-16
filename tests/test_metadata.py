@@ -1,6 +1,5 @@
 """Tests for Metadata module."""
 from pathlib import Path
-from typing import Union
 
 import pytest
 from pytest import FixtureRequest, fixture
@@ -29,11 +28,13 @@ expected = Metadata(
 
 @fixture
 def remote_url() -> str:
-    return "https://ckan.publishing.service.gov.uk/harvest/object/715bc6a9-1008-4061-8783-d12e9e7f38a9"
+    """Ramsar metadata URL."""
+    return "https://ckan.publishing.service.gov.uk/harvest/object/715bc6a9-1008-4061-8783-d12e9e7f38a9"  # noqa: B950 - URL
 
 
 @fixture
 def local_file_path(datadir: Path) -> str:
+    """Ramsar metadata local file path."""
     metadata_path = datadir / "ramsar.xml"
     return str(metadata_path)
 

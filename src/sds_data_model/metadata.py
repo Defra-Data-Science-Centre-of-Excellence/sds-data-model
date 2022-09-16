@@ -235,16 +235,21 @@ def _get_xml(path: str, metadata_kwargs: Dict[str, Any]) -> ElementTree:
 
     Args:
         path (str): A remote URL or local file path.
+        metadata_kwargs (Dict[str, Any]): Key word arguments to be passed to the
+            requests `get`_ method when reading xml metadata from a URL.
 
     Returns:
-        Element: an ElementTree representation of the XML.
-    """
+        ElementTree: an ElementTree representation of the XML.
+
+    .. _get:
+        https://requests.readthedocs.io/en/latest/api/#requests.request
+    """  # noqa: B950 - URL
     if path.startswith("http"):
         response = get(path, **metadata_kwargs)
         buffered_content = BytesIO(response.content)
-        return parse(buffered_content)  # noqa: B320 - assuming we can trust the XML
+        return parse(buffered_content)  # noqa: S320 - assuming we can trust the XML
     else:
-        return parse(path)  # noqa: B320 - assuming we can trust the XML
+        return parse(path)  # noqa: S320 - assuming we can trust the XML
 
 
 @dataclass
@@ -302,12 +307,16 @@ class Metadata:
         """# TODO.
 
         Args:
-            xml_path (str): # TODO
+            xml_path (str): A remote URL or local file path.
+            metadata_kwargs (Dict[str, Any]): Key word arguments to be passed to the
+                requests `get`_ method when reading xml metadata from a URL.
 
         Returns:
             MetadataType: # TODO
-        """
 
+        .. _get:
+            https://requests.readthedocs.io/en/latest/api/#requests.request
+        """
         _metadata_kwargs = metadata_kwargs if metadata_kwargs else {"verify": False}
 
         xml = _get_xml(

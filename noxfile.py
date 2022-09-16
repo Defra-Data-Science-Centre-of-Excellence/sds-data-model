@@ -236,5 +236,4 @@ def lint(session: Session) -> None:
         "darglint",
     ]
     session.install(*deps)
-    session.install("flake8")
     session.run("flake8", *args)

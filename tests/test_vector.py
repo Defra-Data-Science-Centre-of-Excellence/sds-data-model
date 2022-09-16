@@ -102,6 +102,7 @@ def test_tiled_vector_layer_from_files(
 
 @fixture
 def gpdf() -> GeoDataFrame:
+    """Dummy GeoDataFrame."""
     return GeoDataFrame(
         data={
             "category": ["A", "B", "C", None],
@@ -135,6 +136,7 @@ def test_pipeline(
     expected_HL_array: NDArray[int8],
     expected_HM_array: NDArray[int8],
 ) -> None:
+    """Returns expected values for grid references HL and HM."""
     gpkg_path = tmp_path / "test.gpkg"
     zarr_path = tmp_path / "test.zarr"
 

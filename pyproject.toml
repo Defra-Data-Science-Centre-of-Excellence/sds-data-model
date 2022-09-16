@@ -81,7 +81,6 @@ source = ["sds_data_model", "tests"]
 
 [tool.coverage.report]
 show_missing = true
-fail_under = 100
 
 [tool.mypy]
 warn_unreachable = true
