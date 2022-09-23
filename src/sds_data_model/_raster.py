@@ -2,8 +2,9 @@ from typing import List, Optional, Sequence, Union
 
 from affine import Affine
 from cv2 import INTER_LINEAR, INTER_NEAREST, resize
-from numpy import array, full
+from numpy import array, fromstring, full
 from numpy.typing import NDArray
+from rioxarray.rioxarray import affine_to_coords
 from xarray import DataArray, Dataset, merge
 
 from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, CELL_SIZE
@@ -36,16 +37,25 @@ def _create_data_array(
     data: NDArray,
     geotransform: str,
 ) -> DataArray:
-    return DataArray(
+    _data_array = DataArray(
         data=data,
         coords={
+            **affine_to_coords(
+                Affine.from_gdal(*fromstring(geotransform, sep=" ").tolist()),
+                height=data.shape[0],
+                width=data.shape[1],
+                y_dim="northings",
+                x_dim="eastings",
+            ),
             data_array.rio.grid_mapping: data_array[
                 data_array.rio.grid_mapping
-            ].rio.update_attrs({"GeoTransform": geotransform})
+            ].rio.update_attrs({"GeoTransform": geotransform}),
         },
-        dims=tuple(data_array.dims),
+        dims=("northings", "eastings"),
         attrs={"nodata": data_array.rio.nodata},
     ).rename(data_array.name)
+    _data_array.rio.set_spatial_dims("eastings", "northings")
+    return _data_array
 
 
 def _get_resample_shape(
@@ -173,10 +183,11 @@ def _resample_and_reshape(
         if isinstance(categorical, bool):
             categorical = [categorical] * len(data_arrays)
         elif band:
-            categorical = [_bool for band, _bool in sorted(zip(band, categorical))]
+            categorical = [_bool for _band, _bool in sorted(zip(band, categorical))]
         for index, data_array in enumerate(data_arrays):
             data_arrays[index] = _resample_cellsize(
-                data_array=data_array, categorical=categorical[index]
+                data_array=data_array,
+                categorical=categorical[index],
             )
     if _check_shape_and_extent(data_arrays[0]):
         for index, data_array in enumerate(data_arrays):
