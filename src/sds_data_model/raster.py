@@ -72,17 +72,21 @@ from typing import List, Literal, Optional, Sequence, Union
 from rasterio.drivers import raster_driver_extensions
 from xarray import Dataset, open_dataset
 
+from sds_data_model.constants import BNG_XMIN, BNG_YMAX, CELL_SIZE
 from sds_data_model._raster import _resample_and_reshape
 from sds_data_model._vector import _check_layer_projection
 
 
 def read_dataset_from_file(
     data_path: str,
-    band: Union[List[int], List[str], None] = None,
+    bands: Union[List[int], List[str], None] = None,
     categorical: Union[bool, Sequence[bool]] = False,
     nodata: Optional[float] = None,
     engine: Optional[str] = None,
     decode_coords: Union[bool, None, Literal["coordinates", "all"]] = "all",
+    expected_cell_size: int = CELL_SIZE,
+    expected_x_min: int = BNG_XMIN,
+    expected_y_max: int = BNG_YMAX,
 ) -> Dataset:
     """# TODO.
 
@@ -101,17 +105,18 @@ def read_dataset_from_file(
     suffix = Path(data_path).suffixes[0]
 
     if engine:
-        pass
+        _engine = engine
     elif suffix == ".zarr":
-        engine = "zarr"
+        _engine = "zarr"
+        _decode_coords = decode_coords
     elif suffix[1:] in raster_driver_extensions().keys():
-        engine = "rasterio"
-        decode_coords = None
+        _engine = "rasterio"
+        _decode_coords = None
 
     dataset = open_dataset(
         data_path,
-        engine=engine,
-        decode_coords=decode_coords,
+        engine=_engine,
+        decode_coords=_decode_coords,
         mask_and_scale=False,
     )
 
@@ -119,7 +124,10 @@ def read_dataset_from_file(
 
     return _resample_and_reshape(
         dataset=dataset,
-        band=band,
+        bands=bands,
         categorical=categorical,
         nodata=nodata,
+        expected_cell_size=expected_cell_size,
+        expected_x_min=expected_x_min,
+        expected_y_max=expected_y_max,
     )

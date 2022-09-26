@@ -10,26 +10,25 @@ from xarray import DataArray, Dataset, merge
 from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, CELL_SIZE
 
 
-def _check_cellsize(
+def _has_wrong_cell_size(
     transform: Affine,
-) -> Optional[bool]:
-    if transform.a != CELL_SIZE or -transform.e != CELL_SIZE:
+    expected_cell_size: int,
+) -> bool:
+    if transform.a != expected_cell_size or -transform.e != expected_cell_size:
         return True
     else:
-        return None
+        return False
 
 
-def _check_shape_and_extent(
-    data_array: DataArray,
-) -> Optional[bool]:
-    if (
-        data_array.shape != (BNG_YMAX / CELL_SIZE, BNG_XMAX / CELL_SIZE)
-        or data_array.rio.transform().f != BNG_YMAX
-        or data_array.rio.transform().c != BNG_XMIN
-    ):
+def _has_wrong_shape(
+    transform: Affine,
+    expected_x_min: int,
+    expected_y_max: int,
+) -> bool:
+    if transform.f != expected_y_max or transform.c != expected_x_min:
         return True
     else:
-        return None
+        return False
 
 
 def _create_data_array(
@@ -153,7 +152,7 @@ def _to_bng_extent(
 
 def _select_data_arrays(
     dataset: Dataset,
-    band: Union[List[int], List[str], None] = None,
+    bands: Optional[Union[List[int], List[str]]] = None,
 ) -> List[DataArray]:
     try:
         data_arrays = [
@@ -163,33 +162,44 @@ def _select_data_arrays(
     except AttributeError:
         data_arrays = [dataset[array_name] for array_name in dataset.rio.vars]
 
-    if band:
+    if bands:
         data_arrays = [
             data_array
             for data_array in data_arrays
-            if data_array.name in map(str, band)
+            if data_array.name in map(str, bands)
         ]
     return data_arrays
 
 
 def _resample_and_reshape(
     dataset: Dataset,
-    band: Union[List[int], List[str], None] = None,
+    expected_cell_size: int,
+    expected_x_min: int,
+    expected_y_max: int,
+    bands: Optional[Union[List[int], List[str]]] = None,
     categorical: Union[bool, Sequence[bool]] = False,
     nodata: Optional[float] = None,
 ) -> Dataset:
-    data_arrays = _select_data_arrays(dataset, band=band)
-    if _check_cellsize(dataset.rio.transform()):
+    transform = dataset.rio.transform()
+    data_arrays = _select_data_arrays(dataset, bands=bands)
+    if _has_wrong_cell_size(
+        transform=transform,
+        expected_cell_size=expected_cell_size,
+    ):
         if isinstance(categorical, bool):
             categorical = [categorical] * len(data_arrays)
-        elif band:
-            categorical = [_bool for _band, _bool in sorted(zip(band, categorical))]
+        elif bands:
+            categorical = [_bool for _, _bool in sorted(zip(bands, categorical))]
         for index, data_array in enumerate(data_arrays):
             data_arrays[index] = _resample_cellsize(
                 data_array=data_array,
                 categorical=categorical[index],
             )
-    if _check_shape_and_extent(data_arrays[0]):
+    if _has_wrong_shape(
+        transform=transform,
+        expected_x_min=expected_x_min,
+        expected_y_max=expected_y_max,
+    ):
         for index, data_array in enumerate(data_arrays):
             data_arrays[index] = _to_bng_extent(
                 data_array=data_array,
