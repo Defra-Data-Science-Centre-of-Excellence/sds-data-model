@@ -1,1 +1,142 @@
-<mxfile host="app.diagrams.net" modified="2022-09-27T13:00:18.376Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.49" version="20.3.6" etag="wHvD2c4S8xU0pKnVO1Qx" type="github"><diagram id="CqUPn2uWzYHRTuGjEwln">UzV2zq1wL0osyPDNT0nNUTV2VTV2LsrPL4GwciucU3NyVI0MMlNUjV1UjYwMgFjVyA2HrCFY1qAgsSg1rwSLBiADYTaQg2Y1AA==</diagram></mxfile>
+<mxfile host="app.diagrams.net" modified="2022-09-27T14:31:16.488Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.49" etag="2oVV-ytGP4-zVNg5DmIp" version="20.3.6" type="github">
+  <diagram id="CqUPn2uWzYHRTuGjEwln" name="Page-1">
+    <mxGraphModel dx="3117" dy="2439" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-1" value="sds_data_model&lt;br&gt;1. standard for raster data&lt;br&gt;2. library for generating that" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/logo-python-128.png" vertex="1" parent="1">
+          <mxGeometry x="64.5" y="-236" width="128" height="128" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-55" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#000000;" edge="1" parent="1" source="dSyi5RVKGaQ4QqKbwUSH-2" target="dSyi5RVKGaQ4QqKbwUSH-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-2" value="Raster I&lt;br&gt;module in sds_data_model&lt;br&gt;- in built xarray reader NetDCF/zarr&lt;br&gt;- rasterio extention rioxarray&lt;br&gt;- re-sampling" style="shape=image;html=1;verticalAlign=bottom;verticalLabelPosition=top;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/logo-python-128.png;labelPosition=center;align=center;imageBackground=#FFFF00;" vertex="1" parent="1">
+          <mxGeometry x="892" y="410" width="128" height="128" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-43" value="" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#000000;" edge="1" parent="1" source="dSyi5RVKGaQ4QqKbwUSH-3" target="dSyi5RVKGaQ4QqKbwUSH-42">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-45" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontColor=#000000;" edge="1" parent="1" source="dSyi5RVKGaQ4QqKbwUSH-3" target="dSyi5RVKGaQ4QqKbwUSH-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-3" value="Vector I&lt;br&gt;pyspark_vector_files&lt;br&gt;gdal-wrapper&lt;br&gt;gpkg-reader (JDBC)" style="shape=image;html=1;verticalAlign=bottom;verticalLabelPosition=top;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/logo-python-128.png;labelPosition=center;align=center;fontColor=#000000;imageBackground=#00FF00;" vertex="1" parent="1">
+          <mxGeometry x="-210" y="340" width="128" height="128" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="dSyi5RVKGaQ4QqKbwUSH-4" target="dSyi5RVKGaQ4QqKbwUSH-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-59" value="" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#000000;" edge="1" parent="1" source="dSyi5RVKGaQ4QqKbwUSH-4">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="435.99999999999955" y="404" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-4" value="Vector transformation&lt;br&gt;- source schema to target schema&lt;br&gt;- Define library of transformation, then generalise&lt;br&gt;- - e.g. flatten multi-geometries, valid and clean, overlays" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/logo-python-128.png;imageBackground=#FF8000;" vertex="1" parent="1">
+          <mxGeometry x="228" y="340" width="128" height="128" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-56" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#000000;" edge="1" parent="1" source="dSyi5RVKGaQ4QqKbwUSH-6" target="dSyi5RVKGaQ4QqKbwUSH-23">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-6" value="Raster transformation&lt;br&gt;- Define library of transformations, then generalise&lt;br&gt;- - rasterise&lt;br&gt;-- re-classify&lt;br&gt;- - move James K&#39;s re-sampling into transformation library&lt;br&gt;-- overlays / aggregations" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/logo-python-128.png;imageBackground=#FF8000;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="278" width="128" height="128" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-8" value="&lt;h1&gt;Principles&lt;/h1&gt;&lt;p&gt;1. Do as much as possible in native format&lt;/p&gt;&lt;p&gt;2. Capture transformation history (anything that changes data content)&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="420" y="580" width="190" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-62" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.625;entryDx=0;entryDy=0;entryPerimeter=0;fontColor=#000000;curved=1;" edge="1" parent="1" source="dSyi5RVKGaQ4QqKbwUSH-9" target="dSyi5RVKGaQ4QqKbwUSH-60">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="290" y="-270" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-9" value="Vector O" style="shape=image;html=1;verticalAlign=bottom;verticalLabelPosition=top;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/logo-python-128.png;labelPosition=center;align=center;imageBackground=#FF0000;" vertex="1" parent="1">
+          <mxGeometry x="228" y="132" width="128" height="128" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-25" value="" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="dSyi5RVKGaQ4QqKbwUSH-13">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="650" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-13" value="Vector rasterisation" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/logo-python-128.png;imageBackground=#FF8000;" vertex="1" parent="1">
+          <mxGeometry x="440" y="340" width="128" height="128" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-53" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#000000;" edge="1" parent="1" source="dSyi5RVKGaQ4QqKbwUSH-23" target="dSyi5RVKGaQ4QqKbwUSH-46">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-23" value="Raster O" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/logo-python-128.png;imageBackground=#00FF00;" vertex="1" parent="1">
+          <mxGeometry x="892" y="150" width="128" height="128" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-37" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="dSyi5RVKGaQ4QqKbwUSH-34" target="dSyi5RVKGaQ4QqKbwUSH-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-34" value="Vector files" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/100-basic-for-user-interface/32/73-files-128.png" vertex="1" parent="1">
+          <mxGeometry x="-210" y="550" width="128" height="128" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-51" value="" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#000000;" edge="1" parent="1" source="dSyi5RVKGaQ4QqKbwUSH-38" target="dSyi5RVKGaQ4QqKbwUSH-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-38" value="Raster files" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/100-basic-for-user-interface/32/73-files-128.png" vertex="1" parent="1">
+          <mxGeometry x="892" y="646" width="128" height="128" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-40" value="&lt;h1&gt;More efficient vector I&lt;/h1&gt;&lt;p&gt;- ETL process that indexes and converts to GeoParquet&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="-30" y="270" width="190" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-44" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#000000;" edge="1" parent="1" source="dSyi5RVKGaQ4QqKbwUSH-42" target="dSyi5RVKGaQ4QqKbwUSH-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-42" value="BNG indexer" style="shape=image;html=1;verticalAlign=bottom;verticalLabelPosition=top;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/logo-python-128.png;labelPosition=center;align=center;fontColor=#000000;imageBackground=#00FF00;" vertex="1" parent="1">
+          <mxGeometry x="-10" y="510" width="128" height="128" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-47" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#000000;" edge="1" parent="1" source="dSyi5RVKGaQ4QqKbwUSH-46" target="dSyi5RVKGaQ4QqKbwUSH-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-49" value="" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#000000;" edge="1" parent="1" source="dSyi5RVKGaQ4QqKbwUSH-46" target="dSyi5RVKGaQ4QqKbwUSH-75">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="734" y="120" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-46" value="data model format" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/100-basic-for-user-interface/32/73-files-128.png" vertex="1" parent="1">
+          <mxGeometry x="670" y="200" width="128" height="128" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-63" value="" style="edgeStyle=orthogonalEdgeStyle;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#000000;" edge="1" parent="1" source="dSyi5RVKGaQ4QqKbwUSH-50" target="dSyi5RVKGaQ4QqKbwUSH-60">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-69" value="" style="edgeStyle=orthogonalEdgeStyle;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#000000;" edge="1" parent="1" source="dSyi5RVKGaQ4QqKbwUSH-50">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="738.5" y="-316" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-50" value="Models" style="swimlane;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="533.5" y="-290" width="410" height="410" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-15" value="SP" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/logo-python-128.png;imageBackground=#FF8000;" vertex="1" parent="dSyi5RVKGaQ4QqKbwUSH-50">
+          <mxGeometry x="237" y="64" width="128" height="128" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-17" value="Land Use model" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/logo-python-128.png;imageBackground=#00FF00;" vertex="1" parent="dSyi5RVKGaQ4QqKbwUSH-50">
+          <mxGeometry x="40" y="64" width="128" height="128" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-76" style="edgeStyle=orthogonalEdgeStyle;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#000000;" edge="1" parent="dSyi5RVKGaQ4QqKbwUSH-50" source="dSyi5RVKGaQ4QqKbwUSH-75" target="dSyi5RVKGaQ4QqKbwUSH-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-77" style="edgeStyle=orthogonalEdgeStyle;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#000000;" edge="1" parent="dSyi5RVKGaQ4QqKbwUSH-50" source="dSyi5RVKGaQ4QqKbwUSH-75" target="dSyi5RVKGaQ4QqKbwUSH-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-75" value="Baseline generator" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/logo-python-128.png;imageBackground=#FF8000;" vertex="1" parent="dSyi5RVKGaQ4QqKbwUSH-50">
+          <mxGeometry x="141" y="250" width="128" height="128" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-60" value="Aggregator" style="shape=image;html=1;verticalAlign=bottom;verticalLabelPosition=top;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/logo-python-128.png;labelPosition=center;align=center;imageBackground=#FF0000;" vertex="1" parent="1">
+          <mxGeometry x="374.5" y="-460" width="128" height="128" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-61" value="Zonal statistics, etc" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="294.5" y="-440" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-64" value="&lt;h1&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Helpers&lt;/span&gt;&lt;/h1&gt;&lt;h1&gt;&lt;span style=&quot;font-size: 12px; font-weight: 400;&quot;&gt;- For working with the directory structure&lt;/span&gt;&lt;/h1&gt;&lt;div&gt;&lt;span style=&quot;font-size: 12px; font-weight: 400;&quot;&gt;- Pattern for visualisation (visual inspection)&lt;/span&gt;&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="1370" y="200" width="190" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-65" value="Sharing &amp;amp; publisahing" style="shape=image;html=1;verticalAlign=bottom;verticalLabelPosition=top;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/logo-python-128.png;labelPosition=center;align=center;imageBackground=#FF0000;" vertex="1" parent="1">
+          <mxGeometry x="674.5" y="-450" width="128" height="128" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
