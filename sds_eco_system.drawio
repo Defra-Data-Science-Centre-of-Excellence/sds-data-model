@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2022-09-28T09:08:19.959Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.49" etag="L1dNGOr2ON2XkxJdT-C1" version="20.3.7" type="github">
+<mxfile host="app.diagrams.net" modified="2022-09-28T10:33:22.567Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.49" etag="xHKd47jz4AQjdbGvl363" version="20.3.7" type="github">
   <diagram id="CqUPn2uWzYHRTuGjEwln" name="Page-1">
-    <mxGraphModel dx="2940" dy="2259" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="2470" dy="2035" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -21,7 +21,7 @@
             <mxPoint x="1003" y="260" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-2" value="Raster I&lt;br&gt;module in sds_data_model&lt;br&gt;- in built xarray reader NetDCF/zarr&lt;br&gt;- rasterio extention rioxarray&lt;br&gt;- re-sampling" style="shape=image;html=1;verticalAlign=bottom;verticalLabelPosition=top;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/logo-python-128.png;labelPosition=center;align=center;imageBackground=#FFFF00;" parent="1" vertex="1">
+        <mxCell id="dSyi5RVKGaQ4QqKbwUSH-2" value="Raster I&lt;br&gt;module in sds_data_model&lt;br&gt;- in built xarray reader NetDCF/zarr&lt;br&gt;- rasterio extention rioxarray&lt;br&gt;- re-sampling" style="shape=image;html=1;verticalAlign=middle;verticalLabelPosition=middle;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/logo-python-128.png;labelPosition=left;align=right;imageBackground=#FFFF00;" parent="1" vertex="1">
           <mxGeometry x="939" y="340" width="128" height="128" as="geometry" />
         </mxCell>
         <mxCell id="Nt-MfTzIqreWyTEX4Cc8-22" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=24;" edge="1" parent="1" source="dSyi5RVKGaQ4QqKbwUSH-3" target="Nt-MfTzIqreWyTEX4Cc8-20">
@@ -154,7 +154,7 @@
         <mxCell id="Nt-MfTzIqreWyTEX4Cc8-35" style="edgeStyle=elbowEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=vertical;html=1;fontSize=24;" edge="1" parent="1" source="Nt-MfTzIqreWyTEX4Cc8-32" target="dSyi5RVKGaQ4QqKbwUSH-46">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="Nt-MfTzIqreWyTEX4Cc8-32" value="Raster O" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/logo-python-128.png;imageBackground=#00FF00;" vertex="1" parent="1">
+        <mxCell id="Nt-MfTzIqreWyTEX4Cc8-32" value="Raster O" style="shape=image;html=1;verticalAlign=bottom;verticalLabelPosition=top;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/logo-python-128.png;imageBackground=#00FF00;labelPosition=center;align=center;" vertex="1" parent="1">
           <mxGeometry x="939" y="132" width="128" height="128" as="geometry" />
         </mxCell>
         <mxCell id="Nt-MfTzIqreWyTEX4Cc8-42" value="" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=24;elbow=vertical;" edge="1" parent="1" source="dSyi5RVKGaQ4QqKbwUSH-75">
