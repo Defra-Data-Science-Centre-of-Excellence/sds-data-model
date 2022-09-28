@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2022-09-28T09:07:18.995Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.49" etag="XGqN-nJZ3dywWXEnQTHJ" version="20.3.7" type="github">
+<mxfile host="app.diagrams.net" modified="2022-09-28T09:08:19.959Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.49" etag="L1dNGOr2ON2XkxJdT-C1" version="20.3.7" type="github">
   <diagram id="CqUPn2uWzYHRTuGjEwln" name="Page-1">
     <mxGraphModel dx="2940" dy="2259" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -49,8 +49,15 @@
         <mxCell id="dSyi5RVKGaQ4QqKbwUSH-4" value="Vector transformation&lt;br&gt;- source schema to target schema&lt;br&gt;- Define library of transformation, then generalise&lt;br&gt;- - e.g. flatten multi-geometries, valid and clean, overlays" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/logo-python-128.png;imageBackground=#FF8000;" parent="1" vertex="1">
           <mxGeometry x="228" y="340" width="128" height="128" as="geometry" />
         </mxCell>
+        <mxCell id="Nt-MfTzIqreWyTEX4Cc8-57" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=24;elbow=vertical;curved=1;" edge="1" parent="1" source="dSyi5RVKGaQ4QqKbwUSH-6" target="Nt-MfTzIqreWyTEX4Cc8-32">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1234" y="190" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
         <mxCell id="dSyi5RVKGaQ4QqKbwUSH-6" value="Raster transformation&lt;br&gt;- Define library of transformations, then generalise&lt;br&gt;- - rasterise&lt;br&gt;-- re-classify&lt;br&gt;- - move James K&#39;s re-sampling into transformation library&lt;br&gt;-- overlays / aggregations" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn1.iconfinder.com/data/icons/ionicons-fill-vol-2/512/logo-python-128.png;imageBackground=#FF8000;" parent="1" vertex="1">
-          <mxGeometry x="1170" y="350" width="128" height="128" as="geometry" />
+          <mxGeometry x="1170" y="340" width="128" height="128" as="geometry" />
         </mxCell>
         <mxCell id="dSyi5RVKGaQ4QqKbwUSH-8" value="&lt;h1&gt;&lt;br&gt;&lt;/h1&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="420" y="580" width="190" height="120" as="geometry" />
