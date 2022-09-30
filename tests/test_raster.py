@@ -1,6 +1,5 @@
 """Tests for raster module."""
 from pathlib import Path
-from typing import Tuple
 
 from numpy import arange, ones, array
 import rioxarray  # noqa: F401 - Needed for `.rio` accessor methods
@@ -13,11 +12,7 @@ from sds_data_model.raster import read_dataset_from_file
 
 
 @fixture
-def same_cell_size_same_shape(
-    shared_datadir: Path,
-    name: str = "same_cell_size_same_shape",
-) -> Tuple[str, Dataset]:
-    """A dataset with the same cell size and same shape."""
+def same_cell_size_same_shape_dataset() -> Dataset:
     coords = {
         "northings": arange(5.5, 0, -1),
         "eastings": arange(0.5, 6, 1),
@@ -66,23 +61,33 @@ def same_cell_size_same_shape(
             inplace=True,
         )
     )
+    return dataset
+
+
+@fixture
+def same_cell_size_same_shape(
+    same_cell_size_same_shape_dataset: Dataset,
+    shared_datadir: Path,
+    name: str = "same_cell_size_same_shape",
+) -> str:
+    """A dataset with the same cell size and same shape."""
 
     data_path = shared_datadir / f"{name}.tif"
 
-    dataset.rio.to_raster(data_path)
+    same_cell_size_same_shape_dataset.rio.to_raster(data_path)
 
-    return (str(data_path), dataset)
+    return str(data_path)
 
 
 @fixture
 def larger_cell_size_same_shape(
     shared_datadir: Path,
     name: str = "larger_cell_size_same_shape",
-) -> Tuple[str, Dataset]:
+) -> str:
     """A dataset with the same cell size and same shape."""
     coords = {
-        "northings": arange(5.5, 0, -2),
-        "eastings": arange(0.5, 6, 2),
+        "northings": arange(5, 0, -2),
+        "eastings": arange(1, 6, 2),
     }
 
     ones_data = ones(shape=(3, 3), dtype="uint8")
@@ -130,7 +135,7 @@ def larger_cell_size_same_shape(
 
     dataset.rio.to_raster(data_path)
 
-    return (str(data_path), dataset)
+    return str(data_path)
 
 
 @pytest.mark.parametrize(
@@ -145,13 +150,14 @@ def larger_cell_size_same_shape(
     ),
 )
 def test_read_dataset_from_file(
+    same_cell_size_same_shape_dataset: Dataset,
     test_case_name: str,
     request: FixtureRequest,
 ) -> None:
     """Returns the expected dataset."""
-    test_case = request.getfixturevalue(test_case_name)
+    test_case_path = request.getfixturevalue(test_case_name)
     output_dataset = read_dataset_from_file(
-        data_path=test_case[0],
+        data_path=test_case_path,
         expected_cell_size=1,
         expected_x_min=0,
         expected_y_max=6,
@@ -160,5 +166,5 @@ def test_read_dataset_from_file(
 
     assert_identical(
         output_dataset,
-        test_case[1],
+        same_cell_size_same_shape_dataset,
     )
