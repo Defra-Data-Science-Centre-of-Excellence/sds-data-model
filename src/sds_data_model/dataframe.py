@@ -17,11 +17,11 @@ from sds_data_model._vector import _get_metadata, _get_name # , _get_categories_
 
 spark = SparkSession.getActiveSession()
 
-# DataFrame is an upper bound for _DataFrame. Specifying bound means that _DataFrame will only be DataFrame or one of its subclasses. 
-_DataFrame = TypeVar("_DataFrame", bound = "DataFrame")
+# DataFrameWrapper is an upper bound for _DataFrameWrapper. Specifying bound means that _DataFrameWrapper will only be DataFrameWrapper or one of its subclasses. 
+_DataFrameWrapper = TypeVar("_DataFrameWrapper", bound = "DataFrameWrapper")
 
 @dataclass
-class DataFrame:
+class DataFrameWrapper:
     name: str
     data: DataFrame
     meta: Optional[Dict[str, Any]]
@@ -30,7 +30,7 @@ class DataFrame:
         
     @classmethod
     def from_files(
-            cls: DataFrame, 
+            cls: type[_DataFrameWrapper], 
             data_path: str,
             metadata_path: Optional[str] = None,
             name: Optional[str] = None,
