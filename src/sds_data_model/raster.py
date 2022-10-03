@@ -65,69 +65,76 @@
 #         )
 
 
-# temporary func to read raster + resample & reshape if necessary
-from pathlib import Path
-from typing import List, Literal, Optional, Sequence, Union
+from dataclasses import dataclass
+from typing import Dict, List, Literal, Optional, Type, TypeVar, Union
 
-from rasterio.drivers import raster_driver_extensions
-from xarray import Dataset, open_dataset
+from xarray import Dataset
 
-from sds_data_model.constants import BNG_XMIN, BNG_YMAX, CELL_SIZE
-from sds_data_model._raster import _resample_and_reshape
-from sds_data_model._vector import _check_layer_projection
+from sds_data_model._raster import _read_dataset_from_file
+
+_DatasetWrapper = TypeVar("_DatasetWrapper", bound="DatasetWrapper")
 
 
-def read_dataset_from_file(
-    data_path: str,
-    bands: Union[List[int], List[str], None] = None,
-    categorical: Union[bool, Sequence[bool]] = False,
-    nodata: Optional[float] = None,
-    engine: Optional[str] = None,
-    decode_coords: Union[bool, None, Literal["coordinates", "all"]] = "all",
-    expected_cell_size: int = CELL_SIZE,
-    expected_x_min: int = BNG_XMIN,
-    expected_y_max: int = BNG_YMAX,
-) -> Dataset:
-    """# TODO.
+@dataclass
+class DatasetWrapper:
+    """#TODO DatasetWrapper class documentation."""
 
-    Args:
-        data_path (str): #TODO
-        band (Union[List[int], List[str], None], optional): #TODO. Defaults to None.
-        categorical (Union[bool, Sequence[bool]], optional): #TODO. Defaults to False.
-        nodata (Optional[float], optional): #TODO. Defaults to None.
-        engine (Optional[str], optional): #TODO. Defaults to None.
-        decode_coords (Union[bool, None, Literal["coordinates", "all"]], optional):
-         #TODO. Defaults to "all".
+    dataset: Dataset
 
-    Returns:
-        Dataset: #TODO
-    """
-    suffix = Path(data_path).suffixes[0]
+    @classmethod
+    def from_files(
+        cls: Type[_DatasetWrapper],
+        data_path: str,
+        bands: Union[List[int], List[str], None] = None,
+        categorical: Union[bool, Dict[Union[int, str], bool]] = False,
+        nodata: Optional[float] = None,
+        engine: Optional[str] = None,
+        decode_coords: Optional[Union[bool, Literal["coordinates", "all"]]] = "all",
+    ):
+        """Read in a raster from file at 10m cell size and British National Grid extent.
 
-    if engine:
-        _engine = engine
-    elif suffix == ".zarr":
-        _engine = "zarr"
-        _decode_coords = decode_coords
-    elif suffix[1:] in raster_driver_extensions().keys():
-        _engine = "rasterio"
-        _decode_coords = None
+        Examples:
+            >>> from raster import DatasetWrapper
+            >>> dset_wrap_from_tif=DatasetWrapper.from_files(
+                data_path="3_band_raster.tif",
+                bands=[1, 2],
+                categorical={1 : True, 2 : False},
+                )
+            >>> # read 2 bands from raster, specifying both are categorical.
+            >>> dset_wrap_from_zarr=DatasetWrapper.from_files(
+                data_path="multiband_raster.zarr",
+                bands=["classification", "code"],
+                categorical=True
+                )
 
-    dataset = open_dataset(
-        data_path,
-        engine=_engine,
-        decode_coords=_decode_coords,
-        mask_and_scale=False,
-    )
+        Args:
+            data_path (str): File path to raster.
+            bands (Union[List[int], List[str], None], optional):  List of bands
+                to select from the raster. Defaults to None.
+            categorical (Union[bool, Dict[Union[int, str], bool]], optional):
+                `bool` or `dict` mapping ({band : bool}) of the interpolation
+                used to resample. Defaults to False.
+            nodata (Optional[float], optional): Value that will fill the grid where
+                there is no data (if it is not `None`). Defaults to None.
+            engine (Optional[str], optional): _description_. Engine used by
+                `open_dataset`. Defaults to None.
+            decode_coords (Optional[Union[bool, Literal["coordinates", "all"]]],
+             optional):
+                Value used by `open_dataset`. Variable upon `engine` selection.
+                Defaults to "all".
 
-    _check_layer_projection({"crs": dataset.rio.crs.to_string()})
+        Returns:
+            DatasetWrapper
+        """
+        dataset = _read_dataset_from_file(
+            data_path=data_path,
+            bands=bands,
+            categorical=categorical,
+            nodata=nodata,
+            engine=engine,
+            decode_coords=decode_coords,
+        )
 
-    return _resample_and_reshape(
-        dataset=dataset,
-        bands=bands,
-        categorical=categorical,
-        nodata=nodata,
-        expected_cell_size=expected_cell_size,
-        expected_x_min=expected_x_min,
-        expected_y_max=expected_y_max,
-    )
+        return cls(
+            dataset=dataset,
+        )

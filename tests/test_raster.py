@@ -1,18 +1,19 @@
 """Tests for raster module."""
 from pathlib import Path
 
-from numpy import arange, ones, array
-import rioxarray  # noqa: F401 - Needed for `.rio` accessor methods
 import pytest
-from pytest import fixture, FixtureRequest
+import rioxarray  # noqa: F401 - Needed for `.rio` accessor methods
+from numpy import arange, array, ones
+from pytest import FixtureRequest, fixture
 from xarray import DataArray, Dataset
 from xarray.testing import assert_identical
 
-from sds_data_model.raster import read_dataset_from_file
+from sds_data_model.raster import _read_dataset_from_file
 
 
 @fixture
 def same_cell_size_same_shape_dataset() -> Dataset:
+    """A dataset with the same cell size and same shape."""
     coords = {
         "northings": arange(5.5, 0, -1),
         "eastings": arange(0.5, 6, 1),
@@ -70,8 +71,7 @@ def same_cell_size_same_shape(
     shared_datadir: Path,
     name: str = "same_cell_size_same_shape",
 ) -> str:
-    """A dataset with the same cell size and same shape."""
-
+    """Write a dataset with the same cell size and same shape."""
     data_path = shared_datadir / f"{name}.tif"
 
     same_cell_size_same_shape_dataset.rio.to_raster(data_path)
@@ -84,7 +84,7 @@ def larger_cell_size_same_shape(
     shared_datadir: Path,
     name: str = "larger_cell_size_same_shape",
 ) -> str:
-    """A dataset with the same cell size and same shape."""
+    """A dataset with a larger cell size and same spatial shape."""
     coords = {
         "northings": arange(5, 0, -2),
         "eastings": arange(1, 6, 2),
@@ -156,13 +156,20 @@ def test_read_dataset_from_file(
 ) -> None:
     """Returns the expected dataset."""
     test_case_path = request.getfixturevalue(test_case_name)
-    output_dataset = read_dataset_from_file(
+    output_dataset = _read_dataset_from_file(
         data_path=test_case_path,
+        categorical=True,
         expected_cell_size=1,
         expected_x_min=0,
+        expected_x_max=6,
         expected_y_max=6,
-        nodata=0.0,
+        nodata=0,
     )
+    # remove attrs that are created by **reading** a dataset
+    # the attrs are correct but do not exist in the dataset created directly in memory
+    output_dataset.spatial_ref.attrs.pop("GeoTransform")
+    output_dataset.ones.attrs.clear()
+    output_dataset.numbers.attrs.clear()
 
     assert_identical(
         output_dataset,
