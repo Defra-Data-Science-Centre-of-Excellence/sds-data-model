@@ -6,6 +6,7 @@ from pyspark.pandas import  read_excel,DataFrame, Series
 
 from pyspark_vector_files import read_vector_files
 from pyspark_vector_files.gpkg import read_gpkg
+from pyspark.sql import SparkSession
 #from pyspark.sql import DataFrame as SparkDataFrame
 #from pyspark.sql import Column as SparkColumn
 
@@ -14,7 +15,7 @@ from sds_data_model.metadata import Metadata
 from sds_data_model._vector import _get_metadata, _get_name # , _get_categories_and_dtypes,   _recode_categorical_strings
 
 
-
+spark = SparkSession.getActiveSession()
 
 # DataFrame is an upper bound for _DataFrame. Specifying bound means that _DataFrame will only be DataFrame or one of its subclasses. 
 _DataFrame = TypeVar("_DataFrame", bound = "DataFrame")
