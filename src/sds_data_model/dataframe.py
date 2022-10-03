@@ -30,7 +30,7 @@ class DataFrameWrapper:
         
     @classmethod
     def from_files(
-            cls: type[_DataFrameWrapper], 
+            cls: _DataFrameWrapper, 
             data_path: str,
             metadata_path: Optional[str] = None,
             name: Optional[str] = None,
