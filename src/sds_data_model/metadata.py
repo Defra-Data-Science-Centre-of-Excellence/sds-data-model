@@ -1,8 +1,14 @@
 """Metadata parsing module."""
 from dataclasses import dataclass
-from typing import Dict, List, Tuple, Type, TypeVar, Union
+from io import BytesIO
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Type, TypeVar, Union
 
-from lxml.etree import Element, parse  # noqa: S410 - assuming we can trust the XML
+from lxml.etree import (  # noqa: S410 - assuming we can trust the XML
+    Element,
+    ElementTree,
+    parse,
+)
+from requests import get
 
 from sds_data_model.constants import (
     ABSTRACT_XPATH,
@@ -22,10 +28,11 @@ from sds_data_model.constants import (
 MetadataType = TypeVar("MetadataType", bound="Metadata")
 
 
-def _get_xpath(xpath: Union[str, List[str]]) -> str:
-    """Construct an `XPath`_ query from a string or list of strings.
+def _get_xpath(xpath: Union[str, Iterable[str], Iterable[Iterable[str]]]) -> str:
+    """Construct an `XPath`_ query from a string, list of strings, or list of lists of strings.
 
     Examples:
+        A list of strings will be concatenated with "/" as the separator. This should produce an XPath query:
         >>> TITLE_XPATH = [
             "gmd:identificationInfo",
             "gmd:MD_DataIdentification",
@@ -37,6 +44,23 @@ def _get_xpath(xpath: Union[str, List[str]]) -> str:
         ]
         >>> _get_xpath(TITLE_XPATH)
         'gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString//text()'
+
+        Each list in a list of lists of strings will be concatenated with "/" as the separator, then the lists will be concatenated
+        with "|" as a separator. This should produce an OR XPath query:
+        >>> METADATA_DATE_XPATH = [
+            [
+                "gmd:dateStamp",
+                "gco:Date",
+                "/text()",
+            ],
+            [
+                "gmd:dateStamp",
+                "gco:DateTime",
+                "/text()",
+            ],
+        ]
+        >>> _get_xpath(METADATA_DATE_XPATH)
+        'gmd:dateStamp/gco:Date//text()|gmd:dateStamp/gco:DateTime//text()'
 
         For a string, this is a `no-op`_.
         >>> TITLE_XPATH = 'gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString//text()'
@@ -58,15 +82,16 @@ def _get_xpath(xpath: Union[str, List[str]]) -> str:
 
     """  # noqa: B950 - XPath strings cannot be wrapped
     if isinstance(xpath, str):
-        _xpath = xpath
-    elif isinstance(xpath, list):
-        _xpath = "/".join(xpath)
-    return _xpath
+        return xpath
+    elif isinstance(xpath, list) and isinstance(xpath[0], str):
+        return "/".join(xpath)
+    else:
+        return "|".join("/".join(list_of_str) for list_of_str in xpath)
 
 
 def _get_target_elements(
     root_element: Element,
-    xpath: Union[str, List[str]],
+    xpath: Union[str, Iterable[str], Iterable[Iterable[str]]],
     namespaces: Dict[str, str],
 ) -> List[Element]:
     """Get a list of Elements using a `XPath`_ query.
@@ -107,7 +132,7 @@ def _get_target_elements(
 
 def _get_value(
     root_element: Element,
-    xpath: Union[str, List[str]],
+    xpath: Union[str, Iterable[str], Iterable[Iterable[str]]],
     namespaces: Dict[str, str],
 ) -> str:
     """Get a single text value from a `XPath`_ query.
@@ -152,7 +177,7 @@ def _get_value(
 
 def _get_values(
     root_element: Element,
-    xpath: Union[str, List[str]],
+    xpath: Union[str, Iterable[str], Iterable[Iterable[str]]],
     namespaces: Dict[str, str],
 ) -> Tuple[str, ...]:
     """Get a tuple of text values from a `XPath`_ query.
@@ -192,6 +217,39 @@ def _get_values(
         namespaces=namespaces,
     )
     return tuple(target_element.strip() for target_element in target_elements)
+
+
+def _get_xml(path: str, metadata_kwargs: Dict[str, Any]) -> ElementTree:
+    """Parses XML from remote URL or local file path.
+
+    Examples:
+        Parse XML from a remote URL:
+        >>> xml = _get_xml("https://ckan.publishing.service.gov.uk/harvest/object/715bc6a9-1008-4061-8783-d12e9e7f38a9")
+        >>> xml.docinfo.root_name
+        'MD_Metadata'
+
+        Parse XML from a local file path:
+        >>> xml = _get_xml("../../tests/test_metadata/ramsar.xml")
+        >>> xml.docinfo.root_name
+        'MD_Metadata'
+
+    Args:
+        path (str): A remote URL or local file path.
+        metadata_kwargs (Dict[str, Any]): Key word arguments to be passed to the
+            requests `get`_ method when reading xml metadata from a URL.
+
+    Returns:
+        ElementTree: an ElementTree representation of the XML.
+
+    .. _get:
+        https://requests.readthedocs.io/en/latest/api/#requests.request
+    """  # noqa: B950 - URL
+    if path.startswith("http"):
+        response = get(path, **metadata_kwargs)
+        buffered_content = BytesIO(response.content)
+        return parse(buffered_content)  # noqa: S320 - assuming we can trust the XML
+    else:
+        return parse(path)  # noqa: S320 - assuming we can trust the XML
 
 
 @dataclass
@@ -241,16 +299,29 @@ class Metadata:
     # metadata_standard_version: Optional[str]  #! Optional
 
     @classmethod
-    def from_file(cls: Type[MetadataType], xml_path: str) -> MetadataType:
+    def from_file(
+        cls: Type[MetadataType],
+        xml_path: str,
+        metadata_kwargs: Optional[Dict[str, Any]] = None,
+    ) -> MetadataType:
         """# TODO.
 
         Args:
-            xml_path (str): # TODO
+            xml_path (str): A remote URL or local file path.
+            metadata_kwargs (Dict[str, Any]): Key word arguments to be passed to the
+                requests `get`_ method when reading xml metadata from a URL.
 
         Returns:
             MetadataType: # TODO
+
+        .. _get:
+            https://requests.readthedocs.io/en/latest/api/#requests.request
         """
-        xml = parse(xml_path)  # noqa: S410, S320 - assuming we can trust the XML
+        _metadata_kwargs = metadata_kwargs if metadata_kwargs else {"verify": False}
+
+        xml = _get_xml(
+            xml_path, _metadata_kwargs
+        )  # noqa: S410, S320 - assuming we can trust the XML
 
         root_element = xml.getroot()
 
