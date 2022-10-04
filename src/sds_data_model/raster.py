@@ -55,11 +55,90 @@
 #     masks: Generator[MaskTile, None, None]
 #     metadata: Metadata
 
-#     def to_data_arrays(self) -> TiledDataArrayLayer:
-#         data_arrays = (mask.to_data_array(name=self.name) for mask in self.masks)
+#    def to_data_arrays(self) -> TiledDataArrayLayer:
+#        data_arrays = (mask.to_data_array(name=self.name) for mask in self.masks)
 
 #         return TiledDataArrayLayer(
 #             name=self.name,
 #             data_arrays=data_arrays,
 #             metadata=self.metadata,
 #         )
+
+
+from dataclasses import dataclass
+from typing import Dict, List, Literal, Optional, Type, TypeVar, Union
+
+from xarray import Dataset
+
+from sds_data_model._raster import _read_dataset_from_file
+
+_DatasetWrapper = TypeVar("_DatasetWrapper", bound="DatasetWrapper")
+
+
+@dataclass
+class DatasetWrapper:
+    """A wrapper for an `xarray.dataset`."""
+
+    dataset: Dataset
+
+    @classmethod
+    def from_files(
+        cls: Type[_DatasetWrapper],
+        data_path: str,
+        bands: Union[List[int], List[str], None] = None,
+        categorical: Union[bool, Dict[Union[int, str], bool]] = False,
+        nodata: Optional[float] = None,
+        engine: Optional[str] = None,
+        decode_coords: Optional[Union[bool, Literal["coordinates", "all"]]] = "all",
+    ) -> _DatasetWrapper:
+        """Read in a raster from file at 10m cell size and British National Grid extent.
+
+        Examples:
+            Read 2 bands from raster, specifying that the first is categorical.
+
+            >>> dset_wrap_from_tif = DatasetWrapper.from_files(
+                    data_path="3_band_raster.tif",
+                    bands=[1, 2],
+                    categorical={1: True, 2: False},
+                )
+
+            Read 2 bands from raster, specifying both are categorical.
+
+            >>> dset_wrap_from_zarr = DatasetWrapper.from_files(
+                    data_path="multiband_raster.zarr",
+                    bands=["classification", "code"],
+                    categorical=True
+                )
+
+        Args:
+            data_path (str): File path to raster.
+            bands (Union[List[int], List[str], None], optional):  List of bands
+                to select from the raster. Defaults to None.
+            categorical (Union[bool, Dict[Union[int, str], bool]], optional):
+                `bool` or `dict` mapping ({band : bool}) of the interpolation
+                used to resample. Defaults to False.
+            nodata (Optional[float], optional): Value that will fill the grid where
+                there is no data (if it is not `None`). Defaults to None.
+            engine (Optional[str], optional): _description_. Engine used by
+                `open_dataset`. Defaults to None.
+            decode_coords (Optional[Union[bool, Literal["coordinates", "all"]]],
+             optional):
+                Value used by `open_dataset`. Variable upon `engine` selection.
+                Defaults to "all".
+
+        Returns:
+            _DatasetWrapper: A thin wrapper around an `xarray.Dataset` containing
+                `xarray.DataArray with 10m cell size and British National Grid extent.
+        """
+        dataset = _read_dataset_from_file(
+            data_path=data_path,
+            bands=bands,
+            categorical=categorical,
+            nodata=nodata,
+            engine=engine,
+            decode_coords=decode_coords,
+        )
+
+        return cls(
+            dataset=dataset,
+        )
