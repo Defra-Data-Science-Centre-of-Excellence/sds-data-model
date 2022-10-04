@@ -90,7 +90,7 @@ class DatasetWrapper:
         nodata: Optional[float] = None,
         engine: Optional[str] = None,
         decode_coords: Optional[Union[bool, Literal["coordinates", "all"]]] = "all",
-    ):
+    ) -> _DatasetWrapper:
         """Read in a raster from file at 10m cell size and British National Grid extent.
 
         Examples:
