@@ -35,13 +35,13 @@ class DataFrameWrapper:
             metadata_path: Optional[str] = None,
             name: Optional[str] = None,
             read_file_kwargs: Optional[Dict[str,Any]] = None
-    ):
+    ) -> _DataFrameWrapper:
         
         if read_file_kwargs:
             read_file_kwargs =  read_file_kwargs
         else:
             read_file_kwargs = {}
-            
+
         file_reader_pandas = { ".xlsx": read_excel,
                        ".xls": read_excel,
                        ".xlsm": read_excel,
