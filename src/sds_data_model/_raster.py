@@ -17,15 +17,17 @@ def _has_wrong_cell_size(
     transform: Affine,
     expected_cell_size: int,
 ) -> bool:
-    """Return true if the cell size of x (a) and y (e) in the \
-    input transform are **not equal** to the expected cell size.
+    """Return `True` if the cell size is not what is expected.
+    
+    Return `False` if either the x (a) and y (e) values of the input transform do
+    **not equal** the expected cell size.
 
     Args:
         transform (Affine): Input transform, the data being checked.
         expected_cell_size (int): The expected cell size in the transform.
 
     Returns:
-        bool: An indication in `_resample_and_reshape whether` to resample data.
+        bool: An indication in :func:`_resample_and_reshape` whether to resample data.
     """
     if transform.a != expected_cell_size or -transform.e != expected_cell_size:
         return True
@@ -38,8 +40,7 @@ def _has_wrong_shape(
     expected_x_min: int,
     expected_y_max: int,
 ) -> bool:
-    """Return true if the shape/extent of the input data \
-    is **not equal** to the expected shape.
+    """Return true if the shape/extent is **not equal** to the expected shape.
 
     Args:
         transform (Affine): Input transform, the data being checked.
@@ -47,7 +48,7 @@ def _has_wrong_shape(
         expected_y_max (int): The expected value for the y maximum.
 
     Returns:
-        bool: An indication in `_resample_and_reshape` whether to reshape/regrid data.
+        bool: An indication in :func:`_resample_and_reshape` whether to reshape/regrid data.
     """
     if transform.f != expected_y_max or transform.c != expected_x_min:
         return True
@@ -60,8 +61,7 @@ def _create_data_array(
     data: NDArray,
     geotransform: str,
 ) -> DataArray:
-    """An intermediate `DataArray` constructor for \
-    the updating of shape/extent/transform.
+    """An intermediate `DataArray` constructor for updating the shape/extent/transform.
 
     Args:
         data_array (DataArray): Original `DataArray`.
@@ -114,7 +114,7 @@ def _resample_cell_size(
     expected_cell_size: int,
     categorical: bool,
 ) -> DataArray:
-    """Returns a `DataArray` with scaled/resampled data using OpenCV.
+    """Returns a `DataArray` with scaled/resampled data using `OpenCV`_.
 
     Args:
         data_array (DataArray): Input `DataArray`.
@@ -123,7 +123,10 @@ def _resample_cell_size(
             Set to False will use bilinear. Set to True will use nearest-neighbour.
 
     Returns:
-        DataArray
+        DataArray: a `DataArray` with scaled/resampled data.
+    
+    .. _`OpenCV`:
+        https://github.com/opencv/opencv-python    
     """
     if categorical:
         interpolation = INTER_NEAREST
@@ -157,13 +160,13 @@ def _check_no_data(
             input `DataArray` if it is not `None`.
 
     Raises:
-        Exception: If the `nodata` arg is `None` and the input `DataArray`
+        ValueError: If the `nodata` arg is `None` and the input `DataArray`
             does not have a nodata value (that is not equal to None).
     """
     if nodata is not None:
         data_array.rio.write_nodata(nodata, inplace=True)
     elif data_array.rio.nodata is None:
-        raise Exception(
+        raise ValueError(
             "Input dataset does not have a nodata value. One must be provided."
         )
 
@@ -205,8 +208,7 @@ def _to_grid_extent(
     expected_y_max: int,
     nodata: Optional[float],
 ) -> DataArray:
-    """Returns a `DataArray` where the data of the input (`data_array`) has been \
-    inserted into a grid of shape (`expected_y_max`, `expected_x_max`).
+    """Inserts the input `data_array` into a `expected_y_max` * `expected_x_max` grid.
 
     Where the data of the input `DataArray` does not occupy the grid, these
     cells are set to the `nodata` value if it is provided, else the
@@ -216,7 +218,7 @@ def _to_grid_extent(
         data_array (DataArray): Input `DataArray`.
         expected_x_min (int): x minimum.
         expected_x_max (int): x maximum (width).
-        expected_y_max (int): y maxium (height).
+        expected_y_max (int): y maximum (height).
         nodata (Optional[float]): value that will fill the grid where
             there is no data (if it is not `None`).
 
@@ -303,8 +305,7 @@ def _resample_and_reshape(
     nodata: Optional[float],
     engine: Optional[str],
 ) -> Dataset:
-    """Checks and conditionally changes the cell size and shape/extent \
-    of the input `Dataset` against the input values.
+    """Resamples and/or reshapes a `Dataset` with the wrong extent or cell size.
 
     Functions will resample every DataArray in a `Dataset`
     (to `expected_cell_size`) and reshape/regrid (to `expected_y_max`, `expected_x_max`)
@@ -428,7 +429,7 @@ def _read_dataset_from_file(
             this value. Defaults to CELL_SIZE.
         expected_x_min (int): x minimum. Defaults to BNG_XMIN.
         expected_x_max (int): x maximum (width). Defaults to BNG_XMAX.
-        expected_y_max (int): y maxium (height). Defaults to BNG_YMAX.
+        expected_y_max (int): y maximum (height). Defaults to BNG_YMAX.
 
     Returns:
         Dataset: A dataset of `DataArray`s that conform to the `expected_...` values.

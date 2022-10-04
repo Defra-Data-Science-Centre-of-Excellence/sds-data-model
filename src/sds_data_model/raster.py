@@ -77,7 +77,7 @@ _DatasetWrapper = TypeVar("_DatasetWrapper", bound="DatasetWrapper")
 
 @dataclass
 class DatasetWrapper:
-    """#TODO DatasetWrapper class documentation."""
+    """A wrapper for an `xarray.dataset`."""
 
     dataset: Dataset
 
@@ -94,17 +94,20 @@ class DatasetWrapper:
         """Read in a raster from file at 10m cell size and British National Grid extent.
 
         Examples:
-            >>> from raster import DatasetWrapper
-            >>> dset_wrap_from_tif=DatasetWrapper.from_files(
-                data_path="3_band_raster.tif",
-                bands=[1, 2],
-                categorical={1 : True, 2 : False},
+            Read 2 bands from raster, specifying that the first is categorical.
+
+            >>> dset_wrap_from_tif = DatasetWrapper.from_files(
+                    data_path="3_band_raster.tif",
+                    bands=[1, 2],
+                    categorical={1: True, 2: False},
                 )
-            >>> # read 2 bands from raster, specifying both are categorical.
-            >>> dset_wrap_from_zarr=DatasetWrapper.from_files(
-                data_path="multiband_raster.zarr",
-                bands=["classification", "code"],
-                categorical=True
+
+            Read 2 bands from raster, specifying both are categorical.
+
+            >>> dset_wrap_from_zarr = DatasetWrapper.from_files(
+                    data_path="multiband_raster.zarr",
+                    bands=["classification", "code"],
+                    categorical=True
                 )
 
         Args:
@@ -124,7 +127,8 @@ class DatasetWrapper:
                 Defaults to "all".
 
         Returns:
-            DatasetWrapper
+            _DatasetWrapper: A thin wrapper around an `xarray.Dataset` containing
+                `xarray.DataArray with 10m cell size and British National Grid extent.
         """
         dataset = _read_dataset_from_file(
             data_path=data_path,
