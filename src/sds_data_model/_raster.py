@@ -18,7 +18,7 @@ def _has_wrong_cell_size(
     expected_cell_size: int,
 ) -> bool:
     """Return `True` if the cell size is not what is expected.
-    
+
     Return `False` if either the x (a) and y (e) values of the input transform do
     **not equal** the expected cell size.
 
@@ -48,7 +48,7 @@ def _has_wrong_shape(
         expected_y_max (int): The expected value for the y maximum.
 
     Returns:
-        bool: An indication in :func:`_resample_and_reshape` whether to reshape/regrid data.
+        bool: An indication in :func:`_resample_and_reshape` whether to reshape data.
     """
     if transform.f != expected_y_max or transform.c != expected_x_min:
         return True
@@ -124,9 +124,9 @@ def _resample_cell_size(
 
     Returns:
         DataArray: a `DataArray` with scaled/resampled data.
-    
+
     .. _`OpenCV`:
-        https://github.com/opencv/opencv-python    
+        https://github.com/opencv/opencv-python
     """
     if categorical:
         interpolation = INTER_NEAREST
