@@ -12,6 +12,7 @@ _DatasetWrapper = TypeVar("_DatasetWrapper", bound="DatasetWrapper")
 @dataclass
 class DatasetWrapper:
     """A wrapper for an `xarray.dataset`."""
+
     dataset: Dataset
 
     @classmethod

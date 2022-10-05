@@ -10,7 +10,6 @@ from lxml.etree import (  # noqa: S410 - assuming we can trust the XML
 )
 from requests import get
 
-
 from sds_data_model.constants import (
     ABSTRACT_XPATH,
     DATASET_LANGUAGE_XPATH,

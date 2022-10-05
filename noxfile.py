@@ -194,7 +194,6 @@ def coverage(session: Session) -> None:
 #     session.run("python", "-m", "xdoctest", *args)
 
 
-
 @session(name="docs-build", python=python_versions)  # type: ignore[call-overload]
 def docs_build(session: Session) -> None:
     """Build the documentation."""

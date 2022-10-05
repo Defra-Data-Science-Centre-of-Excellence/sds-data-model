@@ -510,7 +510,6 @@ def _get_category_lookup(
     Returns:
         CategoryLookup: # TODO
     """
-
     category_lookup = {
         index: category
         for index, category in enumerate(categorical_column.cat.categories)
