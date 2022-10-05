@@ -35,7 +35,954 @@
             
   <section id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-sds_data_model.constants">
+<span id="sds-data-model-constants-module"></span><h2>sds_data_model.constants module<a class="headerlink" href="#module-sds_data_model.constants" title="Permalink to this headline">¶</a></h2>
+<p>Constants.</p>
+</section>
+<section id="module-sds_data_model.graph">
+<span id="sds-data-model-graph-module"></span><h2>sds_data_model.graph module<a class="headerlink" href="#module-sds_data_model.graph" title="Permalink to this headline">¶</a></h2>
+<p>Graph module.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="sds_data_model.graph.initialise_graph">
+<span class="sig-prename descclassname"><span class="pre">sds_data_model.graph.</span></span><span class="sig-name descname"><span class="pre">initialise_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.graph.initialise_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise a graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_path</strong> (<em>str</em>) – filepath or url for data.</p></li>
+<li><p><strong>metadata_path</strong> (<em>str</em>) – filepath or url for metadata.</p></li>
+<li><p><strong>class_name</strong> (<em>str</em>) – Name of the class that’s created from the data and metadata.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A graph.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Digraph</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sds_data_model.graph.update_graph">
+<span class="sig-prename descclassname"><span class="pre">sds_data_model.graph.</span></span><span class="sig-name descname"><span class="pre">update_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_class_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.graph.update_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update an existing graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>graph</strong> (<em>Digraph</em>) – An exists graph.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – The name of the method to add to the graph.</p></li>
+<li><p><strong>output_class_name</strong> (<em>str</em>) – The name of the class that’s created by the method.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An updated graph.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Digraph</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-sds_data_model.logger">
+<span id="sds-data-model-logger-module"></span><h2>sds_data_model.logger module<a class="headerlink" href="#module-sds_data_model.logger" title="Permalink to this headline">¶</a></h2>
+<p>Logging decorator.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="sds_data_model.logger.log">
+<span class="sig-prename descclassname"><span class="pre">sds_data_model.logger.</span></span><span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.logger.log" title="Permalink to this definition">¶</a></dt>
+<dd><p># TODO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>func</strong> (<em>Callable</em>) – # TODO</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p># TODO</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sds_data_model.logger.stringify_callable">
+<span class="sig-prename descclassname"><span class="pre">sds_data_model.logger.</span></span><span class="sig-name descname"><span class="pre">stringify_callable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.logger.stringify_callable" title="Permalink to this definition">¶</a></dt>
+<dd><p># TODO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>Callable</em>) – # TODO</p></li>
+<li><p><strong>*args</strong> (<em>str</em>) – # TODO.</p></li>
+<li><p><strong>**kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – # TODO.</p></li>
+<li><p><strong>args</strong> (<em>str</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p># TODO</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-sds_data_model.metadata">
+<span id="sds-data-model-metadata-module"></span><h2>sds_data_model.metadata module<a class="headerlink" href="#module-sds_data_model.metadata" title="Permalink to this headline">¶</a></h2>
+<p>Metadata parsing module.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sds_data_model.metadata.Metadata">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sds_data_model.metadata.</span></span><span class="sig-name descname"><span class="pre">Metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_language</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abstract</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topic_category</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keyword</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lineage</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_language</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_identifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality_scope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_representation_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.metadata.Metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p># TODO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p># TODO</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>_type_</p>
+</dd>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>title</strong> (<em>str</em>) – </p></li>
+<li><p><strong>dataset_language</strong> (<em>Tuple</em><em>[</em><em>str</em><em>, </em><em>...</em><em>]</em>) – </p></li>
+<li><p><strong>abstract</strong> (<em>str</em>) – </p></li>
+<li><p><strong>topic_category</strong> (<em>Tuple</em><em>[</em><em>str</em><em>, </em><em>...</em><em>]</em>) – </p></li>
+<li><p><strong>keyword</strong> (<em>Tuple</em><em>[</em><em>str</em><em>, </em><em>...</em><em>]</em>) – </p></li>
+<li><p><strong>lineage</strong> (<em>str</em>) – </p></li>
+<li><p><strong>metadata_date</strong> (<em>str</em>) – </p></li>
+<li><p><strong>metadata_language</strong> (<em>str</em>) – </p></li>
+<li><p><strong>resource_type</strong> (<em>str</em>) – </p></li>
+<li><p><strong>file_identifier</strong> (<em>str</em>) – </p></li>
+<li><p><strong>quality_scope</strong> (<em>Tuple</em><em>[</em><em>str</em><em>, </em><em>...</em><em>]</em>) – </p></li>
+<li><p><strong>spatial_representation_type</strong> (<em>Tuple</em><em>[</em><em>str</em><em>, </em><em>...</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.metadata.Metadata.abstract">
+<span class="sig-name descname"><span class="pre">abstract</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sds_data_model.metadata.Metadata.abstract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.metadata.Metadata.dataset_language">
+<span class="sig-name descname"><span class="pre">dataset_language</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#sds_data_model.metadata.Metadata.dataset_language" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.metadata.Metadata.file_identifier">
+<span class="sig-name descname"><span class="pre">file_identifier</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sds_data_model.metadata.Metadata.file_identifier" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.metadata.Metadata.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xml_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.metadata.Metadata.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p># TODO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xml_path</strong> (<em>str</em>) – A remote URL or local file path.</p></li>
+<li><p><strong>metadata_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Key word arguments to be passed to the
+requests <a class="reference external" href="https://requests.readthedocs.io/en/latest/api/#requests.request">get</a> method when reading xml metadata from a URL.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p># TODO</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>MetadataType</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.metadata.Metadata.keyword">
+<span class="sig-name descname"><span class="pre">keyword</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#sds_data_model.metadata.Metadata.keyword" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.metadata.Metadata.lineage">
+<span class="sig-name descname"><span class="pre">lineage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sds_data_model.metadata.Metadata.lineage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.metadata.Metadata.metadata_date">
+<span class="sig-name descname"><span class="pre">metadata_date</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sds_data_model.metadata.Metadata.metadata_date" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.metadata.Metadata.metadata_language">
+<span class="sig-name descname"><span class="pre">metadata_language</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sds_data_model.metadata.Metadata.metadata_language" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.metadata.Metadata.quality_scope">
+<span class="sig-name descname"><span class="pre">quality_scope</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#sds_data_model.metadata.Metadata.quality_scope" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.metadata.Metadata.resource_type">
+<span class="sig-name descname"><span class="pre">resource_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sds_data_model.metadata.Metadata.resource_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.metadata.Metadata.spatial_representation_type">
+<span class="sig-name descname"><span class="pre">spatial_representation_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#sds_data_model.metadata.Metadata.spatial_representation_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.metadata.Metadata.title">
+<span class="sig-name descname"><span class="pre">title</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sds_data_model.metadata.Metadata.title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.metadata.Metadata.topic_category">
+<span class="sig-name descname"><span class="pre">topic_category</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#sds_data_model.metadata.Metadata.topic_category" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sds_data_model.raster">
+<span id="sds-data-model-raster-module"></span><h2>sds_data_model.raster module<a class="headerlink" href="#module-sds_data_model.raster" title="Permalink to this headline">¶</a></h2>
+<p>Raster wrapper class.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sds_data_model.raster.DatasetWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sds_data_model.raster.</span></span><span class="sig-name descname"><span class="pre">DatasetWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.raster.DatasetWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A wrapper for an <cite>xarray.dataset</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dataset</strong> (<em>xarray.core.dataset.Dataset</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.raster.DatasetWrapper.dataset">
+<span class="sig-name descname"><span class="pre">dataset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">xarray.core.dataset.Dataset</span></em><a class="headerlink" href="#sds_data_model.raster.DatasetWrapper.dataset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.raster.DatasetWrapper.from_files">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bands</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categorical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decode_coords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.raster.DatasetWrapper.from_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in a raster from file at 10m cell size and British National Grid extent.</p>
+<p class="rubric">Examples</p>
+<p>Read 2 bands from raster, specifying that the first is categorical.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dset_wrap_from_tif</span> <span class="o">=</span> <span class="n">DatasetWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+<span class="go">        data_path=&quot;3_band_raster.tif&quot;,</span>
+<span class="go">        bands=[1, 2],</span>
+<span class="go">        categorical={1: True, 2: False},</span>
+<span class="go">    )</span>
+</pre></div>
+</div>
+<p>Read 2 bands from raster, specifying both are categorical.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dset_wrap_from_zarr</span> <span class="o">=</span> <span class="n">DatasetWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+<span class="go">        data_path=&quot;multiband_raster.zarr&quot;,</span>
+<span class="go">        bands=[&quot;classification&quot;, &quot;code&quot;],</span>
+<span class="go">        categorical=True</span>
+<span class="go">    )</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_path</strong> (<em>str</em>) – File path to raster.</p></li>
+<li><p><strong>bands</strong> (<em>Union</em><em>[</em><em>List</em><em>[</em><em>int</em><em>]</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>None</em><em>]</em>) – List of bands
+to select from the raster. Defaults to None.</p></li>
+<li><p><strong>categorical</strong> (<em>Union</em><em>[</em><em>bool</em><em>, </em><em>Dict</em><em>[</em><em>Union</em><em>[</em><em>int</em><em>, </em><em>str</em><em>]</em><em>, </em><em>bool</em><em>]</em><em>]</em>) – <cite>bool</cite> or <cite>dict</cite> mapping ({band : bool}) of the interpolation
+used to resample. Defaults to False.</p></li>
+<li><p><strong>nodata</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Value that will fill the grid where
+there is no data (if it is not <cite>None</cite>). Defaults to None.</p></li>
+<li><p><strong>engine</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Engine used by <cite>open_dataset</cite>. Defaults to None.</p></li>
+<li><p><strong>decode_coords</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>bool</em><em>, </em><em>Literal</em><em>[</em><em>&quot;coordinates&quot;</em><em>, </em><em>&quot;all&quot;</em><em>]</em><em>]</em><em>]</em>) – Value used by <cite>open_dataset</cite>. Variable upon <cite>engine</cite> selection.
+Defaults to “all”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A thin wrapper around an <cite>xarray.Dataset</cite> containing</dt><dd><p><a href="#id1"><span class="problematic" id="id2">`</span></a>xarray.DataArray with 10m cell size and British National Grid extent.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>_DatasetWrapper</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sds_data_model.table">
+<span id="sds-data-model-table-module"></span><h2>sds_data_model.table module<a class="headerlink" href="#module-sds_data_model.table" title="Permalink to this headline">¶</a></h2>
+<p>Tabular data wrapper class.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sds_data_model.table.TableLayer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sds_data_model.table.</span></span><span class="sig-name descname"><span class="pre">TableLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.table.TableLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for simple rectangular table data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>df</strong> (<em>pandas.core.frame.DataFrame</em>) – </p></li>
+<li><p><strong>metadata</strong> (<a class="reference internal" href="#sds_data_model.metadata.Metadata" title="sds_data_model.metadata.Metadata"><em>sds_data_model.metadata.Metadata</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.table.TableLayer.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#sds_data_model.table.TableLayer.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.table.TableLayer.df">
+<span class="sig-name descname"><span class="pre">df</span></span><a class="headerlink" href="#sds_data_model.table.TableLayer.df" title="Permalink to this definition">¶</a></dt>
+<dd><p>pandas dataframe storing data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.table.TableLayer.metadata">
+<span class="sig-name descname"><span class="pre">metadata</span></span><a class="headerlink" href="#sds_data_model.table.TableLayer.metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>metadata for data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sds_data_model.metadata.Metadata" title="sds_data_model.metadata.Metadata">Metadata</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">df</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pandas.core.frame.DataFrame</span></em><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.table.TableLayer.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.table.TableLayer.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data from a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_path</strong> (<em>str</em>) – filepath or url for data.</p></li>
+<li><p><strong>data_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Additional arguments to pass
+to data reader. Defaults to None.</p></li>
+<li><p><strong>metadata_path</strong> (<em>str</em><em>, </em><em>optional</em>) – filepath or url for metadata. Defaults to
+None.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of data. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>NotImplementedError</strong> – # TODO</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>TableLayer object.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>_TableLayer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.table.TableLayer.join">
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">how</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'left'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.table.TableLayer.join" title="Permalink to this definition">¶</a></dt>
+<dd><p>Join two TableLayers using pandas merge method.</p>
+<p class="rubric">Examples</p>
+<p># TODO</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<em>_TableLayer</em>) – # TODO</p></li>
+<li><p><strong>how</strong> (<em>str</em>) – # TODO. Defaults to “left”.</p></li>
+<li><p><strong>kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – # TODO. Defaults to None.</p></li>
+<li><p><strong>self</strong> (<em>sds_data_model.table._TableLayer</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p># TODO</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>_TableLayer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#sds_data_model.metadata.Metadata" title="sds_data_model.metadata.Metadata"><span class="pre">sds_data_model.metadata.Metadata</span></a></em><a class="headerlink" href="#id3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id4">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#id4" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.table.TableLayer.select">
+<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.table.TableLayer.select" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select columns from TableLayer DataFrame.</p>
+<p class="rubric">Examples</p>
+<p># TODO</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>columns</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – # TODO</p></li>
+<li><p><strong>self</strong> (<em>sds_data_model.table._TableLayer</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p># TODO</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>_TableLayer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.table.TableLayer.where">
+<span class="sig-name descname"><span class="pre">where</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">condition</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.table.TableLayer.where" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter rows from TableLayer DataFrame using pandas Series object.</p>
+<p class="rubric">Examples</p>
+<p># TODO</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>condition</strong> (<em>Series</em>) – # TODO</p></li>
+<li><p><strong>self</strong> (<em>sds_data_model.table._TableLayer</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p># TODO</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>_TableLayer</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sds_data_model.vector">
+<span id="sds-data-model-vector-module"></span><h2>sds_data_model.vector module<a class="headerlink" href="#module-sds_data_model.vector" title="Permalink to this headline">¶</a></h2>
+<p>Vector wrapper classes.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sds_data_model.vector.TiledVectorLayer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sds_data_model.vector.</span></span><span class="sig-name descname"><span class="pre">TiledVectorLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tiles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category_lookups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.vector.TiledVectorLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p># TODO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>tiles</strong> (<em>Tuple</em><em>[</em><a class="reference internal" href="#sds_data_model.vector.VectorTile" title="sds_data_model.vector.VectorTile"><em>sds_data_model.vector.VectorTile</em></a><em>, </em><em>...</em><em>]</em>) – </p></li>
+<li><p><strong>schema</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>graph</strong> (<em>graphviz.graphs.Digraph</em>) – </p></li>
+<li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#sds_data_model.metadata.Metadata" title="sds_data_model.metadata.Metadata"><em>sds_data_model.metadata.Metadata</em></a><em>]</em>) – </p></li>
+<li><p><strong>category_lookups</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Dict</em><em>[</em><em>int</em><em>, </em><em>str</em><em>]</em><em>]</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.vector.TiledVectorLayer.category_lookups">
+<span class="sig-name descname"><span class="pre">category_lookups</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#sds_data_model.vector.TiledVectorLayer.category_lookups" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.vector.TiledVectorLayer.from_files">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bboxes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">((0,</span> <span class="pre">1200000,</span> <span class="pre">100000,</span> <span class="pre">1300000),</span> <span class="pre">(100000,</span> <span class="pre">1200000,</span> <span class="pre">200000,</span> <span class="pre">1300000),</span> <span class="pre">(200000,</span> <span class="pre">1200000,</span> <span class="pre">300000,</span> <span class="pre">1300000),</span> <span class="pre">(300000,</span> <span class="pre">1200000,</span> <span class="pre">400000,</span> <span class="pre">1300000),</span> <span class="pre">(400000,</span> <span class="pre">1200000,</span> <span class="pre">500000,</span> <span class="pre">1300000),</span> <span class="pre">(500000,</span> <span class="pre">1200000,</span> <span class="pre">600000,</span> <span class="pre">1300000),</span> <span class="pre">(600000,</span> <span class="pre">1200000,</span> <span class="pre">700000,</span> <span class="pre">1300000),</span> <span class="pre">(0,</span> <span class="pre">1100000,</span> <span class="pre">100000,</span> <span class="pre">1200000),</span> <span class="pre">(100000,</span> <span class="pre">1100000,</span> <span class="pre">200000,</span> <span class="pre">1200000),</span> <span class="pre">(200000,</span> <span class="pre">1100000,</span> <span class="pre">300000,</span> <span class="pre">1200000),</span> <span class="pre">(300000,</span> <span class="pre">1100000,</span> <span class="pre">400000,</span> <span class="pre">1200000),</span> <span class="pre">(400000,</span> <span class="pre">1100000,</span> <span class="pre">500000,</span> <span class="pre">1200000),</span> <span class="pre">(500000,</span> <span class="pre">1100000,</span> <span class="pre">600000,</span> <span class="pre">1200000),</span> <span class="pre">(600000,</span> <span class="pre">1100000,</span> <span class="pre">700000,</span> <span class="pre">1200000),</span> <span class="pre">(0,</span> <span class="pre">1000000,</span> <span class="pre">100000,</span> <span class="pre">1100000),</span> <span class="pre">(100000,</span> <span class="pre">1000000,</span> <span class="pre">200000,</span> <span class="pre">1100000),</span> <span class="pre">(200000,</span> <span class="pre">1000000,</span> <span class="pre">300000,</span> <span class="pre">1100000),</span> <span class="pre">(300000,</span> <span class="pre">1000000,</span> <span class="pre">400000,</span> <span class="pre">1100000),</span> <span class="pre">(400000,</span> <span class="pre">1000000,</span> <span class="pre">500000,</span> <span class="pre">1100000),</span> <span class="pre">(500000,</span> <span class="pre">1000000,</span> <span class="pre">600000,</span> <span class="pre">1100000),</span> <span class="pre">(600000,</span> <span class="pre">1000000,</span> <span class="pre">700000,</span> <span class="pre">1100000),</span> <span class="pre">(0,</span> <span class="pre">900000,</span> <span class="pre">100000,</span> <span class="pre">1000000),</span> <span class="pre">(100000,</span> <span class="pre">900000,</span> <span class="pre">200000,</span> <span class="pre">1000000),</span> <span class="pre">(200000,</span> <span class="pre">900000,</span> <span class="pre">300000,</span> <span class="pre">1000000),</span> <span class="pre">(300000,</span> <span class="pre">900000,</span> <span class="pre">400000,</span> <span class="pre">1000000),</span> <span class="pre">(400000,</span> <span class="pre">900000,</span> <span class="pre">500000,</span> <span class="pre">1000000),</span> <span class="pre">(500000,</span> <span class="pre">900000,</span> <span class="pre">600000,</span> <span class="pre">1000000),</span> <span class="pre">(600000,</span> <span class="pre">900000,</span> <span class="pre">700000,</span> <span class="pre">1000000),</span> <span class="pre">(0,</span> <span class="pre">800000,</span> <span class="pre">100000,</span> <span class="pre">900000),</span> <span class="pre">(100000,</span> <span class="pre">800000,</span> <span class="pre">200000,</span> <span class="pre">900000),</span> <span class="pre">(200000,</span> <span class="pre">800000,</span> <span class="pre">300000,</span> <span class="pre">900000),</span> <span class="pre">(300000,</span> <span class="pre">800000,</span> <span class="pre">400000,</span> <span class="pre">900000),</span> <span class="pre">(400000,</span> <span class="pre">800000,</span> <span class="pre">500000,</span> <span class="pre">900000),</span> <span class="pre">(500000,</span> <span class="pre">800000,</span> <span class="pre">600000,</span> <span class="pre">900000),</span> <span class="pre">(600000,</span> <span class="pre">800000,</span> <span class="pre">700000,</span> <span class="pre">900000),</span> <span class="pre">(0,</span> <span class="pre">700000,</span> <span class="pre">100000,</span> <span class="pre">800000),</span> <span class="pre">(100000,</span> <span class="pre">700000,</span> <span class="pre">200000,</span> <span class="pre">800000),</span> <span class="pre">(200000,</span> <span class="pre">700000,</span> <span class="pre">300000,</span> <span class="pre">800000),</span> <span class="pre">(300000,</span> <span class="pre">700000,</span> <span class="pre">400000,</span> <span class="pre">800000),</span> <span class="pre">(400000,</span> <span class="pre">700000,</span> <span class="pre">500000,</span> <span class="pre">800000),</span> <span class="pre">(500000,</span> <span class="pre">700000,</span> <span class="pre">600000,</span> <span class="pre">800000),</span> <span class="pre">(600000,</span> <span class="pre">700000,</span> <span class="pre">700000,</span> <span class="pre">800000),</span> <span class="pre">(0,</span> <span class="pre">600000,</span> <span class="pre">100000,</span> <span class="pre">700000),</span> <span class="pre">(100000,</span> <span class="pre">600000,</span> <span class="pre">200000,</span> <span class="pre">700000),</span> <span class="pre">(200000,</span> <span class="pre">600000,</span> <span class="pre">300000,</span> <span class="pre">700000),</span> <span class="pre">(300000,</span> <span class="pre">600000,</span> <span class="pre">400000,</span> <span class="pre">700000),</span> <span class="pre">(400000,</span> <span class="pre">600000,</span> <span class="pre">500000,</span> <span class="pre">700000),</span> <span class="pre">(500000,</span> <span class="pre">600000,</span> <span class="pre">600000,</span> <span class="pre">700000),</span> <span class="pre">(600000,</span> <span class="pre">600000,</span> <span class="pre">700000,</span> <span class="pre">700000),</span> <span class="pre">(0,</span> <span class="pre">500000,</span> <span class="pre">100000,</span> <span class="pre">600000),</span> <span class="pre">(100000,</span> <span class="pre">500000,</span> <span class="pre">200000,</span> <span class="pre">600000),</span> <span class="pre">(200000,</span> <span class="pre">500000,</span> <span class="pre">300000,</span> <span class="pre">600000),</span> <span class="pre">(300000,</span> <span class="pre">500000,</span> <span class="pre">400000,</span> <span class="pre">600000),</span> <span class="pre">(400000,</span> <span class="pre">500000,</span> <span class="pre">500000,</span> <span class="pre">600000),</span> <span class="pre">(500000,</span> <span class="pre">500000,</span> <span class="pre">600000,</span> <span class="pre">600000),</span> <span class="pre">(600000,</span> <span class="pre">500000,</span> <span class="pre">700000,</span> <span class="pre">600000),</span> <span class="pre">(0,</span> <span class="pre">400000,</span> <span class="pre">100000,</span> <span class="pre">500000),</span> <span class="pre">(100000,</span> <span class="pre">400000,</span> <span class="pre">200000,</span> <span class="pre">500000),</span> <span class="pre">(200000,</span> <span class="pre">400000,</span> <span class="pre">300000,</span> <span class="pre">500000),</span> <span class="pre">(300000,</span> <span class="pre">400000,</span> <span class="pre">400000,</span> <span class="pre">500000),</span> <span class="pre">(400000,</span> <span class="pre">400000,</span> <span class="pre">500000,</span> <span class="pre">500000),</span> <span class="pre">(500000,</span> <span class="pre">400000,</span> <span class="pre">600000,</span> <span class="pre">500000),</span> <span class="pre">(600000,</span> <span class="pre">400000,</span> <span class="pre">700000,</span> <span class="pre">500000),</span> <span class="pre">(0,</span> <span class="pre">300000,</span> <span class="pre">100000,</span> <span class="pre">400000),</span> <span class="pre">(100000,</span> <span class="pre">300000,</span> <span class="pre">200000,</span> <span class="pre">400000),</span> <span class="pre">(200000,</span> <span class="pre">300000,</span> <span class="pre">300000,</span> <span class="pre">400000),</span> <span class="pre">(300000,</span> <span class="pre">300000,</span> <span class="pre">400000,</span> <span class="pre">400000),</span> <span class="pre">(400000,</span> <span class="pre">300000,</span> <span class="pre">500000,</span> <span class="pre">400000),</span> <span class="pre">(500000,</span> <span class="pre">300000,</span> <span class="pre">600000,</span> <span class="pre">400000),</span> <span class="pre">(600000,</span> <span class="pre">300000,</span> <span class="pre">700000,</span> <span class="pre">400000),</span> <span class="pre">(0,</span> <span class="pre">200000,</span> <span class="pre">100000,</span> <span class="pre">300000),</span> <span class="pre">(100000,</span> <span class="pre">200000,</span> <span class="pre">200000,</span> <span class="pre">300000),</span> <span class="pre">(200000,</span> <span class="pre">200000,</span> <span class="pre">300000,</span> <span class="pre">300000),</span> <span class="pre">(300000,</span> <span class="pre">200000,</span> <span class="pre">400000,</span> <span class="pre">300000),</span> <span class="pre">(400000,</span> <span class="pre">200000,</span> <span class="pre">500000,</span> <span class="pre">300000),</span> <span class="pre">(500000,</span> <span class="pre">200000,</span> <span class="pre">600000,</span> <span class="pre">300000),</span> <span class="pre">(600000,</span> <span class="pre">200000,</span> <span class="pre">700000,</span> <span class="pre">300000),</span> <span class="pre">(0,</span> <span class="pre">100000,</span> <span class="pre">100000,</span> <span class="pre">200000),</span> <span class="pre">(100000,</span> <span class="pre">100000,</span> <span class="pre">200000,</span> <span class="pre">200000),</span> <span class="pre">(200000,</span> <span class="pre">100000,</span> <span class="pre">300000,</span> <span class="pre">200000),</span> <span class="pre">(300000,</span> <span class="pre">100000,</span> <span class="pre">400000,</span> <span class="pre">200000),</span> <span class="pre">(400000,</span> <span class="pre">100000,</span> <span class="pre">500000,</span> <span class="pre">200000),</span> <span class="pre">(500000,</span> <span class="pre">100000,</span> <span class="pre">600000,</span> <span class="pre">200000),</span> <span class="pre">(600000,</span> <span class="pre">100000,</span> <span class="pre">700000,</span> <span class="pre">200000),</span> <span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">100000,</span> <span class="pre">100000),</span> <span class="pre">(100000,</span> <span class="pre">0,</span> <span class="pre">200000,</span> <span class="pre">100000),</span> <span class="pre">(200000,</span> <span class="pre">0,</span> <span class="pre">300000,</span> <span class="pre">100000),</span> <span class="pre">(300000,</span> <span class="pre">0,</span> <span class="pre">400000,</span> <span class="pre">100000),</span> <span class="pre">(400000,</span> <span class="pre">0,</span> <span class="pre">500000,</span> <span class="pre">100000),</span> <span class="pre">(500000,</span> <span class="pre">0,</span> <span class="pre">600000,</span> <span class="pre">100000),</span> <span class="pre">(600000,</span> <span class="pre">0,</span> <span class="pre">700000,</span> <span class="pre">100000))</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert_to_categorical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.vector.TiledVectorLayer.from_files" title="Permalink to this definition">¶</a></dt>
+<dd><p># TODO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_path</strong> (<em>str</em>) – # TODO</p></li>
+<li><p><strong>bboxes</strong> (<em>Tuple</em><em>[</em><em>BoundingBox</em><em>, </em><em>...</em><em>]</em>) – # TODO. Defaults to BBOXES.</p></li>
+<li><p><strong>data_kwargs</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – # TODO. Defaults
+to None.</p></li>
+<li><p><strong>convert_to_categorical</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – # TODO.
+Defaults to None.</p></li>
+<li><p><strong>metadata_path</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – # TODO. Defaults to None.</p></li>
+<li><p><strong>metadata_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Key word arguments to be passed to the
+requests <a class="reference external" href="https://requests.readthedocs.io/en/latest/api/#requests.request">get</a> method when reading xml metadata from a URL.</p></li>
+<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – # TODO. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p># TODO</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>_TiledVectorLayer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.vector.TiledVectorLayer.graph">
+<span class="sig-name descname"><span class="pre">graph</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">graphviz.graphs.Digraph</span></em><a class="headerlink" href="#sds_data_model.vector.TiledVectorLayer.graph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.vector.TiledVectorLayer.join">
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">how</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'left'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fillna</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.vector.TiledVectorLayer.join" title="Permalink to this definition">¶</a></dt>
+<dd><p># TODO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<em>DataFrame</em>) – # TODO</p></li>
+<li><p><strong>how</strong> (<em>str</em>) – # TODO. Defaults to “left”.</p></li>
+<li><p><strong>fillna</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – # TODO. Defaults to
+None.</p></li>
+<li><p><strong>**kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – # TODO.</p></li>
+<li><p><strong>self</strong> (<em>sds_data_model.vector._TiledVectorLayer</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p># TODO</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>_TiledVectorLayer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.vector.TiledVectorLayer.metadata">
+<span class="sig-name descname"><span class="pre">metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sds_data_model.metadata.Metadata" title="sds_data_model.metadata.Metadata"><span class="pre">sds_data_model.metadata.Metadata</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#sds_data_model.vector.TiledVectorLayer.metadata" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.vector.TiledVectorLayer.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sds_data_model.vector.TiledVectorLayer.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.vector.TiledVectorLayer.schema">
+<span class="sig-name descname"><span class="pre">schema</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#sds_data_model.vector.TiledVectorLayer.schema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.vector.TiledVectorLayer.select">
+<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.vector.TiledVectorLayer.select" title="Permalink to this definition">¶</a></dt>
+<dd><p># TODO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>columns</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – # TODO</p></li>
+<li><p><strong>self</strong> (<em>sds_data_model.vector._TiledVectorLayer</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p># TODO</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>_TiledVectorLayer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.vector.TiledVectorLayer.tiles">
+<span class="sig-name descname"><span class="pre">tiles</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sds_data_model.vector.VectorTile" title="sds_data_model.vector.VectorTile"><span class="pre">sds_data_model.vector.VectorTile</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#sds_data_model.vector.TiledVectorLayer.tiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.vector.TiledVectorLayer.to_data_array_as_mask">
+<span class="sig-name descname"><span class="pre">to_data_array_as_mask</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.vector.TiledVectorLayer.to_data_array_as_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p># TODO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p># TODO</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>DataArray</p>
+</dd>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>self</strong> (<em>sds_data_model.vector._TiledVectorLayer</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.vector.TiledVectorLayer.to_dataset_as_raster">
+<span class="sig-name descname"><span class="pre">to_dataset_as_raster</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.vector.TiledVectorLayer.to_dataset_as_raster" title="Permalink to this definition">¶</a></dt>
+<dd><p># TODO.</p>
+<p>This method rasterises the specified columns using a schema defined in
+VectorLayer. If columns have been specified as categorical by the user it
+updates the schema to uint32.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>columns</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – # TODO</p></li>
+<li><p><strong>self</strong> (<em>sds_data_model.vector._TiledVectorLayer</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p># TODO</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dataset</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.vector.TiledVectorLayer.where">
+<span class="sig-name descname"><span class="pre">where</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">condition</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.vector.TiledVectorLayer.where" title="Permalink to this definition">¶</a></dt>
+<dd><p># TODO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>condition</strong> (<em>Series</em>) – # TODO</p></li>
+<li><p><strong>self</strong> (<em>sds_data_model.vector._TiledVectorLayer</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p># TODO</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>_TiledVectorLayer</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sds_data_model.vector.VectorLayer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sds_data_model.vector.</span></span><span class="sig-name descname"><span class="pre">VectorLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpdf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category_lookups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.vector.VectorLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p># TODO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>gpdf</strong> (<em>geopandas.geodataframe.GeoDataFrame</em>) – </p></li>
+<li><p><strong>schema</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>graph</strong> (<em>graphviz.graphs.Digraph</em>) – </p></li>
+<li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#sds_data_model.metadata.Metadata" title="sds_data_model.metadata.Metadata"><em>sds_data_model.metadata.Metadata</em></a><em>]</em>) – </p></li>
+<li><p><strong>category_lookups</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Dict</em><em>[</em><em>int</em><em>, </em><em>str</em><em>]</em><em>]</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.vector.VectorLayer.category_lookups">
+<span class="sig-name descname"><span class="pre">category_lookups</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#sds_data_model.vector.VectorLayer.category_lookups" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.vector.VectorLayer.from_files">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert_to_categorical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.vector.VectorLayer.from_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a GeoDataframe with accompanying information on name, metadata and schema.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">vector</span> <span class="kn">import</span> <span class="n">VectorLayer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">aw</span> <span class="o">=</span> <span class="n">read_file</span><span class="p">(</span><span class="s2">&quot;https://services.arcgis.com/JJzESW51TqeY9uat/arcgis/rest/services/Ancient_Woodland_England/FeatureServer/0/query?outFields=*&amp;where=1%3D1&amp;f=geojson&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="s2">&quot;epsg:27700&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">aw</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s2">&quot;aw.gpkg&quot;</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="s1">&#39;aw&#39;</span><span class="p">,</span> <span class="n">driver</span><span class="o">=</span><span class="s2">&quot;GPKG&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">aw_dict</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">    &#39;OBJECTID&#39;: &#39;int32&#39;,</span>
+<span class="go">    &#39;NAME&#39;: &#39;object&#39;,</span>
+<span class="go">    &#39;THEME&#39;: &#39;object&#39;,</span>
+<span class="go">    &#39;THEMNAME&#39;: &#39;object&#39;,</span>
+<span class="go">    &#39;THEMID&#39;: &#39;int64&#39;,</span>
+<span class="go">    &#39;STATUS&#39;: &#39;object&#39;,</span>
+<span class="go">    &#39;PERIMETER&#39;: &#39;float64&#39;,</span>
+<span class="go">    &#39;AREA&#39;: &#39;float64&#39;,</span>
+<span class="go">    &#39;X_COORD&#39;: &#39;int64&#39;,</span>
+<span class="go">    &#39;Y_COORD&#39;: &#39;int64&#39;,</span>
+<span class="go">    &#39;Shape__Area&#39;: &#39;float64&#39;,</span>
+<span class="go">    &#39;Shape__Length&#39;: &#39;float64&#39;</span>
+<span class="go">    }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">VectorLayer</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+<span class="go">    data_path = &quot;aw.gpkg&quot;,</span>
+<span class="go">    name = &quot;Ancient Woodland - test dataset&quot;,</span>
+<span class="go">    schema = aw_dict)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_path</strong> (<em>str</em>) – file path to dataset.</p></li>
+<li><p><strong>data_kwargs</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – # TODO.</p></li>
+<li><p><strong>convert_to_categorical</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – # TODO.</p></li>
+<li><p><strong>metadata_path</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – # TODO.</p></li>
+<li><p><strong>metadata_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Key word arguments to be passed to the
+requests <a class="reference external" href="https://requests.readthedocs.io/en/latest/api/#requests.request">get</a> method when reading xml metadata from a URL.</p></li>
+<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – optional name to give VectorLayer output.</p></li>
+<li><p><strong>schema</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – optional dictionary of user-defined
+schema to pass, will get schema from dataset if none provided.
+User-defined dictionary should have the column as the “key”, and the
+data type as the “value”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>VectorLayer class of dataset.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>sds_data_model.vector._VectorLayer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.vector.VectorLayer.gpdf">
+<span class="sig-name descname"><span class="pre">gpdf</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">geopandas.geodataframe.GeoDataFrame</span></em><a class="headerlink" href="#sds_data_model.vector.VectorLayer.gpdf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.vector.VectorLayer.graph">
+<span class="sig-name descname"><span class="pre">graph</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">graphviz.graphs.Digraph</span></em><a class="headerlink" href="#sds_data_model.vector.VectorLayer.graph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.vector.VectorLayer.metadata">
+<span class="sig-name descname"><span class="pre">metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sds_data_model.metadata.Metadata" title="sds_data_model.metadata.Metadata"><span class="pre">sds_data_model.metadata.Metadata</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#sds_data_model.vector.VectorLayer.metadata" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.vector.VectorLayer.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sds_data_model.vector.VectorLayer.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.vector.VectorLayer.schema">
+<span class="sig-name descname"><span class="pre">schema</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#sds_data_model.vector.VectorLayer.schema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.vector.VectorLayer.to_tiles">
+<span class="sig-name descname"><span class="pre">to_tiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bboxes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">((0,</span> <span class="pre">1200000,</span> <span class="pre">100000,</span> <span class="pre">1300000),</span> <span class="pre">(100000,</span> <span class="pre">1200000,</span> <span class="pre">200000,</span> <span class="pre">1300000),</span> <span class="pre">(200000,</span> <span class="pre">1200000,</span> <span class="pre">300000,</span> <span class="pre">1300000),</span> <span class="pre">(300000,</span> <span class="pre">1200000,</span> <span class="pre">400000,</span> <span class="pre">1300000),</span> <span class="pre">(400000,</span> <span class="pre">1200000,</span> <span class="pre">500000,</span> <span class="pre">1300000),</span> <span class="pre">(500000,</span> <span class="pre">1200000,</span> <span class="pre">600000,</span> <span class="pre">1300000),</span> <span class="pre">(600000,</span> <span class="pre">1200000,</span> <span class="pre">700000,</span> <span class="pre">1300000),</span> <span class="pre">(0,</span> <span class="pre">1100000,</span> <span class="pre">100000,</span> <span class="pre">1200000),</span> <span class="pre">(100000,</span> <span class="pre">1100000,</span> <span class="pre">200000,</span> <span class="pre">1200000),</span> <span class="pre">(200000,</span> <span class="pre">1100000,</span> <span class="pre">300000,</span> <span class="pre">1200000),</span> <span class="pre">(300000,</span> <span class="pre">1100000,</span> <span class="pre">400000,</span> <span class="pre">1200000),</span> <span class="pre">(400000,</span> <span class="pre">1100000,</span> <span class="pre">500000,</span> <span class="pre">1200000),</span> <span class="pre">(500000,</span> <span class="pre">1100000,</span> <span class="pre">600000,</span> <span class="pre">1200000),</span> <span class="pre">(600000,</span> <span class="pre">1100000,</span> <span class="pre">700000,</span> <span class="pre">1200000),</span> <span class="pre">(0,</span> <span class="pre">1000000,</span> <span class="pre">100000,</span> <span class="pre">1100000),</span> <span class="pre">(100000,</span> <span class="pre">1000000,</span> <span class="pre">200000,</span> <span class="pre">1100000),</span> <span class="pre">(200000,</span> <span class="pre">1000000,</span> <span class="pre">300000,</span> <span class="pre">1100000),</span> <span class="pre">(300000,</span> <span class="pre">1000000,</span> <span class="pre">400000,</span> <span class="pre">1100000),</span> <span class="pre">(400000,</span> <span class="pre">1000000,</span> <span class="pre">500000,</span> <span class="pre">1100000),</span> <span class="pre">(500000,</span> <span class="pre">1000000,</span> <span class="pre">600000,</span> <span class="pre">1100000),</span> <span class="pre">(600000,</span> <span class="pre">1000000,</span> <span class="pre">700000,</span> <span class="pre">1100000),</span> <span class="pre">(0,</span> <span class="pre">900000,</span> <span class="pre">100000,</span> <span class="pre">1000000),</span> <span class="pre">(100000,</span> <span class="pre">900000,</span> <span class="pre">200000,</span> <span class="pre">1000000),</span> <span class="pre">(200000,</span> <span class="pre">900000,</span> <span class="pre">300000,</span> <span class="pre">1000000),</span> <span class="pre">(300000,</span> <span class="pre">900000,</span> <span class="pre">400000,</span> <span class="pre">1000000),</span> <span class="pre">(400000,</span> <span class="pre">900000,</span> <span class="pre">500000,</span> <span class="pre">1000000),</span> <span class="pre">(500000,</span> <span class="pre">900000,</span> <span class="pre">600000,</span> <span class="pre">1000000),</span> <span class="pre">(600000,</span> <span class="pre">900000,</span> <span class="pre">700000,</span> <span class="pre">1000000),</span> <span class="pre">(0,</span> <span class="pre">800000,</span> <span class="pre">100000,</span> <span class="pre">900000),</span> <span class="pre">(100000,</span> <span class="pre">800000,</span> <span class="pre">200000,</span> <span class="pre">900000),</span> <span class="pre">(200000,</span> <span class="pre">800000,</span> <span class="pre">300000,</span> <span class="pre">900000),</span> <span class="pre">(300000,</span> <span class="pre">800000,</span> <span class="pre">400000,</span> <span class="pre">900000),</span> <span class="pre">(400000,</span> <span class="pre">800000,</span> <span class="pre">500000,</span> <span class="pre">900000),</span> <span class="pre">(500000,</span> <span class="pre">800000,</span> <span class="pre">600000,</span> <span class="pre">900000),</span> <span class="pre">(600000,</span> <span class="pre">800000,</span> <span class="pre">700000,</span> <span class="pre">900000),</span> <span class="pre">(0,</span> <span class="pre">700000,</span> <span class="pre">100000,</span> <span class="pre">800000),</span> <span class="pre">(100000,</span> <span class="pre">700000,</span> <span class="pre">200000,</span> <span class="pre">800000),</span> <span class="pre">(200000,</span> <span class="pre">700000,</span> <span class="pre">300000,</span> <span class="pre">800000),</span> <span class="pre">(300000,</span> <span class="pre">700000,</span> <span class="pre">400000,</span> <span class="pre">800000),</span> <span class="pre">(400000,</span> <span class="pre">700000,</span> <span class="pre">500000,</span> <span class="pre">800000),</span> <span class="pre">(500000,</span> <span class="pre">700000,</span> <span class="pre">600000,</span> <span class="pre">800000),</span> <span class="pre">(600000,</span> <span class="pre">700000,</span> <span class="pre">700000,</span> <span class="pre">800000),</span> <span class="pre">(0,</span> <span class="pre">600000,</span> <span class="pre">100000,</span> <span class="pre">700000),</span> <span class="pre">(100000,</span> <span class="pre">600000,</span> <span class="pre">200000,</span> <span class="pre">700000),</span> <span class="pre">(200000,</span> <span class="pre">600000,</span> <span class="pre">300000,</span> <span class="pre">700000),</span> <span class="pre">(300000,</span> <span class="pre">600000,</span> <span class="pre">400000,</span> <span class="pre">700000),</span> <span class="pre">(400000,</span> <span class="pre">600000,</span> <span class="pre">500000,</span> <span class="pre">700000),</span> <span class="pre">(500000,</span> <span class="pre">600000,</span> <span class="pre">600000,</span> <span class="pre">700000),</span> <span class="pre">(600000,</span> <span class="pre">600000,</span> <span class="pre">700000,</span> <span class="pre">700000),</span> <span class="pre">(0,</span> <span class="pre">500000,</span> <span class="pre">100000,</span> <span class="pre">600000),</span> <span class="pre">(100000,</span> <span class="pre">500000,</span> <span class="pre">200000,</span> <span class="pre">600000),</span> <span class="pre">(200000,</span> <span class="pre">500000,</span> <span class="pre">300000,</span> <span class="pre">600000),</span> <span class="pre">(300000,</span> <span class="pre">500000,</span> <span class="pre">400000,</span> <span class="pre">600000),</span> <span class="pre">(400000,</span> <span class="pre">500000,</span> <span class="pre">500000,</span> <span class="pre">600000),</span> <span class="pre">(500000,</span> <span class="pre">500000,</span> <span class="pre">600000,</span> <span class="pre">600000),</span> <span class="pre">(600000,</span> <span class="pre">500000,</span> <span class="pre">700000,</span> <span class="pre">600000),</span> <span class="pre">(0,</span> <span class="pre">400000,</span> <span class="pre">100000,</span> <span class="pre">500000),</span> <span class="pre">(100000,</span> <span class="pre">400000,</span> <span class="pre">200000,</span> <span class="pre">500000),</span> <span class="pre">(200000,</span> <span class="pre">400000,</span> <span class="pre">300000,</span> <span class="pre">500000),</span> <span class="pre">(300000,</span> <span class="pre">400000,</span> <span class="pre">400000,</span> <span class="pre">500000),</span> <span class="pre">(400000,</span> <span class="pre">400000,</span> <span class="pre">500000,</span> <span class="pre">500000),</span> <span class="pre">(500000,</span> <span class="pre">400000,</span> <span class="pre">600000,</span> <span class="pre">500000),</span> <span class="pre">(600000,</span> <span class="pre">400000,</span> <span class="pre">700000,</span> <span class="pre">500000),</span> <span class="pre">(0,</span> <span class="pre">300000,</span> <span class="pre">100000,</span> <span class="pre">400000),</span> <span class="pre">(100000,</span> <span class="pre">300000,</span> <span class="pre">200000,</span> <span class="pre">400000),</span> <span class="pre">(200000,</span> <span class="pre">300000,</span> <span class="pre">300000,</span> <span class="pre">400000),</span> <span class="pre">(300000,</span> <span class="pre">300000,</span> <span class="pre">400000,</span> <span class="pre">400000),</span> <span class="pre">(400000,</span> <span class="pre">300000,</span> <span class="pre">500000,</span> <span class="pre">400000),</span> <span class="pre">(500000,</span> <span class="pre">300000,</span> <span class="pre">600000,</span> <span class="pre">400000),</span> <span class="pre">(600000,</span> <span class="pre">300000,</span> <span class="pre">700000,</span> <span class="pre">400000),</span> <span class="pre">(0,</span> <span class="pre">200000,</span> <span class="pre">100000,</span> <span class="pre">300000),</span> <span class="pre">(100000,</span> <span class="pre">200000,</span> <span class="pre">200000,</span> <span class="pre">300000),</span> <span class="pre">(200000,</span> <span class="pre">200000,</span> <span class="pre">300000,</span> <span class="pre">300000),</span> <span class="pre">(300000,</span> <span class="pre">200000,</span> <span class="pre">400000,</span> <span class="pre">300000),</span> <span class="pre">(400000,</span> <span class="pre">200000,</span> <span class="pre">500000,</span> <span class="pre">300000),</span> <span class="pre">(500000,</span> <span class="pre">200000,</span> <span class="pre">600000,</span> <span class="pre">300000),</span> <span class="pre">(600000,</span> <span class="pre">200000,</span> <span class="pre">700000,</span> <span class="pre">300000),</span> <span class="pre">(0,</span> <span class="pre">100000,</span> <span class="pre">100000,</span> <span class="pre">200000),</span> <span class="pre">(100000,</span> <span class="pre">100000,</span> <span class="pre">200000,</span> <span class="pre">200000),</span> <span class="pre">(200000,</span> <span class="pre">100000,</span> <span class="pre">300000,</span> <span class="pre">200000),</span> <span class="pre">(300000,</span> <span class="pre">100000,</span> <span class="pre">400000,</span> <span class="pre">200000),</span> <span class="pre">(400000,</span> <span class="pre">100000,</span> <span class="pre">500000,</span> <span class="pre">200000),</span> <span class="pre">(500000,</span> <span class="pre">100000,</span> <span class="pre">600000,</span> <span class="pre">200000),</span> <span class="pre">(600000,</span> <span class="pre">100000,</span> <span class="pre">700000,</span> <span class="pre">200000),</span> <span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">100000,</span> <span class="pre">100000),</span> <span class="pre">(100000,</span> <span class="pre">0,</span> <span class="pre">200000,</span> <span class="pre">100000),</span> <span class="pre">(200000,</span> <span class="pre">0,</span> <span class="pre">300000,</span> <span class="pre">100000),</span> <span class="pre">(300000,</span> <span class="pre">0,</span> <span class="pre">400000,</span> <span class="pre">100000),</span> <span class="pre">(400000,</span> <span class="pre">0,</span> <span class="pre">500000,</span> <span class="pre">100000),</span> <span class="pre">(500000,</span> <span class="pre">0,</span> <span class="pre">600000,</span> <span class="pre">100000),</span> <span class="pre">(600000,</span> <span class="pre">0,</span> <span class="pre">700000,</span> <span class="pre">100000))</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.vector.VectorLayer.to_tiles" title="Permalink to this definition">¶</a></dt>
+<dd><p># TODO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bboxes</strong> (<em>Tuple</em><em>[</em><em>BoundingBox</em><em>, </em><em>...</em><em>]</em><em>, </em><em>optional</em>) – # TODO. Defaults to
+BBOXES.</p></li>
+<li><p><strong>self</strong> (<em>sds_data_model.vector._VectorLayer</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p># TODO</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sds_data_model.vector.TiledVectorLayer" title="sds_data_model.vector.TiledVectorLayer">TiledVectorLayer</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sds_data_model.vector.VectorTile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sds_data_model.vector.</span></span><span class="sig-name descname"><span class="pre">VectorTile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bbox</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpdf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.vector.VectorTile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>#TODO VectorTile class documentation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bbox</strong> (<em>Tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>gpdf</strong> (<em>dask.delayed.Delayed</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.vector.VectorTile.bbox">
+<span class="sig-name descname"><span class="pre">bbox</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#sds_data_model.vector.VectorTile.bbox" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.vector.VectorTile.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert_to_categorical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category_lookups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.vector.VectorTile.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>#TODO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_path</strong> (<em>str</em>) – # TODO</p></li>
+<li><p><strong>bbox</strong> (<em>BoundingBox</em>) – # TODO</p></li>
+<li><p><strong>convert_to_categorical</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – # TODO.
+Defaults to None.</p></li>
+<li><p><strong>category_lookups</strong> (<em>Optional</em><em>[</em><em>CategoryLookups</em><em>]</em><em>, </em><em>optional</em>) – # TODO.
+Defaults to None.</p></li>
+<li><p><strong>data_kwargs</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – # TODO. Defaults
+to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p># TODO</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>_VectorTile</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.vector.VectorTile.gpdf">
+<span class="sig-name descname"><span class="pre">gpdf</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dask.delayed.Delayed</span></em><a class="headerlink" href="#sds_data_model.vector.VectorTile.gpdf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.vector.VectorTile.join">
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">how</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fillna</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.vector.VectorTile.join" title="Permalink to this definition">¶</a></dt>
+<dd><p># TODO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<em>DataFrame</em>) – # TODO</p></li>
+<li><p><strong>how</strong> (<em>str</em>) – # TODO</p></li>
+<li><p><strong>fillna</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – # TODO. Defaults to
+None.</p></li>
+<li><p><strong>**kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – # TODO.</p></li>
+<li><p><strong>self</strong> (<em>sds_data_model.vector._VectorTile</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p># TODO</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>_VectorTile</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.vector.VectorTile.select">
+<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.vector.VectorTile.select" title="Permalink to this definition">¶</a></dt>
+<dd><p># TODO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>columns</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – # TODO</p></li>
+<li><p><strong>self</strong> (<em>sds_data_model.vector._VectorTile</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p># TODO</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>_VectorTile</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.vector.VectorTile.to_mask">
+<span class="sig-name descname"><span class="pre">to_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10000,</span> <span class="pre">10000)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uint8'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.vector.VectorTile.to_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p># TODO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>out_shape</strong> (<em>Tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em>) – # TODO. Defaults to OUT_SHAPE.</p></li>
+<li><p><strong>invert</strong> (<em>bool</em>) – # TODO. Defaults to True.</p></li>
+<li><p><strong>dtype</strong> (<em>str</em>) – # TODO. Defaults to “uint8”.</p></li>
+<li><p><strong>self</strong> (<em>sds_data_model.vector._VectorTile</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p># TODO</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>NDArray[uint8]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.vector.VectorTile.to_raster">
+<span class="sig-name descname"><span class="pre">to_raster</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10000,</span> <span class="pre">10000)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uint8'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.vector.VectorTile.to_raster" title="Permalink to this definition">¶</a></dt>
+<dd><p># TODO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>column</strong> (<em>str</em>) – # TODO</p></li>
+<li><p><strong>out_shape</strong> (<em>Tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em>) – # TODO. Defaults to OUT_SHAPE.</p></li>
+<li><p><strong>dtype</strong> (<em>str</em>) – # TODO. Defaults to “uint8”.</p></li>
+<li><p><strong>self</strong> (<em>sds_data_model.vector._VectorTile</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p># TODO</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>NDArray[number]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sds_data_model.vector.VectorTile.transform">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transform</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">affine.Affine</span></em><a class="headerlink" href="#sds_data_model.vector.VectorTile.transform" title="Permalink to this definition">¶</a></dt>
+<dd><p># TODO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p># TODO</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Affine</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.vector.VectorTile.where">
+<span class="sig-name descname"><span class="pre">where</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">condition</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.vector.VectorTile.where" title="Permalink to this definition">¶</a></dt>
+<dd><p># TODO.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>condition</strong> (<em>Series</em>) – # TODO</p></li>
+<li><p><strong>self</strong> (<em>sds_data_model.vector._VectorTile</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p># TODO</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>_VectorTile</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sds_data_model">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-sds_data_model" title="Permalink to this headline">¶</a></h2>
 <p>SDS Data Model.</p>
+</section>
 </section>
 
 
@@ -57,7 +1004,18 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sds_data_model.constants">sds_data_model.constants module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sds_data_model.graph">sds_data_model.graph module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sds_data_model.logger">sds_data_model.logger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sds_data_model.metadata">sds_data_model.metadata module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sds_data_model.raster">sds_data_model.raster module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sds_data_model.table">sds_data_model.table module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sds_data_model.vector">sds_data_model.vector module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sds_data_model">Module contents</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributor Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="codeofconduct.html">Code of Conduct</a></li>
