@@ -46,17 +46,15 @@ class DatasetWrapper:
 
         Args:
             data_path (str): File path to raster.
-            bands (Union[List[int], List[str], None], optional):  List of bands
+            bands (Union[List[int], List[str], None]):  List of bands
                 to select from the raster. Defaults to None.
-            categorical (Union[bool, Dict[Union[int, str], bool]], optional):
+            categorical (Union[bool, Dict[Union[int, str], bool]]):
                 `bool` or `dict` mapping ({band : bool}) of the interpolation
                 used to resample. Defaults to False.
-            nodata (Optional[float], optional): Value that will fill the grid where
+            nodata (Optional[float]): Value that will fill the grid where
                 there is no data (if it is not `None`). Defaults to None.
-            engine (Optional[str], optional): _description_. Engine used by
-                `open_dataset`. Defaults to None.
-            decode_coords (Optional[Union[bool, Literal["coordinates", "all"]]],
-             optional):
+            engine (Optional[str]): Engine used by `open_dataset`. Defaults to None.
+            decode_coords (Optional[Union[bool, Literal["coordinates", "all"]]]):
                 Value used by `open_dataset`. Variable upon `engine` selection.
                 Defaults to "all".
 

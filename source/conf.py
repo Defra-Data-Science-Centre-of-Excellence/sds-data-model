@@ -14,13 +14,12 @@ from datetime import datetime
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("."))
+sys.path.insert(0, os.path.abspath(os.path.join("..", "..")))
 
 
 # -- Project information -----------------------------------------------------
 
 project = "SDS Data Model"
-copyright = "2022, Ed Fawcett-Taylor"
 author = "Piumi Algamagedona, Tim Ashelford, James Duffy, Ed Fawcett-Taylor, Samuel Flint, James Kenyon, Daniel Lewis, Jordan Pinder, Lara Spearman"
 copyright = f"{datetime.now().year}, {author}"
 
