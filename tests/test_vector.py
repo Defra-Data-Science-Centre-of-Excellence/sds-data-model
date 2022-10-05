@@ -1,9 +1,15 @@
 """Tests for Vector module."""
 from pathlib import Path
 
+from dask.diagnostics import ProgressBar
+from geopandas import GeoDataFrame
+from numpy import array_equal, dtype, int8, ones, zeros
+from numpy.typing import NDArray
 from pytest import fixture
+from shapely.geometry import box
+from xarray import open_dataset
 
-from sds_data_model.constants import CategoryLookups, Schema
+from sds_data_model.constants import BBOXES, CategoryLookups, Schema
 from sds_data_model.vector import TiledVectorLayer, VectorLayer
 
 
@@ -25,7 +31,7 @@ def expected_schema() -> Schema:
     return {
         "OBJECTID": "int32",
         "CTRY21CD": "object",
-        "CTRY21NM": "int16",
+        "CTRY21NM": "int8",
         "CTRY21NMW": "object",
         "BNG_E": "int32",
         "BNG_N": "int32",
@@ -42,6 +48,7 @@ def expected_category_lookups() -> CategoryLookups:
     """Expected VectorLayer category lookups."""
     return {
         "CTRY21NM": {
+            -1: "No data",
             0: "England",
             1: "Scotland",
             2: "Wales",
@@ -91,3 +98,88 @@ def test_tiled_vector_layer_from_files(
     assert received.metadata == expected_metadata
     assert received.schema == expected_schema
     assert received.category_lookups == expected_category_lookups
+
+
+@fixture
+def gpdf() -> GeoDataFrame:
+    """Dummy GeoDataFrame."""
+    return GeoDataFrame(
+        data={
+            "category": ["A", "B", "C", None],
+            "geometry": [box(*bbox) for bbox in BBOXES[0:4]],
+        },
+        crs="EPSG:27700",
+    )
+
+
+@fixture
+def expected_HL_array() -> NDArray[int8]:
+    """The expected array for grid cell HL."""
+    return zeros(
+        shape=(10_000, 10_000),
+        dtype=dtype("int8"),
+    )
+
+
+@fixture
+def expected_HM_array() -> NDArray[int8]:
+    """The expected array for grid cell HM."""
+    return ones(
+        shape=(10_000, 10_000),
+        dtype=dtype("int8"),
+    )
+
+
+def test_pipeline(
+    gpdf: GeoDataFrame,
+    tmp_path: Path,
+    expected_HL_array: NDArray[int8],
+    expected_HM_array: NDArray[int8],
+) -> None:
+    """Returns expected values for grid references HL and HM."""
+    gpkg_path = tmp_path / "test.gpkg"
+    zarr_path = tmp_path / "test.zarr"
+
+    gpdf.to_file(gpkg_path)
+
+    pipeline = (
+        VectorLayer.from_files(
+            data_path=gpkg_path,
+            name="test",
+            convert_to_categorical=["category"],
+        )
+        .to_tiles()
+        .to_dataset_as_raster(columns=["category"])
+        .to_zarr(
+            store=zarr_path,
+            mode="w",
+            compute=False,
+        )
+    )
+    with ProgressBar():
+        pipeline.compute()
+
+    dataset = open_dataset(
+        zarr_path,
+        chunks={
+            "northings": 10_000,
+            "eastings": 10_000,
+        },
+        engine="zarr",
+    )
+
+    received_HL_array = dataset["category"][range(0, 10_000), range(0, 10_000)].values
+
+    assert array_equal(
+        a1=received_HL_array,
+        a2=expected_HL_array,
+    )
+
+    received_HM_array = dataset["category"][
+        range(0, 10_000), range(10_000, 20_000)
+    ].values
+
+    assert array_equal(
+        a1=received_HM_array,
+        a2=expected_HM_array,
+    )
