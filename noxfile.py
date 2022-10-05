@@ -31,6 +31,7 @@ nox.options.sessions = (
     "safety",
     "mypy",
     "tests",
+    "lint",
     # "typeguard",
     # "xdoctest",
     "docs-build",
@@ -126,7 +127,7 @@ def black(session: Session) -> None:
 #         activate_virtualenv_in_precommit_hooks(session)
 
 
-@session(python="3.8", tags=["local"])  # type: ignore[call-overload]
+@session(python=python_versions, tags=["local"])  # type: ignore[call-overload]
 def safety(session: Session) -> None:
     """Scan dependencies for insecure packages."""
     requirements = session.poetry.export_requirements()
@@ -193,7 +194,7 @@ def coverage(session: Session) -> None:
 #     session.run("python", "-m", "xdoctest", *args)
 
 
-@session(name="docs-build", python="3.8")
+@session(name="docs-build", python=python_versions)
 def docs_build(session: Session) -> None:
     """Build the documentation."""
     args = session.posargs or ["-M", "html", "source", "_build"]
@@ -219,7 +220,7 @@ def docs_build(session: Session) -> None:
     rmtree(build_dir)
 
 
-@session(name="lint", python="3.8", tags=["local"])  # type: ignore[call-overload]
+@session(python=python_versions, tags=["local"])  # type: ignore[call-overload]
 def lint(session: Session) -> None:
     """Lint using flake8."""
     args = session.posargs or locations
