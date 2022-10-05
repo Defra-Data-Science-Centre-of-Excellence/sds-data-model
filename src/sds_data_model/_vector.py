@@ -6,7 +6,6 @@ from typing import Any, Dict, Generator, List, Optional, Tuple
 from affine import Affine
 from dask import delayed
 from dask.array import block, from_delayed
-from dask.delayed import Delayed
 from geopandas import GeoDataFrame
 from more_itertools import chunked
 from numpy import arange, number, ones, uint8, zeros
@@ -80,7 +79,7 @@ def _combine_kwargs(
     .. _pyogrio.read_dataframe:
         https://pyogrio.readthedocs.io/en/latest/api.html#pyogrio.read_dataframe
 
-    """
+    """  # noqa: B950
     if data_kwargs and additional_kwargs:
         return {
             **data_kwargs,
@@ -98,7 +97,21 @@ def _from_file(
     category_lookups: Optional[CategoryLookups] = None,
     data_kwargs: Optional[Dict[str, Any]] = None,
 ) -> GeoDataFrame:
-    """Returns a delayed GeoDataFrame clipped to a given bounding box."""
+    """Returns a delayed GeoDataFrame clipped to a given bounding box.
+
+    Args:
+        data_path (str): # TODO
+        bbox (BoundingBox): # TODO
+        convert_to_categorical (Optional[List[str]], optional): # TODO.
+            Defaults to None.
+        category_lookups (Optional[CategoryLookups], optional): # TODO.
+            Defaults to None.
+        data_kwargs (Optional[Dict[str, Any]], optional): # TODO. Defaults to
+            None.
+
+    Returns:
+        GeoDataFrame: # TODO
+    """
     combined_kwargs = _combine_kwargs(
         additional_kwargs={
             "bbox": bbox,
@@ -124,13 +137,29 @@ def _from_file(
 
 @delayed
 def _select(gpdf: GeoDataFrame, columns: List[str]) -> GeoDataFrame:
-    """Returns given columns from a delayed GeoDataFrame."""
+    """Returns given columns from a delayed GeoDataFrame.
+
+    Args:
+        gpdf (GeoDataFrame): # TODO
+        columns (List[str]): # TODO
+
+    Returns:
+        GeoDataFrame: # TODO
+    """
     return gpdf[columns]
 
 
 @delayed
 def _where(gpdf: GeoDataFrame, condition: Series) -> GeoDataFrame:
-    """Returns a delayed GeoDataFrame filtered by a given condition."""
+    """Returns a delayed GeoDataFrame filtered by a given condition.
+
+    Args:
+        gpdf (GeoDataFrame): # TODO
+        condition (Series): # TODO
+
+    Returns:
+        GeoDataFrame: # TODO
+    """
     return gpdf[condition]
 
 
@@ -140,9 +169,20 @@ def _join(
     other: DataFrame,
     how: str,
     fillna: Optional[Dict[str, Any]] = None,
-    **kwargs,
+    **kwargs: Dict[str, Any],
 ) -> GeoDataFrame:
-    """Returns a delayed GeoDataFrame joined to a given DataFrame."""
+    """Returns a delayed GeoDataFrame joined to a given DataFrame.
+
+    Args:
+        gpdf (GeoDataFrame): # TODO
+        other (DataFrame): # TODO
+        how (str): # TODO
+        fillna (Optional[Dict[str, Any]], optional): # TODO. Defaults to None.
+        **kwargs (Dict[str, Any]): # TODO.
+
+    Returns:
+        GeoDataFrame: # TODO
+    """
     _gpdf = merge(
         left=gpdf,
         right=other,
@@ -163,7 +203,18 @@ def _get_mask(
     dtype: str,
     transform: Affine,
 ) -> NDArray[uint8]:
-    """Returns a delayed boolean Numpy ndarray where 1 means the pixel overlaps a geometry."""
+    """Returns a delayed Numpy ndarray where 1 means the pixel overlaps a geometry.
+
+    Args:
+        gpdf (GeoDataFrame): # TODO
+        invert (bool): # TODO
+        out_shape (Tuple[int, int]): # TODO
+        dtype (str): # TODO
+        transform (Affine): # TODO
+
+    Returns:
+        NDArray[uint8]: # TODO
+    """
     if all(gpdf.geometry.is_empty) and invert:
         return zeros(
             shape=out_shape,
@@ -188,7 +239,15 @@ def _get_shapes(
     gpdf: GeoDataFrame,
     column: str,
 ) -> Generator[Tuple[BaseGeometry, Any], None, None]:
-    """Yields (Geometry, value) tuples for every row in a GeoDataFrame."""
+    """Yields (Geometry, value) tuples for every row in a GeoDataFrame.
+
+    Args:
+        gpdf (GeoDataFrame): # TODO
+        column (str): # TODO
+
+    Returns:
+        Generator[Tuple[BaseGeometry, Any], None, None]: # TODO
+    """
     return (
         (geometry, value) for geometry, value in zip(gpdf["geometry"], gpdf[column])
     )
@@ -201,9 +260,21 @@ def _to_raster(
     out_shape: Tuple[int, int],
     dtype: str,
     transform: Affine,
-    **kwargs,
+    **kwargs: Dict[str, Any],
 ) -> NDArray[number]:
-    """Returns a delayed boolean Numpy ndarray with values taken from a given column."""
+    """Returns a delayed boolean Numpy ndarray with values taken from a given column.
+
+    Args:
+        gpdf (GeoDataFrame): # TODO
+        column (str): # TODO
+        out_shape (Tuple[int, int]): # TODO
+        dtype (str): # TODO
+        transform (Affine): # TODO
+        **kwargs (Dict[str, Any]): # TODO.
+
+    Returns:
+        NDArray[number]: # TODO
+    """
     if all(gpdf.geometry.is_empty):
         return zeros(
             shape=out_shape,
@@ -230,7 +301,17 @@ def _from_delayed_to_data_array(
     metadata: Optional[Metadata],
     dtype: str,
 ) -> DataArray:
-    """Converts a 1D delayed Numpy array into a 2D DataArray."""
+    """Converts a 1D delayed Numpy array into a 2D DataArray.
+
+    Args:
+        delayed_arrays (Tuple[NDArray[number], ...]): # TODO
+        name (str): # TODO
+        metadata (Optional[Metadata]): # TODO
+        dtype (str): # TODO
+
+    Returns:
+        DataArray: # TODO
+    """
     dask_arrays = tuple(
         from_delayed(mask, dtype=dtype, shape=OUT_SHAPE) for mask in delayed_arrays
     )
@@ -288,7 +369,7 @@ def _get_info(
     .. _pyogrio.read_info:
         https://pyogrio.readthedocs.io/en/latest/api.html#pyogrio.read_info
 
-    """
+    """  # noqa: B950
     info: Dict[str, Any]
     if data_kwargs:
         info = read_info(
@@ -333,7 +414,7 @@ def _get_schema(
 
     Returns:
         Schema: A dictionary that maps column names to data types.
-    """
+    """  # noqa: B950
     zipped_fields_and_dtypes = zip(*tuple(info[key] for key in ("fields", "dtypes")))
     return {field: dtype for field, dtype in zipped_fields_and_dtypes}
 
@@ -371,7 +452,7 @@ def _get_gpdf(
     .. _pyogrio.read_dataframe:
         https://pyogrio.readthedocs.io/en/latest/api.html#pyogrio.read_dataframe
 
-    """
+    """  # noqa: B950
     if data_kwargs:
         return read_dataframe(
             data_path,
@@ -387,6 +468,15 @@ def _get_categorical_column(
     df: DataFrame,
     column_name: str,
 ) -> Series:
+    """# TODO.
+
+    Args:
+        df (DataFrame): # TODO
+        column_name (str): # TODO
+
+    Returns:
+        Series: # TODO
+    """
     column = df.loc[:, column_name]
     return column.astype("category")
 
@@ -394,6 +484,14 @@ def _get_categorical_column(
 def _get_category_lookup(
     categorical_column: Series,
 ) -> CategoryLookup:
+    """# TODO.
+
+    Args:
+        categorical_column (Series): # TODO
+
+    Returns:
+        CategoryLookup: # TODO
+    """
     return {
         index: category
         for index, category in enumerate(categorical_column.cat.categories)
@@ -403,6 +501,14 @@ def _get_category_lookup(
 def _get_category_dtype(
     categorical_column: Series,
 ) -> str:
+    """# TODO.
+
+    Args:
+        categorical_column (Series): # TODO
+
+    Returns:
+        str: # TODO
+    """
     dtype = categorical_column.cat.codes.dtype
     if dtype == "int8":
         return "int16"
@@ -415,7 +521,17 @@ def _get_categories_and_dtypes(
     convert_to_categorical: List[str],
     data_kwargs: Optional[Dict[str, str]] = None,
 ) -> Tuple[CategoryLookups, Schema]:
-    """Category and dtype looks for each column."""
+    """Category and dtype looks for each column.
+
+    Args:
+        data_path (str): # TODO
+        convert_to_categorical (List[str]): # TODO
+        data_kwargs (Optional[Dict[str, str]], optional): # TODO. Defaults to
+            None.
+
+    Returns:
+        Tuple[CategoryLookups, Schema]: # TODO
+    """
     combined_kwargs = _combine_kwargs(
         additional_kwargs={
             "read_geometry": False,
@@ -452,6 +568,15 @@ def _get_index_of_category(
     category_lookup: CategoryLookup,
     category: str,
 ) -> int:
+    """# TODO.
+
+    Args:
+        category_lookup (CategoryLookup): # TODO
+        category (str): # TODO
+
+    Returns:
+        int: # TODO
+    """
     category_values = list(category_lookup.values())
     return category_values.index(category)
 
@@ -460,6 +585,15 @@ def _get_code_for_category(
     category_lookup: CategoryLookup,
     category: str,
 ) -> int:
+    """# TODO.
+
+    Args:
+        category_lookup (CategoryLookup): # TODO
+        category (str): # TODO
+
+    Returns:
+        int: # TODO
+    """
     index = _get_index_of_category(
         category_lookup=category_lookup,
         category=category,
@@ -472,8 +606,20 @@ def _recode_categorical_strings(
     column: str,
     category_lookups: CategoryLookups,
 ) -> GeoDataFrame:
-    """Returns a GeoDataFrame where an integer representation of a categorical column specified by the user is assigned
-    to the GeoDataFrame - string representation is dropped but mapping is stored in self.category_lookup."""
+    """# TODO.
+
+    Returns a GeoDataFrame where an integer representation of a categorical column
+    specified by the user is assigned to the GeoDataFrame - string representation
+    is dropped but mapping is stored in self.category_lookup.
+
+    Args:
+        gpdf (GeoDataFrame): # TODO
+        column (str): # TODO
+        category_lookups (CategoryLookups): # TODO
+
+    Returns:
+        GeoDataFrame: # TODO
+    """
     gpdf.loc[:, column] = gpdf.loc[:, column].apply(
         lambda category: _get_code_for_category(
             category_lookup=category_lookups[column],
@@ -486,7 +632,7 @@ def _recode_categorical_strings(
 def _check_layer_projection(
     info: Dict[str, Any],
 ) -> None:
-    """Checks whether the projection is British National Grid (EPSG:27700)
+    """Checks whether the projection is British National Grid (EPSG:27700).
 
     Args:
         info (Dict[str, Any]): The dictionary of information returned by `_get_info`.
@@ -497,7 +643,7 @@ def _check_layer_projection(
     crs = info["crs"]
     if crs != "EPSG:27700":
         raise TypeError(
-            f"Projection is {crs}, not British National Grid (EPSG:27700). Reproject source data."
+            f"Projection is {crs}, not British National Grid (EPSG:27700). Reproject source data."  # noqa: B950
         )
 
 
@@ -599,7 +745,7 @@ def _get_metadata(
     Args:
         data_path (str): Path to the vector file.
         metadata_path (Optional[str]): Path to a `UK GEMINI`_ metadata file.
-        Defaults to None.
+            Defaults to None.
 
     Returns:
         Optional[Metadata]: An instance of :class: Metadata

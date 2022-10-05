@@ -1,3 +1,4 @@
+"""Tests for Vector module."""
 from pathlib import Path
 
 from pytest import fixture
@@ -8,16 +9,19 @@ from sds_data_model.vector import TiledVectorLayer, VectorLayer
 
 @fixture
 def expected_name() -> str:
+    """Expected VectorLayer name."""
     return "ctry_21_gb_buc"
 
 
 @fixture
 def expected_metadata() -> None:
+    """Expected VectorLayer metadata."""
     return None
 
 
 @fixture
 def expected_schema() -> Schema:
+    """Expected VectorLayer schema."""
     return {
         "OBJECTID": "int32",
         "CTRY21CD": "object",
@@ -35,6 +39,7 @@ def expected_schema() -> Schema:
 
 @fixture
 def expected_category_lookups() -> CategoryLookups:
+    """Expected VectorLayer category lookups."""
     return {
         "CTRY21NM": {
             0: "England",
@@ -51,6 +56,7 @@ def test_vector_layer_from_files(
     expected_metadata: None,
     expected_category_lookups: CategoryLookups,
 ) -> None:
+    """Reading Countries[...].zip returns a VectorLayer with expected values."""
     data_path = str(
         "/vsizip/" / shared_datadir / "Countries__December_2021__GB_BUC.zip"
     )
@@ -72,6 +78,7 @@ def test_tiled_vector_layer_from_files(
     expected_metadata: None,
     expected_category_lookups: CategoryLookups,
 ) -> None:
+    """Reading Countries[...].zip returns a TiledVectorLayer with expected values."""
     data_path = str(
         "/vsizip/" / shared_datadir / "Countries__December_2021__GB_BUC.zip"
     )
