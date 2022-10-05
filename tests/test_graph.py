@@ -1,3 +1,4 @@
+"""Tests for Graph module."""
 from getpass import getuser
 from pathlib import Path
 from re import sub
@@ -10,12 +11,14 @@ from sds_data_model.vector import VectorLayer
 
 @fixture
 def expected_dag(shared_datadir: Path) -> str:
+    """The DAG we expect our function to generate."""
     path_to_dot_file = shared_datadir / "ramsar_dag.dot"
     dag: str = Source.from_file(path_to_dot_file).source
     return dag
 
 
 def test_graph(shared_datadir: Path, expected_dag: Digraph) -> None:
+    """Reads data, then converting to tiles, produces the expected graph."""
     data_path = str(shared_datadir / "Ramsar__England__.zip")
     metadata_path = str(shared_datadir / "Ramsar__England__.xml")
 
@@ -28,7 +31,7 @@ def test_graph(shared_datadir: Path, expected_dag: Digraph) -> None:
     current_user = getuser()
 
     received_dag = sub(
-        pattern=rf"/tmp/pytest-of-{current_user}/pytest-\d+/test_graph\d+/",
+        pattern=rf"/tmp/pytest-of-{current_user}/pytest-\d+/test_graph\d+/",  # noqa: S108,B950
         repl=r"tests/",
         string=tiled_vector_layer.graph.source,
     )

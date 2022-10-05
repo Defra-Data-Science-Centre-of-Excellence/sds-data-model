@@ -1,15 +1,23 @@
+"""Graph module."""
 from functools import partial
 from re import search
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from graphviz import Digraph
 
 
 def _add_node(
     graph: Digraph,
-    *args,
-    **kwargs,
+    *args: str,
+    **kwargs: Dict[str, Any],
 ) -> None:
+    """Add a node to an exists graph.
+
+    Args:
+        graph (Digraph): An exists graph.
+        args (Any): arguments to be passed to the underlying `Digraph.node` method.
+        kwargs (Any): arguments to be passed to the underlying `Digraph.node` method.
+    """
     graph.node(*args, **kwargs)
 
 
@@ -33,6 +41,12 @@ def _add_data_path_node(
     graph: Digraph,
     data_path: str,
 ) -> None:
+    """Add a data path node to an existing graph.
+
+    Args:
+        graph (Digraph): An exists graph.
+        data_path (str): filepath or url for data.
+    """
     _add_terminal_node(
         graph,
         "data_path",
@@ -44,6 +58,12 @@ def _add_metadata_path_node(
     graph: Digraph,
     metadata_path: str,
 ) -> None:
+    """Add a metadata path node to an existing graph.
+
+    Args:
+        graph (Digraph): An exists graph.
+        metadata_path (str): filepath or url for metadata.
+    """
     _add_terminal_node(
         graph,
         "metadata_path",
@@ -55,6 +75,12 @@ def _add_function_node(
     graph: Digraph,
     function_name: str,
 ) -> None:
+    """Add a function node to an existing graph.
+
+    Args:
+        graph (Digraph): An exists graph.
+        function_name (str): The name of the function.
+    """
     _add_process_node(
         graph,
         function_name,
@@ -66,6 +92,12 @@ def _add_edges(
     graph: Digraph,
     edges: List[Tuple[str, str]],
 ) -> None:
+    """Add edges to an existing graph.
+
+    Args:
+        graph (Digraph): An exists graph.
+        edges (List[Tuple[str, str]]): List list of edges, i.e. nodes to connect.
+    """
     for edge in edges:
         graph.edge(*edge)
 
@@ -74,6 +106,12 @@ def _add_output_node(
     graph: Digraph,
     output_name: str,
 ) -> None:
+    """Add an output node to an existing graph.
+
+    Args:
+        graph (Digraph): An exists graph.
+        output_name (str): The name of the output.
+    """
     _add_input_output_node(
         graph,
         output_name,
@@ -82,8 +120,20 @@ def _add_output_node(
 
 
 def initialise_graph(
-    data_path: str, metadata_path: Optional[str], class_name: str
+    data_path: str,
+    metadata_path: Optional[str],
+    class_name: str,
 ) -> Digraph:
+    """Initialise a graph.
+
+    Args:
+        data_path (str): filepath or url for data.
+        metadata_path (str): filepath or url for metadata.
+        class_name (str): Name of the class that's created from the data and metadata.
+
+    Returns:
+        Digraph: A graph.
+    """
     graph = Digraph()
 
     _add_data_path_node(
@@ -133,6 +183,17 @@ def initialise_graph(
 def _get_input_node(
     graph: Digraph,
 ) -> str:
+    """Get the final node in an existing graph.
+
+    Args:
+        graph (Digraph): An exists graph.
+
+    Raises:
+        ValueError: If it's not possible to find the final node.
+
+    Returns:
+        str: The input node.
+    """
     match = search(
         pattern=r"-> (\w+)\n$",
         string=graph.body[-1],
@@ -148,6 +209,16 @@ def update_graph(
     method: str,
     output_class_name: str,
 ) -> Digraph:
+    """Update an existing graph.
+
+    Args:
+        graph (Digraph): An exists graph.
+        method (str): The name of the method to add to the graph.
+        output_class_name (str): The name of the class that's created by the method.
+
+    Returns:
+        Digraph: An updated graph.
+    """
     input_node = _get_input_node(
         graph=graph,
     )
