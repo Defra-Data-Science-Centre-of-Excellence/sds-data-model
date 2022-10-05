@@ -115,7 +115,7 @@ class DataFrameWrapper:
             meta= metadata
         )
 
-    @classmethod
+    #@classmethod
     def call_method(
         self: Self, 
         method_name: str,
