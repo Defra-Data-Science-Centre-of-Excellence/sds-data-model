@@ -6,40 +6,61 @@ from _pytest.fixtures import FixtureRequest
 from chispa.dataframe_comparer import assert_df_equality
 from pyspark.sql import DataFrame as SparkDataFrame
 from pyspark.sql import SparkSession
-from pytest import raises
-import pandas as pd
+from pyspark.sql.types import StructType, StructField, StringType
+from pytest import raises, FixtureRequest, fixture
 
-# def test__create_paths_sdf(
-#     spark_context: SparkSession,
-#     name: str,
-#     expected_name: SparkDataFrame,
-# ) -> None:
-#     """Returns the expected SparkDataFrame of paths."""
-#     paths_sdf = _create_paths_sdf(
-#         spark=spark_context,
-#         paths=(first_fileGDB_path,),
-#     )
-#     assert_df_equality(paths_sdf, expected_paths_sdf)
+from sds_data_model.dataframe import DataFrameWrapper
 
-def test_call_method(
-    spark_context: SparkSession,
-    #method_name: str, 
+@fixture
+def spark_context() -> SparkSession:
+    """Local Spark context."""
+    return (
+        SparkSession.builder.master(
+            "local",
+        )
+        .appName(
+            "Test context",
+        )
+        .getOrCreate()
+    )
+
+def expected_name() -> str:
+    """Expected DataFrameWrapper name."""
+    return "Trial csv"
+
+
+def expected_metadata() -> None:
+    """Expected DataFrameWrapper metadata."""
+    return None
+
+
+def expected_schema() :
+    """Expected DataFrameWrapper schema."""
+    return StructType([
+        StructField("_c0", StringType(), True),
+        StructField("_c1", StringType(), True)
+])
+    
+def expected_data():
+    data = spark_context.read.csv("tests/data/test_data.csv")
+    return data
+
+
+def test_vector_layer_from_files(
+    #shared_datadir: Path,
+    expected_name: str,
+    expected_schema,
+    expected_metadata: None,
+    expected_data
 ) -> None:
-    """_summary_
-
-    Args:
-        spark_context (SparkSession): _description_
-        method_name (str): _description_
-    """
-    expected_data = {'a':[1,2],
-       'b':[3,4]}
-    expected_df= pd.DataFrame(expected_data)
-    sparkDF =spark_context.createDataFrame(expected_df)
-    edit_data = {'a':[1,2,3],
-        'b':[3,4,5]}
-
-    edit_df= pd.DataFrame(edit_data)
-    sparkDF_edit =spark_context.createDataFrame(edit_df)
-    sparkDF_edited = sparkDF_edit.limit(2)
-
-    assert_df_equality(sparkDF, sparkDF_edited)
+    """Reading test data returns a DataFrameWrapper with expected values."""
+    data_path = "tests/data/test_data.csv"
+    received = DataFrameWrapper.from_files(
+        data_path=data_path,
+        name='Trial csv',
+    )
+    
+    assert received.name == expected_name
+    assert received.meta == expected_metadata
+    assert received.data.schema == expected_schema
+    assert_df_equality(received.data, expected_data)
