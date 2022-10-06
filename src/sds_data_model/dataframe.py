@@ -36,6 +36,33 @@ class DataFrameWrapper:
             name: Optional[str] = None,
             read_file_kwargs: Optional[Dict[str,Any]] = None
     ) -> _DataFrameWrapper:
+        """Reads in data with a range of file types, and converts it to a spark dataframe, wrapped with associated metadata
+        
+        Examples:
+        >>> from sds_data_model.dataframe import DataFrameWrapper
+
+        >>> wrapped_shp = DataFrameWrapper.from_files(name = "National parks",                               
+                                        data_path="/dbfs/mnt/base/unrestricted/source_defra_data_services_platform/dataset_national_parks/format_SHP_national_parks/LATEST_national_parks/",
+                                        read_file_kwargs = {'suffix':'.shp',  'ideal_chunk_size':1000},
+                                        metadata_path =  "https://ckan.publishing.service.gov.uk/harvest/object/656c07d1-67b3-4bdb-8ab3-75e118a7cf14"
+                                       )
+
+        >>> wrapped_csv = check_csv = DataFrameWrapper.from_files( name = "aes30", 
+                                        data_path="dbfs:/mnt/lab/unrestricted/james.duffy@defra.gov.uk/aes30_in_aonbs.csv", 
+                                        read_file_kwargs = {'header' :True}
+                                       )
+
+        Args:
+            cls (_DataFrameWrapper): DataFrameWrapper class , defined above
+            data_path (str): path to data, 
+            metadata_path (Optional[str], optional): _description_. Defaults to None.
+            name (Optional[str], optional): Name for data, either supplied by caller or obtained from metadata title. Defaults to None.
+            read_file_kwargs (Optional[Dict[str,Any]], optional): Additional kwargs supplied by the caller, dependent on the function called. Defaults to None.
+
+        Returns:
+            _DataFrameWrapper: _description_
+
+        """
         
         if read_file_kwargs:
             read_file_kwargs =  read_file_kwargs
