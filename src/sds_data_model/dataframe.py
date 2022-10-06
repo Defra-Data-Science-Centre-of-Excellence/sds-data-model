@@ -1,18 +1,15 @@
-from typing import Any, Dict, Generator, List, Optional, Tuple, TypeVar
+from typing import Any, Dict, Optional, TypeVar
 from typing_extensions import Self
 from pathlib import Path
 from inspect import ismethod, signature
 
 from dataclasses import dataclass
-from pyspark.pandas import  read_excel,DataFrame, Series
+from pyspark.pandas import  read_excel,DataFrame
 from pyspark.sql import DataFrame as SparkDataFrame
 
 from pyspark_vector_files import read_vector_files
 from pyspark_vector_files.gpkg import read_gpkg
 from pyspark.sql import SparkSession
-#from pyspark.sql import DataFrame as SparkDataFrame
-#from pyspark.sql import Column as SparkColumn
-
 
 from sds_data_model.metadata import Metadata
 from sds_data_model._vector import _get_metadata, _get_name # , _get_categories_and_dtypes,   _recode_categorical_strings
@@ -58,6 +55,7 @@ class DataFrameWrapper:
             name: Optional[str] = None,
             read_file_kwargs: Optional[Dict[str,Any]] = None
     ) -> _DataFrameWrapper:
+
         
         if read_file_kwargs:
             read_file_kwargs =  read_file_kwargs
@@ -115,34 +113,65 @@ class DataFrameWrapper:
             meta= metadata
         )
 
-    #@classmethod
     def call_method(
         self: Self, 
         method_name: str,
         *args,
         **kwargs,
     ) -> Optional[Self]:
-      #assign method call to an object, so you can examine it before implementing anything
+        """Calls spark method specified by user on spark dataframe in wrapper, using user specified arguments. 
+        THe function:
+        1) assign method call to attribute object, so you can examine it before implementing anything
+        2) check if method_name is a method
+        3) get the signature of method (what argument it takes, return type, etc. )
+        4) bind arguments to function arguments
+        5) create string to pass through graph generator
+        6) return value, as have checked relevant information and can now call method
+        7) if not method, assume its a property (eg. crs)
+        8) check if method_name returns a dataframe, if so update self.data attribute with that new data
+        9) if doesn't return a dataframe, (eg. called display), don't want to overwrite data attribute with nothing, so return original data
+        
+        Examples:
+            >>> from sds_data_model.dataframe import DataFrameWrapper
+
+            >>> Wrapped = DataFrameWrapper.from_files(name = "National parks",  
+                        data_path="/dbfs/mnt/base/unrestricted/source_defra_data_services_platform/dataset_traditional_orchards/format_SHP_traditional_orchards/LATEST_traditional_orchards/", 
+                        read_file_kwargs = {'suffix':'.shp',  'ideal_chunk_size':1000})
+        
+            Limit number of rows to 5
+            >>> Wrapped_small =  DataFrameWrapper.call_method(df_wrap,  method_name = 'limit', num = 8)
+
+            Look at data
+            >>> Wrapped_small.data.show()
+
+        Args:
+            self (Self): Spark DataFrame
+            method_name (str): Name of method or property called by user
+
+        Returns:
+            Optional[Self]: Spark Dataframe or property output
+        """
+      
         attribute = getattr(self.data, method_name)
-        #check if its a method
+        
         if ismethod(attribute):
-            #get the signature (what argument it takes, return type, etc. )
+           
             sig = signature(attribute)
-            #bind arguments to function arguments
+            
             arguments = sig.bind(*args, **kwargs).arguments
-            #create string to pass through graph generator
+           
             formatted_arguments = ",".join(f"{key}={value}" for key, value in arguments.items())
             logger.info(f"Calling {attribute.__qualname__}({formatted_arguments})")
-            #return value, so now no longer dealing with object, but calling method
+          
             return_value = attribute(*args, **kwargs)
         else:
-            #if not method, assume its a property (eg. crs)
+           
             logger.info(f"Calling {attribute.__qualname__}")
             return_value = attribute
-        #check if method_name returns a dataframe, if so update self.data attribute with that new data
+      
         if isinstance(return_value, SparkDataFrame):
             self.data = return_value
             return self
-        # if doesn't return a dataframe, (eg. called display), don't want to overwrite data attribute with nothing, so don't edit
+
         else:
             return return_value    
