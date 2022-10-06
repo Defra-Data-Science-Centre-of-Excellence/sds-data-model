@@ -5,7 +5,7 @@ name: CI
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop, lara56/issue106-update ]
   pull_request:
     branches: [ develop ]
 
