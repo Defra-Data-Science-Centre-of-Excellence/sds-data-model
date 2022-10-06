@@ -1108,12 +1108,11 @@ yaml = ["PyYAML (>=5.1.0)"]
 
 [[package]]
 name = "mypy"
-version = "0.990+dev.0cab54432a1df91a9b71637b773bcbb9772a6b59"
+version = "0.982"
 description = "Optional static typing for Python"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
-develop = false
 
 [package.dependencies]
 mypy-extensions = ">=0.4.3"
@@ -1122,15 +1121,8 @@ typing-extensions = ">=3.10"
 
 [package.extras]
 dmypy = ["psutil (>=4.0)"]
-install-types = ["pip"]
 python2 = ["typed-ast (>=1.4.0,<2)"]
 reports = ["lxml"]
-
-[package.source]
-type = "git"
-url = "https://github.com/python/mypy.git"
-reference = "master"
-resolved_reference = "0cab54432a1df91a9b71637b773bcbb9772a6b59"
 
 [[package]]
 name = "mypy-extensions"
@@ -2238,7 +2230,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.8"
-content-hash = "d41fb427d664d763d6b57b21f214060600623dc0f22dc918d1b178f7f2929dad"
+content-hash = "fd2968bc9ddc28e40ba628736078d8fb41c5098da986d2337ebb07e868089e80"
 
 [metadata.files]
 affine = [
