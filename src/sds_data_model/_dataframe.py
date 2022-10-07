@@ -11,6 +11,7 @@ def _get_name(
 ) -> str:
     """Returns the provided name, the associated metadata title,
      or raises an error.
+
     Examples:
         If `name` is provided, the function returns that name:
         >>> _get_name(
@@ -41,6 +42,7 @@ def _get_name(
         If neither are provided, an error is raised:
         >>> _get_name()
         ValueError: If there isn't any metadata, a name must be supplied.
+
     Args:
         metadata (Optional[Metadata]): A :class: Metadata object containing 
         imformation parsed from GEMINI XML. Defaults to None.
@@ -98,6 +100,10 @@ def _get_metadata(
         data_path (str): Path to the vector file.
         metadata_path (Optional[str]): Path to a `UK GEMINI`_ metadata file.
             Defaults to None.
+        metadata_kwargs (Optional[Dict[str, Any]]): Key word arguments to be passed to
+            the requests `get`_ method when reading xml metadata from a URL. Defaults
+            to None.
+
     Returns:
         Optional[Metadata]: An instance of :class: Metadata
     .. _`UK GEMINI`:

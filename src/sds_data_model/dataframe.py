@@ -33,7 +33,9 @@ class DataFrameWrapper:
             metadata_path: Optional[str] = None,
             metadata_kwargs: Optional[Dict[str, Any]] = None,
             name: Optional[str] = None,
-            read_file_kwargs: Optional[Dict[str, Any]] = None
+            read_file_kwargs: Optional[Dict[str, Any]] = None,
+            spark: Optional[SparkSession] = None
+            # optional spark session argument (_spark )
     ) -> _DataFrameWrapper:
         """Reads in data with a range of file types, and converts it to a spark dataframe,
         wrapped with associated metadata
@@ -65,7 +67,10 @@ class DataFrameWrapper:
             _DataFrameWrapper: _description_
 
         """
-        
+        #_spark = spark if spark else sparksession.getActiveSession  .. operator
+        #need to replace spark with _spark
+        _spark = spark if spark else SparkSession.getActiveSession()
+
         if read_file_kwargs:
             read_file_kwargs = read_file_kwargs
         else:
@@ -79,9 +84,9 @@ class DataFrameWrapper:
                               ".ods": read_excel,
                               ".odt": read_excel}
       
-        file_reader_spark = {".csv": spark.read.csv,
-                             ".json": spark.read.json,
-                             ".parquet": spark.read.parquet}
+        file_reader_spark = {".csv": _spark.read.csv,
+                             ".json": _spark.read.json,
+                             ".parquet": _spark.read.parquet}
         
         suffix_data_path = Path(data_path).suffix 
                
