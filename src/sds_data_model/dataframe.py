@@ -1,4 +1,4 @@
-from typing import Any, Dict, Generator, List, Optional, Tuple, Type
+from typing import Any, Dict, Optional,  Type, TypeVar
 from pathlib import Path
 
 from dataclasses import dataclass
