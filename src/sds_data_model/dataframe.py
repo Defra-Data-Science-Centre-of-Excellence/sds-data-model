@@ -24,13 +24,13 @@ _DataFrameWrapper = TypeVar("_DataFrameWrapper", bound = "DataFrameWrapper")
 class DataFrameWrapper:
     name: str
     data: DataFrame
-    meta: Optional[Dict[str, Any]]
+    metadata: Optional[Dict[str, Any]]
     #graph: Optional[DiGraph]
 
         
     @classmethod
     def from_files(
-            cls: Type(_DataFrameWrapper), 
+            cls: Type[_DataFrameWrapper], 
             data_path: str,
             metadata_path: Optional[str] = None,
             name: Optional[str] = None,
@@ -117,7 +117,7 @@ class DataFrameWrapper:
         return cls(
             name=_name,
             data = data,
-            meta= metadata
+            metadata= metadata
         )
 
         
