@@ -1,6 +1,6 @@
-from typing import Optional, Dict, Any
-from pathlib import Path
 from json import load
+from pathlib import Path
+from typing import Optional, Dict, Any
 
 from sds_data_model.metadata import Metadata
 
@@ -57,9 +57,7 @@ def _get_name(
     elif metadata:
         return metadata.title
     else:
-        raise ValueError(
-            "If there isn't any metadata, a name must be supplied."
-            )
+        raise ValueError("If there isn't any metadata, a name must be supplied.")
 
 
 def _get_metadata(
@@ -113,7 +111,7 @@ def _get_metadata(
     """
     json_sidecar = Path(f"{data_path}-metadata.json")
     if metadata_path:
-        metadata = Metadata.from_file(metadata_path)
+        metadata = Metadata.from_file(metadata_path, metadata_kwargs)
     elif not metadata_path and json_sidecar.exists():
         with open(json_sidecar, "r") as json_metadata:
             metadata_dictionary = load(json_metadata)
