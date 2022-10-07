@@ -4,18 +4,21 @@ from json import load
 
 from sds_data_model.metadata import Metadata
 
+
 def _get_name(
     metadata: Optional[Metadata] = None,
     name: Optional[str] = None,
 ) -> str:
-    """Returns the provided name, the associated metadata title, or raises an error.
+    """Returns the provided name, the associated metadata title,
+     or raises an error.
     Examples:
         If `name` is provided, the function returns that name:
         >>> _get_name(
             name="ramsar",
         )
         'ramsar'
-        If `name` isn't provided but a :class: Metadata object is, the function returns
+        If `name` isn't provided but a :class: Metadata object is,
+        the function returns
         `metadata.title`:
         >>> metadata = _get_metadata(
             data_path="tests/test_metadata/ramsar.gpkg",
@@ -39,8 +42,8 @@ def _get_name(
         >>> _get_name()
         ValueError: If there isn't any metadata, a name must be supplied.
     Args:
-        metadata (Optional[Metadata]): A :class: Metadata object containing information
-            parsed from GEMINI XML. Defaults to None.
+        metadata (Optional[Metadata]): A :class: Metadata object containing 
+        imformation parsed from GEMINI XML. Defaults to None.
         name (Optional[str]): A name, provided by the caller. Defaults to None.
     Raises:
         ValueError: If neither a name nor a `Metadata` are provided.
@@ -52,7 +55,10 @@ def _get_name(
     elif metadata:
         return metadata.title
     else:
-        raise ValueError("If there isn't any metadata, a name must be supplied.")
+        raise ValueError(
+            "If there isn't any metadata, a name must be supplied."
+            )
+
 
 def _get_metadata(
     data_path: str,
@@ -67,8 +73,8 @@ def _get_metadata(
         )
         >>> metadata.title
         'Ramsar (England)'
-        If `metadata_path` isn't provided but a json `sidecar`_ file exists, the
-        function will read that:
+        If `metadata_path` isn't provided but a json `sidecar`_ file exists,
+        the function will read that:
         >>> from os import listdir
         >>> listdir("tests/test_metadata")
         ['ramsar.gpkg', 'ramsar.gpkg-metadata.json']
@@ -77,8 +83,8 @@ def _get_metadata(
         )
         >>> metadata.title
         'Ramsar (England)'
-        If `metadata_path` isn't provided and there isn't a json sidecar file, the
-        function will return `None`:
+        If `metadata_path` isn't provided and there isn't a json sidecar file,
+        the function will return `None`:
         >>> from os import listdir
         >>> listdir("tests/test_metadata")
         ['ramsar.gpkg']
