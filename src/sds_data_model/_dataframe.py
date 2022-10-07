@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Dict, Any
 from pathlib import Path
 from json import load
 
@@ -63,6 +63,7 @@ def _get_name(
 def _get_metadata(
     data_path: str,
     metadata_path: Optional[str] = None,
+    metadata_kwargs: Optional[Dict[str, Any]] = None,
 ) -> Optional[Metadata]:
     """Read metadata from path, or json sidecar, or return None.
     Examples:

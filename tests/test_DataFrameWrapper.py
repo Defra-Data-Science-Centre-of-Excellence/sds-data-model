@@ -2,14 +2,14 @@ from pathlib import Path
 from typing import ContextManager, Optional, Tuple, Union
 
 import pytest
-from _pytest.fixtures import FixtureRequest
 from chispa.dataframe_comparer import assert_df_equality
 from pyspark.sql import DataFrame as SparkDataFrame
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType
-from pytest import raises, FixtureRequest, fixture
+from pytest import fixture
 
 from sds_data_model.dataframe import DataFrameWrapper
+
 
 @fixture
 def spark_context() -> SparkSession:
@@ -24,6 +24,7 @@ def spark_context() -> SparkSession:
         .getOrCreate()
     )
 
+
 def expected_name() -> str:
     """Expected DataFrameWrapper name."""
     return "Trial csv"
@@ -34,13 +35,14 @@ def expected_metadata() -> None:
     return None
 
 
-def expected_schema() :
+def expected_schema():
     """Expected DataFrameWrapper schema."""
     return StructType([
         StructField("_c0", StringType(), True),
         StructField("_c1", StringType(), True)
-])
-    
+    ])
+
+
 def expected_data():
     data = spark_context.read.csv("tests/data/test_data.csv")
     return data
@@ -61,6 +63,6 @@ def test_vector_layer_from_files(
     )
     
     assert received.name == expected_name
-    assert received.meta == expected_metadata
+    assert received.metadata == expected_metadata
     assert received.data.schema == expected_schema
     assert_df_equality(received.data, expected_data)
