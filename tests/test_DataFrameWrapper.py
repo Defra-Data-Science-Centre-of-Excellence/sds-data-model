@@ -38,17 +38,17 @@ def spark_context() -> SparkSession:
 #     # return p (path)
 
 @fixture
-def expected_name(spark_context) -> str:
+def expected_name() -> str:
     """Expected DataFrameWrapper name."""
     return "Trial csv"
 
 @fixture
-def expected_metadata(spark_context) -> None:
+def expected_metadata() -> None:
     """Expected DataFrameWrapper metadata."""
     return None
 
 @fixture
-def expected_schema(spark_context):
+def expected_schema():
     """Expected DataFrameWrapper schema."""
     return StructType([
         StructField("_c0", StringType(), True),
