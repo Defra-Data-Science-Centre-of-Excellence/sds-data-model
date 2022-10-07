@@ -1,4 +1,4 @@
-from typing import Any, Dict, Generator, List, Optional, Tuple, TypeVar
+from typing import Any, Dict, Generator, List, Optional, Tuple, Type
 from pathlib import Path
 
 from dataclasses import dataclass
@@ -30,7 +30,7 @@ class DataFrameWrapper:
         
     @classmethod
     def from_files(
-            cls: _DataFrameWrapper, 
+            cls: Type(_DataFrameWrapper), 
             data_path: str,
             metadata_path: Optional[str] = None,
             name: Optional[str] = None,
