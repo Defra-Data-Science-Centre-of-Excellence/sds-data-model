@@ -313,7 +313,7 @@ unicode_backport = ["unicodedata2"]
 name = "chispa"
 version = "0.9.2"
 description = "Pyspark test helper library"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.5"
 
@@ -2310,7 +2310,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.8"
-content-hash = "9a846661f680a1648d942a63385bbab6fb17c3db38fb798d789bf5cc2d3fa9eb"
+content-hash = "5dd969e2febc7d967f1e7e718bd88fa0da4cc92748cb6cc415e5af40bfa16c75"
 
 [metadata.files]
 affine = [
