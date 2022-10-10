@@ -1710,17 +1710,6 @@ packaging = "*"
 requests = "*"
 
 [[package]]
-name = "scipy"
-version = "1.9.1"
-description = "SciPy: Scientific Library for Python"
-category = "main"
-optional = false
-python-versions = ">=3.8,<3.12"
-
-[package.dependencies]
-numpy = ">=1.18.5,<1.25.0"
-
-[[package]]
 name = "setuptools-scm"
 version = "7.0.5"
 description = "the blessed package to manage your versions by scm tags"
@@ -2157,7 +2146,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.8"
-content-hash = "00fef696d869b7f3afc94df0e4abb3856e0f70449b2b82a6f9608d01d5842e2f"
+content-hash = "92bde24e1ac619a7f26b0a54ec56dcdd6cc7419429c94e71b028b2908259c678"
 
 [metadata.files]
 affine = []
@@ -2296,7 +2285,6 @@ rtree = []
 "ruamel.yaml" = []
 "ruamel.yaml.clib" = []
 safety = []
-scipy = []
 setuptools-scm = []
 shapely = []
 six = []
