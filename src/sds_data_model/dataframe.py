@@ -18,7 +18,6 @@ spark = SparkSession.getActiveSession()
 # DataFrameWrapper or one of its subclasses.
 _DataFrameWrapper = TypeVar("_DataFrameWrapper", bound="DataFrameWrapper")
 
-
 @dataclass
 class DataFrameWrapper:
     name: str
@@ -94,7 +93,8 @@ class DataFrameWrapper:
             data = file_reader_pandas[suffix_data_path](
                 data_path,  
                 **read_file_kwargs
-                ).to_spark()
+                )
+            data = data.to_spark()
 
         elif suffix_data_path in file_reader_spark.keys():
             data = file_reader_spark[suffix_data_path](
