@@ -71,7 +71,7 @@ def expected_data(spark_context):
 def test_vector_layer_from_files(
     spark_context,
     #shared_datadir: Path,
-    create_temp_file
+    create_temp_file,
     expected_name: str,
     expected_schema,
     expected_metadata: None,
