@@ -1,12 +1,11 @@
-from typing import Any, Dict, Optional,  Type, TypeVar
-from pathlib import Path
-
 from dataclasses import dataclass
-from pyspark.pandas import read_excel, DataFrame
+from pathlib import Path
+from typing import Any, Dict, Optional, Type, TypeVar
 
+from pyspark.pandas import DataFrame, read_excel
+from pyspark.sql import SparkSession
 from pyspark_vector_files import read_vector_files
 from pyspark_vector_files.gpkg import read_gpkg
-from pyspark.sql import SparkSession
 
 from sds_data_model._vector import _get_metadata, _get_name
 from sds_data_model.metadata import Metadata
@@ -18,31 +17,31 @@ spark = SparkSession.getActiveSession()
 # DataFrameWrapper or one of its subclasses.
 _DataFrameWrapper = TypeVar("_DataFrameWrapper", bound="DataFrameWrapper")
 
+
 @dataclass
 class DataFrameWrapper:
     name: str
     data: DataFrame
     metadata: Optional[Metadata]
-    #graph: Optional[DiGraph]
 
     @classmethod
     def from_files(
-            cls: Type[_DataFrameWrapper],
-            data_path: str,
-            metadata_path: Optional[str] = None,
-            metadata_kwargs: Optional[Dict[str, Any]] = None,
-            name: Optional[str] = None,
-            read_file_kwargs: Optional[Dict[str, Any]] = None,
-            spark: Optional[SparkSession] = None
-            # optional spark session argument (_spark )
+        cls: Type[_DataFrameWrapper],
+        data_path: str,
+        metadata_path: Optional[str] = None,
+        metadata_kwargs: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        read_file_kwargs: Optional[Dict[str, Any]] = None,
+        spark: Optional[SparkSession] = None
+        # optional spark session argument (_spark )
     ) -> _DataFrameWrapper:
         """Reads in data with a range of file types, and converts it to a spark dataframe,
         wrapped with associated metadata
-        
+
         Examples:
         >>> from sds_data_model.dataframe import DataFrameWrapper
 
-        >>> wrapped_shp = DataFrameWrapper.from_files(name = "National parks",                               
+        >>> wrapped_shp = DataFrameWrapper.from_files(name = "National parks",
                                         data_path="/dbfs/mnt/base/unrestricted/source_defra_data_services_platform/dataset_national_parks/format_SHP_national_parks/LATEST_national_parks/",
                                         read_file_kwargs = {'suffix':'.shp',
                                                             'ideal_chunk_size':1000},
@@ -51,13 +50,13 @@ class DataFrameWrapper:
 
         >>> wrapped_csv = check_csv = DataFrameWrapper.from_files(
                                         name = "aes30",
-                                        data_path="dbfs:/mnt/lab/unrestricted/james.duffy@defra.gov.uk/aes30_in_aonbs.csv", 
+                                        data_path="dbfs:/mnt/lab/unrestricted/james.duffy@defra.gov.uk/aes30_in_aonbs.csv",
                                         read_file_kwargs = {'header' :True}
                                        )
 
         Args:
             cls (_DataFrameWrapper): DataFrameWrapper class , defined above
-            data_path (str): path to data, 
+            data_path (str): path to data,
             metadata_path (Optional[str], optional): _description_. Defaults to None.
             name (Optional[str], optional): Name for data, either supplied by caller or obtained from metadata title. Defaults to None.
             read_file_kwargs (Optional[Dict[str,Any]], optional): Additional kwargs supplied by the caller, dependent on the function called. Defaults to None.
@@ -66,8 +65,6 @@ class DataFrameWrapper:
             _DataFrameWrapper: _description_
 
         """
-        #_spark = spark if spark else sparksession.getActiveSession  .. operator
-        #need to replace spark with _spark
         _spark = spark if spark else SparkSession.getActiveSession()
 
         if read_file_kwargs:
@@ -75,55 +72,40 @@ class DataFrameWrapper:
         else:
             read_file_kwargs = {}
 
-        file_reader_pandas = {".xlsx": read_excel,
-                              ".xls": read_excel,
-                              ".xlsm": read_excel,
-                              ".xlsb": read_excel,
-                              ".odf": read_excel,
-                              ".ods": read_excel,
-                              ".odt": read_excel}
-      
-        file_reader_spark = {".csv": _spark.read.csv,
-                             ".json": _spark.read.json,
-                             ".parquet": _spark.read.parquet}
-        
-        suffix_data_path = Path(data_path).suffix 
-               
+        file_reader_pandas = {
+            ".xlsx": read_excel,
+            ".xls": read_excel,
+            ".xlsm": read_excel,
+            ".xlsb": read_excel,
+            ".odf": read_excel,
+            ".ods": read_excel,
+            ".odt": read_excel,
+        }
+
+        file_reader_spark = {
+            ".csv": _spark.read.csv,
+            ".json": _spark.read.json,
+            ".parquet": _spark.read.parquet,
+        }
+
+        suffix_data_path = Path(data_path).suffix
+
         if suffix_data_path in file_reader_pandas.keys():
-            data = file_reader_pandas[suffix_data_path](
-                data_path,  
-                **read_file_kwargs
-                )
+            data = file_reader_pandas[suffix_data_path](data_path, **read_file_kwargs)
             data = data.to_spark()
 
         elif suffix_data_path in file_reader_spark.keys():
-            data = file_reader_spark[suffix_data_path](
-                data_path,
-                **read_file_kwargs)
+            data = file_reader_spark[suffix_data_path](data_path, **read_file_kwargs)
         elif suffix_data_path == ".gpkg":
-            data = read_gpkg(
-                data_path, 
-                **read_file_kwargs
-                )
+            data = read_gpkg(data_path, **read_file_kwargs)
         else:
-            data = read_vector_files(
-                data_path,
-                **read_file_kwargs
-            )
-                  
-        metadata = _get_metadata(
-            data_path=data_path,  
-            metadata_path=metadata_path)
-        
+            data = read_vector_files(data_path, **read_file_kwargs)
+
+        metadata = _get_metadata(data_path=data_path, metadata_path=metadata_path)
+
         _name = _get_name(
             name=name,
             metadata=metadata,
         )
-                
-        return cls(
-            name=_name,
-            data=data,
-            metadata=metadata
-        )
 
-        
+        return cls(name=_name, data=data, metadata=metadata)

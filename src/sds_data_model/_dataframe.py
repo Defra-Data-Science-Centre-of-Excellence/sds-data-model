@@ -1,6 +1,6 @@
 from json import load
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
 
 from sds_data_model.metadata import Metadata
 
@@ -44,7 +44,7 @@ def _get_name(
         ValueError: If there isn't any metadata, a name must be supplied.
 
     Args:
-        metadata (Optional[Metadata]): A :class: Metadata object containing 
+        metadata (Optional[Metadata]): A :class: Metadata object containing
         imformation parsed from GEMINI XML. Defaults to None.
         name (Optional[str]): A name, provided by the caller. Defaults to None.
     Raises:
