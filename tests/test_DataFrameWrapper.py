@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import ContextManager, Optional, Tuple, Union, Type, Any, Dict,
+from typing import ContextManager, Optional, Tuple, Union, Type, Any, Dict
 import os
 
 import pytest
