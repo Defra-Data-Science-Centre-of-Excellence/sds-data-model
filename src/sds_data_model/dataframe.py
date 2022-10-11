@@ -116,6 +116,7 @@ class DataFrameWrapper:
     def call_method(
         self: Self, 
         method_name: str,
+        /,
         *args,
         **kwargs,
     ) -> Optional[Self]:
