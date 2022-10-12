@@ -1,23 +1,21 @@
-from typing import Any, Dict, Optional, TypeVar
+from logging import getLogger, INFO, StreamHandler, Formatter
+from typing import Any, Dict, Optional,  Type, TypeVar
 from typing_extensions import Self
 from pathlib import Path
 from inspect import ismethod, signature
 
 from dataclasses import dataclass
-from pyspark.pandas import  read_excel,DataFrame
+from pyspark.pandas import read_excel
 from pyspark.sql import DataFrame as SparkDataFrame
 
 from pyspark_vector_files import read_vector_files
 from pyspark_vector_files.gpkg import read_gpkg
 from pyspark.sql import SparkSession
 
+from sds_data_model._vector import _get_metadata, _get_name
 from sds_data_model.metadata import Metadata
-from sds_data_model._vector import _get_metadata, _get_name # , _get_categories_and_dtypes,   _recode_categorical_strings
-
 
 spark = SparkSession.getActiveSession()
-
-from logging import getLogger, INFO, StreamHandler, Formatter
 
 # create logger and set level to info
 logger = getLogger("sds")
@@ -36,52 +34,84 @@ stream_handler.setFormatter(formatter)
 # add stream handler to logger
 logger.addHandler(stream_handler)
 
-# DataFrameWrapper is an upper bound for _DataFrameWrapper. Specifying bound means that _DataFrameWrapper will only be DataFrameWrapper or one of its subclasses. 
-_DataFrameWrapper = TypeVar("_DataFrameWrapper", bound = "DataFrameWrapper")
+# DataFrameWrapper is an upper bound for _DataFrameWrapper.
+# Specifying bound means that _DataFrameWrapper will only be
+# DataFrameWrapper or one of its subclasses.
+_DataFrameWrapper = TypeVar("_DataFrameWrapper", bound="DataFrameWrapper")
+
 
 @dataclass
 class DataFrameWrapper:
     name: str
-    data: DataFrame
-    meta: Optional[Dict[str, Any]]
+    data: SparkDataFrame
+    metadata: Optional[Metadata]
     #graph: Optional[DiGraph]
 
-        
     @classmethod
     def from_files(
-            cls: _DataFrameWrapper, 
+            cls: Type[_DataFrameWrapper],
             data_path: str,
             metadata_path: Optional[str] = None,
+            metadata_kwargs: Optional[Dict[str, Any]] = None,
             name: Optional[str] = None,
-            read_file_kwargs: Optional[Dict[str,Any]] = None
+            read_file_kwargs: Optional[Dict[str, Any]] = None,
+            spark: Optional[SparkSession] = None
+            # optional spark session argument (_spark )
     ) -> _DataFrameWrapper:
-
+        """Reads in data with a range of file types, and converts it to a spark dataframe,
+        wrapped with associated metadata
         
+        Examples:
+        >>> from sds_data_model.dataframe import DataFrameWrapper
+        >>> wrapped_shp = DataFrameWrapper.from_files(name = "National parks",                               
+                                        data_path="/dbfs/mnt/base/unrestricted/source_defra_data_services_platform/dataset_national_parks/format_SHP_national_parks/LATEST_national_parks/",
+                                        read_file_kwargs = {'suffix':'.shp',
+                                                            'ideal_chunk_size':1000},
+                                        metadata_path =  "https://ckan.publishing.service.gov.uk/harvest/object/656c07d1-67b3-4bdb-8ab3-75e118a7cf14"
+                                       )
+        >>> wrapped_csv = check_csv = DataFrameWrapper.from_files(
+                                        name = "aes30",
+                                        data_path="dbfs:/mnt/lab/unrestricted/james.duffy@defra.gov.uk/aes30_in_aonbs.csv", 
+                                        read_file_kwargs = {'header' :True}
+                                       )
+        Args:
+            cls (_DataFrameWrapper): DataFrameWrapper class , defined above
+            data_path (str): path to data, 
+            metadata_path (Optional[str], optional): _description_. Defaults to None.
+            name (Optional[str], optional): Name for data, either supplied by caller or obtained from metadata title. Defaults to None.
+            read_file_kwargs (Optional[Dict[str,Any]], optional): Additional kwargs supplied by the caller, dependent on the function called. Defaults to None.
+        Returns:
+            _DataFrameWrapper: _description_
+        """
+        #_spark = spark if spark else sparksession.getActiveSession  .. operator
+        #need to replace spark with _spark
+        _spark = spark if spark else SparkSession.getActiveSession()
+
         if read_file_kwargs:
-            read_file_kwargs =  read_file_kwargs
+            read_file_kwargs = read_file_kwargs
         else:
             read_file_kwargs = {}
 
-        file_reader_pandas = { ".xlsx": read_excel,
-                       ".xls": read_excel,
-                       ".xlsm": read_excel,
-                       ".xlsb": read_excel,
-                       ".odf": read_excel,
-                       ".ods": read_excel,
-                       ".odt": read_excel}
+        file_reader_pandas = {".xlsx": read_excel,
+                              ".xls": read_excel,
+                              ".xlsm": read_excel,
+                              ".xlsb": read_excel,
+                              ".odf": read_excel,
+                              ".ods": read_excel,
+                              ".odt": read_excel}
       
-        file_reader_spark = { ".csv": spark.read.csv,
-                       ".json": spark.read.json,
-                       ".parquet": spark.read.parquet}
+        file_reader_spark = {".csv": _spark.read.csv,
+                             ".json": _spark.read.json,
+                             ".parquet": _spark.read.parquet}
         
         suffix_data_path = Path(data_path).suffix 
-          
-        
+               
         if suffix_data_path in file_reader_pandas.keys():
-             data = file_reader_pandas[suffix_data_path](
+            data = file_reader_pandas[suffix_data_path](
                 data_path,  
                 **read_file_kwargs
-                ).to_spark()
+                )
+            data = data.to_spark()
 
         elif suffix_data_path in file_reader_spark.keys():
             data = file_reader_spark[suffix_data_path](
@@ -97,20 +127,20 @@ class DataFrameWrapper:
                 data_path,
                 **read_file_kwargs
             )
-           
-        
-        metadata = _get_metadata(data_path = data_path,  metadata_path = metadata_path)
+                  
+        metadata = _get_metadata(
+            data_path=data_path,  
+            metadata_path=metadata_path)
         
         _name = _get_name(
             name=name,
             metadata=metadata,
         )
-        
-        
+                
         return cls(
             name=_name,
-            data = data,
-            meta= metadata
+            data=data,
+            metadata=metadata
         )
 
     def call_method(
@@ -134,21 +164,17 @@ class DataFrameWrapper:
         
         Examples:
             >>> from sds_data_model.dataframe import DataFrameWrapper
-
             >>> Wrapped = DataFrameWrapper.from_files(name = "National parks",  
                         data_path="/dbfs/mnt/base/unrestricted/source_defra_data_services_platform/dataset_traditional_orchards/format_SHP_traditional_orchards/LATEST_traditional_orchards/", 
                         read_file_kwargs = {'suffix':'.shp',  'ideal_chunk_size':1000})
         
             Limit number of rows to 5
             >>> Wrapped_small =  DataFrameWrapper.call_method(df_wrap,  method_name = 'limit', num = 8)
-
             Look at data
             >>> Wrapped_small.data.show()
-
         Args:
             self (Self): Spark DataFrame
             method_name (str): Name of method or property called by user
-
         Returns:
             Optional[Self]: Spark Dataframe or property output
         """
@@ -175,4 +201,4 @@ class DataFrameWrapper:
             return self
 
         else:
-            return return_value    
+            return return_value
