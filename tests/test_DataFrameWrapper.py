@@ -96,8 +96,8 @@ def test_vector_layer_from_files(
 def expected_data_limit(spark_session) -> SparkDataFrame:
     """Expected DataFrameWrapper schema."""
     check_limit_data = [
-    (1,2),
-    (2,3)
+        (1, 2),
+        (2, 3)
     ]
     check_limit_spark = spark_session.createDataFrame(check_limit_data, StructType([
         StructField("a", StringType(), True),
