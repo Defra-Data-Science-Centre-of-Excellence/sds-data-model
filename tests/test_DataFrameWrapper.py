@@ -1,6 +1,7 @@
 from chispa.dataframe_comparer import assert_df_equality
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame as SparkDataFrame
+from pyspark.sql.functions import col
 from pyspark.sql.types import StructType, StructField, StringType
 from pytest import fixture
 from pandas import DataFrame
@@ -9,7 +10,8 @@ from sds_data_model.dataframe import DataFrameWrapper
 
 # Create dataframe to test against
 expected_data = {'a': [1, 2, 3],
-                 'b': [3, 4, 5]}
+                 'b': [3, 4, 5], 
+                 'c': [5, 6, 7]}
 expected_df = DataFrame(expected_data)
 
 
@@ -59,7 +61,8 @@ def expected_schema() -> StructType:
     """Expected DataFrameWrapper schema."""
     return StructType([
         StructField("a", StringType(), True),
-        StructField("b", StringType(), True)
+        StructField("b", StringType(), True),
+        StructField("c", StringType(), True)
     ])
 
 
@@ -76,7 +79,8 @@ def test_vector_layer_from_files(
         expected_df, 
         schema=StructType([
             StructField('a', StringType(), True),
-            StructField('b', StringType(), True)
+            StructField('b', StringType(), True),
+            StructField('c', StringType(), True)
         ]))
 
     received = DataFrameWrapper.from_files(
@@ -94,22 +98,58 @@ def test_vector_layer_from_files(
 
 @fixture
 def expected_data_limit(spark_session) -> SparkDataFrame:
-    """Expected DataFrameWrapper schema."""
+    """Expected data when using limit call method."""
     check_limit_data = [
-        (1, 2),
-        (2, 3)
+        (1, 2, 3),
+        (3, 4, 5)
     ]
     check_limit_spark = spark_session.createDataFrame(check_limit_data, StructType([
         StructField("a", StringType(), True),
-        StructField("b", StringType(), True)
+        StructField("b", StringType(), True),
+        StructField("c", StringType(), True)
     ]))
     return check_limit_spark
 
 
 @fixture
+def expected_data_select(spark_session) -> SparkDataFrame:
+    """Expected data when using select call method."""
+    check_select_data = [
+        (1, 2),
+        (3, 4),
+        (5, 6)
+    ]
+    check_select_spark = spark_session.createDataFrame(check_select_data, StructType([
+        StructField("a", StringType(), True),
+        StructField("b", StringType(), True)
+    ]))
+    return check_select_spark
+
+
+@fixture
+def expected_data_join(spark_session) -> SparkDataFrame:
+    """Expected data when using join call method."""
+    check_join_data = [
+        (1, 2, 3, 1, 2),
+        (3, 4, 5, 3, 4),
+        (5, 6, 7, 5, 6)
+    ]
+    check_join_spark = spark_session.createDataFrame(check_join_data, StructType([
+        StructField("a", StringType(), True),
+        StructField("b", StringType(), True), 
+        StructField("c", StringType(), True),
+        StructField("a", StringType(), True),
+        StructField("b", StringType(), True)
+    ]))
+
+    return check_join_spark
+
+@fixture
 def test_call_method(
     spark_session: SparkSession, 
-    expected_data_limit, 
+    expected_data_limit,
+    expected_data_select,
+    expected_data_join, 
     temp_file
 ) -> None:
 
@@ -120,12 +160,24 @@ def test_call_method(
         name='Trial csv',
     )
     
-    actual_spark = DataFrameWrapper.call_method(
-        received,
-        method_name='limit',
-        num=2)
+    actual_spark_limit = received.call_method(
+        "limit",
+        num=2
+        )
 
-    assert_df_equality(actual_spark.data, expected_data_limit)
+    actual_spark_select = received.call_method(
+        "select",
+        [col("a"), col("b")]
+        )
+
+    actual_spark_join = received.call_method(
+        "join", 
+        other = expected_data_select
+        )
+
+    assert_df_equality(actual_spark_limit.data, expected_data_limit)
+    assert_df_equality(actual_spark_select.data, expected_data_select)
+    assert_df_equality(actual_spark_join.data, expected_data_join)
 
         
 
