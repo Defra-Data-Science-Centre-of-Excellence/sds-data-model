@@ -10,7 +10,7 @@ from sds_data_model.dataframe import DataFrameWrapper
 
 # Create dataframe to test against
 expected_data = {'a': [1, 2, 3],
-                 'b': [3, 4, 5], 
+                 'b': [3, 4, 5],
                  'c': [5, 6, 7]}
 expected_df = DataFrame(expected_data)
 
@@ -31,7 +31,7 @@ def spark_session() -> SparkSession:
 
 @fixture(scope='session')
 def temp_file(tmpdir_factory):
-    """Create a temporary directory and data for testing
+    """Create a temporary directory and data for testing.
 
     Args:
         tmpdir_factory (Instance): temporary directory instance
@@ -74,7 +74,6 @@ def test_vector_layer_from_files(
     expected_metadata: None
 ) -> None:
     """Reading test data returns a DataFrameWrapper with expected values."""
-
     expected_spark = spark_session.createDataFrame(
         expected_df, 
         schema=StructType([
@@ -136,7 +135,7 @@ def expected_data_join(spark_session) -> SparkDataFrame:
     ]
     check_join_spark = spark_session.createDataFrame(check_join_data, StructType([
         StructField("a", StringType(), True),
-        StructField("b", StringType(), True), 
+        StructField("b", StringType(), True),
         StructField("c", StringType(), True),
         StructField("a", StringType(), True),
         StructField("b", StringType(), True)
@@ -153,7 +152,7 @@ def expected_data_filter(spark_session) -> SparkDataFrame:
     ]
     check_filter_spark = spark_session.createDataFrame(check_filter_data, StructType([
         StructField("a", StringType(), True),
-        StructField("b", StringType(), True), 
+        StructField("b", StringType(), True),
         StructField("c", StringType(), True)
     ]))
 
@@ -162,14 +161,14 @@ def expected_data_filter(spark_session) -> SparkDataFrame:
 
 @fixture
 def test_call_method(
-    spark_session: SparkSession, 
+    spark_session: SparkSession,
     expected_data_limit,
     expected_data_select,
-    expected_data_join, 
+    expected_data_join,
     expected_data_filter,
     temp_file
 ) -> None:
-    """Function to test most common methods used by call_method
+    """Function to test most common methods used by call_method.
 
     Args:
         spark_session (SparkSession): spark_session for test
@@ -179,14 +178,13 @@ def test_call_method(
         expected_data_filter (SparkDataFrame): expected data output for filter method
         temp_file (SparkDataFrame): temporary file path for test data
     """
-
     received = DataFrameWrapper.from_files(
         spark=spark_session,
         data_path=str(temp_file),
         read_file_kwargs={'header': True},
         name='Trial csv',
     )
-  
+
     actual_spark_limit = received.call_method(
         "limit",
         num=2
