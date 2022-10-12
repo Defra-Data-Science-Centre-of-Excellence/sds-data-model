@@ -31,13 +31,13 @@ def spark_session() -> SparkSession:
 
 @fixture(scope='session')
 def temp_file(tmpdir_factory):
-    """Create a temporary directory and data for testing 
+    """Create a temporary directory and data for testing
 
     Args:
-        tmpdir_factory (_type_): temporary directory instance
+        tmpdir_factory (Instance): temporary directory instance
 
     Returns:
-        _type_: object containing path to temporary data 
+        object: object containing path to temporary data
     """
     p = tmpdir_factory.mktemp("data").join("temp.csv")
     expected_df.to_csv(str(p), index=False, header=True)
@@ -144,14 +144,41 @@ def expected_data_join(spark_session) -> SparkDataFrame:
 
     return check_join_spark
 
+
+@fixture
+def expected_data_filter(spark_session) -> SparkDataFrame:
+    """Expected data when using filter call method."""
+    check_filter_data = [
+        (3, 4, 5)
+    ]
+    check_filter_spark = spark_session.createDataFrame(check_filter_data, StructType([
+        StructField("a", StringType(), True),
+        StructField("b", StringType(), True), 
+        StructField("c", StringType(), True)
+    ]))
+
+    return check_filter_spark
+
+
 @fixture
 def test_call_method(
     spark_session: SparkSession, 
     expected_data_limit,
     expected_data_select,
     expected_data_join, 
+    expected_data_filter,
     temp_file
 ) -> None:
+    """Function to test most common methods used by call_method
+
+    Args:
+        spark_session (SparkSession): spark_session for test
+        expected_data_limit (SparkDataFrame): expected data output for limit method
+        expected_data_select (SparkDataFrame): expected data output for select method
+        expected_data_join (SparkDataFrame): expected data output for join method
+        expected_data_filter (SparkDataFrame): expected data output for filter method
+        temp_file (SparkDataFrame): temporary file path for test data
+    """
 
     received = DataFrameWrapper.from_files(
         spark=spark_session,
@@ -159,25 +186,28 @@ def test_call_method(
         read_file_kwargs={'header': True},
         name='Trial csv',
     )
-    
+  
     actual_spark_limit = received.call_method(
         "limit",
         num=2
-        )
+    )
 
     actual_spark_select = received.call_method(
         "select",
         [col("a"), col("b")]
-        )
+    )
 
     actual_spark_join = received.call_method(
-        "join", 
-        other = expected_data_select
-        )
+        "join",
+        other=expected_data_select
+    )
+
+    actual_spark_filter = received.call_method(
+        "filter",
+        col("a") == 3
+    )
 
     assert_df_equality(actual_spark_limit.data, expected_data_limit)
     assert_df_equality(actual_spark_select.data, expected_data_select)
     assert_df_equality(actual_spark_join.data, expected_data_join)
-
-        
-
+    assert_df_equality(actual_spark_filter.data, expected_data_filter)
