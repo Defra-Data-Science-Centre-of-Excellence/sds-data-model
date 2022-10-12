@@ -27,6 +27,14 @@ def spark_session() -> SparkSession:
 
 @fixture(scope="session")
 def temp_file(tmpdir_factory):
+    """Create a temporary directory and data for testing.
+
+    Args:
+        tmpdir_factory (Instance): temporary directory instance
+
+    Returns:
+        object: object containing path to temporary data
+    """
     p = tmpdir_factory.mktemp("data").join("temp.csv")
     expected_df.to_csv(str(p), index=False, header=True)
     return p
@@ -60,7 +68,6 @@ def test_vector_layer_from_files(
     expected_metadata: None,
 ) -> None:
     """Reading test data returns a DataFrameWrapper with expected values."""
-
     expected_spark = spark_session.createDataFrame(
         expected_df,
         schema=StructType(
