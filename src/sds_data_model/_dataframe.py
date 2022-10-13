@@ -245,7 +245,8 @@ def _create_dummy_dataset(
     return (
         DataArray(
             data=zeros(
-                shape=(bng_ymax / cell_size, bng_xmax / cell_size),
+                shape=(int(bng_ymax / cell_size),
+                       int(bng_xmax / cell_size)),
                 dtype=dtype,
             ),
             coords={
