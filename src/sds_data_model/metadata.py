@@ -169,11 +169,14 @@ def _get_value(
     target_elements = _get_target_elements(
         root_element,
         xpath=xpath,
-        namespaces=namespaces,
-    )
-    target_element: str = target_elements[0].strip()
+        namespaces=namespaces,)
+    
+    if not target_elements:
+        target_element = str()
+    else:
+        target_element: str = target_elements[0].strip()
+        
     return target_element
-
 
 def _get_values(
     root_element: Element,
