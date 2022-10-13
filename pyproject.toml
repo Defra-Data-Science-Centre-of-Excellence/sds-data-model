@@ -34,7 +34,7 @@ openpyxl = "^3.0.10"
 pyogrio = "^0.4.1"
 typing-extensions = "^4.3.0"
 types-requests = "^2.28.9"
-pyspark-vector-files = "^0.2.2"
+pyspark-vector-files = "^0.2.3"
 pyarrow = "^9.0.0"
 
 [tool.poetry.dev-dependencies]
