@@ -29,7 +29,7 @@ def spark_session() -> SparkSession:
     )
 
 
-@fixture(scope='session')
+@fixture(scope="session")
 def temp_file(tmpdir_factory):
     """Create a temporary directory and data for testing.
 

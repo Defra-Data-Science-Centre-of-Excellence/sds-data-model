@@ -8,8 +8,11 @@ from dataclasses import dataclass
 from pyspark.pandas import read_excel
 from pyspark.sql import DataFrame as SparkDataFrame
 
+from pyspark.pandas import DataFrame, read_excel
+from pyspark.sql import SparkSession
 from pyspark_vector_files import read_vector_files
 from pyspark_vector_files.gpkg import read_gpkg
+
 from pyspark.sql import SparkSession
 
 from sds_data_model._vector import _get_metadata, _get_name
@@ -92,36 +95,32 @@ class DataFrameWrapper:
         else:
             read_file_kwargs = {}
 
-        file_reader_pandas = {".xlsx": read_excel,
-                              ".xls": read_excel,
-                              ".xlsm": read_excel,
-                              ".xlsb": read_excel,
-                              ".odf": read_excel,
-                              ".ods": read_excel,
-                              ".odt": read_excel}
-      
-        file_reader_spark = {".csv": _spark.read.csv,
-                             ".json": _spark.read.json,
-                             ".parquet": _spark.read.parquet}
-        
-        suffix_data_path = Path(data_path).suffix 
-               
+        file_reader_pandas = {
+            ".xlsx": read_excel,
+            ".xls": read_excel,
+            ".xlsm": read_excel,
+            ".xlsb": read_excel,
+            ".odf": read_excel,
+            ".ods": read_excel,
+            ".odt": read_excel,
+        }
+
+        file_reader_spark = {
+            ".csv": _spark.read.csv,
+            ".json": _spark.read.json,
+            ".parquet": _spark.read.parquet,
+        }
+
+        suffix_data_path = Path(data_path).suffix
+
         if suffix_data_path in file_reader_pandas.keys():
-            data = file_reader_pandas[suffix_data_path](
-                data_path,  
-                **read_file_kwargs
-                )
+            data = file_reader_pandas[suffix_data_path](data_path, **read_file_kwargs)
             data = data.to_spark()
 
         elif suffix_data_path in file_reader_spark.keys():
-            data = file_reader_spark[suffix_data_path](
-                data_path,
-                **read_file_kwargs)
+            data = file_reader_spark[suffix_data_path](data_path, **read_file_kwargs)
         elif suffix_data_path == ".gpkg":
-            data = read_gpkg(
-                data_path, 
-                **read_file_kwargs
-                )
+            data = read_gpkg(data_path, **read_file_kwargs)
         else:
             data = read_vector_files(
                 data_path,
@@ -202,3 +201,4 @@ class DataFrameWrapper:
 
         else:
             return return_value
+
