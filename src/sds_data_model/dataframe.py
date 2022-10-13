@@ -5,6 +5,7 @@ from pathlib import Path
 from inspect import ismethod, signature
 
 from dataclasses import dataclass
+from typing_extensions import Self
 from pyspark.pandas import read_excel
 from pyspark.sql import DataFrame as SparkDataFrame
 
@@ -17,6 +18,10 @@ from pyspark.sql import SparkSession
 
 from sds_data_model._vector import _get_metadata, _get_name
 from sds_data_model.metadata import Metadata
+from sds_data_model._dataframe import _to_zarr_region, _create_dummy_dataset
+
+from pandas import DataFrame
+from functools import partial
 
 spark = SparkSession.getActiveSession()
 
@@ -202,3 +207,48 @@ class DataFrameWrapper:
         else:
             return return_value
 
+
+def to_zarr(
+    self: Self,
+    path: str,
+    data_array_name: str,
+    index_column_name: str = "bng_index", 
+    geometry_column_name: str = "geometry",
+) -> None:
+    """Reads in data as a Spark DataFrame. A dummy dataset of the BNG is created and written to zarr which is then overwritten 
+    as the Spark DataFrame is converted to a mask then a Dataset.
+    This function assumes that the dataframe contains a column with the BNG 100km grid reference 
+    and a column containing the bounds of the BNG grid refernce system as a list named as "bounds"
+
+    Args:
+        self (Self): _description_
+        path (str): _description_
+        data_array_name (str): _description_
+        index_column_name (str, optional): _description_. Defaults to "bng_index".
+        geometry_column_name (str, optional): _description_. Defaults to "geometry".
+
+    Returns:
+        _type_: _description_
+    """
+
+    _create_dummy_dataset(
+        path=path,
+        data_array_name=data_array_name,
+    )
+    _partial_to_zarr_region = partial(
+        _to_zarr_region,
+        data_array_name=data_array_name,
+        path=path,        
+    )
+    return (
+        self.data
+        .groupby(index_column_name)
+        .applyInPandas(
+            _partial_to_zarr_region,
+            self.data.schema,
+        )
+        .write
+        .format('noop')
+        .mode('overwrite')
+        .save()
+    )
