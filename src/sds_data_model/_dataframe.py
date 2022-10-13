@@ -1,8 +1,15 @@
 from json import load
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
+from affine import Affine
+from geopandas import GeoDataFrame, GeoSeries
+from numpy import arange, zeros
+from pandas import DataFrame as PandasDataFrame
+from rasterio.features import geometry_mask
+from xarray import DataArray
 
 from sds_data_model.metadata import Metadata
+from sds_data_model.constants import BNG_XMIN, BNG_YMIN, BNG_XMAX, BNG_YMAX, CELL_SIZE, OUT_SHAPE
 
 
 def _get_name(
@@ -119,3 +126,138 @@ def _get_metadata(
     else:
         metadata = None
     return metadata
+
+def _to_zarr_region(
+    pdf: PandasDataFrame,
+    data_array_name: str,
+    path: str,
+    cell_size: int = CELL_SIZE,
+    out_shape: Tuple[int, int] = OUT_SHAPE,
+    bng_ymax: int = BNG_YMAX,
+    geometry_column_name: str = "geometry",
+    invert: bool = True,
+    dtype: str = "uint8",
+) -> PandasDataFrame:
+    """Reads in a Dataframe which is converted to a GeoPandas dataframe with the vector converted to a geometry mask. 
+    This is then converted to a DataArray which rewrites the dummy dataset created previously in areas where the vector exists.
+    Writing to a zarr file is a side effect of the function hence the input Dataframe is released
+    This function assumes that the dataframe contains a column with BNG bounds that is named "bounds".
+    This function is used within the to_zarr function.
+
+    Args:
+        pdf (PandasDataFrame): the type of dataframe 
+        data_array_name (str): DataArray name given by the user
+        path (str): Path to save the zarr file including file name
+        cell_size (int, optional): Size of one raster cell in the DataArray. Defaults to CELL_SIZE.
+        out_shape (Tuple[int, int], optional): The shape of the DataArray[Height, Width]. Defaults to OUT_SHAPE.
+        bng_ymax (int, optional): British National Grid maximum Y axis value. Defaults to BNG_YMAX.
+        geometry_column_name (str, optional): _description_. Defaults to "geometry".
+        invert (bool, optional): _description_. Defaults to True.
+        dtype (str, optional): _description_. Defaults to "uint8".
+
+    Returns:
+        PandasDataFrame: _description_
+    """    
+
+    
+    minx, miny, maxx, maxy = pdf["bounds"][0]
+
+    transform = Affine(cell_size, 0, minx, 0, -cell_size, maxy)
+    
+    gpdf = (
+    GeoDataFrame(
+            data=pdf,
+            geometry=GeoSeries.from_wkb(pdf[geometry_column_name]),
+            crs="EPSG:27700",
+            )
+    # ? Do I really need to do this?      
+        .clip((minx, miny, maxx, maxy))
+    )
+    
+    mask = (
+        geometry_mask(
+            geometries=gpdf[geometry_column_name],
+            out_shape=out_shape,
+            transform=transform,
+            invert=invert,
+        )
+        .astype(dtype)
+    )
+    
+    (
+        DataArray(
+            data=mask,
+            coords={
+                "northings": ("northings", arange(maxy-(cell_size/2), miny, -cell_size)),
+                "eastings": ("eastings", arange(minx+(cell_size/2), maxx, cell_size)),
+            },
+            name=data_array_name,
+        )
+        .to_dataset()
+        .to_zarr(
+            store=path,
+            mode="r+",
+            region={
+                "northings": slice(int((maxy - bng_ymax) / -cell_size), int((miny - bng_ymax) / -cell_size)),
+                "eastings": slice(int(minx / cell_size), int(maxx / cell_size)),                
+            }
+        )
+    )
+    
+    return pdf
+
+def _create_dummy_dataset(
+    data_array_name: str,
+    path: str,
+    dtype: str = "uint8",
+    cell_size: int = CELL_SIZE,
+    bng_xmin: int = BNG_XMIN,
+    bng_xmax: int = BNG_XMAX,
+    bng_ymin: int = BNG_YMIN,
+    bng_ymax: int = BNG_YMAX,
+) -> None:
+    """An empty DataArray is created of the size of BNG with co-ordinates which is changed to a Dataset and stored temporarily.
+
+    Examples:
+
+        >>> d_dataset = _create_dummy_dataset(
+                data_array_name="dummy", 
+                path = "/dbfs/mnt/lab/unrestricted/piumi.algamagedona@defra.gov.uk/dummy.zarr"
+            )
+
+        >>> d_dataset
+        Delayed('_finalize_store-31bc6052-52db-49e8-bc87-fc8f7c6801ed')
+
+    Args:
+        data_array_name (str): Name of the DataArray given
+        path (str): Path to the zarr file with the name of the zarr file.
+        dtype (str, optional): Data type of the geometry mask. Defaults to "uint8".
+        cell_size (int, optional): Size of one raster cell in the DataArray. Defaults to CELL_SIZE.
+        bng_xmin (int, optional): British National Grid minimum X axis value. Defaults to BNG_XMIN.
+        bng_xmax (int, optional): British National Grid maximum X axis value. Defaults to BNG_XMAX.
+        bng_ymin (int, optional): British National Grid minimum Y axis value. Defaults to BNG_YMIN.
+        bng_ymax (int, optional): British National Grid maximum Y axis value. Defaults to BNG_YMAX.
+
+    Returns:
+        _type_: None. A dask delayed object is created. 
+    """    
+    
+    return (
+        DataArray(
+            data=zeros(
+                shape=(bng_ymax / cell_size, bng_xmax / cell_size),
+                dtype=dtype,
+            ),
+            coords={
+                "northings": ("northings", arange(bng_ymax, bng_ymin, -cell_size)),
+                "eastings": ("eastings", arange(bng_xmin, bng_xmax, cell_size)),
+            },
+            name=data_array_name,
+        )
+        .to_dataset()
+        .to_zarr(
+            store=path,
+            mode="w",
+            compute=False,
+        )
+    )
