@@ -716,7 +716,10 @@ def _get_name(
     if name:
         return name
     elif metadata:
-        return metadata.title
+        if metadata.title:
+            return metadata.title
+        else: 
+            ValueError("Metadata provided, but no title present, a name must be supplied.")
     else:
         raise ValueError("If there isn't any metadata, a name must be supplied.")
 
