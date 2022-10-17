@@ -265,15 +265,15 @@ class Metadata:
         _type_: # TODO
     """
 
-    title: str
+    title: Union[str, None]
     # alternative_title: Optional[Tuple[str, ...]] #! Optional
-    dataset_language: Tuple[str, ...]
-    abstract: str
-    topic_category: Tuple[str, ...]
-    keyword: Tuple[str, ...]
+    dataset_language: Union[Tuple[str, ...], None]
+    abstract: Union[str, None]
+    topic_category: Union[Tuple[str, ...], None]
+    keyword: Union[Tuple[str, ...], None]
     # temporal_extent: Dict[str, Any]
     # dataset_reference_date: List[str]
-    lineage: str
+    lineage: Union[str, None]
     # extent: Optional[Tuple[str, ...]] #! Optional
     # vertical_extent_information: Optional[List[str]] #! Optional
     # spatial_reference_system: List[str]
@@ -283,20 +283,20 @@ class Metadata:
     # limitations_on_public_access: List[str]
     # use_constraints: List[str]
     # additional_information: Optional[str] #! Optional
-    metadata_date: str
-    metadata_language: str
+    metadata_date: Union[str, None]
+    metadata_language: Union[str, None]
     # metadata_point_of_contact: List[str]
     # resource_identifier: Optional[List[str]]  #! Conditional
     # coupled_resource: Optional[List[str]]  #! Conditional
-    resource_type: str
+    resource_type: Union[str, None]
     # conformity: List[str]
     # equivalent_scale: Optional[List[str]] = field(default_factory=list)  #! Optional
     # bounding_box: List[str]
-    file_identifier: str
+    file_identifier: Union[str, None]
     # hierarchy_level_name: Optional[str]  #! Conditional
-    quality_scope: Tuple[str, ...]
+    quality_scope: Union[Tuple[str, ...], None]
     # parent_identifier: Optional[str]  #! Optional
-    spatial_representation_type: Tuple[str, ...]
+    spatial_representation_type: Union[Tuple[str, ...], None]
     # character_encoding: Optional[List[str]]  #! Conditional
     # data_quality: Optional[List[str]]  #! Conditional
     # maintenance_information: Optional[str]  #! Optional
