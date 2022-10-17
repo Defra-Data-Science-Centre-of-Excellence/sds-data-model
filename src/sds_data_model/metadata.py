@@ -234,9 +234,11 @@ def _get_values(
     )
 
     if not target_elements:
-        return None
+        target_element = None
     else:
-        return tuple(target_element.strip() for target_element in target_elements)
+        target_element = tuple(target_element.strip() for target_element in target_elements)
+        
+    return target_element
 
 
 def _get_xml(path: str, metadata_kwargs: Dict[str, Any]) -> ElementTree:
