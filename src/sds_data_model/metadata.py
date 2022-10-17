@@ -1,15 +1,7 @@
 """Metadata parsing module."""
 from dataclasses import dataclass
 from io import BytesIO
-from typing import (Any,
-                    Dict,
-                    Iterable,
-                    List,
-                    Optional,
-                    Tuple,
-                    Type,
-                    TypeVar,
-                    Union)
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Type, TypeVar, Union
 
 from lxml.etree import (  # noqa: S410 - assuming we can trust the XML
     Element,
