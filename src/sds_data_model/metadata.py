@@ -1,7 +1,15 @@
 """Metadata parsing module."""
 from dataclasses import dataclass
 from io import BytesIO
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Type, TypeVar, Union
+from typing import (Any,
+                    Dict,
+                    Iterable,
+                    List,
+                    Optional,
+                    Tuple,
+                    Type,
+                    TypeVar,
+                    Union)
 
 from lxml.etree import (  # noqa: S410 - assuming we can trust the XML
     Element,
@@ -28,11 +36,14 @@ from sds_data_model.constants import (
 MetadataType = TypeVar("MetadataType", bound="Metadata")
 
 
-def _get_xpath(xpath: Union[str, Iterable[str], Iterable[Iterable[str]]]) -> str:
-    """Construct an `XPath`_ query from a string, list of strings, or list of lists of strings.
+def _get_xpath(xpath: Union[str, Iterable[str],
+                            Iterable[Iterable[str]]]) -> str:
+    """Construct an `XPath`_ query from a string, list of strings,
+    or list of lists of strings.
 
     Examples:
-        A list of strings will be concatenated with "/" as the separator. This should produce an XPath query:
+        A list of strings will be concatenated with "/" as the separator.
+        This should produce an XPath query:
         >>> TITLE_XPATH = [
             "gmd:identificationInfo",
             "gmd:MD_DataIdentification",
@@ -45,8 +56,9 @@ def _get_xpath(xpath: Union[str, Iterable[str], Iterable[Iterable[str]]]) -> str
         >>> _get_xpath(TITLE_XPATH)
         'gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString//text()'
 
-        Each list in a list of lists of strings will be concatenated with "/" as the separator, then the lists will be concatenated
-        with "|" as a separator. This should produce an OR XPath query:
+        Each list in a list of lists of strings will be concatenated with "/"
+        as the separator, then the lists will be concatenated with "|" as a
+        separator. This should produce an OR XPath query:
         >>> METADATA_DATE_XPATH = [
             [
                 "gmd:dateStamp",
@@ -68,8 +80,8 @@ def _get_xpath(xpath: Union[str, Iterable[str], Iterable[Iterable[str]]]) -> str
         'gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString//text()'
 
     Args:
-        xpath (Union[str, List[str]]): A string or list of strings that represent
-            an XPath query.
+        xpath (Union[str, List[str]]): A string or list of strings that
+        represent an XPath query.
 
     Returns:
         str: An XPath query.
@@ -111,8 +123,8 @@ def _get_target_elements(
 
     Args:
         root_element (Element): The starting point of the XPath query.
-        xpath (Union[str, List[str]]): A string or list of strings that represent
-            an XPath query.
+        xpath (Union[str, List[str]]): A string or list of strings that
+        represent an XPath query.
         namespaces (Dict[str, str]): A dictionary of XML `namespaces`_.
 
     Returns:
@@ -170,11 +182,12 @@ def _get_value(
         root_element,
         xpath=xpath,
         namespaces=namespaces,)
-    
+
     if not target_elements:
         return None
     else:
         return target_elements[0].strip()
+
 
 def _get_values(
     root_element: Element,
@@ -198,8 +211,8 @@ def _get_values(
 
     Args:
         root_element (Element): The starting point of the XPath query.
-        xpath (Union[str, List[str]]): A string or list of strings that represent
-            an XPath query.
+        xpath (Union[str, List[str]]): A string or list of strings that
+        represent an XPath query.
         namespaces (Dict[str, str]): A dictionary of XML `namespaces`_.
 
     Returns:
@@ -217,19 +230,19 @@ def _get_values(
         xpath=xpath,
         namespaces=namespaces,
     )
-    
+
     if not target_elements:
         return None
     else:
         return tuple(target_element.strip() for target_element in target_elements)
-    
+
 
 def _get_xml(path: str, metadata_kwargs: Dict[str, Any]) -> ElementTree:
     """Parses XML from remote URL or local file path.
 
     Examples:
         Parse XML from a remote URL:
-        >>> xml = _get_xml("https://ckan.publishing.service.gov.uk/harvest/object/715bc6a9-1008-4061-8783-d12e9e7f38a9")
+        >>> xml = _get_xml("https://ckan.publishing.service.gov.uk/harvest/object/715bc6a9-1008-4061-8783-d12e9e7f38a9") # noqa: E501
         >>> xml.docinfo.root_name
         'MD_Metadata'
 
