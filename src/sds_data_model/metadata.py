@@ -146,7 +146,7 @@ def _get_value(
     root_element: Element,
     xpath: Union[str, Iterable[str], Iterable[Iterable[str]]],
     namespaces: Dict[str, str],
-) -> str:
+) -> Union[str, None]:
     """Get a single text value from a `XPath`_ query.
 
     Examples:
@@ -193,7 +193,7 @@ def _get_values(
     root_element: Element,
     xpath: Union[str, Iterable[str], Iterable[Iterable[str]]],
     namespaces: Dict[str, str],
-) -> Tuple[str, ...]:
+) -> Union[Tuple[str, ...], None]:
     """Get a tuple of text values from a `XPath`_ query.
 
     Examples:
