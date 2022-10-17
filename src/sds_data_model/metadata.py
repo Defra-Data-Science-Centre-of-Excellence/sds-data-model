@@ -172,11 +172,9 @@ def _get_value(
         namespaces=namespaces,)
     
     if not target_elements:
-        target_element = str()
+        return None
     else:
-        target_element: str = target_elements[0].strip()
-        
-    return target_element
+        return target_elements[0].strip()
 
 def _get_values(
     root_element: Element,
