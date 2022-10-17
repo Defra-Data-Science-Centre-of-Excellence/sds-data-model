@@ -217,8 +217,12 @@ def _get_values(
         xpath=xpath,
         namespaces=namespaces,
     )
-    return tuple(target_element.strip() for target_element in target_elements)
-
+    
+    if not target_elements:
+        return None
+    else:
+        return tuple(target_element.strip() for target_element in target_elements)
+    
 
 def _get_xml(path: str, metadata_kwargs: Dict[str, Any]) -> ElementTree:
     """Parses XML from remote URL or local file path.
