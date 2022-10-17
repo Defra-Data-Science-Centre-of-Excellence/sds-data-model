@@ -184,9 +184,11 @@ def _get_value(
         namespaces=namespaces,)
 
     if not target_elements:
-        return None
+        target_element = None
     else:
-        return target_elements[0].strip()
+        target_element: str = target_elements[0].strip()
+    
+    return target_element
 
 
 def _get_values(
