@@ -268,7 +268,7 @@ class DataFrameWrapper:
             returnType=ArrayType(StringType()),
             )
         
-        _indexed = self.withColumn(
+        _indexed = self.data.withColumn(
             index_column_name, 
             _calculate_bng_index_udf(col(geometry_column_name))
             )
