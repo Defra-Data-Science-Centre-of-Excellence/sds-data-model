@@ -1,0 +1,19 @@
+digraph {
+	data_path [label="data input:
+tests/data/Ramsar__England__.zip" shape=oval]
+	metadata_path [label="metadata input:
+tests/data/Ramsar__England__.xml" shape=oval]
+	"VectorLayer.from_files" [label="function:
+VectorLayer.from_files" shape=box]
+	VectorLayer [label="output:
+VectorLayer" shape=parallelogram]
+	data_path -> "VectorLayer.from_files"
+	metadata_path -> "VectorLayer.from_files"
+	"VectorLayer.from_files" -> VectorLayer
+	"VectorLayer.to_tiles" [label="function:
+VectorLayer.to_tiles" shape=box]
+	TiledVectorLayer [label="output:
+TiledVectorLayer" shape=parallelogram]
+	VectorLayer -> "VectorLayer.to_tiles"
+	"VectorLayer.to_tiles" -> TiledVectorLayer
+}

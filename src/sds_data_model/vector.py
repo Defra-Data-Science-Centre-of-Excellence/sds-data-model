@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
 from affine import Affine
 from dask.delayed import Delayed
 from geopandas import GeoDataFrame
+from graphviz import Digraph
 from numpy import number, uint8
 from numpy.typing import NDArray
 from pandas import DataFrame, Series
@@ -36,6 +37,7 @@ from sds_data_model.constants import (
     CategoryLookups,
     Schema,
 )
+from sds_data_model.graph import initialise_graph, update_graph
 from sds_data_model.logger import log
 from sds_data_model.metadata import Metadata
 
@@ -211,6 +213,7 @@ class TiledVectorLayer:
     name: str
     tiles: Tuple[VectorTile, ...]
     schema: Schema
+    graph: Digraph
     metadata: Optional[Metadata] = None
     category_lookups: Optional[CategoryLookups] = None
 
@@ -290,9 +293,16 @@ class TiledVectorLayer:
                 for bbox in bboxes
             )
 
+        graph = initialise_graph(
+            data_path=data_path,
+            metadata_path=metadata_path,
+            class_name="TiledVectorLayer",
+        )
+
         return cls(
             name=_name,
             tiles=tiles,
+            graph=graph,
             metadata=metadata,
             category_lookups=category_lookups,
             schema=schema,
@@ -310,6 +320,12 @@ class TiledVectorLayer:
         """
         self.tiles = tuple(tile.select(columns) for tile in self.tiles)
 
+        self.graph = update_graph(
+            graph=self.graph,
+            method="select",
+            output_class_name="TiledVectorLayer",
+        )
+
         return self
 
     @log
@@ -323,6 +339,12 @@ class TiledVectorLayer:
             _TiledVectorLayer: # TODO
         """
         self.tiles = tuple(tile.where(condition) for tile in self.tiles)
+
+        self.graph = update_graph(
+            graph=self.graph,
+            method="where",
+            output_class_name="TiledVectorLayer",
+        )
 
         return self
 
@@ -362,6 +384,14 @@ class TiledVectorLayer:
         schema.update(schema_df)
         self.schema = schema
 
+        graph = update_graph(
+            graph=self.graph,
+            method="join",
+            output_class_name="TiledVectorLayer",
+        )
+
+        self.graph = graph
+
         return self
 
     @log
@@ -372,6 +402,14 @@ class TiledVectorLayer:
             DataArray: # TODO
         """
         delayed_masks = tuple(tile.to_mask() for tile in self.tiles)
+
+        graph = update_graph(
+            graph=self.graph,
+            method="to_data_array_as_mask",
+            output_class_name="TiledVectorLayer",
+        )
+
+        self.graph = graph
 
         data_array = _from_delayed_to_data_array(
             delayed_arrays=delayed_masks,
@@ -404,6 +442,14 @@ class TiledVectorLayer:
             for i in columns
         )
 
+        graph = update_graph(
+            graph=self.graph,
+            method="to_dataset_as_raster",
+            output_class_name="TiledVectorLayer",
+        )
+
+        self.graph = graph
+
         dataset = merge(
             [
                 _from_delayed_to_data_array(
@@ -429,6 +475,7 @@ class VectorLayer:
     name: str
     gpdf: GeoDataFrame
     schema: Schema
+    graph: Digraph
     metadata: Optional[Metadata] = None
     category_lookups: Optional[CategoryLookups] = None
 
@@ -528,10 +575,17 @@ class VectorLayer:
         else:
             category_lookups = None
 
+        graph = initialise_graph(
+            data_path=data_path,
+            metadata_path=metadata_path,
+            class_name="VectorLayer",
+        )
+
         return cls(
             name=_name,
             gpdf=gpdf,
             metadata=metadata,
+            graph=graph,
             category_lookups=category_lookups,
             schema=schema,
         )
@@ -558,10 +612,17 @@ class VectorLayer:
             for bbox in bboxes
         )
 
+        graph = update_graph(
+            graph=self.graph,
+            method="to_tiles",
+            output_class_name="TiledVectorLayer",
+        )
+
         return TiledVectorLayer(
             name=self.name,
             tiles=tiles,
             metadata=self.metadata,
+            graph=graph,
             category_lookups=self.category_lookups,
             schema=self.schema,
         )
