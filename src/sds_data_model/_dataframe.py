@@ -11,6 +11,15 @@ from xarray import DataArray
 from sds_data_model.metadata import Metadata
 from sds_data_model.constants import BNG_XMIN, BNG_YMIN, BNG_XMAX, BNG_YMAX, CELL_SIZE, OUT_SHAPE
 
+from shapely.wkt import loads 
+from bng_indexer import calculate_bng_index, wkt_from_bng
+from pyspark.sql.types import ArrayType, FloatType, StringType
+from pyspark.sql.functions import col, explode, udf
+
+@udf(returnType=ArrayType(FloatType()))
+def _bng_to_bounds(grid_reference: str) -> Tuple[float, float, float, float]:
+    wkt = wkt_from_bng(grid_reference)
+    return loads(wkt).bounds
 
 def _get_name(
     metadata: Optional[Metadata] = None,

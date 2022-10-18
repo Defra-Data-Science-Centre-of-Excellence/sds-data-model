@@ -1,5 +1,5 @@
 from logging import getLogger, INFO, StreamHandler, Formatter
-from typing import Any, Dict, Optional,  Type, TypeVar
+from typing import Any, Dict, Optional, Type, TypeVar, List, Tuple
 from typing_extensions import Self
 from pathlib import Path
 from inspect import ismethod, signature
@@ -8,6 +8,12 @@ from dataclasses import dataclass
 from typing_extensions import Self
 from pyspark.pandas import read_excel
 from pyspark.sql import DataFrame as SparkDataFrame
+from pyspark.sql.functions import col, explode, udf
+from pyspark.sql.types import ArrayType, FloatType, StringType
+
+from shapely.wkt import loads
+
+from bng_indexer import calculate_bng_index, wkt_from_bng
 
 from pyspark.pandas import DataFrame, read_excel
 from pyspark.sql import SparkSession
@@ -252,3 +258,34 @@ class DataFrameWrapper:
             .mode('overwrite')
             .save()
         )
+        
+    def index(
+        sdf: SparkDataFrame, 
+        resolution: int, 
+        how: str = "intersects", 
+        index_column_name: str = "bng", 
+        bounds_column_name: str = "bounds", 
+        geometry_column_name: str = "geometry",
+        exploded: bool = True
+    ) -> SparkDataFrame:
+        _partial_calculate_bng_index = partial(
+            calculate_bng_index,
+            resolution=resolution,
+            how=how
+    )
+    _calculate_bng_index_udf = udf(
+        _partial_calculate_bng_index,
+        returnType=ArrayType(StringType()),
+    )
+    _indexed = (
+        sdf
+        .withColumn(index_column_name, _calculate_bng_index_udf(col(geometry_column_name)))
+    )
+    if exploded:
+        return (
+            _indexed
+            .withColumn(index_column_name, explode(col(index_column_name)))
+            .withColumn(bounds_column_name, _bng_to_bounds(col(index_column_name)))
+        )
+    else:
+        return _indexed
