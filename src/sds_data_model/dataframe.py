@@ -24,7 +24,7 @@ from pyspark.sql import SparkSession
 
 from sds_data_model._vector import _get_metadata, _get_name
 from sds_data_model.metadata import Metadata
-from sds_data_model._dataframe import _to_zarr_region, _create_dummy_dataset
+from sds_data_model._dataframe import _to_zarr_region, _create_dummy_dataset, _bng_to_bounds
 
 from pandas import DataFrame
 from functools import partial
