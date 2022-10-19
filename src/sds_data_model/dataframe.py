@@ -257,7 +257,7 @@ class DataFrameWrapper:
         bounds_column_name: str = "bounds",
         geometry_column_name: str = "geometry",
         exploded: bool = True,
-    ) -> SparkDataFrame:
+    ) -> _DataFrameWrapper:
         
         _partial_calculate_bng_index = partial(
             calculate_bng_index, resolution=resolution, how=how
@@ -268,15 +268,20 @@ class DataFrameWrapper:
             returnType=ArrayType(StringType()),
             )
         
-        _indexed = self.data.withColumn(
+        #_indexed = self.data.withColumn(
+        self.data = self.data.withColumn(
             index_column_name, 
             _calculate_bng_index_udf(col(geometry_column_name))
             )
         
         if exploded:
-            return _indexed.withColumn(
+            self.data = self.data.withColumn(
                 index_column_name, 
                 explode(col(index_column_name))
                 ).withColumn(bounds_column_name, _bng_to_bounds(col(index_column_name)))
-        else:
-            return _indexed
+            #return _indexed.withColumn(
+            #    index_column_name, 
+            #    explode(col(index_column_name))
+            #    ).withColumn(bounds_column_name, _bng_to_bounds(col(index_column_name)))
+        
+        return self
