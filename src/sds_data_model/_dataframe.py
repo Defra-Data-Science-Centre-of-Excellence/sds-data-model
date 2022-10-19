@@ -12,6 +12,7 @@ from sds_data_model.metadata import Metadata
 from sds_data_model.constants import BNG_XMIN, BNG_YMIN, BNG_XMAX, BNG_YMAX, CELL_SIZE, OUT_SHAPE
 
 from shapely.wkt import loads 
+from shapely.geometry import box
 from bng_indexer import calculate_bng_index, wkt_from_bng
 from pyspark.sql.types import ArrayType, FloatType, StringType
 from pyspark.sql.functions import col, explode, udf
@@ -171,6 +172,8 @@ def _to_zarr_region(
     
     minx, miny, maxx, maxy = pdf["bounds"][0]
 
+    box_geom = box(minx, miny, maxx, maxy)
+    
     transform = Affine(cell_size, 0, minx, 0, -cell_size, maxy)
     
     gpdf = (
@@ -180,7 +183,7 @@ def _to_zarr_region(
             crs="EPSG:27700",
             )
     # ? Do I really need to do this?      
-        .clip((minx, miny, maxx, maxy))
+        .clip(mask = GeoSeries(box_geom, crs = "EPSG:27700"))
     )
     
     mask = (
