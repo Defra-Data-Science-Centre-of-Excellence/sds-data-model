@@ -6,7 +6,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import IntegerType, StructField, StructType
 from pytest import fixture
 import pytest
-from typing import Iterable, Dict, Optional, Union, List
+from typing import Iterable, Dict, Optional, Union, List, FixtureRequest
 
 from sds_data_model.dataframe import DataFrameWrapper
 
