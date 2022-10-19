@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Optional, Type, TypeVar
 
 from pandas import DataFrame as PandasDataFrame
-from pyspark.pandas import Dataframe as SparkPandasDataFrame
+from pyspark.pandas import DataFrame as SparkPandasDataFrame
 from pyspark.pandas import Series as SparkPandasSeries
 from pyspark.pandas import read_excel
 from pyspark.sql import DataFrame as SparkDataFrame
