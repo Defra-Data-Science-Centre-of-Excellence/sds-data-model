@@ -1,29 +1,23 @@
-from logging import getLogger, INFO, StreamHandler, Formatter
-from typing import Any, Dict, Optional,  Type, TypeVar
-from typing_extensions import Self
-from pathlib import Path
-from inspect import ismethod, signature
-
 from dataclasses import dataclass
-from typing_extensions import Self
+from functools import partial
+from inspect import ismethod, signature
+from logging import INFO, Formatter, StreamHandler, getLogger
+from pathlib import Path
+from typing import Any, Callable, Dict, Optional, Type, TypeVar
+
+from pandas import DataFrame as PandasDataFrame
+from pyspark.pandas import Dataframe as SparkPandasDataFrame
+from pyspark.pandas import Series as SparkPandasSeries
 from pyspark.pandas import read_excel
 from pyspark.sql import DataFrame as SparkDataFrame
-
-from pyspark.pandas import DataFrame, read_excel
 from pyspark.sql import SparkSession
 from pyspark_vector_files import read_vector_files
 from pyspark_vector_files.gpkg import read_gpkg
+from typing_extensions import Self
 
-from pyspark.sql import SparkSession
-
+from sds_data_model._dataframe import _create_dummy_dataset, _to_zarr_region
 from sds_data_model._vector import _get_metadata, _get_name
 from sds_data_model.metadata import Metadata
-from sds_data_model._dataframe import _to_zarr_region, _create_dummy_dataset
-
-from pandas import DataFrame
-from functools import partial
-
-spark = SparkSession.getActiveSession()
 
 # create logger and set level to info
 logger = getLogger("sds")
@@ -34,7 +28,7 @@ stream_handler = StreamHandler()
 stream_handler.setLevel(INFO)
 
 # create formatter
-formatter = Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 # add formatter to stream handler
 stream_handler.setFormatter(formatter)
@@ -53,46 +47,42 @@ class DataFrameWrapper:
     name: str
     data: SparkDataFrame
     metadata: Optional[Metadata]
-    #graph: Optional[DiGraph]
+    # graph: Optional[DiGraph]
 
     @classmethod
     def from_files(
-            cls: Type[_DataFrameWrapper],
-            data_path: str,
-            metadata_path: Optional[str] = None,
-            metadata_kwargs: Optional[Dict[str, Any]] = None,
-            name: Optional[str] = None,
-            read_file_kwargs: Optional[Dict[str, Any]] = None,
-            spark: Optional[SparkSession] = None
-            # optional spark session argument (_spark )
+        cls: Type[_DataFrameWrapper],
+        data_path: str,
+        metadata_path: Optional[str] = None,
+        metadata_kwargs: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        read_file_kwargs: Optional[Dict[str, Any]] = None,
+        spark: Optional[SparkSession] = None,
     ) -> _DataFrameWrapper:
-        """Reads in data with a range of file types, and converts it to a spark dataframe,
-        wrapped with associated metadata
-        
+        """Reads in data with a range of file types, and converts it to a spark
+        dataframe, wrapped with associated metadata
+
         Examples:
         >>> from sds_data_model.dataframe import DataFrameWrapper
-        >>> wrapped_shp = DataFrameWrapper.from_files(name = "National parks",                               
+        >>> wrapped_shp = DataFrameWrapper.from_files(name = "National parks",
                                         data_path="/dbfs/mnt/base/unrestricted/source_defra_data_services_platform/dataset_national_parks/format_SHP_national_parks/LATEST_national_parks/",
-                                        read_file_kwargs = {'suffix':'.shp',
-                                                            'ideal_chunk_size':1000},
+                                        read_file_kwargs = {'suffix':'.shp'},
                                         metadata_path =  "https://ckan.publishing.service.gov.uk/harvest/object/656c07d1-67b3-4bdb-8ab3-75e118a7cf14"
                                        )
-        >>> wrapped_csv = check_csv = DataFrameWrapper.from_files(
-                                        name = "aes30",
-                                        data_path="dbfs:/mnt/lab/unrestricted/james.duffy@defra.gov.uk/aes30_in_aonbs.csv", 
+        >>> wrapped_csv =  DataFrameWrapper.from_files(
+                                        name = "indicator_5__species_in_the_wider_countryside__farmland_1970_to_2020",
+                                        data_path="dbfs:/mnt/lab/unrestricted/source_isr/dataset_england_biodiversity_indicators/format_CSV_england_biodiversity_indicators/LATEST_england_biodiversity_indicators/indicator_5__species_in_the_wider_countryside__farmland_1970_to_2020.csv",
                                         read_file_kwargs = {'header' :True}
                                        )
         Args:
             cls (_DataFrameWrapper): DataFrameWrapper class , defined above
-            data_path (str): path to data, 
-            metadata_path (Optional[str], optional): _description_. Defaults to None.
+            data_path (str): Path to data,
+            metadata_path (Optional[str], optional): Path to metadata supplied by user. Defaults to None.
             name (Optional[str], optional): Name for data, either supplied by caller or obtained from metadata title. Defaults to None.
             read_file_kwargs (Optional[Dict[str,Any]], optional): Additional kwargs supplied by the caller, dependent on the function called. Defaults to None.
         Returns:
-            _DataFrameWrapper: _description_
+            _DataFrameWrapper: SparkDataFrameWrapper
         """
-        #_spark = spark if spark else sparksession.getActiveSession  .. operator
-        #need to replace spark with _spark
         _spark = spark if spark else SparkSession.getActiveSession()
 
         if read_file_kwargs:
@@ -110,7 +100,7 @@ class DataFrameWrapper:
             ".odt": read_excel,
         }
 
-        file_reader_spark = {
+        file_reader_spark: Dict[str, Callable] = {
             ".csv": _spark.read.csv,
             ".json": _spark.read.json,
             ".parquet": _spark.read.parquet,
@@ -119,43 +109,41 @@ class DataFrameWrapper:
         suffix_data_path = Path(data_path).suffix
 
         if suffix_data_path in file_reader_pandas.keys():
-            data = file_reader_pandas[suffix_data_path](data_path, **read_file_kwargs)
-            data = data.to_spark()
+            spark_pandas_data = file_reader_pandas[suffix_data_path](
+                data_path, **read_file_kwargs
+            )
+            if isinstance(spark_pandas_data, SparkPandasDataFrame,) or isinstance(
+                spark_pandas_data,
+                SparkPandasSeries,
+            ):
+                data: SparkDataFrame = data.to_spark()
 
         elif suffix_data_path in file_reader_spark.keys():
             data = file_reader_spark[suffix_data_path](data_path, **read_file_kwargs)
         elif suffix_data_path == ".gpkg":
             data = read_gpkg(data_path, **read_file_kwargs)
         else:
-            data = read_vector_files(
-                data_path,
-                **read_file_kwargs
-            )
-                  
-        metadata = _get_metadata(
-            data_path=data_path,  
-            metadata_path=metadata_path)
-        
+            data = read_vector_files(data_path, **read_file_kwargs)
+
+        metadata = _get_metadata(data_path=data_path, metadata_path=metadata_path)
+
         _name = _get_name(
             name=name,
             metadata=metadata,
         )
-                
-        return cls(
-            name=_name,
-            data=data,
-            metadata=metadata
-        )
+
+        return cls(name=_name, data=data, metadata=metadata)
 
     def call_method(
-        self: Self, 
+        self: _DataFrameWrapper,
         method_name: str,
         /,
         *args,
         **kwargs,
-    ) -> Optional[Self]:
-        """Calls spark method specified by user on spark dataframe in wrapper, using user specified arguments. 
-        THe function:
+    ) -> Optional[_DataFrameWrapper]:
+        """Calls spark method specified by user on SparkDataFrame in wrapper.
+
+        The function:
         1) assign method call to attribute object, so you can examine it before implementing anything
         2) check if method_name is a method
         3) get the signature of method (what argument it takes, return type, etc. )
@@ -165,41 +153,43 @@ class DataFrameWrapper:
         7) if not method, assume its a property (eg. crs)
         8) check if method_name returns a dataframe, if so update self.data attribute with that new data
         9) if doesn't return a dataframe, (eg. called display), don't want to overwrite data attribute with nothing, so return original data
-        
+
         Examples:
             >>> from sds_data_model.dataframe import DataFrameWrapper
-            >>> Wrapped = DataFrameWrapper.from_files(name = "National parks",  
-                        data_path="/dbfs/mnt/base/unrestricted/source_defra_data_services_platform/dataset_traditional_orchards/format_SHP_traditional_orchards/LATEST_traditional_orchards/", 
-                        read_file_kwargs = {'suffix':'.shp',  'ideal_chunk_size':1000})
-        
+            >>> wrapped = DataFrameWrapper.from_files(name = "National parks",
+                        data_path="/dbfs/mnt/base/unrestricted/source_defra_data_services_platform/dataset_traditional_orchards/format_SHP_traditional_orchards/LATEST_traditional_orchards/",
+                        read_file_kwargs = {'suffix':'.shp'})
+
             Limit number of rows to 5
-            >>> Wrapped_small =  DataFrameWrapper.call_method(df_wrap,  method_name = 'limit', num = 8)
+            >>> wrapped_small =  wrapped.call_method('limit', num = 5)
             Look at data
-            >>> Wrapped_small.data.show()
+            >>> wrapped_small.call_method("show")
         Args:
-            self (Self): Spark DataFrame
+            self (_DataFrameWrapper): Spark DataFrameWrapper
             method_name (str): Name of method or property called by user
         Returns:
-            Optional[Self]: Spark Dataframe or property output
+            Optional[_DataFrameWrapper]: Updated SparkDataFrameWrapper or property output
         """
-      
+
         attribute = getattr(self.data, method_name)
-        
+
         if ismethod(attribute):
-           
+
             sig = signature(attribute)
-            
+
             arguments = sig.bind(*args, **kwargs).arguments
-           
-            formatted_arguments = ",".join(f"{key}={value}" for key, value in arguments.items())
+
+            formatted_arguments = ",".join(
+                f"{key}={value}" for key, value in arguments.items()
+            )
             logger.info(f"Calling {attribute.__qualname__}({formatted_arguments})")
-          
+
             return_value = attribute(*args, **kwargs)
         else:
-           
+
             logger.info(f"Calling {attribute.__qualname__}")
             return_value = attribute
-      
+
         if isinstance(return_value, SparkDataFrame):
             self.data = return_value
             return self
@@ -207,17 +197,16 @@ class DataFrameWrapper:
         else:
             return return_value
 
-
     def to_zarr(
         self: Self,
         path: str,
         data_array_name: str,
-        index_column_name: str = "bng_index", 
+        index_column_name: str = "bng_index",
         geometry_column_name: str = "geometry",
     ) -> None:
-        """Reads in data as a Spark DataFrame. A dummy dataset of the BNG is created and written to zarr which is then overwritten 
+        """Reads in data as a Spark DataFrame. A dummy dataset of the BNG is created and written to zarr which is then overwritten
         as the Spark DataFrame is converted to a mask then a Dataset.
-        This function assumes that the dataframe contains a column with the BNG 100km grid reference 
+        This function assumes that the dataframe contains a column with the BNG 100km grid reference
         and a column containing the bounds of the BNG grid refernce system as a list named as "bounds"
 
         Args:
@@ -238,17 +227,15 @@ class DataFrameWrapper:
         _partial_to_zarr_region = partial(
             _to_zarr_region,
             data_array_name=data_array_name,
-            path=path,        
+            path=path,
         )
         return (
-            self.data
-            .groupby(index_column_name)
+            self.data.groupby(index_column_name)
             .applyInPandas(
                 _partial_to_zarr_region,
                 self.data.schema,
             )
-            .write
-            .format('noop')
-            .mode('overwrite')
+            .write.format("noop")
+            .mode("overwrite")
             .save()
         )
