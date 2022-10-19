@@ -17,6 +17,8 @@ from bng_indexer import calculate_bng_index, wkt_from_bng
 from pyspark.sql.types import ArrayType, FloatType, StringType
 from pyspark.sql.functions import col, explode, udf
 
+from dataclasses import asdict
+
 @udf(returnType=ArrayType(FloatType()))
 def _bng_to_bounds(grid_reference: str) -> Tuple[float, float, float, float]:
     wkt = wkt_from_bng(grid_reference)
@@ -227,6 +229,7 @@ def _create_dummy_dataset(
     bng_xmax: int = BNG_XMAX,
     bng_ymin: int = BNG_YMIN,
     bng_ymax: int = BNG_YMAX,
+    metadata: Optional[Metadata]
 ) -> None:
     """An empty DataArray is created of the size of BNG with co-ordinates which is changed to a Dataset and stored temporarily.
 
@@ -254,6 +257,8 @@ def _create_dummy_dataset(
         _type_: None. A dask delayed object is created. 
     """    
     
+    _metadata = asdict(metadata) if metadata else None
+    
     return (
         DataArray(
             data=zeros(
@@ -266,6 +271,7 @@ def _create_dummy_dataset(
                 "eastings": ("eastings", arange(bng_xmin, bng_xmax, cell_size)),
             },
             name=data_array_name,
+            attrs=_metadata
         )
         .to_dataset()
         .to_zarr(
