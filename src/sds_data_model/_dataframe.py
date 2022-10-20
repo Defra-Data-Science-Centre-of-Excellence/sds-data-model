@@ -36,9 +36,9 @@ def _get_name(
             name="ramsar",
         )
         'ramsar'
+
         If `name` isn't provided but a :class: Metadata object is,
-        the function returns
-        `metadata.title`:
+        the function returns `metadata.title`:
         >>> metadata = _get_metadata(
             data_path="tests/test_metadata/ramsar.gpkg",
             metadata_path="tests/test_metadata/ramsar.xml",
@@ -47,6 +47,7 @@ def _get_name(
             metadata=metadata,
         )
         'Ramsar (England)'
+
         If both are provided, `name` is preferred:
         >>> metadata = _get_metadata(
             data_path="tests/test_metadata/ramsar.gpkg",
@@ -57,6 +58,7 @@ def _get_name(
             metadata=metadata,
         )
         'ramsar'
+
         If neither are provided, an error is raised:
         >>> _get_name()
         ValueError: If there isn't any metadata, a name must be supplied.
