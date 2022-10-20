@@ -9,6 +9,7 @@ from sds_data_model.metadata import Metadata
 
 @fixture
 def expected() -> Metadata:
+    """Expected metadata for Ramsar dataset."""
     return Metadata(
         title="Ramsar (England)",
         dataset_language=("eng",),
@@ -67,6 +68,7 @@ def test_from_file(request: FixtureRequest, path: str, expected: Metadata) -> No
 
 @fixture
 def expected_without_title() -> Metadata:
+    """Expected metadata (minus title) for Ramsar dataset."""
     return Metadata(
         title=None,
         dataset_language=("eng",),
