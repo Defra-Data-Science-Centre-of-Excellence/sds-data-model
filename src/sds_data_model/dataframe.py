@@ -1,3 +1,4 @@
+"""DataFrame wrapper class."""
 from dataclasses import dataclass
 from functools import partial
 from inspect import ismethod, signature
