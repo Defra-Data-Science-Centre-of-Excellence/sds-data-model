@@ -4,7 +4,7 @@ from functools import partial
 from inspect import ismethod, signature
 from logging import INFO, Formatter, StreamHandler, getLogger
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional, Type, TypeVar, Union
+from typing import Any, Callable, Dict, List, Optional, Sequence, Type, TypeVar, Union
 
 from pyspark.pandas import DataFrame as SparkPandasDataFrame
 from pyspark.pandas import Series as SparkPandasSeries
@@ -146,8 +146,8 @@ class DataFrameWrapper:
         self: _DataFrameWrapper,
         method_name: str,
         /,
-        *args,
-        **kwargs,
+        *args: Optional[Union[str, Sequence[str]]],
+        **kwargs: Optional[Dict[str, int]],
     ) -> Optional[Union[_DataFrameWrapper, Any]]:
         """Calls spark method specified by user on SparkDataFrame in wrapper.
 
