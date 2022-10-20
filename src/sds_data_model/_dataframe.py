@@ -97,21 +97,25 @@ def _get_metadata(
         )
         >>> metadata.title
         'Ramsar (England)'
+
         If `metadata_path` isn't provided but a json `sidecar`_ file exists,
         the function will read that:
         >>> from os import listdir
         >>> listdir("tests/test_metadata")
         ['ramsar.gpkg', 'ramsar.gpkg-metadata.json']
+
         >>> metadata = _get_metadata(
             data_path="tests/test_metadata/ramsar.gpkg",
         )
         >>> metadata.title
         'Ramsar (England)'
+
         If `metadata_path` isn't provided and there isn't a json sidecar file,
         the function will return `None`:
         >>> from os import listdir
         >>> listdir("tests/test_metadata")
         ['ramsar.gpkg']
+
         >>> metadata = _get_metadata(
             data_path="tests/test_metadata/ramsar.gpkg",
         )
