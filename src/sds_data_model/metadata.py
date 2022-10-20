@@ -237,7 +237,7 @@ def _get_xml(path: str, metadata_kwargs: Dict[str, Any]) -> ElementTree:
 
     Examples:
         Parse XML from a remote URL:
-        >>> xml = _get_xml("https://ckan.publishing.service.gov.uk/harvest/object/715bc6a9-1008-4061-8783-d12e9e7f38a9") # noqa: E501
+        >>> xml = _get_xml("https://ckan.publishing.service.gov.uk/harvest/object/715bc6a9-1008-4061-8783-d12e9e7f38a9") # noqa: E501, B950
         >>> xml.docinfo.root_name
         'MD_Metadata'
 
