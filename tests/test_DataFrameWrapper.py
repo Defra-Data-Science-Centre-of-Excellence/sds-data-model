@@ -1,3 +1,4 @@
+"""Tests for DataFrame wrapper class."""
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Union
 
