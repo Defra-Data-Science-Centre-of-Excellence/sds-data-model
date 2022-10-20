@@ -138,7 +138,7 @@ def _get_value(
     root_element: Element,
     xpath: Union[str, Iterable[str], Iterable[Iterable[str]]],
     namespaces: Dict[str, str],
-) -> Union[str, None]:
+) -> Optional[str]:
     """Get a single text value from a `XPath`_ query.
 
     Examples:
