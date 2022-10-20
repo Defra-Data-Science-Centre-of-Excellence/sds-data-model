@@ -1,3 +1,4 @@
+"""Private functions for the DataFrame wrapper class."""
 from json import load
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
