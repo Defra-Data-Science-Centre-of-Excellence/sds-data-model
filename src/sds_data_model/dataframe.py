@@ -3,7 +3,7 @@ from functools import partial
 from inspect import ismethod, signature
 from logging import INFO, Formatter, StreamHandler, getLogger
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional, Type, TypeVar
+from typing import Any, Callable, Dict, Optional, Type, TypeVar, List, Tuple
 
 from pandas import DataFrame as PandasDataFrame
 from pyspark.pandas import DataFrame as SparkPandasDataFrame
@@ -11,11 +11,15 @@ from pyspark.pandas import Series as SparkPandasSeries
 from pyspark.pandas import read_excel
 from pyspark.sql import DataFrame as SparkDataFrame
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, explode, udf
+from pyspark.sql.types import ArrayType, FloatType, StringType
 from pyspark_vector_files import read_vector_files
 from pyspark_vector_files.gpkg import read_gpkg
 from typing_extensions import Self
+from shapely.wkt import loads
+from bng_indexer import calculate_bng_index, wkt_from_bng
 
-from sds_data_model._dataframe import _create_dummy_dataset, _to_zarr_region
+from sds_data_model._dataframe import _create_dummy_dataset, _to_zarr_region, _bng_to_bounds
 from sds_data_model._vector import _get_metadata, _get_name
 from sds_data_model.metadata import Metadata
 
@@ -239,3 +243,48 @@ class DataFrameWrapper:
             .mode("overwrite")
             .save()
         )
+        
+    def index(
+        self: Self,
+        resolution: int,
+        how: str = "intersects",
+        index_column_name: str = "bng",
+        bounds_column_name: str = "bounds",
+        geometry_column_name: str = "geometry",
+        exploded: bool = True,
+    ) -> _DataFrameWrapper:
+        """_summary_
+
+        Args:
+            self (Self): _description_
+            resolution (int): _description_
+            how (str, optional): _description_. Defaults to "intersects".
+            index_column_name (str, optional): _description_. Defaults to "bng".
+            bounds_column_name (str, optional): _description_. Defaults to "bounds".
+            geometry_column_name (str, optional): _description_. Defaults to "geometry".
+            exploded (bool, optional): _description_. Defaults to True.
+
+        Returns:
+            _DataFrameWrapper: _description_
+        """        
+        _partial_calculate_bng_index = partial(
+            calculate_bng_index, resolution=resolution, how=how
+            )
+        
+        _calculate_bng_index_udf = udf(
+            _partial_calculate_bng_index,
+            returnType=ArrayType(StringType()),
+            )
+        
+        self.data = self.data.withColumn(
+            index_column_name, 
+            _calculate_bng_index_udf(col(geometry_column_name))
+            )
+        
+        if exploded:
+            self.data = self.data.withColumn(
+                index_column_name, 
+                explode(col(index_column_name))
+                ).withColumn(bounds_column_name, _bng_to_bounds(col(index_column_name)))
+        
+        return self
