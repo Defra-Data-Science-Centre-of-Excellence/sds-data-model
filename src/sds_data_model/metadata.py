@@ -30,8 +30,7 @@ MetadataType = TypeVar("MetadataType", bound="Metadata")
 
 def _get_xpath(xpath: Union[str, Iterable[str],
                             Iterable[Iterable[str]]]) -> str:
-    """Construct an `XPath`_ query from a string, list of strings,
-    or list of lists of strings.
+    """`XPath`_ query from a string, list of strings, or list of lists of strings.
 
     Examples:
         A list of strings will be concatenated with "/" as the separator.
