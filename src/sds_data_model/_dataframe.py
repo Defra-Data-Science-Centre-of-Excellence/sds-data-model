@@ -65,7 +65,7 @@ def _get_name(
 
     Args:
         metadata (Optional[Metadata]): A :class: Metadata object containing
-        imformation parsed from GEMINI XML. Defaults to None.
+            information parsed from GEMINI XML. Defaults to None.
         name (Optional[str]): A name, provided by the caller. Defaults to None.
 
     Raises:
