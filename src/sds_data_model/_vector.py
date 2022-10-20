@@ -714,15 +714,16 @@ def _get_name(
         str: A name for the dataset.
     """
     if name:
-        return name
+        _name = name
     elif metadata:
         if metadata.title:
-            return metadata.title
+            _name = metadata.title
         else: 
             ValueError("Metadata provided, but no title present, a name must be supplied.")
     else:
         raise ValueError("If there isn't any metadata, a name must be supplied.")
-
+    return _name
+    
 
 def _get_metadata(
     data_path: str,
