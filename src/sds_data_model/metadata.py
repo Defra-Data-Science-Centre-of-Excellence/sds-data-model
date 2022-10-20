@@ -178,7 +178,7 @@ def _get_value(
     if not target_elements:
         target_element = None
     else:
-        target_element: str = target_elements[0].strip()
+        target_element = target_elements[0].strip()
     
     return target_element
 
