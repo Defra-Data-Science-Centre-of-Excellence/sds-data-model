@@ -1,12 +1,12 @@
 from pathlib import Path
+from typing import Dict, Iterable, List, Optional, Union
+
+import pytest
 from chispa.dataframe_comparer import assert_df_equality
-from pandas import DataFrame
 from pyspark.sql import DataFrame as SparkDataFrame
 from pyspark.sql import SparkSession
 from pyspark.sql.types import IntegerType, StructField, StructType
-from pytest import fixture
-import pytest
-from typing import Iterable, Dict, Optional, Union, List, FixtureRequest
+from pytest import FixtureRequest, fixture
 
 from sds_data_model.dataframe import DataFrameWrapper
 

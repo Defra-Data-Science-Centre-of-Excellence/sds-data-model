@@ -1,6 +1,7 @@
 from json import load
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
+
 from affine import Affine
 from geopandas import GeoDataFrame, GeoSeries
 from numpy import arange, zeros
@@ -8,15 +9,24 @@ from pandas import DataFrame as PandasDataFrame
 from rasterio.features import geometry_mask
 from xarray import DataArray
 
+from sds_data_model.constants import (
+    BNG_XMAX,
+    BNG_XMIN,
+    BNG_YMAX,
+    BNG_YMIN,
+    CELL_SIZE,
+    OUT_SHAPE,
+)
 from sds_data_model.metadata import Metadata
-from sds_data_model.constants import BNG_XMIN, BNG_YMIN, BNG_XMAX, BNG_YMAX, CELL_SIZE, OUT_SHAPE
 
 
 def _get_name(
     metadata: Optional[Metadata] = None,
     name: Optional[str] = None,
 ) -> str:
-    """Returns the provided name, the associated metadata title,
+    """Gets name provided.
+
+    Returns the provided name, the associated metadata title,
      or raises an error.
 
     Examples:
@@ -54,8 +64,10 @@ def _get_name(
         metadata (Optional[Metadata]): A :class: Metadata object containing
         imformation parsed from GEMINI XML. Defaults to None.
         name (Optional[str]): A name, provided by the caller. Defaults to None.
+
     Raises:
         ValueError: If neither a name nor a `Metadata` are provided.
+
     Returns:
         str: A name for the dataset.
     """
@@ -73,6 +85,7 @@ def _get_metadata(
     metadata_kwargs: Optional[Dict[str, Any]] = None,
 ) -> Optional[Metadata]:
     """Read metadata from path, or json sidecar, or return None.
+
     Examples:
         If `metadata_path` is provided, the function will read that:
         >>> metadata = _get_metadata(
@@ -101,20 +114,21 @@ def _get_metadata(
         )
         >>> metadata is None
         True
+
     Args:
         data_path (str): Path to the vector file.
-        metadata_path (Optional[str]): Path to a `UK GEMINI`_ metadata file.
+        metadata_path (Optional[str], optional): Path to a `UK GEMINI`_ metadata file.
             Defaults to None.
-        metadata_kwargs (Optional[Dict[str, Any]]): Key word arguments to be passed to
-            the requests `get`_ method when reading xml metadata from a URL. Defaults
-            to None.
+        metadata_kwargs (Optional[Dict[str, Any]], optional): Key word arguments to
+            be passed to the requests `get`_ method when reading xml metadata from
+            a URL. Defaults to None.
 
     Returns:
         Optional[Metadata]: An instance of :class: Metadata
-    .. _`UK GEMINI`:
-        https://www.agi.org.uk/uk-gemini/
-    .. _`sidecar`:
-        https://en.wikipedia.org/wiki/Sidecar_file
+        .. _`UK GEMINI`:
+            https://www.agi.org.uk/uk-gemini/
+        .. _`sidecar`:
+            https://en.wikipedia.org/wiki/Sidecar_file
     """
     json_sidecar = Path(f"{data_path}-metadata.json")
     if metadata_path:
@@ -127,6 +141,7 @@ def _get_metadata(
         metadata = None
     return metadata
 
+
 def _to_zarr_region(
     pdf: PandasDataFrame,
     data_array_name: str,
@@ -138,14 +153,14 @@ def _to_zarr_region(
     invert: bool = True,
     dtype: str = "uint8",
 ) -> PandasDataFrame:
-    """Reads in a Dataframe which is converted to a GeoPandas dataframe with the vector converted to a geometry mask. 
+    """Reads in a Dataframe which is converted to a GeoPandas dataframe with the vector converted to a geometry mask.
     This is then converted to a DataArray which rewrites the dummy dataset created previously in areas where the vector exists.
     Writing to a zarr file is a side effect of the function hence the input Dataframe is released
     This function assumes that the dataframe contains a column with BNG bounds that is named "bounds".
     This function is used within the to_zarr function.
 
     Args:
-        pdf (PandasDataFrame): the type of dataframe 
+        pdf (PandasDataFrame): the type of dataframe
         data_array_name (str): DataArray name given by the user
         path (str): Path to save the zarr file including file name
         cell_size (int, optional): Size of one raster cell in the DataArray. Defaults to CELL_SIZE.
@@ -157,39 +172,41 @@ def _to_zarr_region(
 
     Returns:
         PandasDataFrame: _description_
-    """    
+    """
 
-    
     minx, miny, maxx, maxy = pdf["bounds"][0]
 
     transform = Affine(cell_size, 0, minx, 0, -cell_size, maxy)
-    
+
     gpdf = (
-    GeoDataFrame(
+        GeoDataFrame(
             data=pdf,
             geometry=GeoSeries.from_wkb(pdf[geometry_column_name]),
             crs="EPSG:27700",
-            )
-    # ? Do I really need to do this?      
+        )
+        # ? Do I really need to do this?
         .clip((minx, miny, maxx, maxy))
     )
-    
-    mask = (
-        geometry_mask(
-            geometries=gpdf[geometry_column_name],
-            out_shape=out_shape,
-            transform=transform,
-            invert=invert,
-        )
-        .astype(dtype)
-    )
-    
+
+    mask = geometry_mask(
+        geometries=gpdf[geometry_column_name],
+        out_shape=out_shape,
+        transform=transform,
+        invert=invert,
+    ).astype(dtype)
+
     (
         DataArray(
             data=mask,
             coords={
-                "northings": ("northings", arange(maxy-(cell_size/2), miny, -cell_size)),
-                "eastings": ("eastings", arange(minx+(cell_size/2), maxx, cell_size)),
+                "northings": (
+                    "northings",
+                    arange(maxy - (cell_size / 2), miny, -cell_size),
+                ),
+                "eastings": (
+                    "eastings",
+                    arange(minx + (cell_size / 2), maxx, cell_size),
+                ),
             },
             name=data_array_name,
         )
@@ -198,13 +215,17 @@ def _to_zarr_region(
             store=path,
             mode="r+",
             region={
-                "northings": slice(int((maxy - bng_ymax) / -cell_size), int((miny - bng_ymax) / -cell_size)),
-                "eastings": slice(int(minx / cell_size), int(maxx / cell_size)),                
-            }
+                "northings": slice(
+                    int((maxy - bng_ymax) / -cell_size),
+                    int((miny - bng_ymax) / -cell_size),
+                ),
+                "eastings": slice(int(minx / cell_size), int(maxx / cell_size)),
+            },
         )
     )
-    
+
     return pdf
+
 
 def _create_dummy_dataset(
     data_array_name: str,
@@ -221,7 +242,7 @@ def _create_dummy_dataset(
     Examples:
 
         >>> d_dataset = _create_dummy_dataset(
-                data_array_name="dummy", 
+                data_array_name="dummy",
                 path = "/dbfs/mnt/lab/unrestricted/piumi.algamagedona@defra.gov.uk/dummy.zarr"
             )
 
@@ -239,14 +260,13 @@ def _create_dummy_dataset(
         bng_ymax (int, optional): British National Grid maximum Y axis value. Defaults to BNG_YMAX.
 
     Returns:
-        _type_: None. A dask delayed object is created. 
-    """    
-    
+        _type_: None. A dask delayed object is created.
+    """
+
     return (
         DataArray(
             data=zeros(
-                shape=(int(bng_ymax / cell_size),
-                       int(bng_xmax / cell_size)),
+                shape=(int(bng_ymax / cell_size), int(bng_xmax / cell_size)),
                 dtype=dtype,
             ),
             coords={

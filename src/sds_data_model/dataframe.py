@@ -3,9 +3,8 @@ from functools import partial
 from inspect import ismethod, signature
 from logging import INFO, Formatter, StreamHandler, getLogger
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional, Type, TypeVar
+from typing import Any, Callable, Dict, Optional, Type, TypeVar, Union
 
-from pandas import DataFrame as PandasDataFrame
 from pyspark.pandas import DataFrame as SparkPandasDataFrame
 from pyspark.pandas import Series as SparkPandasSeries
 from pyspark.pandas import read_excel
@@ -44,6 +43,12 @@ _DataFrameWrapper = TypeVar("_DataFrameWrapper", bound="DataFrameWrapper")
 
 @dataclass
 class DataFrameWrapper:
+    """DataFrameWrapper class.
+
+    Returns:
+        _DataFrameWrapper: SparkDataFrameWrapper
+    """
+
     name: str
     data: SparkDataFrame
     metadata: Optional[Metadata]
@@ -59,8 +64,7 @@ class DataFrameWrapper:
         read_file_kwargs: Optional[Dict[str, Any]] = None,
         spark: Optional[SparkSession] = None,
     ) -> _DataFrameWrapper:
-        """Reads in data with a range of file types, and converts it to a spark
-        dataframe, wrapped with associated metadata
+        """Reads in data and converts it to a SparkDataFrame.
 
         Examples:
         >>> from sds_data_model.dataframe import DataFrameWrapper
@@ -74,15 +78,18 @@ class DataFrameWrapper:
                                         data_path="dbfs:/mnt/lab/unrestricted/source_isr/dataset_england_biodiversity_indicators/format_CSV_england_biodiversity_indicators/LATEST_england_biodiversity_indicators/indicator_5__species_in_the_wider_countryside__farmland_1970_to_2020.csv",
                                         read_file_kwargs = {'header' :True}
                                        )
+
         Args:
-            cls (_DataFrameWrapper): DataFrameWrapper class , defined above
             data_path (str): Path to data,
             metadata_path (Optional[str], optional): Path to metadata supplied by user. Defaults to None.
+            metadata_kwargs (Optional[str]): Optional kwargs for metadata
             name (Optional[str], optional): Name for data, either supplied by caller or obtained from metadata title. Defaults to None.
             read_file_kwargs (Optional[Dict[str,Any]], optional): Additional kwargs supplied by the caller, dependent on the function called. Defaults to None.
+            spark(Optional[SparkSession]): Optional spark session
+
         Returns:
             _DataFrameWrapper: SparkDataFrameWrapper
-        """
+        """  # noqa: B950
         _spark = spark if spark else SparkSession.getActiveSession()
 
         if read_file_kwargs:
@@ -116,7 +123,7 @@ class DataFrameWrapper:
                 spark_pandas_data,
                 SparkPandasSeries,
             ):
-                data: SparkDataFrame = data.to_spark()
+                data: SparkDataFrame = spark_pandas_data.to_spark()
 
         elif suffix_data_path in file_reader_spark.keys():
             data = file_reader_spark[suffix_data_path](data_path, **read_file_kwargs)
@@ -140,19 +147,19 @@ class DataFrameWrapper:
         /,
         *args,
         **kwargs,
-    ) -> Optional[_DataFrameWrapper]:
+    ) -> Optional[Union[_DataFrameWrapper, Any]]:
         """Calls spark method specified by user on SparkDataFrame in wrapper.
 
         The function:
-        1) assign method call to attribute object, so you can examine it before implementing anything
+        1) assign method call to attribute object, to examine it before implementing anything
         2) check if method_name is a method
-        3) get the signature of method (what argument it takes, return type, etc. )
+        3) get the signature of method (what argument it takes, return type, etc.)
         4) bind arguments to function arguments
         5) create string to pass through graph generator
         6) return value, as have checked relevant information and can now call method
         7) if not method, assume its a property (eg. crs)
         8) check if method_name returns a dataframe, if so update self.data attribute with that new data
-        9) if doesn't return a dataframe, (eg. called display), don't want to overwrite data attribute with nothing, so return original data
+        9) if dataframe not returned, (eg. display called), return original data
 
         Examples:
             >>> from sds_data_model.dataframe import DataFrameWrapper
@@ -164,13 +171,15 @@ class DataFrameWrapper:
             >>> wrapped_small =  wrapped.call_method('limit', num = 5)
             Look at data
             >>> wrapped_small.call_method("show")
-        Args:
-            self (_DataFrameWrapper): Spark DataFrameWrapper
-            method_name (str): Name of method or property called by user
-        Returns:
-            Optional[_DataFrameWrapper]: Updated SparkDataFrameWrapper or property output
-        """
 
+        Args:
+            method_name (str): Name of method or property called by user
+            *args (Optional[Union[List[int], int]]): Additional args provided by user
+            **kwargs (Optional[Dict[str, int]]): Additional kwargs provided by user
+
+        Returns:
+            Optional[Union[_DataFrameWrapper, Any]]: Updated SparkDataFrameWrapper or property output
+        """  # noqa: B950
         attribute = getattr(self.data, method_name)
 
         if ismethod(attribute):
