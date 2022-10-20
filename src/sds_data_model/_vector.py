@@ -718,12 +718,14 @@ def _get_name(
     elif metadata:
         if metadata.title:
             _name = metadata.title
-        else: 
-            ValueError("Metadata provided, but no title present, a name must be supplied.")
+        else:
+            ValueError(
+                "Metadata provided, but no title present, a name must be supplied."
+            )
     else:
         raise ValueError("If there isn't any metadata, a name must be supplied.")
     return _name
-    
+
 
 def _get_metadata(
     data_path: str,

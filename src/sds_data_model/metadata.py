@@ -28,8 +28,7 @@ from sds_data_model.constants import (
 MetadataType = TypeVar("MetadataType", bound="Metadata")
 
 
-def _get_xpath(xpath: Union[str, Iterable[str],
-                            Iterable[Iterable[str]]]) -> str:
+def _get_xpath(xpath: Union[str, Iterable[str], Iterable[Iterable[str]]]) -> str:
     """`XPath`_ query from a string, list of strings, or list of lists of strings.
 
     Examples:
@@ -72,7 +71,7 @@ def _get_xpath(xpath: Union[str, Iterable[str],
 
     Args:
         xpath (Union[str, List[str]]): A string or list of strings that
-        represent an XPath query.
+            represent an XPath query.
 
     Returns:
         str: An XPath query.
@@ -115,7 +114,7 @@ def _get_target_elements(
     Args:
         root_element (Element): The starting point of the XPath query.
         xpath (Union[str, List[str]]): A string or list of strings that
-        represent an XPath query.
+            represent an XPath query.
         namespaces (Dict[str, str]): A dictionary of XML `namespaces`_.
 
     Returns:
@@ -172,13 +171,14 @@ def _get_value(
     target_elements = _get_target_elements(
         root_element,
         xpath=xpath,
-        namespaces=namespaces,)
+        namespaces=namespaces,
+    )
 
     if not target_elements:
         target_element = None
     else:
         target_element = target_elements[0].strip()
-    
+
     return target_element
 
 
@@ -205,7 +205,7 @@ def _get_values(
     Args:
         root_element (Element): The starting point of the XPath query.
         xpath (Union[str, List[str]]): A string or list of strings that
-        represent an XPath query.
+            represent an XPath query.
         namespaces (Dict[str, str]): A dictionary of XML `namespaces`_.
 
     Returns:
@@ -227,8 +227,10 @@ def _get_values(
     if not target_elements:
         target_element = None
     else:
-        target_element = tuple(target_element.strip() for target_element in target_elements)
-        
+        target_element = tuple(
+            target_element.strip() for target_element in target_elements
+        )
+
     return target_element
 
 
