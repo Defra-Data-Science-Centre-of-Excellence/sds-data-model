@@ -1,11 +1,10 @@
 """DataFrame wrapper class."""
-
 from dataclasses import dataclass
 from functools import partial
 from inspect import ismethod, signature
 from logging import INFO, Formatter, StreamHandler, getLogger
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Tuple
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Type, TypeVar, Union
 
 from pyspark.pandas import DataFrame as SparkPandasDataFrame
 from pyspark.pandas import Series as SparkPandasSeries
