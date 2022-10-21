@@ -10,6 +10,12 @@ from pandas import DataFrame as PandasDataFrame
 from rasterio.features import geometry_mask
 from xarray import DataArray
 
+from shapely.wkt import loads 
+from bng_indexer import calculate_bng_index, wkt_from_bng
+from pyspark.sql.types import ArrayType, FloatType, StringType
+from pyspark.sql.functions import col, explode, udf
+
+
 from sds_data_model.constants import (
     BNG_XMAX,
     BNG_XMIN,
@@ -19,6 +25,21 @@ from sds_data_model.constants import (
     OUT_SHAPE,
 )
 from sds_data_model.metadata import Metadata
+
+
+@udf(returnType=ArrayType(FloatType()))
+def _bng_to_bounds(grid_reference: str
+) -> Tuple[float, float, float, float]:
+    """_summary_
+
+    Args:
+        grid_reference (str): _description_
+
+    Returns:
+        Tuple[float, float, float, float]: _description_
+    """    
+    wkt = wkt_from_bng(grid_reference)
+    return loads(wkt).bounds
 
 
 def _get_name(
