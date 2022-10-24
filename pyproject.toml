@@ -70,6 +70,9 @@ bandit = "^1.7.4"
 Flake8-pyproject = "^1.1.0"
 blacken-docs = "^1.12.1"
 
+[tool.poetry.group.dev.dependencies]
+piccolo-theme = "^0.14.0"
+
 [tool.isort]
 profile = "black"
 multi_line_output = 3

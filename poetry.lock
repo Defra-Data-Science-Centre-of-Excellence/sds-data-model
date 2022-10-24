@@ -1402,6 +1402,17 @@ python-versions = "*"
 ptyprocess = ">=0.5"
 
 [[package]]
+name = "piccolo-theme"
+version = "0.14.0"
+description = "A modern Sphinx theme."
+category = "dev"
+optional = false
+python-versions = ">=3.6.0"
+
+[package.dependencies]
+sphinx = "*"
+
+[[package]]
 name = "pickleshare"
 version = "0.7.5"
 description = "Tiny 'shelve'-like database with concurrency support"
@@ -2324,7 +2335,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.8"
-content-hash = "ee40aed1dc041c42936c213a2c50a77d3ae55968aabb6ae3812b2aeb0bfdd2a9"
+content-hash = "11103750e3d59b8285366a8716138da032a3530d9bc4256b95ec4c7f48c5f9d4"
 
 [metadata.files]
 affine = [
@@ -3535,6 +3546,10 @@ pep8-naming = [
 pexpect = [
     {file = "pexpect-4.8.0-py2.py3-none-any.whl", hash = "sha256:0b48a55dcb3c05f3329815901ea4fc1537514d6ba867a152b581d69ae3710937"},
     {file = "pexpect-4.8.0.tar.gz", hash = "sha256:fc65a43959d153d0114afe13997d439c22823a27cefceb5ff35c2178c6784c0c"},
+]
+piccolo-theme = [
+    {file = "piccolo_theme-0.14.0-py3-none-any.whl", hash = "sha256:d0879a4872d9e15401cc44cf3302934748ee75f8a2050f6af97653030ce879ee"},
+    {file = "piccolo_theme-0.14.0.tar.gz", hash = "sha256:3c63dfd394d07c2e92a269f63d1d3b636aa23aeca0fb7ed4d65d7a9b62caca45"},
 ]
 pickleshare = [
     {file = "pickleshare-0.7.5-py2.py3-none-any.whl", hash = "sha256:9649af414d74d4df115d5d718f82acb59c9d418196b7b4290ed47a12ce62df56"},
