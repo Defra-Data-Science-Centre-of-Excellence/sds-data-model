@@ -357,44 +357,44 @@ The whole workflow can be pulled together like this:
     )
 
 .. _`Spark DataFrame`:
-    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html
+    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html  # noqa: B950
 
 .. _`pyspark.pandas.read_excel`:
-    https://spark.apache.org/docs/latest/api/python/reference/pyspark.pandas/api/pyspark.pandas.read_excel.html
+    https://spark.apache.org/docs/latest/api/python/reference/pyspark.pandas/api/pyspark.pandas.read_excel.html  # noqa: B950
 
 .. _`pyspark.sql.DataFrameReader.csv`:
-    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.csv.html
+    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.csv.html  # noqa: B950
 
 .. _`pyspark.sql.DataFrameReader.json`:
-    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.json.html
+    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.json.html  # noqa: B950
 
 .. _`pyspark.sql.DataFrameReader.parquet`:
-    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.parquet.html
+    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.parquet.html  # noqa: B950
 
 .. _`pyspark_vector_files.gpkg.read_gpkg`:
-    https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/usage.html#read-a-layer-into-a-spark-dataframe
+    https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/usage.html#read-a-layer-into-a-spark-dataframe  # noqa: B950
 
 .. _`pyspark_vector_files.read_vector_files`:
-    https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/api.html
+    https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/api.html  # noqa: B950
 
 .. _`register the geopackage dialect`:
-    https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/usage.html#register-the-geopackage-dialect
+    https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/usage.html#register-the-geopackage-dialect  # noqa: B950
 
 .. _`any valid Spark DataFrame method`:
-    https://spark.apache.org/docs/3.1.1/api/python/reference/pyspark.sql.html#dataframe-apis
+    https://spark.apache.org/docs/3.1.1/api/python/reference/pyspark.sql.html#dataframe-apis  # noqa: B950
 
 .. _`filter`:
-    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.filter.html
+    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.filter.html  # noqa: B950
 
 .. _`select`:
-    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.select.html
+    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.select.html  # noqa: B950
 
 .. _`pyspark.sql.functions.col`:
-    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.functions.col.html
+    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.functions.col.html  # noqa: B950
 
 .. _`join`:
-    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.join.html
+    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.join.html  # noqa: B950
 
 .. _`bng_indexer`:
-    https://github.com/Defra-Data-Science-Centre-of-Excellence/bng-indexer
+    https://github.com/Defra-Data-Science-Centre-of-Excellence/bng-indexer  # noqa: B950
 """
