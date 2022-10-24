@@ -31,6 +31,7 @@ copyright = f"{datetime.now().year}, {author}"
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "sphinx.ext.githubpages",
@@ -67,7 +68,8 @@ exclude_patterns = ["_build"]
 # a list of builtin themes.
 #
 autodoc_typehints = "description"
-html_theme = "alabaster"
+html_theme = "piccolo_theme"
+
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
