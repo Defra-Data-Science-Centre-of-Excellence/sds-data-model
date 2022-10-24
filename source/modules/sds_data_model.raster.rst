@@ -1,8 +1,8 @@
-sds\_data\_model.raster
-=======================
+﻿Raster
+======
 
 .. automodule:: sds_data_model.raster
-
+  
    
    
    
@@ -16,6 +16,8 @@ sds\_data\_model.raster
    .. rubric:: Classes
 
    .. autosummary::
+      :toctree:
+      :template: class.rst
    
       DatasetWrapper
    

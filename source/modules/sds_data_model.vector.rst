@@ -1,8 +1,8 @@
-sds\_data\_model.vector
-=======================
+﻿Vector
+======
 
 .. automodule:: sds_data_model.vector
-
+  
    
    
    
@@ -16,6 +16,8 @@ sds\_data\_model.vector
    .. rubric:: Classes
 
    .. autosummary::
+      :toctree:
+      :template: class.rst
    
       TiledVectorLayer
       VectorLayer

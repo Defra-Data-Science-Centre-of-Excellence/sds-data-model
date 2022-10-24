@@ -1,8 +1,8 @@
-sds\_data\_model.logger
-=======================
+﻿Logger
+======
 
 .. automodule:: sds_data_model.logger
-
+  
    
    
    
@@ -12,6 +12,7 @@ sds\_data\_model.logger
    .. rubric:: Functions
 
    .. autosummary::
+      :toctree:
    
       log
       stringify_callable

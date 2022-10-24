@@ -1,8 +1,8 @@
-sds\_data\_model.metadata
-=========================
+﻿Metadata
+========
 
 .. automodule:: sds_data_model.metadata
-
+  
    
    
    
@@ -16,6 +16,8 @@ sds\_data\_model.metadata
    .. rubric:: Classes
 
    .. autosummary::
+      :toctree:
+      :template: class.rst
    
       Metadata
    

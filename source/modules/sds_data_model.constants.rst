@@ -1,8 +1,8 @@
-sds\_data\_model.constants
-==========================
+﻿Constants
+=========
 
 .. automodule:: sds_data_model.constants
-
+  
    
    
    

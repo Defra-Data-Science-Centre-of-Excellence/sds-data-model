@@ -1,8 +1,8 @@
-sds\_data\_model.table
-======================
+﻿Table
+=====
 
 .. automodule:: sds_data_model.table
-
+  
    
    
    
@@ -16,6 +16,8 @@ sds\_data\_model.table
    .. rubric:: Classes
 
    .. autosummary::
+      :toctree:
+      :template: class.rst
    
       TableLayer
    
