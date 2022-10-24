@@ -1,47 +1,12 @@
-SDS Data Model
-==============
-
-|PyPI| |Status| |Python Version| |License|
-
-|Docs| |CI| |Codecov|
-
-|pre-commit| |Black|
-
-.. |PyPI| image:: https://img.shields.io/pypi/v/sds-data-model.svg
-   :target: https://pypi.org/project/sds-data-model/
-   :alt: PyPI
-.. |Status| image:: https://img.shields.io/pypi/status/sds-data-model.svg
-   :target: https://pypi.org/project/sds-data-model/
-   :alt: Status
-.. |Python Version| image:: https://img.shields.io/pypi/pyversions/sds-data-model
-   :target: https://pypi.org/project/sds-data-model
-   :alt: Python Version
-.. |License| image:: https://img.shields.io/pypi/l/sds-data-model
-   :target: https://opensource.org/licenses/MIT
-   :alt: License
-.. |Docs| image:: https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model/actions/workflows/deploy-docs.yml/badge.svg
-   :target: https://defra-data-science-centre-of-excellence.github.io/sds-data-model/
-   :alt: Read the documentation at https://defra-data-science-centre-of-excellence.github.io/sds-data-model/
-.. |CI| image:: https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model/actions/workflows/python-package.yml/badge.svg
-   :target: https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model/actions/workflows/python-package.yml
-   :alt: Tests
-.. |Codecov| image:: https://codecov.io/gh/Defra-Data-Science-Centre-of-Excellence/sds-data-model/branch/main/graph/badge.svg
-   :target: https://codecov.io/gh/Defra-Data-Science-Centre-of-Excellence/sds-data-model
-   :alt: Codecov
-.. |pre-commit| image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white
-   :target: https://github.com/pre-commit/pre-commit
-   :alt: pre-commit
-.. |Black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
-   :target: https://github.com/psf/black
-   :alt: Black
-
+Spatial Data Science Data Model
+===============================
 
 Aim
 ---
 
 In spatial data science, we want data that is easy to use.
 We consider data that is easy to use as aligned to the `FAIR guiding principles <https://www.go-fair.org/fair-principles/>`_.
-Wider use of FAIR in government (e.g. from the `Geospatial Commission <https://geospatialcommission.blog.gov.uk/2021/06/25/byte-ing-back-better-introducing-a-q-fair-approach-to-geospatial-data-improvement/> `_) 
+Wider use of FAIR in government (e.g. from the `Geospatial Commission <https://geospatialcommission.blog.gov.uk/2021/06/25/byte-ing-back-better-introducing-a-q-fair-approach-to-geospatial-data-improvement/>`_) 
 has emphasised the need to ensure data are of appropriate quality and are fit for purpose, resulting in Q-FAIR:.  
 
 **Q**\ uality
@@ -86,11 +51,11 @@ document data provenance and log transformation history.
 It is important that all transformations that data undergo are captured. However, it is also the case that some 
 transformations will be trivial. A subset of transformations should be identified that materially affect the
 resultant quality of data. For instance, the transformation of vector data with a stated 1 metre accuracy to
-a raster representation with a 10 metre cells size implies a loss of precision and as such a degredation of
+a raster representation with a 10 metre cells size implies a loss of precision and as such a degradation of
 data quality in the resulting data. Conversely, a raster data set with a resolution of 30 metres that is converted
 to a standardised 10 metre raster has not gained in data quality, despite the higher resolution of the output.
 
-Transformations that may have implications for data quality include: e.g. datatype conversion, reclassification,
+Transformations that may have implications for data quality include: e.g. data type conversion, reclassification,
 resampling, geometric transformation, coordinate transformation etc.
 
 **Ontological Considerations**
@@ -128,39 +93,20 @@ Future functionality could include:
 6. Pipeline orchestration and renewal when new data becomes available.
 7. Detailed tutorial and documentation to support wider uptake and use.
 
-Features
---------
-
-* TODO
-
-
-Requirements
-------------
-
-* TODO
-
-
 Installation
 ------------
 
-You can install *SDS Data Model* via pip_ from PyPI_:
+You can install *SDS Data Model* via pip_ from GitHub_:
 
 .. code:: console
 
-   $ pip install sds-data-model
+   $ pip install git+https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model
 
 
 Usage
 -----
 
-Please see the `Command-line Reference <Usage_>`_ for details.
-
-
-Contributing
-------------
-
-Contributions are very welcome.
-To learn more, see the `Contributor Guide`_.
+Please see the `Usage`_ for details.
 
 
 License
@@ -176,19 +122,8 @@ Issues
 If you encounter any problems,
 please `file an issue`_ along with a detailed description.
 
-
-Credits
--------
-
-This project was generated from `@cjolowicz`_'s `Hypermodern Python Cookiecutter`_ template.
-
-.. _@cjolowicz: https://github.com/cjolowicz
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
+.. _GitHub: https://github.com/
 .. _MIT license: https://opensource.org/licenses/MIT
-.. _PyPI: https://pypi.org/
-.. _Hypermodern Python Cookiecutter: https://github.com/cjolowicz/cookiecutter-hypermodern-python
 .. _file an issue: https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model/issues
 .. _pip: https://pip.pypa.io/
-.. github-only
-.. _Contributor Guide: CONTRIBUTING.rst
 .. _Usage: https://defra-data-science-centre-of-excellence.github.io/sds-data-model/usage.html
