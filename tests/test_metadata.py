@@ -99,7 +99,7 @@ def test_from_file_without_title(
     received = Metadata.from_file(metadata_path_string)
     # Assert
     assert received == expected_without_title
-    
+
 
 @fixture
 def expected_without_keywords() -> Metadata:
@@ -118,6 +118,7 @@ def expected_without_keywords() -> Metadata:
         quality_scope=("dataset",),
         spatial_representation_type=("vector",),
     )
+
 
 def test_from_file_without_keywords(
     datadir: Path, expected_without_keywords: Metadata
