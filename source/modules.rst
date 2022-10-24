@@ -1,7 +1,15 @@
-sds_data_model
-==============
+Modules
+=======
 
-.. toctree::
-   :maxdepth: 4
+.. currentmodule:: sds_data_model
 
-   sds_data_model
+.. autosummary::
+   :toctree: modules
+
+   constants
+   graph
+   logger
+   metadata
+   raster
+   table
+   vector
