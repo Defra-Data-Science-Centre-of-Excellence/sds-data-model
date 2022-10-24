@@ -3,16 +3,16 @@
 The following usage examples assume a pyspark enabled environment.
 
 Part 1: The `DataFrameWrapper` class
-========================
+====================================
 
 The SDS data model DataFrameWrapper class is a thin wrapper around a
 `Spark DataFrame`_.
 
 It consists of:
 
-- A name
-- A Spark DataFrame instance
-- An instance of the SDS data model :class:`sds_data_model.metadata.Metadata` class
+* A name
+* A Spark DataFrame instance
+* An instance of the SDS data model :class:`sds_data_model.metadata.Metadata` class
 
 Wrapping a Spark DataFrame in this way allows us to bind data and metadata together,
 abstract common patterns to methods, and capture transformations.
@@ -25,12 +25,12 @@ aspatial file formats using the
 :meth:`sds_data_model.dataframe.DataFrameWrapper.from_files` alternative constructor.
 `from_files` will use a different reader depending on the file extension.
 
-- For Excel Workbook (`.xlsx`, `.xls`, `.xlsm`, and `.xlsb`) or OpenDocument Format
-(`.odf`, `.ods`, `.odt`) files, it will use `pyspark.pandas.read_excel`_.
-- For CSV, it will use `pyspark.sql.DataFrameReader.csv`_.
-- For JSON, it will use `pyspark.sql.DataFrameReader.json`_.
-- For Parquet, it will use `pyspark.sql.DataFrameReader.parquet`_.
-- For GeoPackage, it will use `pyspark_vector_files.gpkg.read_gpkg`_.
+* For Excel Workbook (`.xlsx`, `.xls`, `.xlsm`, and `.xlsb`) or OpenDocument Format
+    (`.odf`, `.ods`, `.odt`) files, it will use `pyspark.pandas.read_excel`_.
+* For CSV, it will use `pyspark.sql.DataFrameReader.csv`_.
+* For JSON, it will use `pyspark.sql.DataFrameReader.json`_.
+* For Parquet, it will use `pyspark.sql.DataFrameReader.parquet`_.
+* For GeoPackage, it will use `pyspark_vector_files.gpkg.read_gpkg`_.
 
 It will assume that any other file type is a vector file and will try and use
 `pyspark_vector_files.read_vector_files`_ to read it.
