@@ -7,6 +7,7 @@ from numpy import arange, zeros
 from pandas import DataFrame as PandasDataFrame
 from rasterio.features import geometry_mask
 from xarray import DataArray
+from shapely.geometry import box
 
 from sds_data_model.metadata import Metadata
 from sds_data_model.constants import BNG_XMIN, BNG_YMIN, BNG_XMAX, BNG_YMAX, CELL_SIZE, OUT_SHAPE
@@ -162,6 +163,9 @@ def _to_zarr_region(
     
     minx, miny, maxx, maxy = pdf["bounds"][0]
 
+    #creating an explicit box out of the bounds to clip to
+    box_geom = box(minx, miny, maxx, maxy)
+
     transform = Affine(cell_size, 0, minx, 0, -cell_size, maxy)
     
     gpdf = (
@@ -171,7 +175,7 @@ def _to_zarr_region(
             crs="EPSG:27700",
             )
     # ? Do I really need to do this?      
-        .clip((minx, miny, maxx, maxy))
+        .clip(mask = GeoSeries(box_geom, crs = "EPSG:27700"))
     )
     
     mask = (
@@ -245,7 +249,7 @@ def _create_dummy_dataset(
     return (
         DataArray(
             data=zeros(
-                shape=(bng_ymax / cell_size, bng_xmax / cell_size),
+                shape=(int(bng_ymax / cell_size), int(bng_xmax / cell_size)),
                 dtype=dtype,
             ),
             coords={
