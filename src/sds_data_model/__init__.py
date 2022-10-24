@@ -131,7 +131,7 @@ For example, to filter attributes based on name matches in a single column:
 
     sdf = DataFrameWrapper.from_files(
         name="vector_name",
-        data_path="/path/to/files/"
+        data_path="/path/to/files/",
     ).call_method("filter", "col == 'val'")
 
 Multiple queries can be executed with `or`:
@@ -140,8 +140,11 @@ Multiple queries can be executed with `or`:
 
     sdf = DataFrameWrapper.from_files(
         name="vector_name",
-        data_path="/path/to/files/"
-    ).call_method("filter", "col == 'val_a' or col == 'val_b'")
+        data_path="/path/to/files/",
+    ).call_method(
+        "filter",
+        "col == 'val_a' or col == 'val_b'",
+    )
 
 Or, to identify rows where values contain a certain string, you can use the following:
 
@@ -149,8 +152,11 @@ Or, to identify rows where values contain a certain string, you can use the foll
 
     sdf = DataFrameWrapper.from_files(
         name="vector_name",
-        data_path="/path/to/files/"
-    ).call_method("filter", "col LIKE '%val_a%'")
+        data_path="/path/to/files/",
+    ).call_method(
+        "filter",
+        "col LIKE '%val_a%'",
+    )
 
 
 `select`
@@ -165,9 +171,11 @@ For example, columns can be selected as follows:
 .. code-block:: python
 
     sdf = DataFrameWrapper.from_files(
-        name="vector_name",
-        data_path="/path/to/files/"
-    ).call_method("select", [col("col_a"), col("col_b")])
+        name="vector_name", data_path="/path/to/files/"
+    ).call_method(
+        "select",
+        [col("col_a"), col("col_b")],
+    )
 
 .. warning::
     Unlike the underlying method, column names cannot be passed as strings.
@@ -188,21 +196,27 @@ Aspatial:
 
 .. code-block:: python
 
-    extra_data = spark.read.option("header", True) \
-     .csv("/path/to/my_data.csv")
+    extra_data = spark.read.option("header", True,).csv(
+        "/path/to/my_data.csv",
+    )
 
     sdf = DataFrameWrapper.from_files(
         name="vector_name",
-        data_path="/path/to/files/"
-    ).call_method("join", extra_data, "name", "left")
+        data_path="/path/to/files/",
+    ).call_method(
+        "join",
+        extra_data,
+        "name",
+        "left",
+    )
 
 Here, `name` and `left` are the the extra arguments passed to `join`s `on` and `how`
 parameters. The above is equivalent to:
 
     sdf = DataFrameWrapper.from_files(
         name="vector_name",
-        data_path="/path/to/files/"
-    ).call_method("join", other=extra_data, on="name", how="left")
+        data_path="/path/to/files/",
+    ).call_method("join", other=extra_data, on="name", how="left",)
 
 
 Spatial:
@@ -210,13 +224,19 @@ Spatial:
 .. code-block:: python
 
     sdf1 = DataFrameWrapper.from_files(
-        name = 'vector_name',
-        data_path = '/path/to/files/'
+        name="vector_name",
+        data_path="/path/to/files/",
+    )
 
     sdf2 = DataFrameWrapper.from_files(
-        name = 'vector_name',
-        data_path = '/path/to/files/'
-    ).call_method('join', sdf1.data, 'name', 'left')
+        name="vector_name",
+        data_path="/path/to/files/",
+    ).call_method(
+        "join",
+        sdf1.data,
+        "name",
+        "left",
+    )
 
 Note how the `data` object from the DataFrameWrapper classed `sdf1` is selected within
 the `join` method.
@@ -231,11 +251,20 @@ example:
 
 .. code-block:: python
 
-    sdf = DataFrameWrapper.from_files(
-        name="vector_name",
-        data_path="/path/to/files/") \
-        .call_method("select", [col("col_a"), col("col_b")]) \
-        .call_method("filter", "col_a == 'val_a' or col_a == 'val_b'")
+    sdf = (
+        DataFrameWrapper.from_files(
+            name="vector_name",
+            data_path="/path/to/files/",
+        )
+        .call_method(
+            "select",
+            [col("col_a"), col("col_b")],
+        )
+        .call_method(
+            "filter",
+            "col_a == 'val_a' or col_a == 'val_b'",
+        )
+    )
 
 
 Indexing
@@ -265,10 +294,12 @@ geometry column as an input, and the two output columns:
 
 .. code-block:: python
 
-    sdf.index(resolution=100_000,
-         geometry_column_name="custom_geom",
-         index_column_name="custom_index",
-         bounds_column_name="custom_bounds")
+    sdf.index(
+        resolution=100_000,
+        geometry_column_name="custom_geom",
+        index_column_name="custom_index",
+        bounds_column_name="custom_bounds",
+    )
 
 **TODO: how do variations in `how` work?**
 
@@ -284,8 +315,10 @@ file. This can be done with the `to_zarr()` method:
 
 .. code-block:: python
 
-    sdf.to_zarr(path="/path/to/out_directory/",
-           data_array_name="array_name")
+    sdf.to_zarr(
+        path="/path/to/out_directory/",
+        data_array_name="array_name",
+    )
 
 
 As with the indexing function, custom column names can be provided if they have
@@ -293,10 +326,12 @@ been changed from the defaults:
 
 .. code-block:: python
 
-    sdf.to_zarr(path="/path/to/out_directory/",
-           data_array_name="array_name",
-            index_column_name="custom_index",
-            geometry_column_name="custom_geometry")
+    sdf.to_zarr(
+        path="/path/to/out_directory/",
+        data_array_name="array_name",
+        index_column_name="custom_index",
+        geometry_column_name="custom_geometry",
+    )
 
 
 Part 2: A full workflow
@@ -313,10 +348,12 @@ The whole workflow can be pulled together like this:
             "pattern": "filename_pattern*",
             "suffix": ".ext",
         },
-    ).call_method("filter", "col_a == 'val_a' or col_a == 'val_b'"
-    ).index(resolution=100_000
-    ).to_zarr(path="/path/to/out_directory/",
-           data_array_name="array_name")
+    ).call_method("filter", "col_a == 'val_a' or col_a == 'val_b'",).index(
+        resolution=100_000,
+    ).to_zarr(
+        path="/path/to/out_directory/",
+        data_array_name="array_name",
+    )
 
 .. _`Spark DataFrame`:
     https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html
