@@ -1,6 +1,4 @@
-"""SDS Data Model.
-
-The following usage examples assume a pyspark enabled environment.
+"""The following usage examples assume a pyspark enabled environment.
 
 Part 1: The `DataFrameWrapper` class
 ====================================
@@ -35,7 +33,9 @@ aspatial file formats using the
 It will assume that any other file type is a vector file and will try and use
 `pyspark_vector_files.read_vector_files`_ to read it.
 
-.. warning:: Databricks File System paths
+.. warning:: 
+    Databricks File System paths
+
     The Excel, OpenDocument, CSV, JSON, and Parquet readers use Spark API Format
     file paths, i.e. `dbfs:/path/to/file.ext`, whereas, the GeoPackage and other
     vector file type readers use the File API Format, i.e. `/dbfs/path/to/file.ext`.
@@ -88,7 +88,9 @@ without returning the GeoPackage Binary Header:
         },
     )
 
-.. warning:: GeoPackage JDBC dialect
+.. warning::
+    GeoPackage JDBC dialect
+
     To read a GeoPackage using Spark's JDBC drivers, you will need to
     register a custom mapping of GeoPackage to Spark Catalyst types.
 
