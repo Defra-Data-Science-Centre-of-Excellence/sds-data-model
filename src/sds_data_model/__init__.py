@@ -214,10 +214,17 @@ Aspatial:
 Here, `name` and `left` are the the extra arguments passed to `join`s `on` and `how`
 parameters. The above is equivalent to:
 
+.. code-block:: python
+
     sdf = DataFrameWrapper.from_files(
         name="vector_name",
         data_path="/path/to/files/",
-    ).call_method("join", other=extra_data, on="name", how="left",)
+    ).call_method(
+        "join",
+        other=extra_data,
+        on="name",
+        how="left",
+    )
 
 
 Spatial:
