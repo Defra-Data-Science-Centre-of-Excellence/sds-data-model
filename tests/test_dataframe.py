@@ -47,7 +47,7 @@ def temp_shapefile(tmpdir_factory):
         tmpdir_factory (Instance): temporary directory instance
 
     Returns:
-        object: object containing path to temporary data
+        object: object containing path to temporary shapefile
     """
     file_path = tmpdir_factory.mktemp("data").join("temp_shapefile.shp")
     expected_gdf.to_file(str(file_path))
@@ -58,12 +58,20 @@ def test_shapefile(
     spark_session: SparkSession,
     temp_shapefile
     ):
-    """Creating a DataFrameWrapper object from the shapefile"""
+    """Creating a DataFrameWrapper object from the shapefile using from_files method.
+
+    Args:
+        spark_session: temporary spark session,
+        temp_shapefile: the temporary shapefile path
+
+    Returns:
+        object: object containing the DataFrameWrapper object 
+    """
 
     test_shapefile = DataFrameWrapper.from_files(
         spark = spark_session,
         name = "temp_shapefile",
-        data_path = str(temp_shapefile)[:-18],
+        data_path = str(temp_shapefile)[:-18], #indexing into the string of shapefile path to remove shapefile name
         read_file_kwargs = {'suffix':'.shp', 'ideal_chunk_size':1000})
 
     return test_shapefile
@@ -74,9 +82,10 @@ def temp_zarr_file(tmpdir_factory, test_shapefile):
 
     Args:
         tmpdir_factory (Instance): temporary directory instance
+        test_shapefile: the temporary DataFrameWrapper object containing the read shapefile
 
     Returns:
-        object: object containing path to temporary data
+        object: object containing path to temporary zarr file
     """
 
     shapefile = test_shapefile.call_method("withColumn", "bounds", when(col('bng') == 'HL', array([lit(number) for number in bounds])))
@@ -87,7 +96,11 @@ def temp_zarr_file(tmpdir_factory, test_shapefile):
 
 @fixture
 def expected_data_chunk():
-    """Expected Data Array chunk"""
+    """Expected Data Array chunk.
+
+    Returns:
+        object: object containing the array of the BNG HL box values
+    """
 
     hl = ones(dtype="uint8", shape=(10_000, 10_000))
     top_row_rest = zeros(dtype="uint8", shape=(10_000, 10_000)).repeat(6, axis=1)
@@ -107,8 +120,11 @@ def test_to_zarr(
     """Function to test the returned zarr file.
 
     Args:
-        temp_zarr_file (SparkDataFrame): temporary file path for test data
-        expected_data_chunk (DaskArray): expected data output for the zarr file
+        temp_zarr_file (SparkDataFrame): temporary file path for zarr file
+        expected_data_chunk (DaskArray): expected data output for the zarr file data chunk
+
+    Returns:
+        object: Boolean value regarding if the two data chunks are equal or not.
     """
     received = open_dataset(
         temp_zarr_file,
