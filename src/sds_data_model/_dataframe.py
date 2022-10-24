@@ -138,25 +138,25 @@ def _to_zarr_region(
     invert: bool = True,
     dtype: str = "uint8",
 ) -> PandasDataFrame:
-    """Reads in a Dataframe which is converted to a GeoPandas dataframe with the vector converted to a geometry mask. 
-    This is then converted to a DataArray which rewrites the dummy dataset created previously in areas where the vector exists.
-    Writing to a zarr file is a side effect of the function hence the input Dataframe is released
+    """Reads in a Dataframe which is then overwrites an empty Dataset in areas cotaining data provided by the Dataframe . 
+
+    This is a pandas udf which is used within the `applyInPandas` function for the `to_zarr` function.
+    Writing to a zarr file is a side effect of the function hence the input and the output is the same dataframe.
     This function assumes that the dataframe contains a column with BNG bounds that is named "bounds".
-    This function is used within the to_zarr function.
 
     Args:
-        pdf (PandasDataFrame): the type of dataframe 
+        pdf (PandasDataFrame): A Pandas dataframe
         data_array_name (str): DataArray name given by the user
         path (str): Path to save the zarr file including file name
         cell_size (int, optional): Size of one raster cell in the DataArray. Defaults to CELL_SIZE.
         out_shape (Tuple[int, int], optional): The shape of the DataArray[Height, Width]. Defaults to OUT_SHAPE.
         bng_ymax (int, optional): British National Grid maximum Y axis value. Defaults to BNG_YMAX.
         geometry_column_name (str, optional): _description_. Defaults to "geometry".
-        invert (bool, optional): _description_. Defaults to True.
-        dtype (str, optional): _description_. Defaults to "uint8".
+        invert (bool, optional): If you want to write the areas that do not contain data. Defaults to True.
+        dtype (str, optional): Data type of the DataArray value. Defaults to "uint8".
 
     Returns:
-        PandasDataFrame: _description_
+        PandasDataFrame: same DataFrame is returned
     """    
 
     
@@ -216,13 +216,13 @@ def _create_dummy_dataset(
     bng_ymin: int = BNG_YMIN,
     bng_ymax: int = BNG_YMAX,
 ) -> None:
-    """An empty DataArray is created of the size of BNG with co-ordinates which is changed to a Dataset and stored temporarily.
+    """An empty DataArray is created to the size of the BNG with co-ordinates. It is changed to a Dataset and stored temporarily.
 
     Examples:
 
         >>> d_dataset = _create_dummy_dataset(
                 data_array_name="dummy", 
-                path = "/dbfs/mnt/lab/unrestricted/piumi.algamagedona@defra.gov.uk/dummy.zarr"
+                path = "/dbfs/mnt/lab/unrestricted/piumi.algamagedona@defra.gov.uk/dummy"
             )
 
         >>> d_dataset

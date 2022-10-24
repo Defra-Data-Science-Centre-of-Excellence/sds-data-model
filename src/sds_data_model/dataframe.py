@@ -20,7 +20,8 @@ from sds_data_model._vector import _get_metadata, _get_name
 from sds_data_model.metadata import Metadata
 from sds_data_model._dataframe import _to_zarr_region, _create_dummy_dataset
 
-from pandas import DataFrame
+from pyspark.sql.functions import udf, explode, col, pandas_udf
+from pyspark.sql.types import ArrayType, StringType
 from functools import partial
 
 spark = SparkSession.getActiveSession()
@@ -155,7 +156,7 @@ class DataFrameWrapper:
         **kwargs,
     ) -> Optional[Self]:
         """Calls spark method specified by user on spark dataframe in wrapper, using user specified arguments. 
-        THe function:
+        The function:
         1) assign method call to attribute object, so you can examine it before implementing anything
         2) check if method_name is a method
         3) get the signature of method (what argument it takes, return type, etc. )
@@ -208,47 +209,59 @@ class DataFrameWrapper:
             return return_value
 
 
-def to_zarr(
-    self: Self,
-    path: str,
-    data_array_name: str,
-    index_column_name: str = "bng_index", 
-    geometry_column_name: str = "geometry",
-) -> None:
-    """Reads in data as a Spark DataFrame. A dummy dataset of the BNG is created and written to zarr which is then overwritten 
-    as the Spark DataFrame is converted to a mask then a Dataset.
-    This function assumes that the dataframe contains a column with the BNG 100km grid reference 
-    and a column containing the bounds of the BNG grid refernce system as a list named as "bounds"
+    def to_zarr(
+        self: Self,
+        path: str,
+        data_array_name: str,
+        index_column_name: str = "bng", 
+        geometry_column_name: str = "geometry",
+    ) -> None:
+        """The Spark Dataframe file is written to a zarr file format. 
+        
+        This function requires two additional columns:
+        A "bng" column containing the BNG index of the geometry in each row.
+        A "bounds" column containing the BNG bounds of the BNG index as a list in each row.
+        
+        A dummy DataArray is created which is turned into a Dataset and then written to a zarr file.
+        This file is overwritten in areas containing data in the SparkDataframe provided.
 
-    Args:
-        self (Self): _description_
-        path (str): _description_
-        data_array_name (str): _description_
-        index_column_name (str, optional): _description_. Defaults to "bng_index".
-        geometry_column_name (str, optional): _description_. Defaults to "geometry".
+        Examples:
+            >>> from sds_data_model.dataframe import DataFrameWrapper
+            >>> DataFrameWrapper.to_zarr(
+                    path = "/home/piumialgamagedona/repos/sds-data-model/src/sds_data_model/zarr_file",  
+                    data_array_name = "test",
+                    index_column_name = "bng"
+                    )
 
-    Returns:
-        _type_: _description_
-    """
+        Args:
+            self (Self): The spark dataframe read as DataFramewrapper class object
+            path (str): Path to the save the zarr file inlcluding new folder name
+            data_array_name (str): Name for the DataArray to be saved as in the Dataset
+            index_column_name (str, optional): Name of the BNG index column. Defaults to "bng_index".
+            geometry_column_name (str, optional): Name of the geometry column. Defaults to "geometry".
 
-    _create_dummy_dataset(
-        path=path,
-        data_array_name=data_array_name,
-    )
-    _partial_to_zarr_region = partial(
-        _to_zarr_region,
-        data_array_name=data_array_name,
-        path=path,        
-    )
-    return (
-        self.data
-        .groupby(index_column_name)
-        .applyInPandas(
-            _partial_to_zarr_region,
-            self.data.schema,
+        Returns:
+            _type_: None
+        """
+
+        _create_dummy_dataset(
+            path=path,
+            data_array_name=data_array_name,
         )
-        .write
-        .format('noop')
-        .mode('overwrite')
-        .save()
-    )
+        _partial_to_zarr_region = partial(
+            _to_zarr_region,
+            data_array_name=data_array_name,
+            path=path,        
+        )
+        return (
+            self.data
+            .groupby(index_column_name)
+            .applyInPandas(
+                _partial_to_zarr_region,
+                self.data.schema,
+            )
+            .write
+            .format('noop')
+            .mode('overwrite')
+            .save()
+        )
