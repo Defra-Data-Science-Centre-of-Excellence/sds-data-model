@@ -12,7 +12,7 @@ It consists of:
 
 - A name
 - A Spark DataFrame instance
-- An instance of the SDS data model `Metadata`_ class
+- An instance of the SDS data model :class:`sds_data_model.metadata.Metadata` class
 
 Wrapping a Spark DataFrame in this way allows us to bind data and metadata together,
 abstract common patterns to methods, and capture transformations.
@@ -21,8 +21,9 @@ Reading in data
 ---------------
 
 You can construct a DataFrameWrapper instance from several different spatial and
-aspatial file formats using the `from_files`_ alternative constructor. `from_files`
-will use a different reader depending on the file extension.
+aspatial file formats using the
+:meth:`sds_data_model.dataframe.DataFrameWrapper.from_files` alternative constructor.
+`from_files` will use a different reader depending on the file extension.
 
 - For Excel Workbook (`.xlsx`, `.xls`, `.xlsm`, and `.xlsb`) or OpenDocument Format
 (`.odf`, `.ods`, `.odt`) files, it will use `pyspark.pandas.read_excel`_.
@@ -358,10 +359,6 @@ The whole workflow can be pulled together like this:
 .. _`Spark DataFrame`:
     https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html
 
-.. _`Metadata`:
-
-.. _`from_files`:
-
 .. _`pyspark.pandas.read_excel`:
     https://spark.apache.org/docs/latest/api/python/reference/pyspark.pandas/api/pyspark.pandas.read_excel.html
 
@@ -394,7 +391,7 @@ The whole workflow can be pulled together like this:
 
 .. _`pyspark.sql.functions.col`:
     https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.functions.col.html
-    
+
 .. _`join`:
     https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.join.html
 
