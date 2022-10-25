@@ -196,16 +196,16 @@ def _to_zarr_region(
 
     .. _`applyInPandas`:
         https://spark.apache.org/docs/3.1.2/api/python/reference/api/pyspark.sql.GroupedData.applyInPandas.htm
-    """    
+    """
     minx, miny, maxx, maxy = pdf["bounds"][0]
 
     transform = Affine(cell_size, 0, minx, 0, -cell_size, maxy)
 
     gpdf = GeoDataFrame(
-            data=pdf,
-            geometry=GeoSeries.from_wkb(pdf[geometry_column_name]),
-            crs="EPSG:27700",
-            )
+        data=pdf,
+        geometry=GeoSeries.from_wkb(pdf[geometry_column_name]),
+        crs="EPSG:27700",
+    )
 
     mask = geometry_mask(
         geometries=gpdf[geometry_column_name],
@@ -262,9 +262,9 @@ def _create_dummy_dataset(
 
     Examples:
         >>> d_dataset = _create_dummy_dataset(
-                data_array_name="dummy", 
+            data_array_name="dummy",
             path = "/path/to/dummy.zarr"
-            )
+        )
 
         >>> d_dataset
         Delayed('_finalize_store-31bc6052-52db-49e8-bc87-fc8f7c6801ed')
