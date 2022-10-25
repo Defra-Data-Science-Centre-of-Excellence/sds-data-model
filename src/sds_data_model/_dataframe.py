@@ -294,8 +294,18 @@ def _create_dummy_dataset(
                 dtype=dtype,
             ),
             coords={
-                "northings": ("northings", arange(bng_ymax, bng_ymin, -cell_size)),
-                "eastings": ("eastings", arange(bng_xmin, bng_xmax, cell_size)),
+                "northings": (
+                    "northings",
+                    arange(
+                        bng_ymax - cell_size / 2, bng_ymin, -cell_size, dtype="int64"
+                    ),
+                ),
+                "eastings": (
+                    "eastings",
+                    arange(
+                        bng_xmin + cell_size / 2, bng_xmax, cell_size, dtype="int64"
+                    ),
+                ),
             },
             name=data_array_name,
         )
