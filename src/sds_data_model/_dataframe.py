@@ -160,27 +160,43 @@ def _to_zarr_region(
     invert: bool = True,
     dtype: str = "uint8",
 ) -> PandasDataFrame:
-    """Reads in a Dataframe which is then overwrites an empty Dataset in areas cotaining data provided by the Dataframe . 
+    """Rasterises a BNG grid cell and writes to the relevant region of a `zarr` file.
 
-    This is a pandas udf which is used within the `applyInPandas` function for the `to_zarr` function.
-    Writing to a zarr file is a side effect of the function hence the input and the output is the same dataframe.
-    This function assumes that the dataframe contains a column with BNG bounds that is named "bounds".
+    This function will be converted into a `pandas_udf`_ and called by `applyInPandas`_
+    within the :meth:`DataFrameWrapper.to_zarr` method.
+
+    Writing to a zarr file is a side effect of the method hence the input and the
+    output is the same Pandas DataFrame.
+
+    This function assumes that the Pandas DataFrame contains a column with BNG bounds
+    that is named "bounds".
 
     Args:
-        pdf (PandasDataFrame): A Pandas dataframe
-        data_array_name (str): DataArray name given by the user
-        path (str): Path to save the zarr file including file name
-        cell_size (int, optional): Size of one raster cell in the DataArray. Defaults to CELL_SIZE.
-        out_shape (Tuple[int, int], optional): The shape of the DataArray[Height, Width]. Defaults to OUT_SHAPE.
-        bng_ymax (int, optional): British National Grid maximum Y axis value. Defaults to BNG_YMAX.
-        geometry_column_name (str, optional): _description_. Defaults to "geometry".
-        invert (bool, optional): If you want to write the areas that do not contain data. Defaults to True.
-        dtype (str, optional): Data type of the DataArray value. Defaults to "uint8".
+        pdf (PandasDataFrame): A Pandas DataFrame.
+        data_array_name (str): DataArray name given by the user.
+        path (str): Path to save the zarr file including file name.
+        cell_size (int): The resolution of the cells in the DataArray. Defaults to
+            CELL_SIZE.
+        out_shape (Tuple[int, int]): The shape (height, width) of the DataArray.
+            Defaults to OUT_SHAPE.
+        bng_ymax (int): The maximum y value of the British National Grid.
+            Defaults to BNG_YMAX.
+        geometry_column_name (str): The name of the geometry column in the
+            Pandas DataFrame. Defaults to "geometry".
+        invert (bool): If True, the centre point of pixels that fall inside
+            a geometry will be turned-on. If False, they will be turned-off.
+            Defaults to True.
+        dtype (str): Data type of the DataArray. Defaults to "uint8".
 
     Returns:
-        PandasDataFrame: same DataFrame is returned
-    """    
+        PandasDataFrame: The input Pandas DataFrame is returned unchanged.
 
+    .. _`pandas_udf`:
+        https://spark.apache.org/docs/3.1.2/api/python/reference/api/pyspark.sql.functions.pandas_udf.html  # noqa: B950
+
+    .. _`applyInPandas`:
+        https://spark.apache.org/docs/3.1.2/api/python/reference/api/pyspark.sql.GroupedData.applyInPandas.htm
+    """    
     minx, miny, maxx, maxy = pdf["bounds"][0]
 
     #creating an explicit box out of the bounds to clip to
