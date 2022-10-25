@@ -287,8 +287,7 @@ def _create_dummy_dataset(
     .. _`Appending to existing Zarr stores`:
         https://docs.xarray.dev/en/stable/user-guide/io.html#appending-to-existing-zarr-stores  # noqa: B950
     """
-
-    return (
+    (
         DataArray(
             data=zeros(
                 shape=(int(bng_ymax / cell_size), int(bng_xmax / cell_size)),
