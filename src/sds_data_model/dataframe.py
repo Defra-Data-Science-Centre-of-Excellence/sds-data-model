@@ -209,7 +209,7 @@ class DataFrameWrapper:
             return return_value
 
     def to_zarr(
-        self: Self,
+        self: _DataFrameWrapper,
         path: str,
         data_array_name: str,
         index_column_name: str = "bng_index",
