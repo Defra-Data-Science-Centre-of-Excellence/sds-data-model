@@ -4,11 +4,24 @@ from typing import Dict, Iterable, List, Optional, Union
 
 import pytest
 from chispa.dataframe_comparer import assert_df_equality
+from dask.array import concatenate, ones, zeros
+from numpy import arange
 from pyspark.sql import DataFrame as SparkDataFrame
 from pyspark.sql import SparkSession
-from pyspark.sql.types import IntegerType, StructField, StructType
+from pyspark.sql.types import (
+    ArrayType,
+    BinaryType,
+    IntegerType,
+    StringType,
+    StructField,
+    StructType,
+)
 from pytest import FixtureRequest, fixture
+from shapely.geometry import box
+from xarray import DataArray, Dataset, open_dataset
+from xarray.testing import assert_identical
 
+from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, BNG_YMIN, CELL_SIZE
 from sds_data_model.dataframe import DataFrameWrapper
 
 
@@ -293,3 +306,107 @@ def test_call_method_join(
     )
     received.call_method("join", other=dataframe_other, on="a")
     assert_df_equality(received.data, expected_dataframe_joined)
+
+
+@fixture
+def hl_schema() -> StructType:
+    """Schema HL DataFrame."""
+    return StructType(
+        [
+            StructField("bng_index", StringType(), True),
+            StructField("bounds", ArrayType(IntegerType()), True),
+            StructField("geometry", BinaryType(), True),
+        ]
+    )
+
+
+@fixture
+def hl_dataframe(
+    hl_schema: StructType,
+    spark_session: SparkSession,
+) -> SparkDataFrame:
+    """A DataFrame containing the HL cell of the BNG."""
+    bounds = (0, 1_200_000, 100_000, 1_300_000)
+
+    data: Iterable = [
+        {"bng_index": "HL", "bounds": bounds, "geometry": box(*bounds).wkb},
+    ]
+
+    df: SparkDataFrame = spark_session.createDataFrame(
+        data=data,
+        schema=hl_schema,
+    )
+
+    return df
+
+
+@fixture
+def hl_wrapper(
+    hl_dataframe: SparkDataFrame,
+) -> DataFrameWrapper:
+    """A wrapper for the HL DataFrame."""
+    return DataFrameWrapper(
+        name="hl",
+        data=hl_dataframe,
+        metadata=None,
+    )
+
+
+@fixture
+def hl_zarr_path(tmp_path: Path, hl_wrapper: DataFrameWrapper) -> str:
+    """Where the `zarr` file will be saved."""
+    path = str(tmp_path / "hl.zarr")
+    hl_wrapper.to_zarr(
+        path=path,
+        data_array_name="hl",
+    )
+    return path
+
+
+@fixture
+def expected_hl_dataset() -> Dataset:
+    """What we would expect the HL dataset to look like."""
+    hl = ones(dtype="uint8", shape=(10_000, 10_000), chunks=(10_000, 10_000))
+    top_row_rest = zeros(dtype="uint8", shape=(10_000, 60_000), chunks=(10_000, 10_000))
+    top_row = concatenate([hl, top_row_rest], axis=1)
+
+    rest = zeros(dtype="uint8", shape=(120_000, 70_000), chunks=(10_000, 10_000))
+
+    expected_array = concatenate([top_row, rest], axis=0)
+
+    coords = {
+        "northings": arange(BNG_YMAX - (CELL_SIZE / 2), BNG_YMIN, -CELL_SIZE),
+        "eastings": arange(BNG_XMIN + (CELL_SIZE / 2), BNG_XMAX, CELL_SIZE),
+    }
+
+    expected_data_array = DataArray(
+        data=expected_array,
+        coords=coords,
+        name="hl",
+    )
+
+    return Dataset(
+        data_vars={
+            "hl": expected_data_array,
+        },
+        coords=coords,
+    )
+
+
+def test_to_zarr(
+    hl_zarr_path: str,
+    expected_hl_dataset: Dataset,
+) -> None:
+    """The HL DataFrame wrapper is rasterised as expected."""
+    hl_dataset = open_dataset(
+        hl_zarr_path,
+        engine="zarr",
+        decode_coords=True,
+        mask_and_scale=False,
+        chunks={
+            "eastings": 10_000,
+            "northings": 10_000,
+        },
+    )
+
+    assert_identical(hl_dataset, expected_hl_dataset)
