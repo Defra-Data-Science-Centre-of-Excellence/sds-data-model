@@ -256,30 +256,36 @@ def _create_dummy_dataset(
     bng_ymin: int = BNG_YMIN,
     bng_ymax: int = BNG_YMAX,
 ) -> None:
-    """An empty DataArray is created to the size of the BNG with co-ordinates. It is changed to a Dataset and stored temporarily.
+    """A dummy Dataset. It's metadata is used to create the initial `zarr` store.
+
+    See `Appending to existing Zarr stores`_ for more details.
 
     Examples:
-
         >>> d_dataset = _create_dummy_dataset(
                 data_array_name="dummy", 
-                path = "/dbfs/mnt/lab/unrestricted/piumi.algamagedona@defra.gov.uk/dummy"
+            path = "/path/to/dummy.zarr"
             )
 
         >>> d_dataset
         Delayed('_finalize_store-31bc6052-52db-49e8-bc87-fc8f7c6801ed')
 
     Args:
-        data_array_name (str): Name of the DataArray given
-        path (str): Path to the zarr file with the name of the zarr file.
-        dtype (str, optional): Data type of the geometry mask. Defaults to "uint8".
-        cell_size (int, optional): Size of one raster cell in the DataArray. Defaults to CELL_SIZE.
-        bng_xmin (int, optional): British National Grid minimum X axis value. Defaults to BNG_XMIN.
-        bng_xmax (int, optional): British National Grid maximum X axis value. Defaults to BNG_XMAX.
-        bng_ymin (int, optional): British National Grid minimum Y axis value. Defaults to BNG_YMIN.
-        bng_ymax (int, optional): British National Grid maximum Y axis value. Defaults to BNG_YMAX.
+        data_array_name (str): DataArray name given by the user.
+        path (str): Path to save the zarr file including file name.
+        dtype (str): Data type of the DataArray. Defaults to "uint8".
+        cell_size (int): The resolution of the cells in the DataArray. Defaults to
+            CELL_SIZE.
+        bng_xmin (int): The minimum x value of the British National Grid.
+            Defaults to BNG_XMIN.
+        bng_xmax (int): The maximum x value of the British National Grid.
+            Defaults to BNG_XMAX.
+        bng_ymin (int): The minimum y value of the British National Grid.
+            Defaults to BNG_YMIN.
+        bng_ymax (int): The maximum y value of the British National Grid.
+            Defaults to BNG_YMAX.
 
-    Returns:
-        _type_: None. A dask delayed object is created.
+    .. _`Appending to existing Zarr stores`:
+        https://docs.xarray.dev/en/stable/user-guide/io.html#appending-to-existing-zarr-stores  # noqa: B950
     """
 
     return (
