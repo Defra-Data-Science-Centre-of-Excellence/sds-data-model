@@ -4,7 +4,7 @@ from functools import partial
 from inspect import ismethod, signature
 from logging import INFO, Formatter, StreamHandler, getLogger
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Sequence, Type, TypeVar, Union
+from typing import Any, Callable, Dict, Optional, Sequence, Type, TypeVar, Union
 
 from pyspark.pandas import DataFrame as SparkPandasDataFrame
 from pyspark.pandas import Series as SparkPandasSeries
@@ -13,16 +13,10 @@ from pyspark.sql import DataFrame as SparkDataFrame
 from pyspark.sql import SparkSession
 from pyspark_vector_files import read_vector_files
 from pyspark_vector_files.gpkg import read_gpkg
-from typing_extensions import Self
 
 from sds_data_model._dataframe import _create_dummy_dataset, _to_zarr_region
 from sds_data_model._vector import _get_metadata, _get_name
 from sds_data_model.metadata import Metadata
-from sds_data_model._dataframe import _to_zarr_region, _create_dummy_dataset
-
-from pyspark.sql.functions import udf, explode, col, pandas_udf
-from pyspark.sql.types import ArrayType, StringType
-from functools import partial
 
 spark = SparkSession.getActiveSession()
 
