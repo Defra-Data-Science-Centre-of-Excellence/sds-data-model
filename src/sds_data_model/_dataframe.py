@@ -1,6 +1,8 @@
+"""Private functions for the DataFrame wrapper class."""
 from json import load
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
+
 from affine import Affine
 from geopandas import GeoDataFrame, GeoSeries
 from numpy import arange, zeros
@@ -9,15 +11,24 @@ from rasterio.features import geometry_mask
 from xarray import DataArray
 from shapely.geometry import box
 
+from sds_data_model.constants import (
+    BNG_XMAX,
+    BNG_XMIN,
+    BNG_YMAX,
+    BNG_YMIN,
+    CELL_SIZE,
+    OUT_SHAPE,
+)
 from sds_data_model.metadata import Metadata
-from sds_data_model.constants import BNG_XMIN, BNG_YMIN, BNG_XMAX, BNG_YMAX, CELL_SIZE, OUT_SHAPE
 
 
 def _get_name(
     metadata: Optional[Metadata] = None,
     name: Optional[str] = None,
 ) -> str:
-    """Returns the provided name, the associated metadata title,
+    """Gets name provided.
+
+    Returns the provided name, the associated metadata title,
      or raises an error.
 
     Examples:
@@ -26,9 +37,9 @@ def _get_name(
             name="ramsar",
         )
         'ramsar'
+
         If `name` isn't provided but a :class: Metadata object is,
-        the function returns
-        `metadata.title`:
+        the function returns `metadata.title`:
         >>> metadata = _get_metadata(
             data_path="tests/test_metadata/ramsar.gpkg",
             metadata_path="tests/test_metadata/ramsar.xml",
@@ -37,6 +48,7 @@ def _get_name(
             metadata=metadata,
         )
         'Ramsar (England)'
+
         If both are provided, `name` is preferred:
         >>> metadata = _get_metadata(
             data_path="tests/test_metadata/ramsar.gpkg",
@@ -47,16 +59,19 @@ def _get_name(
             metadata=metadata,
         )
         'ramsar'
+
         If neither are provided, an error is raised:
         >>> _get_name()
         ValueError: If there isn't any metadata, a name must be supplied.
 
     Args:
         metadata (Optional[Metadata]): A :class: Metadata object containing
-        imformation parsed from GEMINI XML. Defaults to None.
+            information parsed from GEMINI XML. Defaults to None.
         name (Optional[str]): A name, provided by the caller. Defaults to None.
+
     Raises:
         ValueError: If neither a name nor a `Metadata` are provided.
+
     Returns:
         str: A name for the dataset.
     """
@@ -74,6 +89,7 @@ def _get_metadata(
     metadata_kwargs: Optional[Dict[str, Any]] = None,
 ) -> Optional[Metadata]:
     """Read metadata from path, or json sidecar, or return None.
+
     Examples:
         If `metadata_path` is provided, the function will read that:
         >>> metadata = _get_metadata(
@@ -82,40 +98,45 @@ def _get_metadata(
         )
         >>> metadata.title
         'Ramsar (England)'
+
         If `metadata_path` isn't provided but a json `sidecar`_ file exists,
         the function will read that:
         >>> from os import listdir
         >>> listdir("tests/test_metadata")
         ['ramsar.gpkg', 'ramsar.gpkg-metadata.json']
+
         >>> metadata = _get_metadata(
             data_path="tests/test_metadata/ramsar.gpkg",
         )
         >>> metadata.title
         'Ramsar (England)'
+
         If `metadata_path` isn't provided and there isn't a json sidecar file,
         the function will return `None`:
         >>> from os import listdir
         >>> listdir("tests/test_metadata")
         ['ramsar.gpkg']
+
         >>> metadata = _get_metadata(
             data_path="tests/test_metadata/ramsar.gpkg",
         )
         >>> metadata is None
         True
+
     Args:
         data_path (str): Path to the vector file.
-        metadata_path (Optional[str]): Path to a `UK GEMINI`_ metadata file.
+        metadata_path (Optional[str], optional): Path to a `UK GEMINI`_ metadata file.
             Defaults to None.
-        metadata_kwargs (Optional[Dict[str, Any]]): Key word arguments to be passed to
-            the requests `get`_ method when reading xml metadata from a URL. Defaults
-            to None.
+        metadata_kwargs (Optional[Dict[str, Any]], optional): Key word arguments to
+            be passed to the requests `get`_ method when reading xml metadata from
+            a URL. Defaults to None.
 
     Returns:
         Optional[Metadata]: An instance of :class: Metadata
-    .. _`UK GEMINI`:
-        https://www.agi.org.uk/uk-gemini/
-    .. _`sidecar`:
-        https://en.wikipedia.org/wiki/Sidecar_file
+        .. _`UK GEMINI`:
+            https://www.agi.org.uk/uk-gemini/
+        .. _`sidecar`:
+            https://en.wikipedia.org/wiki/Sidecar_file
     """
     json_sidecar = Path(f"{data_path}-metadata.json")
     if metadata_path:
@@ -127,6 +148,7 @@ def _get_metadata(
     else:
         metadata = None
     return metadata
+
 
 def _to_zarr_region(
     pdf: PandasDataFrame,
@@ -160,16 +182,15 @@ def _to_zarr_region(
         PandasDataFrame: same DataFrame is returned
     """    
 
-    
     minx, miny, maxx, maxy = pdf["bounds"][0]
 
     #creating an explicit box out of the bounds to clip to
     box_geom = box(minx, miny, maxx, maxy)
 
     transform = Affine(cell_size, 0, minx, 0, -cell_size, maxy)
-    
+
     gpdf = (
-    GeoDataFrame(
+        GeoDataFrame(
             data=pdf,
             geometry=GeoSeries.from_wkb(pdf[geometry_column_name]),
             crs="EPSG:27700",
@@ -185,15 +206,29 @@ def _to_zarr_region(
             transform=transform,
             invert=invert,
         )
-        .astype(dtype)
+        # ? Do I really need to do this?
+        .clip((minx, miny, maxx, maxy))
     )
-    
+
+    mask = geometry_mask(
+        geometries=gpdf[geometry_column_name],
+        out_shape=out_shape,
+        transform=transform,
+        invert=invert,
+    ).astype(dtype)
+
     (
         DataArray(
             data=mask,
             coords={
-                "northings": ("northings", arange(maxy-(cell_size/2), miny, -cell_size)),
-                "eastings": ("eastings", arange(minx+(cell_size/2), maxx, cell_size)),
+                "northings": (
+                    "northings",
+                    arange(maxy - (cell_size / 2), miny, -cell_size),
+                ),
+                "eastings": (
+                    "eastings",
+                    arange(minx + (cell_size / 2), maxx, cell_size),
+                ),
             },
             name=data_array_name,
         )
@@ -202,13 +237,17 @@ def _to_zarr_region(
             store=path,
             mode="r+",
             region={
-                "northings": slice(int((maxy - bng_ymax) / -cell_size), int((miny - bng_ymax) / -cell_size)),
-                "eastings": slice(int(minx / cell_size), int(maxx / cell_size)),                
-            }
+                "northings": slice(
+                    int((maxy - bng_ymax) / -cell_size),
+                    int((miny - bng_ymax) / -cell_size),
+                ),
+                "eastings": slice(int(minx / cell_size), int(maxx / cell_size)),
+            },
         )
     )
-    
+
     return pdf
+
 
 def _create_dummy_dataset(
     data_array_name: str,
@@ -243,9 +282,9 @@ def _create_dummy_dataset(
         bng_ymax (int, optional): British National Grid maximum Y axis value. Defaults to BNG_YMAX.
 
     Returns:
-        _type_: None. A dask delayed object is created. 
-    """    
-    
+        _type_: None. A dask delayed object is created.
+    """
+
     return (
         DataArray(
             data=zeros(

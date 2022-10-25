@@ -1,18 +1,15 @@
+"""Tests for DataFrame wrapper class."""
+from pathlib import Path
+from typing import Dict, Iterable, List, Optional, Union
+
+import pytest
 from chispa.dataframe_comparer import assert_df_equality
-from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame as SparkDataFrame
-from pyspark.sql.functions import col
-from pyspark.sql.types import StructType, StructField, StringType
-from pytest import fixture
-from pandas import DataFrame
+from pyspark.sql import SparkSession
+from pyspark.sql.types import IntegerType, StructField, StructType
+from pytest import FixtureRequest, fixture
 
 from sds_data_model.dataframe import DataFrameWrapper
-
-# Create dataframe to test against
-expected_data = {'a': [1, 2, 3],
-                 'b': [3, 4, 5],
-                 'c': [5, 6, 7]}
-expected_df = DataFrame(expected_data)
 
 
 @fixture
@@ -29,19 +26,50 @@ def spark_session() -> SparkSession:
     )
 
 
-@fixture(scope="session")
-def temp_file(tmpdir_factory):
-    """Create a temporary directory and data for testing.
+@fixture
+def expected_schema() -> StructType:
+    """Schema for expected DataFrame."""
+    return StructType(
+        [
+            StructField("a", IntegerType(), True),
+            StructField("b", IntegerType(), True),
+            StructField("c", IntegerType(), True),
+        ]
+    )
 
-    Args:
-        tmpdir_factory (Instance): temporary directory instance
 
-    Returns:
-        object: object containing path to temporary data
-    """
-    p = tmpdir_factory.mktemp("data").join("temp.csv")
-    expected_df.to_csv(str(p), index=False, header=True)
-    return p
+@fixture
+def expected_dataframe(
+    spark_session: SparkSession,
+    expected_schema: StructType,
+) -> SparkDataFrame:
+    """A dummy `DataFrame` for testing."""
+    # Annotating `data` with `Iterable` stop `mypy` from complaining that
+    # `Value of type variable "RowLike" of "createDataFrame" of "SparkSession" cannot
+    # be "Dict[str, int]"`
+    data: Iterable = [
+        {"a": 1, "b": 4, "c": 7},
+        {"a": 2, "b": 5, "c": 8},
+        {"a": 3, "b": 6, "c": 9},
+    ]
+    return spark_session.createDataFrame(
+        data=data,
+        schema=expected_schema,
+    )
+
+
+@fixture
+def temp_path(
+    tmp_path: Path,
+    expected_dataframe: SparkDataFrame,
+) -> str:
+    """Create a temporary directory and data for testing."""
+    path = str(tmp_path / "test.csv")
+    expected_dataframe.write.csv(
+        path=path,
+        header=True,
+    )
+    return path
 
 
 @fixture
@@ -56,156 +84,212 @@ def expected_metadata() -> None:
     return None
 
 
-@fixture
-def expected_schema() -> StructType:
-    """Expected DataFrameWrapper schema."""
-    return StructType([
-        StructField("a", StringType(), True),
-        StructField("b", StringType(), True),
-        StructField("c", StringType(), True)
-    ])
-
-
 def test_vector_layer_from_files(
     spark_session: SparkSession,
-    temp_file,
+    temp_path: str,
     expected_name: str,
-    expected_schema: StructType,
-    expected_metadata: None
+    expected_dataframe: SparkDataFrame,
+    expected_metadata: None,
 ) -> None:
     """Reading test data returns a DataFrameWrapper with expected values."""
-    expected_spark = spark_session.createDataFrame(
-        expected_df, 
-        schema=StructType([
-            StructField('a', StringType(), True),
-            StructField('b', StringType(), True),
-            StructField('c', StringType(), True)
-        ]))
-
     received = DataFrameWrapper.from_files(
         spark=spark_session,
-        data_path=str(temp_file),
-        read_file_kwargs={'header': True},
-        name='Trial csv',
+        data_path=temp_path,
+        read_file_kwargs={"header": True, "inferSchema": True},
+        name="Trial csv",
     )
 
     assert received.name == expected_name
     assert received.metadata == expected_metadata
-    assert received.data.schema == expected_schema
-    assert_df_equality(received.data, expected_spark)
+    assert_df_equality(received.data, expected_dataframe)
 
 
 @fixture
-def expected_data_limit(spark_session) -> SparkDataFrame:
+def expected_dataframe_limit(
+    spark_session: SparkSession,
+    expected_schema: StructType,
+) -> SparkDataFrame:
     """Expected data when using limit call method."""
-    check_limit_data = [
-        (1, 2, 3),
-        (3, 4, 5)
+    data: Iterable = [
+        {"a": 1, "b": 4, "c": 7},
+        {"a": 2, "b": 5, "c": 8},
     ]
-    check_limit_spark = spark_session.createDataFrame(check_limit_data, StructType([
-        StructField("a", StringType(), True),
-        StructField("b", StringType(), True),
-        StructField("c", StringType(), True)
-    ]))
-    return check_limit_spark
+    return spark_session.createDataFrame(
+        data=data,
+        schema=expected_schema,
+    )
 
 
 @fixture
-def expected_data_select(spark_session) -> SparkDataFrame:
+def expected_schema_select() -> StructType:
+    """Expected schema after columns "a" and "b" have been selected."""
+    return StructType(
+        [
+            StructField("a", IntegerType(), True),
+            StructField("b", IntegerType(), True),
+        ]
+    )
+
+
+@fixture
+def expected_dataframe_select(
+    spark_session: SparkSession,
+    expected_schema_select: StructType,
+) -> SparkDataFrame:
     """Expected data when using select call method."""
-    check_select_data = [
-        (1, 2),
-        (3, 4),
-        (5, 6)
+    data: Iterable = [
+        {"a": 1, "b": 4},
+        {"a": 2, "b": 5},
+        {"a": 3, "b": 6},
     ]
-    check_select_spark = spark_session.createDataFrame(check_select_data, StructType([
-        StructField("a", StringType(), True),
-        StructField("b", StringType(), True)
-    ]))
-    return check_select_spark
+    return spark_session.createDataFrame(
+        data=data,
+        schema=expected_schema_select,
+    )
 
 
 @fixture
-def expected_data_join(spark_session) -> SparkDataFrame:
-    """Expected data when using join call method."""
-    check_join_data = [
-        (1, 2, 3, 1, 2),
-        (3, 4, 5, 3, 4),
-        (5, 6, 7, 5, 6)
-    ]
-    check_join_spark = spark_session.createDataFrame(check_join_data, StructType([
-        StructField("a", StringType(), True),
-        StructField("b", StringType(), True),
-        StructField("c", StringType(), True),
-        StructField("a", StringType(), True),
-        StructField("b", StringType(), True)
-    ]))
-
-    return check_join_spark
-
-
-@fixture
-def expected_data_filter(spark_session) -> SparkDataFrame:
+def expected_dataframe_filter(
+    spark_session: SparkSession,
+    expected_schema: StructType,
+) -> SparkDataFrame:
     """Expected data when using filter call method."""
-    check_filter_data = [
-        (3, 4, 5)
+    data: Iterable = [
+        {"a": 3, "b": 6, "c": 9},
     ]
-    check_filter_spark = spark_session.createDataFrame(check_filter_data, StructType([
-        StructField("a", StringType(), True),
-        StructField("b", StringType(), True),
-        StructField("c", StringType(), True)
-    ]))
-
-    return check_filter_spark
+    return spark_session.createDataFrame(
+        data=data,
+        schema=expected_schema,
+    )
 
 
-@fixture
+@pytest.mark.parametrize(
+    argnames=(
+        "method_name",
+        "method_args",
+        "method_kwargs",
+        "expected_dataframe_name",
+    ),
+    argvalues=(
+        ("limit", None, {"num": 2}, "expected_dataframe_limit"),
+        ("select", ["a", "b"], None, "expected_dataframe_select"),
+        ("filter", "a = 3", None, "expected_dataframe_filter"),
+    ),
+    ids=(
+        "limit",
+        "select",
+        "filter",
+    ),
+)
 def test_call_method(
     spark_session: SparkSession,
-    expected_data_limit,
-    expected_data_select,
-    expected_data_join,
-    expected_data_filter,
-    temp_file
+    temp_path: str,
+    method_name: str,
+    method_args: Optional[Union[List[int], int]],
+    method_kwargs: Optional[Dict[str, int]],
+    expected_dataframe_name: str,
+    request: FixtureRequest,
 ) -> None:
-    """Function to test most common methods used by call_method.
-
-    Args:
-        spark_session (SparkSession): spark_session for test
-        expected_data_limit (SparkDataFrame): expected data output for limit method
-        expected_data_select (SparkDataFrame): expected data output for select method
-        expected_data_join (SparkDataFrame): expected data output for join method
-        expected_data_filter (SparkDataFrame): expected data output for filter method
-        temp_file (SparkDataFrame): temporary file path for test data
-    """
+    """Function to test most common methods used by call_method."""
     received = DataFrameWrapper.from_files(
         spark=spark_session,
-        data_path=str(temp_file),
-        read_file_kwargs={'header': True},
-        name='Trial csv',
+        data_path=temp_path,
+        read_file_kwargs={"header": True, "inferSchema": True},
+        name="Trial csv",
     )
 
-    actual_spark_limit = received.call_method(
-        "limit",
-        num=2
+    if method_args and method_kwargs:
+        # If we get both, use both, unpacking the `method_kwargs` dictionary.
+        received.call_method(method_name, method_args, **method_kwargs)
+    elif method_args and isinstance(method_args, list):
+        # If we get only method_args, and it's a `list`, use it.
+        received.call_method(method_name, *method_args)
+    elif method_args:
+        # Now method_args has to be a single item, use it.
+        received.call_method(method_name, method_args)
+    elif method_kwargs:
+        # And `method_kwargs` has to be a dictionary, so unpack it.
+        received.call_method(method_name, **method_kwargs)
+    else:
+        # Do nothing
+        pass
+
+    expected_dataframe = request.getfixturevalue(expected_dataframe_name)
+    assert_df_equality(received.data, expected_dataframe)
+
+
+@fixture
+def schema_other() -> StructType:
+    """Schema of `other` DataFrame for joining."""
+    return StructType(
+        [
+            StructField("a", IntegerType(), True),
+            StructField("d", IntegerType(), True),
+            StructField("e", IntegerType(), True),
+        ]
     )
 
-    actual_spark_select = received.call_method(
-        "select",
-        [col("a"), col("b")]
+
+@fixture
+def dataframe_other(
+    spark_session: SparkSession,
+    schema_other: StructType,
+) -> SparkDataFrame:
+    """`other` DataFrame for joining."""
+    data: Iterable = [
+        {"a": 1, "d": 10, "e": 13},
+        {"a": 2, "d": 11, "e": 14},
+        {"a": 3, "d": 12, "e": 15},
+    ]
+    return spark_session.createDataFrame(
+        data=data,
+        schema=schema_other,
     )
 
-    actual_spark_join = received.call_method(
-        "join",
-        other=expected_data_select
+
+@fixture
+def expected_schema_joined() -> StructType:
+    """Expected schema once `received` and `other` have been joined."""
+    return StructType(
+        [
+            StructField("a", IntegerType(), True),
+            StructField("b", IntegerType(), True),
+            StructField("c", IntegerType(), True),
+            StructField("d", IntegerType(), True),
+            StructField("e", IntegerType(), True),
+        ]
     )
 
-    actual_spark_filter = received.call_method(
-        "filter",
-        col("a") == 3
+
+@fixture
+def expected_dataframe_joined(
+    spark_session: SparkSession,
+    expected_schema_joined: StructType,
+) -> SparkDataFrame:
+    """Expected DataFrame once `received` and `other` have been joined."""
+    data: Iterable = [
+        {"a": 1, "b": 4, "c": 7, "d": 10, "e": 13},
+        {"a": 2, "b": 5, "c": 8, "d": 11, "e": 14},
+        {"a": 3, "b": 6, "c": 9, "d": 12, "e": 15},
+    ]
+    return spark_session.createDataFrame(
+        data=data,
+        schema=expected_schema_joined,
     )
 
-    assert_df_equality(actual_spark_limit.data, expected_data_limit)
-    assert_df_equality(actual_spark_select.data, expected_data_select)
-    assert_df_equality(actual_spark_join.data, expected_data_join)
-    assert_df_equality(actual_spark_filter.data, expected_data_filter)
+
+def test_call_method_join(
+    spark_session: SparkSession,
+    temp_path: str,
+    dataframe_other: SparkDataFrame,
+    expected_dataframe_joined: SparkDataFrame,
+) -> None:
+    """Passing the `.join` method to `.call_method` produces the expected results."""
+    received = DataFrameWrapper.from_files(
+        spark=spark_session,
+        data_path=temp_path,
+        read_file_kwargs={"header": True, "inferSchema": True},
+        name="Trial csv",
+    )
+    received.call_method("join", other=dataframe_other, on="a")
+    assert_df_equality(received.data, expected_dataframe_joined)
