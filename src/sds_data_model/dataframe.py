@@ -215,46 +215,30 @@ class DataFrameWrapper:
         index_column_name: str = "bng_index",
         geometry_column_name: str = "geometry",
     ) -> None:
-        """Reads in data as a Spark DataFrame. A dummy dataset of the BNG is created and written to zarr which is then overwritten
-        as the Spark DataFrame is converted to a mask then a Dataset.
-        This function assumes that the dataframe contains a column with the BNG 100km grid reference
-        and a column containing the bounds of the BNG grid refernce system as a list named as "bounds"
+        """Rasterises `self.data` and writes it to `zarr`.
 
-    def to_zarr(
-        self: Self,
-        path: str,
-        data_array_name: str,
-        index_column_name: str = "bng", 
-        geometry_column_name: str = "geometry",
-    ) -> None:
-        """The Spark Dataframe file is written to a zarr file format. 
-        
         This function requires two additional columns:
-        A "bng" column containing the BNG index of the geometry in each row.
-        A "bounds" column containing the BNG bounds of the BNG index as a list in each row.
-        
-        A dummy DataArray is created which is turned into a Dataset and then written to a zarr file.
-        This file is overwritten in areas containing data in the SparkDataframe provided.
+        * A "bng_index" column containing the BNG index of the geometry in each row.
+        * A "bounds" column containing the BNG bounds of the BNG index as a list in
+            each row.
 
         Examples:
-            >>> from sds_data_model.dataframe import DataFrameWrapper
-            >>> DataFrameWrapper.to_zarr(
-                    path = "/home/piumialgamagedona/repos/sds-data-model/src/sds_data_model/zarr_file",  
-                    data_array_name = "test",
-                    index_column_name = "bng"
-                    )
+            >>> wrapper.to_zarr(
+                path = "/path/to/file.zarr",
+                data_array_name = "test",
+            )
 
         Args:
-            self (Self): The spark dataframe read as DataFramewrapper class object
-            path (str): Path to the save the zarr file inlcluding new folder name
-            data_array_name (str): Name for the DataArray to be saved as in the Dataset
-            index_column_name (str, optional): Name of the BNG index column. Defaults to "bng_index".
-            geometry_column_name (str, optional): Name of the geometry column. Defaults to "geometry".
+            path (str): Path to save the zarr file including file name.
+            data_array_name (str): DataArray name given by the user.
+            index_column_name (str): Name of the BNG index column. Defaults to
+                "bng_index".
+            geometry_column_name (str): Name of the geometry column. Defaults to
+                "geometry".
 
         Returns:
-            _type_: None
+            None
         """
-
         _create_dummy_dataset(
             path=path,
             data_array_name=data_array_name,
