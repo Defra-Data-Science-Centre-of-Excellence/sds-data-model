@@ -9,7 +9,6 @@ from numpy import arange, zeros
 from pandas import DataFrame as PandasDataFrame
 from rasterio.features import geometry_mask
 from xarray import DataArray
-from shapely.geometry import box
 
 from sds_data_model.constants import (
     BNG_XMAX,
