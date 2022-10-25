@@ -1,6 +1,6 @@
 """Tests for DataFrame wrapper class."""
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Union
+from typing import Any, Dict, Iterable, Optional, Sequence, Union
 
 import pytest
 from chispa.dataframe_comparer import assert_df_equality
@@ -198,8 +198,8 @@ def test_call_method(
     spark_session: SparkSession,
     temp_path: str,
     method_name: str,
-    method_args: Optional[Union[List[int], int]],
-    method_kwargs: Optional[Dict[str, int]],
+    method_args: Optional[Union[str, Sequence[str]]],
+    method_kwargs: Optional[Dict[str, Any]],
     expected_dataframe_name: str,
     request: FixtureRequest,
 ) -> None:
@@ -304,7 +304,7 @@ def test_call_method_join(
         read_file_kwargs={"header": True, "inferSchema": True},
         name="Trial csv",
     )
-    received.call_method("join", other=dataframe_other, on="a")
+    received.call_method("join", other=dataframe_other, on="a")  # type: ignore[arg-type]  # noqa: B950
     assert_df_equality(received.data, expected_dataframe_joined)
 
 

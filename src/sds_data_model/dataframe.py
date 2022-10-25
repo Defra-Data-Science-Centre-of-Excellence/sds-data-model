@@ -148,7 +148,7 @@ class DataFrameWrapper:
         method_name: str,
         /,
         *args: Optional[Union[str, Sequence[str]]],
-        **kwargs: Optional[Dict[str, int]],
+        **kwargs: Optional[Dict[str, Any]],
     ) -> Optional[Union[_DataFrameWrapper, Any]]:
         """Calls spark method specified by user on SparkDataFrame in wrapper.
 
