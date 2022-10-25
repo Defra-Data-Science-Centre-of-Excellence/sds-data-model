@@ -199,31 +199,13 @@ def _to_zarr_region(
     """    
     minx, miny, maxx, maxy = pdf["bounds"][0]
 
-    #creating an explicit box out of the bounds to clip to
-    box_geom = box(minx, miny, maxx, maxy)
-
     transform = Affine(cell_size, 0, minx, 0, -cell_size, maxy)
 
-    gpdf = (
-        GeoDataFrame(
+    gpdf = GeoDataFrame(
             data=pdf,
             geometry=GeoSeries.from_wkb(pdf[geometry_column_name]),
             crs="EPSG:27700",
             )
-    # ? Do I really need to do this?      
-        .clip(mask = GeoSeries(box_geom, crs = "EPSG:27700"))
-    )
-    
-    mask = (
-        geometry_mask(
-            geometries=gpdf[geometry_column_name],
-            out_shape=out_shape,
-            transform=transform,
-            invert=invert,
-        )
-        # ? Do I really need to do this?
-        .clip((minx, miny, maxx, maxy))
-    )
 
     mask = geometry_mask(
         geometries=gpdf[geometry_column_name],
