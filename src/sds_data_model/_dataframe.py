@@ -181,39 +181,51 @@ def _to_zarr_region(
     invert: bool = True,
     dtype: str = "uint8",
 ) -> PandasDataFrame:
-    """Reads in a Dataframe which is converted to a GeoPandas dataframe with the vector converted to a geometry mask.
-    This is then converted to a DataArray which rewrites the dummy dataset created previously in areas where the vector exists.
-    Writing to a zarr file is a side effect of the function hence the input Dataframe is released
-    This function assumes that the dataframe contains a column with BNG bounds that is named "bounds".
-    This function is used within the to_zarr function.
+    """Rasterises a BNG grid cell and writes to the relevant region of a `zarr` file.
+
+    This function will be converted into a `pandas_udf`_ and called by `applyInPandas`_
+    within the :meth:`DataFrameWrapper.to_zarr` method.
+
+    Writing to a zarr file is a side effect of the method hence the input and the
+    output is the same Pandas DataFrame.
+
+    This function assumes that the Pandas DataFrame contains a column with BNG bounds
+    that is named "bounds".
 
     Args:
-        pdf (PandasDataFrame): the type of dataframe
-        data_array_name (str): DataArray name given by the user
-        path (str): Path to save the zarr file including file name
-        cell_size (int, optional): Size of one raster cell in the DataArray. Defaults to CELL_SIZE.
-        out_shape (Tuple[int, int], optional): The shape of the DataArray[Height, Width]. Defaults to OUT_SHAPE.
-        bng_ymax (int, optional): British National Grid maximum Y axis value. Defaults to BNG_YMAX.
-        geometry_column_name (str, optional): _description_. Defaults to "geometry".
-        invert (bool, optional): _description_. Defaults to True.
-        dtype (str, optional): _description_. Defaults to "uint8".
+        pdf (PandasDataFrame): A Pandas DataFrame.
+        data_array_name (str): DataArray name given by the user.
+        path (str): Path to save the zarr file including file name.
+        cell_size (int): The resolution of the cells in the DataArray. Defaults to
+            CELL_SIZE.
+        out_shape (Tuple[int, int]): The shape (height, width) of the DataArray.
+            Defaults to OUT_SHAPE.
+        bng_ymax (int): The maximum y value of the British National Grid.
+            Defaults to BNG_YMAX.
+        geometry_column_name (str): The name of the geometry column in the
+            Pandas DataFrame. Defaults to "geometry".
+        invert (bool): If True, the centre point of pixels that fall inside
+            a geometry will be turned-on. If False, they will be turned-off.
+            Defaults to True.
+        dtype (str): Data type of the DataArray. Defaults to "uint8".
 
     Returns:
-        PandasDataFrame: _description_
-    """
+        PandasDataFrame: The input Pandas DataFrame is returned unchanged.
 
+    .. _`pandas_udf`:
+        https://spark.apache.org/docs/3.1.2/api/python/reference/api/pyspark.sql.functions.pandas_udf.html  # noqa: B950
+
+    .. _`applyInPandas`:
+        https://spark.apache.org/docs/3.1.2/api/python/reference/api/pyspark.sql.GroupedData.applyInPandas.htm
+    """
     minx, miny, maxx, maxy = pdf["bounds"][0]
 
     transform = Affine(cell_size, 0, minx, 0, -cell_size, maxy)
 
-    gpdf = (
-        GeoDataFrame(
-            data=pdf,
-            geometry=GeoSeries.from_wkb(pdf[geometry_column_name]),
-            crs="EPSG:27700",
-        )
-        # ? Do I really need to do this?
-        .clip((minx, miny, maxx, maxy))
+    gpdf = GeoDataFrame(
+        data=pdf,
+        geometry=GeoSeries.from_wkb(pdf[geometry_column_name]),
+        crs="EPSG:27700",
     )
 
     mask = geometry_mask(
@@ -265,41 +277,56 @@ def _create_dummy_dataset(
     bng_ymin: int = BNG_YMIN,
     bng_ymax: int = BNG_YMAX,
 ) -> None:
-    """An empty DataArray is created of the size of BNG with co-ordinates which is changed to a Dataset and stored temporarily.
+    """A dummy Dataset. It's metadata is used to create the initial `zarr` store.
+
+    See `Appending to existing Zarr stores`_ for more details.
 
     Examples:
-
         >>> d_dataset = _create_dummy_dataset(
-                data_array_name="dummy",
-                path = "/dbfs/mnt/lab/unrestricted/piumi.algamagedona@defra.gov.uk/dummy.zarr"
-            )
+            data_array_name="dummy",
+            path = "/path/to/dummy.zarr"
+        )
 
         >>> d_dataset
         Delayed('_finalize_store-31bc6052-52db-49e8-bc87-fc8f7c6801ed')
 
     Args:
-        data_array_name (str): Name of the DataArray given
-        path (str): Path to the zarr file with the name of the zarr file.
-        dtype (str, optional): Data type of the geometry mask. Defaults to "uint8".
-        cell_size (int, optional): Size of one raster cell in the DataArray. Defaults to CELL_SIZE.
-        bng_xmin (int, optional): British National Grid minimum X axis value. Defaults to BNG_XMIN.
-        bng_xmax (int, optional): British National Grid maximum X axis value. Defaults to BNG_XMAX.
-        bng_ymin (int, optional): British National Grid minimum Y axis value. Defaults to BNG_YMIN.
-        bng_ymax (int, optional): British National Grid maximum Y axis value. Defaults to BNG_YMAX.
+        data_array_name (str): DataArray name given by the user.
+        path (str): Path to save the zarr file including file name.
+        dtype (str): Data type of the DataArray. Defaults to "uint8".
+        cell_size (int): The resolution of the cells in the DataArray. Defaults to
+            CELL_SIZE.
+        bng_xmin (int): The minimum x value of the British National Grid.
+            Defaults to BNG_XMIN.
+        bng_xmax (int): The maximum x value of the British National Grid.
+            Defaults to BNG_XMAX.
+        bng_ymin (int): The minimum y value of the British National Grid.
+            Defaults to BNG_YMIN.
+        bng_ymax (int): The maximum y value of the British National Grid.
+            Defaults to BNG_YMAX.
 
-    Returns:
-        _type_: None. A dask delayed object is created.
+    .. _`Appending to existing Zarr stores`:
+        https://docs.xarray.dev/en/stable/user-guide/io.html#appending-to-existing-zarr-stores  # noqa: B950
     """
-
-    return (
+    (
         DataArray(
             data=zeros(
                 shape=(int(bng_ymax / cell_size), int(bng_xmax / cell_size)),
                 dtype=dtype,
             ),
             coords={
-                "northings": ("northings", arange(bng_ymax, bng_ymin, -cell_size)),
-                "eastings": ("eastings", arange(bng_xmin, bng_xmax, cell_size)),
+                "northings": (
+                    "northings",
+                    arange(
+                        bng_ymax - cell_size / 2, bng_ymin, -cell_size, dtype="int64"
+                    ),
+                ),
+                "eastings": (
+                    "eastings",
+                    arange(
+                        bng_xmin + cell_size / 2, bng_xmax, cell_size, dtype="int64"
+                    ),
+                ),
             },
             name=data_array_name,
         )

@@ -4,7 +4,7 @@ from functools import partial
 from inspect import ismethod, signature
 from logging import INFO, Formatter, StreamHandler, getLogger
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Type, TypeVar, Union
+from typing import Any, Callable, Dict, Optional, Sequence, Type, TypeVar, Union
 
 from pyspark.pandas import DataFrame as SparkPandasDataFrame
 from pyspark.pandas import Series as SparkPandasSeries
@@ -16,12 +16,13 @@ from pyspark.sql.types import ArrayType, FloatType, StringType
 from pyspark_vector_files import read_vector_files
 from pyspark_vector_files.gpkg import read_gpkg
 from typing_extensions import Self
-from shapely.wkt import loads
-from bng_indexer import calculate_bng_index, wkt_from_bng
+from bng_indexer import calculate_bng_index
 
 from sds_data_model._dataframe import _create_dummy_dataset, _to_zarr_region, _bng_to_bounds
 from sds_data_model._vector import _get_metadata, _get_name
 from sds_data_model.metadata import Metadata
+
+spark = SparkSession.getActiveSession()
 
 # create logger and set level to info
 logger = getLogger("sds")
@@ -151,7 +152,7 @@ class DataFrameWrapper:
         method_name: str,
         /,
         *args: Optional[Union[str, Sequence[str]]],
-        **kwargs: Optional[Dict[str, int]],
+        **kwargs: Optional[Dict[str, Any]],
     ) -> Optional[Union[_DataFrameWrapper, Any]]:
         """Calls spark method specified by user on SparkDataFrame in wrapper.
 
@@ -212,37 +213,48 @@ class DataFrameWrapper:
             return return_value
 
     def to_zarr(
-        self: Self,
+        self: _DataFrameWrapper,
         path: str,
         data_array_name: str,
         index_column_name: str = "bng_index",
         geometry_column_name: str = "geometry",
     ) -> None:
-        """Reads in data as a Spark DataFrame. A dummy dataset of the BNG is created and written to zarr which is then overwritten
-        as the Spark DataFrame is converted to a mask then a Dataset.
-        This function assumes that the dataframe contains a column with the BNG 100km grid reference
-        and a column containing the bounds of the BNG grid refernce system as a list named as "bounds"
+        """Rasterises `self.data` and writes it to `zarr`.
+
+        This function requires two additional columns:
+        * A "bng_index" column containing the BNG index of the geometry in each row.
+        * A "bounds" column containing the BNG bounds of the BNG index as a list in
+            each row.
+
+        Examples:
+            >>> wrapper.to_zarr(
+                path = "/path/to/file.zarr",
+                data_array_name = "test",
+            )
 
         Args:
-            self (Self): _description_
-            path (str): _description_
-            data_array_name (str): _description_
-            index_column_name (str, optional): _description_. Defaults to "bng_index".
-            geometry_column_name (str, optional): _description_. Defaults to "geometry".
+            path (str): Path to save the zarr file including file name.
+            data_array_name (str): DataArray name given by the user.
+            index_column_name (str): Name of the BNG index column. Defaults to
+                "bng_index".
+            geometry_column_name (str): Name of the geometry column. Defaults to
+                "geometry".
 
         Returns:
-            _type_: _description_
+            None
         """
-
         _create_dummy_dataset(
             path=path,
             data_array_name=data_array_name,
         )
+
         _partial_to_zarr_region = partial(
             _to_zarr_region,
             data_array_name=data_array_name,
             path=path,
+            geometry_column_name=geometry_column_name,
         )
+
         return (
             self.data.groupby(index_column_name)
             .applyInPandas(
