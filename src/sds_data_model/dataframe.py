@@ -243,20 +243,21 @@ class DataFrameWrapper:
             path=path,
             data_array_name=data_array_name,
         )
+
         _partial_to_zarr_region = partial(
             _to_zarr_region,
             data_array_name=data_array_name,
-            path=path,        
+            path=path,
+            geometry_column_name=geometry_column_name,
         )
+
         return (
-            self.data
-            .groupby(index_column_name)
+            self.data.groupby(index_column_name)
             .applyInPandas(
                 _partial_to_zarr_region,
                 self.data.schema,
             )
-            .write
-            .format('noop')
-            .mode('overwrite')
+            .write.format("noop")
+            .mode("overwrite")
             .save()
         )
