@@ -359,14 +359,12 @@ example:</p>
 <h3>Indexing<a class="headerlink" href="#indexing" title="Permalink to this headline">¶</a></h3>
 <p>Once vector files have been read in and transformations complete, the next step
 is to index the data. This process adds two additional columns to the DataFrame
-stored within <cite>data</cite> within the DataFrameWrapper. <cite>bng</cite> contains the two
+stored within <cite>data</cite> within the DataFrameWrapper. <cite>bng_index</cite> contains the two
 British National Grid grid letters relevant to that feature and <cite>bounds</cite> is a
 tuple with British National Grid coordinates for the cell relating to the grid
 letters. The indexing functions are called from the <a class="reference external" href="https://github.com/Defra-Data-Science-Centre-of-Excellence/bng-indexer#noqa:B950">bng_indexer</a> library.</p>
-<p>The <cite>index</cite> function has several arguments, but only <cite>resolution</cite> requires user
-input as the rest have defaults. Recommended resolution is <cite>100_000</cite>.</p>
 <p>For example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">resolution</span><span class="o">=</span><span class="mi">100_000</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span><span class="o">.</span><span class="n">index</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>The above code would update the <cite>sdf</cite> object, providing the wrapped DataFrame
@@ -374,7 +372,7 @@ with the additional columns.</p>
 <p>Some of the other arguments allow the user to provide custom column names for the
 geometry column as an input, and the two output columns:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span><span class="o">.</span><span class="n">index</span><span class="p">(</span>
-    <span class="n">resolution</span><span class="o">=</span><span class="mi">100_000</span><span class="p">,</span>
+    <span class="n">resolution</span><span class="o">=</span><span class="mi">10_000</span><span class="p">,</span>
     <span class="n">geometry_column_name</span><span class="o">=</span><span class="s2">&quot;custom_geom&quot;</span><span class="p">,</span>
     <span class="n">index_column_name</span><span class="o">=</span><span class="s2">&quot;custom_index&quot;</span><span class="p">,</span>
     <span class="n">bounds_column_name</span><span class="o">=</span><span class="s2">&quot;custom_bounds&quot;</span><span class="p">,</span>
@@ -418,7 +416,6 @@ been changed from the defaults:</p>
         <span class="s2">&quot;suffix&quot;</span><span class="p">:</span> <span class="s2">&quot;.ext&quot;</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">)</span><span class="o">.</span><span class="n">call_method</span><span class="p">(</span><span class="s2">&quot;filter&quot;</span><span class="p">,</span> <span class="s2">&quot;col_a == &#39;val_a&#39; or col_a == &#39;val_b&#39;&quot;</span><span class="p">,)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span>
-    <span class="n">resolution</span><span class="o">=</span><span class="mi">100_000</span><span class="p">,</span>
 <span class="p">)</span><span class="o">.</span><span class="n">to_zarr</span><span class="p">(</span>
     <span class="n">path</span><span class="o">=</span><span class="s2">&quot;/path/to/out_directory/&quot;</span><span class="p">,</span>
     <span class="n">data_array_name</span><span class="o">=</span><span class="s2">&quot;array_name&quot;</span><span class="p">,</span>

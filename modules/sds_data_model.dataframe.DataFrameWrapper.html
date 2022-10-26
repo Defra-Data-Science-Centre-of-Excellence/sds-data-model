@@ -203,7 +203,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#sds_data_model.dataframe.DataFrameWrapper.from_files" title="sds_data_model.dataframe.DataFrameWrapper.from_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_files</span></code></a>(data_path[, metadata_path, ...])</p></td>
 <td><p>Reads in data and converts it to a SparkDataFrame.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sds_data_model.dataframe.DataFrameWrapper.index" title="sds_data_model.dataframe.DataFrameWrapper.index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">index</span></code></a>(resolution[, how, index_column_name, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sds_data_model.dataframe.DataFrameWrapper.index" title="sds_data_model.dataframe.DataFrameWrapper.index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">index</span></code></a>([resolution, how, index_column_name, ...])</p></td>
 <td><p>_summary_.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sds_data_model.dataframe.DataFrameWrapper.to_zarr" title="sds_data_model.dataframe.DataFrameWrapper.to_zarr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_zarr</span></code></a>(path, data_array_name[, ...])</p></td>
@@ -317,14 +317,14 @@ Look at data
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sds_data_model.dataframe.DataFrameWrapper.index">
-<span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">how</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'intersects'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bng'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bounds'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'geometry'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exploded</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.dataframe.DataFrameWrapper.index" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">how</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'intersects'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bng_index'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bounds'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'geometry'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exploded</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.dataframe.DataFrameWrapper.index" title="Permalink to this definition">¶</a></dt>
 <dd><p>_summary_.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>resolution</strong> (<em>int</em>) – _description_</p></li>
+<li><p><strong>resolution</strong> (<em>int</em>) – _description_. Defaults to 100_000.</p></li>
 <li><p><strong>how</strong> (<em>str</em>) – _description_. Defaults to “intersects”.</p></li>
-<li><p><strong>index_column_name</strong> (<em>str</em>) – _description_. Defaults to “bng”.</p></li>
+<li><p><strong>index_column_name</strong> (<em>str</em>) – _description_. Defaults to “bng_index”.</p></li>
 <li><p><strong>bounds_column_name</strong> (<em>str</em>) – _description_. Defaults to “bounds”.</p></li>
 <li><p><strong>geometry_column_name</strong> (<em>str</em>) – _description_. Defaults to “geometry”.</p></li>
 <li><p><strong>exploded</strong> (<em>bool</em>) – _description_. Defaults to True.</p></li>
