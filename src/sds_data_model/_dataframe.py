@@ -11,9 +11,9 @@ from rasterio.features import geometry_mask
 from xarray import DataArray
 
 from shapely.wkt import loads 
-from bng_indexer import calculate_bng_index, wkt_from_bng
-from pyspark.sql.types import ArrayType, FloatType, StringType
-from pyspark.sql.functions import col, explode, udf
+from bng_indexer import wkt_from_bng
+from pyspark.sql.types import ArrayType, FloatType
+from pyspark.sql.functions import udf
 
 
 from sds_data_model.constants import (

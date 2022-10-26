@@ -13,7 +13,7 @@ from pyspark.sql import DataFrame as SparkDataFrame
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, explode, udf
-from pyspark.sql.types import ArrayType, FloatType, StringType
+from pyspark.sql.types import ArrayType, StringType
 from pyspark_vector_files import read_vector_files
 from pyspark_vector_files.gpkg import read_gpkg
 from typing_extensions import Self
@@ -275,7 +275,7 @@ class DataFrameWrapper:
         )
 
     def index(
-        self: Self,
+        self: _DataFrameWrapper,
         resolution: int,
         how: str = "intersects",
         index_column_name: str = "bng",
