@@ -252,19 +252,16 @@ Indexing
 
 Once vector files have been read in and transformations complete, the next step
 is to index the data. This process adds two additional columns to the DataFrame
-stored within `data` within the DataFrameWrapper. `bng` contains the two
+stored within `data` within the DataFrameWrapper. `bng_index` contains the two
 British National Grid grid letters relevant to that feature and `bounds` is a
 tuple with British National Grid coordinates for the cell relating to the grid
 letters. The indexing functions are called from the `bng_indexer`_ library.
-
-The `index` function has several arguments, but only `resolution` requires user
-input as the rest have defaults. Recommended resolution is `100_000`.
 
 For example:
 
 .. code-block:: python
 
-    sdf.index(resolution=100_000)
+    sdf.index()
 
 The above code would update the `sdf` object, providing the wrapped DataFrame
 with the additional columns.
@@ -275,7 +272,7 @@ geometry column as an input, and the two output columns:
 .. code-block:: python
 
     sdf.index(
-        resolution=100_000,
+        resolution=10_000,
         geometry_column_name="custom_geom",
         index_column_name="custom_index",
         bounds_column_name="custom_bounds",
@@ -329,7 +326,6 @@ The whole workflow can be pulled together like this:
             "suffix": ".ext",
         },
     ).call_method("filter", "col_a == 'val_a' or col_a == 'val_b'",).index(
-        resolution=100_000,
     ).to_zarr(
         path="/path/to/out_directory/",
         data_array_name="array_name",

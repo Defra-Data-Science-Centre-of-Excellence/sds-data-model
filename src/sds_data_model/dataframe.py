@@ -274,9 +274,9 @@ class DataFrameWrapper:
 
     def index(
         self: _DataFrameWrapper,
-        resolution: int,
+        resolution: int = 100_000,
         how: str = "intersects",
-        index_column_name: str = "bng",
+        index_column_name: str = "bng_index",
         bounds_column_name: str = "bounds",
         geometry_column_name: str = "geometry",
         exploded: bool = True,
@@ -284,9 +284,9 @@ class DataFrameWrapper:
         """_summary_.
 
         Args:
-            resolution (int): _description_
+            resolution (int): _description_. Defaults to 100_000.
             how (str): _description_. Defaults to "intersects".
-            index_column_name (str): _description_. Defaults to "bng".
+            index_column_name (str): _description_. Defaults to "bng_index".
             bounds_column_name (str): _description_. Defaults to "bounds".
             geometry_column_name (str): _description_. Defaults to "geometry".
             exploded (bool): _description_. Defaults to True.
