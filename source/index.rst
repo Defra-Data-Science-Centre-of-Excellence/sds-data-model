@@ -7,6 +7,7 @@
    :hidden:
    :caption: Contents:
 
+   Aim <aim>
    Usage <usage>
    Modules <modules>
    License <license>
