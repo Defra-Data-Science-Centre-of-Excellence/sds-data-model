@@ -328,10 +328,7 @@ The whole workflow can be pulled together like this:
             "pattern": "filename_pattern*",
             "suffix": ".ext",
         },
-    ).call_method(
-        "filter",
-        "col_a == 'val_a' or col_a == 'val_b'",
-    ).index(
+    ).call_method("filter", "col_a == 'val_a' or col_a == 'val_b'",).index(
         resolution=100_000,
     ).to_zarr(
         path="/path/to/out_directory/",
