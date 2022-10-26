@@ -1,4 +1,4 @@
-﻿Logger
+Logger
 ======
 
 .. automodule:: sds_data_model.logger

@@ -17,7 +17,7 @@
     <script src="_static/js/petite-vue.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Usage" href="usage.html" /> 
+    <link rel="next" title="Aim" href="aim.html" /> 
   </head><body data-dark_mode_code_blocks="true">
 
 <div id="top_nav">
@@ -121,6 +121,7 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper"><p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="aim.html">Aim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
@@ -140,86 +141,20 @@
 </div>
 <section id="spatial-data-science-data-model">
 <h1>Spatial Data Science Data Model<a class="headerlink" href="#spatial-data-science-data-model" title="Permalink to this headline">¶</a></h1>
-<section id="aim">
-<h2>Aim<a class="headerlink" href="#aim" title="Permalink to this headline">¶</a></h2>
-<p>In spatial data science, we want data that is easy to use.
-We consider data that is easy to use as aligned to the <a class="reference external" href="https://www.go-fair.org/fair-principles/">FAIR guiding principles</a>.
-Wider use of FAIR in government (e.g. from the <a class="reference external" href="https://geospatialcommission.blog.gov.uk/2021/06/25/byte-ing-back-better-introducing-a-q-fair-approach-to-geospatial-data-improvement/">Geospatial Commission</a>)
-has emphasised the need to ensure data are of appropriate quality and are fit for purpose, resulting in Q-FAIR:.</p>
-<p><strong>Q</strong>uality</p>
-<p>We want data that is fit for purpose. As purposes vary, we need to be able to judge data quality.
-In part this means understanding the completeness, uniqueness, consistency, timeliness, validity and accuracy of data.
-Different purposes will need different combinations or levels of these data dimensions.</p>
-<p><strong>F</strong>indable</p>
-<p>We want data that has clear provenance - we understand where
-it has come from and its subsequent transformation history. This means capturing metadata
-and logging transformations in a standard way.
-This will aid discovery and allow users to unambiguously document their data.</p>
-<p><strong>A</strong>ccessible</p>
-<p>We want consolidated data that can be accessed centrally.
-We want to work with free and open source data as much as possible, eliminating restrictions to use.
-However, where licensing is the reality, we want to be clear about who can use data and restrictions to sharing.</p>
-<p><strong>I</strong>nteroperable</p>
-<p>We want data that works together.
-This means that we can easily combine different datasets because they share a common coordinate reference system,
-spatial extent and resolution.
-It should also be possible to understand the relative uncertainty in different datasets through the metadata available.</p>
-<p><strong>R</strong>eusable</p>
-<p>We want data that is easy to use and reuse across different projects.
-This means that data pipelines are well described and transparent such that data can be used in multiple settings.
-It also means that the data are useful and relevant to different activities, forming a common foundation for analysis.</p>
-<p>The aim of the data model is to provide the tooling that enables easy to use <em>analysis ready</em> data.
-The data model is a library of code that can help us organise and standardise data using reproducible pipelines.
-Reproducible pipelines, implemented in DataBricks notebooks and stored in github, will openly and transparently
-document data provenance and log transformation history.</p>
-<p><strong>Logging for Data Quality Considerations</strong></p>
-<p>It is important that all transformations that data undergo are captured. However, it is also the case that some
-transformations will be trivial. A subset of transformations should be identified that materially affect the
-resultant quality of data. For instance, the transformation of vector data with a stated 1 metre accuracy to
-a raster representation with a 10 metre cells size implies a loss of precision and as such a degradation of
-data quality in the resulting data. Conversely, a raster data set with a resolution of 30 metres that is converted
-to a standardised 10 metre raster has not gained in data quality, despite the higher resolution of the output.</p>
-<p>Transformations that may have implications for data quality include: e.g. data type conversion, reclassification,
-resampling, geometric transformation, coordinate transformation etc.</p>
-<p><strong>Ontological Considerations</strong></p>
-<p>Beyond the data model, we want to be able to label and manage outputs according to a shared ontology.
-Data produced by the data model has a <em>meaning</em> to users in what it represents and how it can be used in relation
-to other data and outcomes of interest. However, these semantics are likely exclusive to particular users, and may not
-be common to all users. Resolving this requires that these semantics are formally described to create an explicit
-specification that is common to all users, this is known as an ontology.</p>
-<p>If a suitable ontology can be created for a data created using the data model library then that ontology can be
-applied to the data outputs themselves to produce annotated data. This has two immediate benefits: first, users
-can identify quickly whether a dataset is likely to meet their needs, secondly, it enhances dataset findability
-by making semantics searchable. In future, it may allow for semantically similar data to be identified based on
-a knowledge graph.</p>
-<p>The core components of the release 0.1 data model library are:</p>
-<ol class="arabic simple">
-<li><p>Data classes for non-spatial rectangular data, spatial vector data, and spatial array (‘raster’) data.</p></li>
-<li><p>Data classes that read and store metadata belonging to the original data source(s).</p></li>
-<li><p>A ‘logging tool’ that records all transformations datasets undergo, writing a transformation history.</p></li>
-<li><p>A specification (‘target schema’) for the spatial extent, resolution and coordinate reference system of the transformed output.</p></li>
-<li><p>The ability to write a standardised output to a known and consistent data format that includes all relevant metadata.</p></li>
-<li><p>The ability to read a data format on disk to a python object that can then be used analytically.</p></li>
-<li><p>The ability to work with 4 key data types: integers, booleans, decimal/floating point numbers, and nominal categories.</p></li>
-<li><p>Sufficient documentation to allow use by the core Spatial Data Science team.</p></li>
-</ol>
-<p>Future functionality could include:</p>
-<ol class="arabic simple">
-<li><p>Drawing directed acyclic graphs (DAGs) to represent transformation history graphically.</p></li>
-<li><p>Implementing an ordinal categorical data type.</p></li>
-<li><p>Tools for finding/indexing data created for greater discoverability.</p></li>
-<li><p>A mechanism for annotating and searching data subject to a defined ontology.</p></li>
-<li><p>Applications on restricted/sensitive data.</p></li>
-<li><p>Pipeline orchestration and renewal when new data becomes available.</p></li>
-<li><p>Detailed tutorial and documentation to support wider uptake and use.</p></li>
-</ol>
-</section>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p>You can install <em>SDS Data Model</em> via <a class="reference external" href="https://pip.pypa.io/">pip</a> from <a class="reference external" href="https://github.com/">GitHub</a>:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip install git+https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model
 </pre></div>
 </div>
+<p>However, if you’re installing within a Databricks notebook, you’ll need to include your Personal Access Token (PAT):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip install git+https://&lt;YOUR_PAT&gt;@github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model
+</pre></div>
+</div>
+</section>
+<section id="aim">
+<h2>Aim<a class="headerlink" href="#aim" title="Permalink to this headline">¶</a></h2>
+<p>Please see the <a class="reference external" href="https://defra-data-science-centre-of-excellence.github.io/sds-data-model/aim.html">Aim</a> for details.</p>
 </section>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
@@ -260,8 +195,8 @@ please <a class="reference external" href="https://github.com/Defra-Data-Science
             <div class="page_toc">
                 <ul>
 <li><a class="reference internal" href="#">Spatial Data Science Data Model</a><ul>
-<li><a class="reference internal" href="#aim">Aim</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#aim">Aim</a></li>
 <li><a class="reference internal" href="#usage">Usage</a></li>
 <li><a class="reference internal" href="#license">License</a></li>
 <li><a class="reference internal" href="#issues">Issues</a></li>
@@ -284,7 +219,7 @@ please <a class="reference external" href="https://github.com/Defra-Data-Science
 
             <div class="right">
                 
-                    <a href="usage.html"><span>Usage</span><span class="icon">></span></a>
+                    <a href="aim.html"><span>Aim</span><span class="icon">></span></a>
                 
             </div>
         </div>

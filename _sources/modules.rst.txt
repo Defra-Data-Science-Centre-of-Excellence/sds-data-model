@@ -8,10 +8,9 @@ Modules
    :template: module.rst
    :toctree: modules
 
-   constants
+   dataframe
+   raster
+   metadata
    graph
    logger
-   metadata
-   raster
-   table
-   vector
+   constants

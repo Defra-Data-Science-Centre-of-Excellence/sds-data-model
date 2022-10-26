@@ -1,7 +1,7 @@
-Raster
-======
+Dataframe
+=========
 
-.. automodule:: sds_data_model.raster
+.. automodule:: sds_data_model.dataframe
   
    
    
@@ -19,7 +19,7 @@ Raster
       :toctree:
       :template: class.rst
    
-      DatasetWrapper
+      DataFrameWrapper
    
    
 
