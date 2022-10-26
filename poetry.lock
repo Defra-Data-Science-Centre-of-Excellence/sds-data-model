@@ -152,6 +152,24 @@ jupyter = ["ipython (>=7.8.0)", "tokenize-rt (>=3.2.0)"]
 uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
+name = "bng-indexer"
+version = "0.1.0"
+description = "Create British National Grid-based spatial indexes."
+category = "main"
+optional = false
+python-versions = "^3.8"
+develop = false
+
+[package.dependencies]
+Shapely = "^1.8.1"
+
+[package.source]
+type = "git"
+url = "https://github.com/Defra-Data-Science-Centre-of-Excellence/bng-indexer.git"
+reference = "HEAD"
+resolved_reference = "9aaa0883294542b7cf56e3441afb6e2718a4a7c6"
+
+[[package]]
 name = "bokeh"
 version = "2.4.3"
 description = "Interactive plots and applications in the browser from Python"
@@ -2253,7 +2271,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.8"
-content-hash = "1c34f77444d5ff0faf2af5edd8fb5778f7084ad8e9a919af9b0f21305866e839"
+content-hash = "8a9e7987c16cb20ac86cfc8115609784944bdf92b4e09247e391da8006e4be90"
 
 [metadata.files]
 affine = [
@@ -2325,6 +2343,7 @@ black = [
     {file = "black-22.10.0-py3-none-any.whl", hash = "sha256:c957b2b4ea88587b46cf49d1dc17681c1e672864fd7af32fc1e9664d572b3458"},
     {file = "black-22.10.0.tar.gz", hash = "sha256:f513588da599943e0cde4e32cc9879e825d58720d6557062d1098c5ad80080e1"},
 ]
+bng-indexer = []
 bokeh = [
     {file = "bokeh-2.4.3-py3-none-any.whl", hash = "sha256:104d2f0a4ca7774ee4b11e545aa34ff76bf3e2ad6de0d33944361981b65da420"},
     {file = "bokeh-2.4.3.tar.gz", hash = "sha256:ef33801161af379665ab7a34684f2209861e3aefd5c803a21fbbb99d94874b03"},
