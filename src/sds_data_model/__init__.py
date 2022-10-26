@@ -1,7 +1,7 @@
 """The following usage examples assume a pyspark enabled environment.
 
-Part 1: The `DataFrameWrapper` class
-====================================
+The `DataFrameWrapper` class
+============================
 
 The SDS data model DataFrameWrapper class is a thin wrapper around a
 `Spark DataFrame`_.
@@ -49,8 +49,8 @@ It will assume that any other file type is a vector file and will try and use
     file paths, i.e. `dbfs:/path/to/file.ext`, whereas, the GeoPackage and other
     vector file type readers use the File API Format, i.e. `/dbfs/path/to/file.ext`.
 
-Keyword Arguments
-^^^^^^^^^^^^^^^^^
+Passing keyword arguments to the underlying reader
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The `read_file_kwargs` argument allows you to pass `kwargs` to the underlying reader.
 
@@ -291,7 +291,7 @@ Writing to zarr
 
 The final stage of the data model pipeline is to rasterise data to a standard
 10 m grid in British National Grid projection, and write the data to a zarr
-file. This can be done with the `to_zarr` method:
+file. This can be done with the `.to_zarr` method:
 
 .. code-block:: python
 
@@ -315,7 +315,7 @@ been changed from the defaults:
 
 
 A full workflow
-===============
+---------------
 
 The whole workflow can be pulled together like this:
 
@@ -328,7 +328,9 @@ The whole workflow can be pulled together like this:
             "pattern": "filename_pattern*",
             "suffix": ".ext",
         },
-    ).call_method("filter", "col_a == 'val_a' or col_a == 'val_b'",
+    ).call_method(
+        "filter",
+        "col_a == 'val_a' or col_a == 'val_b'",
     ).index(
         resolution=100_000,
     ).to_zarr(
