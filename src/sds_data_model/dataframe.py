@@ -10,6 +10,7 @@ from pyspark.pandas import DataFrame as SparkPandasDataFrame
 from pyspark.pandas import Series as SparkPandasSeries
 from pyspark.pandas import read_excel
 from pyspark.sql import DataFrame as SparkDataFrame
+
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, explode, udf
 from pyspark.sql.types import ArrayType, FloatType, StringType
@@ -72,6 +73,7 @@ class DataFrameWrapper:
     ) -> _DataFrameWrapper:
         """Reads in data and converts it to a SparkDataFrame.
 
+
         Examples:
         >>> from sds_data_model.dataframe import DataFrameWrapper
         >>> wrapped_shp = DataFrameWrapper.from_files(name = "National parks",
@@ -82,6 +84,7 @@ class DataFrameWrapper:
         >>> wrapped_csv =  DataFrameWrapper.from_files(
                                         name = "indicator_5__species_in_the_wider_countryside__farmland_1970_to_2020",
                                         data_path="dbfs:/mnt/lab/unrestricted/source_isr/dataset_england_biodiversity_indicators/format_CSV_england_biodiversity_indicators/LATEST_england_biodiversity_indicators/indicator_5__species_in_the_wider_countryside__farmland_1970_to_2020.csv",
+
                                         read_file_kwargs = {'header' :True}
                                        )
 
@@ -89,6 +92,7 @@ class DataFrameWrapper:
             data_path (str): Path to data,
             metadata_path (Optional[str], optional): Path to metadata supplied by user. Defaults to None.
             metadata_kwargs (Optional[str]): Optional kwargs for metadata
+
             name (Optional[str], optional): Name for data, either supplied by caller or obtained from metadata title. Defaults to None.
             read_file_kwargs (Optional[Dict[str,Any]], optional): Additional kwargs supplied by the caller, dependent on the function called. Defaults to None.
             spark(Optional[SparkSession]): Optional spark session
@@ -96,6 +100,7 @@ class DataFrameWrapper:
         Returns:
             _DataFrameWrapper: SparkDataFrameWrapper
         """  # noqa: B950
+
         _spark = spark if spark else SparkSession.getActiveSession()
 
         if read_file_kwargs:
@@ -173,6 +178,7 @@ class DataFrameWrapper:
                         data_path="/dbfs/mnt/base/unrestricted/source_defra_data_services_platform/dataset_traditional_orchards/format_SHP_traditional_orchards/LATEST_traditional_orchards/",
                         read_file_kwargs = {'suffix':'.shp'})
 
+
             Limit number of rows to 5
             >>> wrapped_small =  wrapped.call_method('limit', num = 5)
             Look at data
@@ -186,6 +192,7 @@ class DataFrameWrapper:
         Returns:
             Optional[Union[_DataFrameWrapper, Any]]: Updated SparkDataFrameWrapper or property output
         """  # noqa: B950
+
         attribute = getattr(self.data, method_name)
 
         if ismethod(attribute):
@@ -253,6 +260,7 @@ class DataFrameWrapper:
             data_array_name=data_array_name,
             path=path,
             geometry_column_name=geometry_column_name,
+
         )
 
         return (
@@ -308,3 +316,4 @@ class DataFrameWrapper:
             ).withColumn(bounds_column_name, _bng_to_bounds(col(index_column_name)))
 
         return self
+

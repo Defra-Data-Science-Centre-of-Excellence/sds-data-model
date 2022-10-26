@@ -41,6 +41,18 @@ def _bng_to_bounds(grid_reference: str
     wkt = wkt_from_bng(grid_reference)
     return loads(wkt).bounds
 
+from shapely.wkt import loads 
+from shapely.geometry import box
+from bng_indexer import calculate_bng_index, wkt_from_bng
+from pyspark.sql.types import ArrayType, FloatType, StringType
+from pyspark.sql.functions import col, explode, udf
+
+from dataclasses import asdict
+
+@udf(returnType=ArrayType(FloatType()))
+def _bng_to_bounds(grid_reference: str) -> Tuple[float, float, float, float]:
+    wkt = wkt_from_bng(grid_reference)
+    return loads(wkt).bounds
 
 def _get_name(
     metadata: Optional[Metadata] = None,
@@ -276,6 +288,7 @@ def _create_dummy_dataset(
     bng_xmax: int = BNG_XMAX,
     bng_ymin: int = BNG_YMIN,
     bng_ymax: int = BNG_YMAX,
+    metadata: Optional[Metadata]
 ) -> None:
     """A dummy Dataset. It's metadata is used to create the initial `zarr` store.
 
@@ -329,6 +342,7 @@ def _create_dummy_dataset(
                 ),
             },
             name=data_array_name,
+            attrs=_metadata
         )
         .to_dataset()
         .to_zarr(
