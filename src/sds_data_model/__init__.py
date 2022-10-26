@@ -325,8 +325,7 @@ The whole workflow can be pulled together like this:
             "pattern": "filename_pattern*",
             "suffix": ".ext",
         },
-    ).call_method("filter", "col_a == 'val_a' or col_a == 'val_b'",).index(
-    ).to_zarr(
+    ).call_method("filter", "col_a == 'val_a' or col_a == 'val_b'").index().to_zarr(
         path="/path/to/out_directory/",
         data_array_name="array_name",
     )
@@ -351,47 +350,47 @@ To read a file, you just need to the path:
 If the raster dataset isn't the right shape or resolution, it will be resampled.
 
 .. _`Spark DataFrame`:
-    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html  # noqa: B950
+    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html
 
 .. _`pyspark.pandas.read_excel`:
-    https://spark.apache.org/docs/latest/api/python/reference/pyspark.pandas/api/pyspark.pandas.read_excel.html  # noqa: B950
+    https://spark.apache.org/docs/latest/api/python/reference/pyspark.pandas/api/pyspark.pandas.read_excel.html
 
 .. _`pyspark.sql.DataFrameReader.csv`:
-    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.csv.html  # noqa: B950
+    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.csv.html
 
 .. _`pyspark.sql.DataFrameReader.json`:
-    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.json.html  # noqa: B950
+    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.json.html
 
 .. _`pyspark.sql.DataFrameReader.parquet`:
-    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.parquet.html  # noqa: B950
+    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.parquet.html
 
 .. _`pyspark_vector_files.gpkg.read_gpkg`:
-    https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/usage.html#read-a-layer-into-a-spark-dataframe  # noqa: B950
+    https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/usage.html#read-a-layer-into-a-spark-dataframe
 
 .. _`pyspark_vector_files.read_vector_files`:
-    https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/api.html  # noqa: B950
+    https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/api.html
 
 .. _`register the geopackage dialect`:
-    https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/usage.html#register-the-geopackage-dialect  # noqa: B950
+    https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/usage.html#register-the-geopackage-dialect
 
 .. _`any valid Spark DataFrame method`:
-    https://spark.apache.org/docs/3.1.1/api/python/reference/pyspark.sql.html#dataframe-apis  # noqa: B950
+    https://spark.apache.org/docs/3.1.1/api/python/reference/pyspark.sql.html#dataframe-apis
 
 .. _`filter`:
-    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.filter.html  # noqa: B950
+    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.filter.html
 
 .. _`select`:
-    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.select.html  # noqa: B950
+    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.select.html
 
 .. _`pyspark.sql.functions.col`:
-    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.functions.col.html  # noqa: B950
+    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.functions.col.html
 
 .. _`join`:
-    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.join.html  # noqa: B950
+    https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.join.html
 
 .. _`bng_indexer`:
-    https://github.com/Defra-Data-Science-Centre-of-Excellence/bng-indexer  # noqa: B950
+    https://github.com/Defra-Data-Science-Centre-of-Excellence/bng-indexer
 
 .. _`Xarray Dataset`:
     https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html
-"""
+"""  # noqa: B950
