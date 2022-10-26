@@ -42,6 +42,7 @@ pyarrow = "^9.0.0"
 pyspark-vector-files = "^0.2.3"
 scipy = "^1.9.2"
 bng-indexer = {git = "https://github.com/Defra-Data-Science-Centre-of-Excellence/bng-indexer.git"}
+odfpy = "^1.4.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
