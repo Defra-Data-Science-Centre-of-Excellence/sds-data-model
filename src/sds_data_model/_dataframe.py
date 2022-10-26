@@ -39,7 +39,8 @@ def _bng_to_bounds(grid_reference: str
         Tuple[float, float, float, float]: _description_
     """    
     wkt = wkt_from_bng(grid_reference)
-    return loads(wkt).bounds
+    bounds: Tuple[ float, float, float, float] = loads(wkt).bounds
+    return bounds
 
 from shapely.wkt import loads 
 from shapely.geometry import box
