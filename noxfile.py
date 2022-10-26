@@ -1,6 +1,7 @@
 """Nox sessions."""
 import os
 import sys
+from itertools import chain
 from pathlib import Path
 from shutil import copytree, rmtree
 from textwrap import dedent
@@ -27,14 +28,15 @@ nox.needs_version = ">= 2021.6.6"
 nox.options.sessions = (
     "isort",
     "black",
-    # "pre-commit",
-    "safety",
-    "mypy",
-    "tests",
+    "blacken-docs",
     "lint",
+    "mypy",
+    "safety",
+    "tests",
+    "docs-build",
+    # "pre-commit",
     # "typeguard",
     # "xdoctest",
-    "docs-build",
 )
 
 
@@ -102,6 +104,19 @@ def black(session: Session) -> None:
     args = session.posargs or locations
     session.install("black")
     session.run("black", *args)
+
+
+@session(name="blacken-docs", python=python_versions, tags=["format", "local"])  # type: ignore[call-overload]  # noqa: B950
+def blacken_docs(session: Session) -> None:
+    """Run black on docstring code blocks."""
+    chained = chain.from_iterable(
+        Path(location).rglob("*.py") if Path(location).is_dir() else (location,)
+        for location in locations
+    )
+    _locations = tuple(str(path) for path in chained)
+    args = session.posargs or _locations
+    session.install("blacken-docs")
+    session.run("blacken-docs", *args)
 
 
 # @session(name="pre-commit", python="3.8")
@@ -202,7 +217,7 @@ def docs_build(session: Session) -> None:
         args.insert(0, "--color")
 
     session.install(".")
-    session.install("sphinx", "myst-parser")
+    session.install("sphinx", "myst-parser", "piccolo_theme")
 
     build_dir = Path("_build")
     html_dir = Path("_build/html")

@@ -3,17 +3,12 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to SDS Data Model's documentation!
-==========================================
-
 .. toctree::
    :hidden:
    :caption: Contents:
 
-   usage
-   reference
-   contributing
-   Code of Conduct <codeofconduct>
+   Usage <usage>
+   Modules <modules>
    License <license>
    Changelog <https://github.com/EFT-Defra/sds-data-model/releases>
 
