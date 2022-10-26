@@ -4,10 +4,14 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
 from affine import Affine
+from bng_indexer import wkt_from_bng
 from geopandas import GeoDataFrame, GeoSeries
 from numpy import arange, zeros
 from pandas import DataFrame as PandasDataFrame
+from pyspark.sql.functions import udf
+from pyspark.sql.types import ArrayType, FloatType
 from rasterio.features import geometry_mask
+from shapely.wkt import loads
 from xarray import DataArray
 
 from sds_data_model.constants import (
@@ -19,6 +23,21 @@ from sds_data_model.constants import (
     OUT_SHAPE,
 )
 from sds_data_model.metadata import Metadata
+
+
+@udf(returnType=ArrayType(FloatType()))
+def _bng_to_bounds(grid_reference: str) -> Tuple[float, float, float, float]:
+    """_summary_.
+
+    Args:
+        grid_reference (str): _description_
+
+    Returns:
+        Tuple[float, float, float, float]: _description_
+    """
+    wkt = wkt_from_bng(grid_reference)
+    bounds: Tuple[float, float, float, float] = loads(wkt).bounds
+    return bounds
 
 
 def _get_name(
@@ -76,7 +95,7 @@ def _get_name(
     """
     if name:
         return name
-    elif metadata:
+    elif metadata and metadata.title:
         return metadata.title
     else:
         raise ValueError("If there isn't any metadata, a name must be supplied.")

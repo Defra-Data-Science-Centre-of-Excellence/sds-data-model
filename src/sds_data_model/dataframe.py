@@ -6,15 +6,22 @@ from logging import INFO, Formatter, StreamHandler, getLogger
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional, Sequence, Type, TypeVar, Union
 
+from bng_indexer import calculate_bng_index
 from pyspark.pandas import DataFrame as SparkPandasDataFrame
 from pyspark.pandas import Series as SparkPandasSeries
 from pyspark.pandas import read_excel
 from pyspark.sql import DataFrame as SparkDataFrame
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, explode, udf
+from pyspark.sql.types import ArrayType, StringType
 from pyspark_vector_files import read_vector_files
 from pyspark_vector_files.gpkg import read_gpkg
 
-from sds_data_model._dataframe import _create_dummy_dataset, _to_zarr_region
+from sds_data_model._dataframe import (
+    _bng_to_bounds,
+    _create_dummy_dataset,
+    _to_zarr_region,
+)
 from sds_data_model._vector import _get_metadata, _get_name
 from sds_data_model.metadata import Metadata
 
@@ -69,17 +76,19 @@ class DataFrameWrapper:
         """Reads in data and converts it to a SparkDataFrame.
 
         Examples:
-        >>> from sds_data_model.dataframe import DataFrameWrapper
-        >>> wrapped_shp = DataFrameWrapper.from_files(name = "National parks",
-                                        data_path="/dbfs/mnt/base/unrestricted/source_defra_data_services_platform/dataset_national_parks/format_SHP_national_parks/LATEST_national_parks/",
-                                        read_file_kwargs = {'suffix':'.shp'},
-                                        metadata_path =  "https://ckan.publishing.service.gov.uk/harvest/object/656c07d1-67b3-4bdb-8ab3-75e118a7cf14"
-                                       )
-        >>> wrapped_csv =  DataFrameWrapper.from_files(
-                                        name = "indicator_5__species_in_the_wider_countryside__farmland_1970_to_2020",
-                                        data_path="dbfs:/mnt/lab/unrestricted/source_isr/dataset_england_biodiversity_indicators/format_CSV_england_biodiversity_indicators/LATEST_england_biodiversity_indicators/indicator_5__species_in_the_wider_countryside__farmland_1970_to_2020.csv",
-                                        read_file_kwargs = {'header' :True}
-                                       )
+            >>> from sds_data_model.dataframe import DataFrameWrapper
+            >>> wrapped_shp = DataFrameWrapper.from_files(
+                name = "National parks",
+                data_path="/dbfs/mnt/base/unrestricted/source_defra_data_services_platform/dataset_national_parks/format_SHP_national_parks/LATEST_national_parks/",
+                read_file_kwargs = {'suffix':'.shp'},
+                metadata_path = "https://ckan.publishing.service.gov.uk/harvest/object/656c07d1-67b3-4bdb-8ab3-75e118a7cf14"
+            )
+            >>> wrapped_csv = DataFrameWrapper.from_files(
+                name = "indicator_5__species_in_the_wider_countryside__farmland_1970_to_2020",
+                data_path="dbfs:/mnt/lab/unrestricted/source_isr/dataset_england_biodiversity_indicators/format_CSV_england_biodiversity_indicators/LATEST_england_biodiversity_indicators/indicator_5__species_in_the_wider_countryside__farmland_1970_to_2020.csv",
+
+                read_file_kwargs = {'header' :True}
+            )
 
         Args:
             data_path (str): Path to data,
@@ -168,6 +177,7 @@ class DataFrameWrapper:
             >>> wrapped = DataFrameWrapper.from_files(name = "National parks",
                         data_path="/dbfs/mnt/base/unrestricted/source_defra_data_services_platform/dataset_traditional_orchards/format_SHP_traditional_orchards/LATEST_traditional_orchards/",
                         read_file_kwargs = {'suffix':'.shp'})
+
 
             Limit number of rows to 5
             >>> wrapped_small =  wrapped.call_method('limit', num = 5)
@@ -261,3 +271,45 @@ class DataFrameWrapper:
             .mode("overwrite")
             .save()
         )
+
+    def index(
+        self: _DataFrameWrapper,
+        resolution: int,
+        how: str = "intersects",
+        index_column_name: str = "bng",
+        bounds_column_name: str = "bounds",
+        geometry_column_name: str = "geometry",
+        exploded: bool = True,
+    ) -> _DataFrameWrapper:
+        """_summary_.
+
+        Args:
+            resolution (int): _description_
+            how (str): _description_. Defaults to "intersects".
+            index_column_name (str): _description_. Defaults to "bng".
+            bounds_column_name (str): _description_. Defaults to "bounds".
+            geometry_column_name (str): _description_. Defaults to "geometry".
+            exploded (bool): _description_. Defaults to True.
+
+        Returns:
+            _DataFrameWrapper: _description_
+        """
+        _partial_calculate_bng_index = partial(
+            calculate_bng_index, resolution=resolution, how=how
+        )
+
+        _calculate_bng_index_udf = udf(
+            _partial_calculate_bng_index,
+            returnType=ArrayType(StringType()),
+        )
+
+        self.data = self.data.withColumn(
+            index_column_name, _calculate_bng_index_udf(col(geometry_column_name))
+        )
+
+        if exploded:
+            self.data = self.data.withColumn(
+                index_column_name, explode(col(index_column_name))
+            ).withColumn(bounds_column_name, _bng_to_bounds(col(index_column_name)))
+
+        return self
