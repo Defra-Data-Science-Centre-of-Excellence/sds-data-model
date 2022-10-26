@@ -40,8 +40,8 @@ It will assume that any other file type is a vector file and will try and use
     file paths, i.e. `dbfs:/path/to/file.ext`, whereas, the GeoPackage and other
     vector file type readers use the File API Format, i.e. `/dbfs/path/to/file.ext`.
 
-Passing keyword arguments to the underlying reader
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Keyword Arguments
+^^^^^^^^^^^^^^^^^
 
 The `read_file_kwargs` argument allows you to pass `kwargs` to the underlying reader.
 
