@@ -1,4 +1,4 @@
-﻿Graph
+Graph
 =====
 
 .. automodule:: sds_data_model.graph

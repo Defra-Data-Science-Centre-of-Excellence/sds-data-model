@@ -1,4 +1,4 @@
-﻿Metadata
+Metadata
 ========
 
 .. automodule:: sds_data_model.metadata
