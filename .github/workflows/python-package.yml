@@ -28,7 +28,7 @@ jobs:
       - name: Setup
         uses: ./actions/setup-environment
       - name: Run nox
-        run: poetry run nox -s isort black
+        run: poetry run nox -t format
   static-type-analysis:
     name: Static type analysis
     runs-on: ubuntu-latest
