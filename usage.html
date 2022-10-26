@@ -144,7 +144,7 @@
 <section id="the-dataframewrapper-class">
 <h2>The <cite>DataFrameWrapper</cite> class<a class="headerlink" href="#the-dataframewrapper-class" title="Permalink to this headline">¶</a></h2>
 <p>The SDS data model DataFrameWrapper class is a thin wrapper around a
-<a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html#noqa:B950">Spark DataFrame</a>.</p>
+<a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html">Spark DataFrame</a>.</p>
 <p>It consists of:</p>
 <ul class="simple">
 <li><p>A name</p></li>
@@ -168,17 +168,17 @@ aspatial file formats using the
 <cite>from_files</cite> will use a different reader depending on the file extension.</p>
 <ul class="simple">
 <li><dl class="simple">
-<dt>For Excel Workbook (<cite>.xlsx</cite>, <cite>.xls</cite>, <cite>.xlsm</cite>, and <cite>.xlsb</cite>) or OpenDocument Format</dt><dd><p>(<cite>.odf</cite>, <cite>.ods</cite>, <cite>.odt</cite>) files, it will use <a class="reference external" href="https://spark.apache.org/docs/latest/api/python/reference/pyspark.pandas/api/pyspark.pandas.read_excel.html#noqa:B950">pyspark.pandas.read_excel</a>.</p>
+<dt>For Excel Workbook (<cite>.xlsx</cite>, <cite>.xls</cite>, <cite>.xlsm</cite>, and <cite>.xlsb</cite>) or OpenDocument Format</dt><dd><p>(<cite>.odf</cite>, <cite>.ods</cite>, <cite>.odt</cite>) files, it will use <a class="reference external" href="https://spark.apache.org/docs/latest/api/python/reference/pyspark.pandas/api/pyspark.pandas.read_excel.html">pyspark.pandas.read_excel</a>.</p>
 </dd>
 </dl>
 </li>
-<li><p>For CSV, it will use <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.csv.html#noqa:B950">pyspark.sql.DataFrameReader.csv</a>.</p></li>
-<li><p>For JSON, it will use <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.json.html#noqa:B950">pyspark.sql.DataFrameReader.json</a>.</p></li>
-<li><p>For Parquet, it will use <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.parquet.html#noqa:B950">pyspark.sql.DataFrameReader.parquet</a>.</p></li>
-<li><p>For GeoPackage, it will use <a class="reference external" href="https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/usage.html#read-a-layer-into-a-spark-dataframe#noqa:B950">pyspark_vector_files.gpkg.read_gpkg</a>.</p></li>
+<li><p>For CSV, it will use <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.csv.html">pyspark.sql.DataFrameReader.csv</a>.</p></li>
+<li><p>For JSON, it will use <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.json.html">pyspark.sql.DataFrameReader.json</a>.</p></li>
+<li><p>For Parquet, it will use <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.parquet.html">pyspark.sql.DataFrameReader.parquet</a>.</p></li>
+<li><p>For GeoPackage, it will use <a class="reference external" href="https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/usage.html#read-a-layer-into-a-spark-dataframe">pyspark_vector_files.gpkg.read_gpkg</a>.</p></li>
 </ul>
 <p>It will assume that any other file type is a vector file and will try and use
-<a class="reference external" href="https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/api.html#noqa:B950">pyspark_vector_files.read_vector_files</a> to read it.</p>
+<a class="reference external" href="https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/api.html">pyspark_vector_files.read_vector_files</a> to read it.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Databricks File System paths</p>
@@ -189,7 +189,7 @@ vector file type readers use the File API Format, i.e. <cite>/dbfs/path/to/file.
 <section id="passing-keyword-arguments-to-the-underlying-reader">
 <h4>Passing keyword arguments to the underlying reader<a class="headerlink" href="#passing-keyword-arguments-to-the-underlying-reader" title="Permalink to this headline">¶</a></h4>
 <p>The <cite>read_file_kwargs</cite> argument allows you to pass <cite>kwargs</cite> to the underlying reader.</p>
-<p>For example, you can pass <cite>kwargs</cite> to <a class="reference external" href="https://spark.apache.org/docs/latest/api/python/reference/pyspark.pandas/api/pyspark.pandas.read_excel.html#noqa:B950">pyspark.pandas.read_excel</a> to read a specific
+<p>For example, you can pass <cite>kwargs</cite> to <a class="reference external" href="https://spark.apache.org/docs/latest/api/python/reference/pyspark.pandas/api/pyspark.pandas.read_excel.html">pyspark.pandas.read_excel</a> to read a specific
 section of an OpenDocument Spreadsheet:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ods_df</span> <span class="o">=</span> <span class="n">DataFrameWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;opendocument spreadsheet example&quot;</span><span class="p">,</span>
@@ -203,7 +203,7 @@ section of an OpenDocument Spreadsheet:</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>Or you can pass <cite>kwargs</cite> to <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.csv.html#noqa:B950">pyspark.sql.DataFrameReader.csv</a> to read a CSV with a
+<p>Or you can pass <cite>kwargs</cite> to <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.csv.html">pyspark.sql.DataFrameReader.csv</a> to read a CSV with a
 header:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">csv_df</span> <span class="o">=</span> <span class="n">DataFrameWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;csv example&quot;</span><span class="p">,</span>
@@ -215,7 +215,7 @@ header:</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>Or you can pass <cite>kwargs</cite> to <a class="reference external" href="https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/usage.html#read-a-layer-into-a-spark-dataframe#noqa:B950">pyspark_vector_files.gpkg.read_gpkg</a> to read a GeoPackage
+<p>Or you can pass <cite>kwargs</cite> to <a class="reference external" href="https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/usage.html#read-a-layer-into-a-spark-dataframe">pyspark_vector_files.gpkg.read_gpkg</a> to read a GeoPackage
 without returning the GeoPackage Binary Header:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">gpkg_df</span> <span class="o">=</span> <span class="n">DataFrameWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;geopackage example&quot;</span><span class="p">,</span>
@@ -231,7 +231,7 @@ without returning the GeoPackage Binary Header:</p>
 <p>GeoPackage JDBC dialect</p>
 <p>To read a GeoPackage using Spark’s JDBC drivers, you will need to
 register a custom mapping of GeoPackage to Spark Catalyst types.</p>
-<p>See <a class="reference external" href="https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/usage.html#register-the-geopackage-dialect#noqa:B950">register the geopackage dialect</a> for details.</p>
+<p>See <a class="reference external" href="https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/usage.html#register-the-geopackage-dialect">register the geopackage dialect</a> for details.</p>
 </div>
 <p>Or you can pass <cite>kwargs</cite> to <cite>pyspark_vector_files.read_vector_files</cite> to read multiple
 Shapefiles into single DataFrame:</p>
@@ -250,13 +250,13 @@ Shapefiles into single DataFrame:</p>
 <section id="calling-pyspark-methods">
 <h3>Calling pyspark methods<a class="headerlink" href="#calling-pyspark-methods" title="Permalink to this headline">¶</a></h3>
 <p>The <cite>DataFrameWrapper</cite> class has a generic method named <cite>call_method</cite> which will allow
-the user to call <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/pyspark.sql.html#dataframe-apis#noqa:B950">any valid Spark DataFrame method</a> on the underlying DataFrame
+the user to call <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/pyspark.sql.html#dataframe-apis">any valid Spark DataFrame method</a> on the underlying DataFrame
 instance.</p>
 <p>If the method returns a Spark DataFrame the underlying DataFrame instance
 will be updated, if not, the output of the method will be returned.</p>
 <section id="filter">
 <h4><cite>filter</cite><a class="headerlink" href="#filter" title="Permalink to this headline">¶</a></h4>
-<p>The Spark DataFrame <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.filter.html#noqa:B950">filter</a> method allow you to select rows using SQL-like
+<p>The Spark DataFrame <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.filter.html">filter</a> method allow you to select rows using SQL-like
 expressions. You can call this method by passing the name of the method, followed by
 the condition you want to filter on, to the <cite>DataFrameWrapper</cite>’s <cite>call_method</cite> method.</p>
 <p>For example, to filter attributes based on name matches in a single column:</p>
@@ -289,7 +289,7 @@ the condition you want to filter on, to the <cite>DataFrameWrapper</cite>’s <c
 </section>
 <section id="select">
 <h4><cite>select</cite><a class="headerlink" href="#select" title="Permalink to this headline">¶</a></h4>
-<p>The Spark DataFrame <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.select.html#noqa:B950">select</a> method allow you to select columns by name. You can call
+<p>The Spark DataFrame <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.select.html">select</a> method allow you to select columns by name. You can call
 this method by passing the name of the method, followed by the columns you want to
 select, to the <cite>DataFrameWrapper</cite>’s <cite>call_method</cite> method.</p>
 <p>For example, columns can be selected as follows:</p>
@@ -304,12 +304,12 @@ select, to the <cite>DataFrameWrapper</cite>’s <cite>call_method</cite> method
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Unlike the underlying method, column names cannot be passed as strings.</p>
-<p>Instead, they must be wrapped in <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.functions.col.html#noqa:B950">pyspark.sql.functions.col</a>.</p>
+<p>Instead, they must be wrapped in <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.functions.col.html">pyspark.sql.functions.col</a>.</p>
 </div>
 </section>
 <section id="join">
 <h4><cite>join</cite><a class="headerlink" href="#join" title="Permalink to this headline">¶</a></h4>
-<p>The Spark DataFrame <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.join.html#noqa:B950">join</a> method allow you to join two Spark DataFrames. You can call
+<p>The Spark DataFrame <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.join.html">join</a> method allow you to join two Spark DataFrames. You can call
 this method by passing the name of the method, followed by the relevant arguments, to
 the <cite>DataFrameWrapper</cite>’s <cite>call_method</cite> method.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sdf1</span> <span class="o">=</span> <span class="n">DataFrameWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
@@ -362,7 +362,7 @@ is to index the data. This process adds two additional columns to the DataFrame
 stored within <cite>data</cite> within the DataFrameWrapper. <cite>bng_index</cite> contains the two
 British National Grid grid letters relevant to that feature and <cite>bounds</cite> is a
 tuple with British National Grid coordinates for the cell relating to the grid
-letters. The indexing functions are called from the <a class="reference external" href="https://github.com/Defra-Data-Science-Centre-of-Excellence/bng-indexer#noqa:B950">bng_indexer</a> library.</p>
+letters. The indexing functions are called from the <a class="reference external" href="https://github.com/Defra-Data-Science-Centre-of-Excellence/bng-indexer">bng_indexer</a> library.</p>
 <p>For example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span><span class="o">.</span><span class="n">index</span><span class="p">()</span>
 </pre></div>
@@ -415,8 +415,7 @@ been changed from the defaults:</p>
         <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="s2">&quot;filename_pattern*&quot;</span><span class="p">,</span>
         <span class="s2">&quot;suffix&quot;</span><span class="p">:</span> <span class="s2">&quot;.ext&quot;</span><span class="p">,</span>
     <span class="p">},</span>
-<span class="p">)</span><span class="o">.</span><span class="n">call_method</span><span class="p">(</span><span class="s2">&quot;filter&quot;</span><span class="p">,</span> <span class="s2">&quot;col_a == &#39;val_a&#39; or col_a == &#39;val_b&#39;&quot;</span><span class="p">,)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span>
-<span class="p">)</span><span class="o">.</span><span class="n">to_zarr</span><span class="p">(</span>
+<span class="p">)</span><span class="o">.</span><span class="n">call_method</span><span class="p">(</span><span class="s2">&quot;filter&quot;</span><span class="p">,</span> <span class="s2">&quot;col_a == &#39;val_a&#39; or col_a == &#39;val_b&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">()</span><span class="o">.</span><span class="n">to_zarr</span><span class="p">(</span>
     <span class="n">path</span><span class="o">=</span><span class="s2">&quot;/path/to/out_directory/&quot;</span><span class="p">,</span>
     <span class="n">data_array_name</span><span class="o">=</span><span class="s2">&quot;array_name&quot;</span><span class="p">,</span>
 <span class="p">)</span>
