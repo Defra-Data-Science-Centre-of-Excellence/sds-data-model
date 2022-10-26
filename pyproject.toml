@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sds-data-model"
-version = "0.0.0"
+version = "0.1.0"
 description = "SDS Data Model"
 authors = ["Piumi Algamagedona", "Tim Ashelford", "James Duffy", "Ed Fawcett-Taylor", "Samuel Flint", "James Kenyon", "Daniel Lewis", "Jordan Pinder", "Lara Spearman",]
 license = "MIT"
