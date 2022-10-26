@@ -29,10 +29,11 @@ MetadataType = TypeVar("MetadataType", bound="Metadata")
 
 
 def _get_xpath(xpath: Union[str, Iterable[str], Iterable[Iterable[str]]]) -> str:
-    """Construct an `XPath`_ query from a string, list of strings, or list of lists of strings.
+    """`XPath`_ query from a string, list of strings, or list of lists of strings.
 
     Examples:
-        A list of strings will be concatenated with "/" as the separator. This should produce an XPath query:
+        A list of strings will be concatenated with "/" as the separator.
+        This should produce an XPath query:
         >>> TITLE_XPATH = [
             "gmd:identificationInfo",
             "gmd:MD_DataIdentification",
@@ -45,8 +46,9 @@ def _get_xpath(xpath: Union[str, Iterable[str], Iterable[Iterable[str]]]) -> str
         >>> _get_xpath(TITLE_XPATH)
         'gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString//text()'
 
-        Each list in a list of lists of strings will be concatenated with "/" as the separator, then the lists will be concatenated
-        with "|" as a separator. This should produce an OR XPath query:
+        Each list in a list of lists of strings will be concatenated with "/"
+        as the separator, then the lists will be concatenated with "|" as a
+        separator. This should produce an OR XPath query:
         >>> METADATA_DATE_XPATH = [
             [
                 "gmd:dateStamp",
@@ -68,8 +70,8 @@ def _get_xpath(xpath: Union[str, Iterable[str], Iterable[Iterable[str]]]) -> str
         'gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString//text()'
 
     Args:
-        xpath (Union[str, List[str]]): A string or list of strings that represent
-            an XPath query.
+        xpath (Union[str, List[str]]): A string or list of strings that
+            represent an XPath query.
 
     Returns:
         str: An XPath query.
@@ -111,8 +113,8 @@ def _get_target_elements(
 
     Args:
         root_element (Element): The starting point of the XPath query.
-        xpath (Union[str, List[str]]): A string or list of strings that represent
-            an XPath query.
+        xpath (Union[str, List[str]]): A string or list of strings that
+            represent an XPath query.
         namespaces (Dict[str, str]): A dictionary of XML `namespaces`_.
 
     Returns:
@@ -134,7 +136,7 @@ def _get_value(
     root_element: Element,
     xpath: Union[str, Iterable[str], Iterable[Iterable[str]]],
     namespaces: Dict[str, str],
-) -> str:
+) -> Optional[str]:
     """Get a single text value from a `XPath`_ query.
 
     Examples:
@@ -171,7 +173,12 @@ def _get_value(
         xpath=xpath,
         namespaces=namespaces,
     )
-    target_element: str = target_elements[0].strip()
+
+    if not target_elements:
+        target_element = None
+    else:
+        target_element = target_elements[0].strip()
+
     return target_element
 
 
@@ -179,7 +186,7 @@ def _get_values(
     root_element: Element,
     xpath: Union[str, Iterable[str], Iterable[Iterable[str]]],
     namespaces: Dict[str, str],
-) -> Tuple[str, ...]:
+) -> Union[Tuple[str, ...], None]:
     """Get a tuple of text values from a `XPath`_ query.
 
     Examples:
@@ -197,8 +204,8 @@ def _get_values(
 
     Args:
         root_element (Element): The starting point of the XPath query.
-        xpath (Union[str, List[str]]): A string or list of strings that represent
-            an XPath query.
+        xpath (Union[str, List[str]]): A string or list of strings that
+            represent an XPath query.
         namespaces (Dict[str, str]): A dictionary of XML `namespaces`_.
 
     Returns:
@@ -216,7 +223,15 @@ def _get_values(
         xpath=xpath,
         namespaces=namespaces,
     )
-    return tuple(target_element.strip() for target_element in target_elements)
+
+    if not target_elements:
+        target_element = None
+    else:
+        target_element = tuple(
+            target_element.strip() for target_element in target_elements
+        )
+
+    return target_element
 
 
 def _get_xml(path: str, metadata_kwargs: Dict[str, Any]) -> ElementTree:
@@ -224,7 +239,7 @@ def _get_xml(path: str, metadata_kwargs: Dict[str, Any]) -> ElementTree:
 
     Examples:
         Parse XML from a remote URL:
-        >>> xml = _get_xml("https://ckan.publishing.service.gov.uk/harvest/object/715bc6a9-1008-4061-8783-d12e9e7f38a9")
+        >>> xml = _get_xml("https://ckan.publishing.service.gov.uk/harvest/object/715bc6a9-1008-4061-8783-d12e9e7f38a9") # noqa: E501, B950
         >>> xml.docinfo.root_name
         'MD_Metadata'
 
@@ -260,15 +275,15 @@ class Metadata:
         _type_: # TODO
     """
 
-    title: str
+    title: Union[str, None]
     # alternative_title: Optional[Tuple[str, ...]] #! Optional
-    dataset_language: Tuple[str, ...]
-    abstract: str
-    topic_category: Tuple[str, ...]
-    keyword: Tuple[str, ...]
+    dataset_language: Union[Tuple[str, ...], None]
+    abstract: Union[str, None]
+    topic_category: Union[Tuple[str, ...], None]
+    keyword: Union[Tuple[str, ...], None]
     # temporal_extent: Dict[str, Any]
     # dataset_reference_date: List[str]
-    lineage: str
+    lineage: Union[str, None]
     # extent: Optional[Tuple[str, ...]] #! Optional
     # vertical_extent_information: Optional[List[str]] #! Optional
     # spatial_reference_system: List[str]
@@ -278,20 +293,20 @@ class Metadata:
     # limitations_on_public_access: List[str]
     # use_constraints: List[str]
     # additional_information: Optional[str] #! Optional
-    metadata_date: str
-    metadata_language: str
+    metadata_date: Union[str, None]
+    metadata_language: Union[str, None]
     # metadata_point_of_contact: List[str]
     # resource_identifier: Optional[List[str]]  #! Conditional
     # coupled_resource: Optional[List[str]]  #! Conditional
-    resource_type: str
+    resource_type: Union[str, None]
     # conformity: List[str]
     # equivalent_scale: Optional[List[str]] = field(default_factory=list)  #! Optional
     # bounding_box: List[str]
-    file_identifier: str
+    file_identifier: Union[str, None]
     # hierarchy_level_name: Optional[str]  #! Conditional
-    quality_scope: Tuple[str, ...]
+    quality_scope: Union[Tuple[str, ...], None]
     # parent_identifier: Optional[str]  #! Optional
-    spatial_representation_type: Tuple[str, ...]
+    spatial_representation_type: Union[Tuple[str, ...], None]
     # character_encoding: Optional[List[str]]  #! Conditional
     # data_quality: Optional[List[str]]  #! Conditional
     # maintenance_information: Optional[str]  #! Optional
