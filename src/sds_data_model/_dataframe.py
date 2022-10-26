@@ -4,17 +4,15 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
 from affine import Affine
+from bng_indexer import wkt_from_bng
 from geopandas import GeoDataFrame, GeoSeries
 from numpy import arange, zeros
 from pandas import DataFrame as PandasDataFrame
-from rasterio.features import geometry_mask
-from xarray import DataArray
-
-from shapely.wkt import loads 
-from bng_indexer import wkt_from_bng
-from pyspark.sql.types import ArrayType, FloatType
 from pyspark.sql.functions import udf
-
+from pyspark.sql.types import ArrayType, FloatType
+from rasterio.features import geometry_mask
+from shapely.wkt import loads
+from xarray import DataArray
 
 from sds_data_model.constants import (
     BNG_XMAX,
@@ -28,32 +26,19 @@ from sds_data_model.metadata import Metadata
 
 
 @udf(returnType=ArrayType(FloatType()))
-def _bng_to_bounds(grid_reference: str
-) -> Tuple[float, float, float, float]:
-    """_summary_
+def _bng_to_bounds(grid_reference: str) -> Tuple[float, float, float, float]:
+    """_summary_.
 
     Args:
         grid_reference (str): _description_
 
     Returns:
         Tuple[float, float, float, float]: _description_
-    """    
+    """
     wkt = wkt_from_bng(grid_reference)
-    bounds: Tuple[ float, float, float, float] = loads(wkt).bounds
+    bounds: Tuple[float, float, float, float] = loads(wkt).bounds
     return bounds
 
-from shapely.wkt import loads 
-from shapely.geometry import box
-from bng_indexer import calculate_bng_index, wkt_from_bng
-from pyspark.sql.types import ArrayType, FloatType, StringType
-from pyspark.sql.functions import col, explode, udf
-
-from dataclasses import asdict
-
-@udf(returnType=ArrayType(FloatType()))
-def _bng_to_bounds(grid_reference: str) -> Tuple[float, float, float, float]:
-    wkt = wkt_from_bng(grid_reference)
-    return loads(wkt).bounds
 
 def _get_name(
     metadata: Optional[Metadata] = None,
@@ -110,7 +95,7 @@ def _get_name(
     """
     if name:
         return name
-    elif metadata:
+    elif metadata and metadata.title:
         return metadata.title
     else:
         raise ValueError("If there isn't any metadata, a name must be supplied.")
@@ -289,7 +274,6 @@ def _create_dummy_dataset(
     bng_xmax: int = BNG_XMAX,
     bng_ymin: int = BNG_YMIN,
     bng_ymax: int = BNG_YMAX,
-    metadata: Optional[Metadata]
 ) -> None:
     """A dummy Dataset. It's metadata is used to create the initial `zarr` store.
 
@@ -343,7 +327,6 @@ def _create_dummy_dataset(
                 ),
             },
             name=data_array_name,
-            attrs=_metadata
         )
         .to_dataset()
         .to_zarr(

@@ -6,20 +6,22 @@ from logging import INFO, Formatter, StreamHandler, getLogger
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional, Sequence, Type, TypeVar, Union
 
+from bng_indexer import calculate_bng_index
 from pyspark.pandas import DataFrame as SparkPandasDataFrame
 from pyspark.pandas import Series as SparkPandasSeries
 from pyspark.pandas import read_excel
 from pyspark.sql import DataFrame as SparkDataFrame
-
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, explode, udf
 from pyspark.sql.types import ArrayType, StringType
 from pyspark_vector_files import read_vector_files
 from pyspark_vector_files.gpkg import read_gpkg
-from typing_extensions import Self
-from bng_indexer import calculate_bng_index
 
-from sds_data_model._dataframe import _create_dummy_dataset, _to_zarr_region, _bng_to_bounds
+from sds_data_model._dataframe import (
+    _bng_to_bounds,
+    _create_dummy_dataset,
+    _to_zarr_region,
+)
 from sds_data_model._vector import _get_metadata, _get_name
 from sds_data_model.metadata import Metadata
 
@@ -73,26 +75,25 @@ class DataFrameWrapper:
     ) -> _DataFrameWrapper:
         """Reads in data and converts it to a SparkDataFrame.
 
-
         Examples:
-        >>> from sds_data_model.dataframe import DataFrameWrapper
-        >>> wrapped_shp = DataFrameWrapper.from_files(name = "National parks",
-                                        data_path="/dbfs/mnt/base/unrestricted/source_defra_data_services_platform/dataset_national_parks/format_SHP_national_parks/LATEST_national_parks/",
-                                        read_file_kwargs = {'suffix':'.shp'},
-                                        metadata_path =  "https://ckan.publishing.service.gov.uk/harvest/object/656c07d1-67b3-4bdb-8ab3-75e118a7cf14"
-                                       )
-        >>> wrapped_csv =  DataFrameWrapper.from_files(
-                                        name = "indicator_5__species_in_the_wider_countryside__farmland_1970_to_2020",
-                                        data_path="dbfs:/mnt/lab/unrestricted/source_isr/dataset_england_biodiversity_indicators/format_CSV_england_biodiversity_indicators/LATEST_england_biodiversity_indicators/indicator_5__species_in_the_wider_countryside__farmland_1970_to_2020.csv",
+            >>> from sds_data_model.dataframe import DataFrameWrapper
+            >>> wrapped_shp = DataFrameWrapper.from_files(
+                name = "National parks",
+                data_path="/dbfs/mnt/base/unrestricted/source_defra_data_services_platform/dataset_national_parks/format_SHP_national_parks/LATEST_national_parks/",
+                read_file_kwargs = {'suffix':'.shp'},
+                metadata_path = "https://ckan.publishing.service.gov.uk/harvest/object/656c07d1-67b3-4bdb-8ab3-75e118a7cf14"
+            )
+            >>> wrapped_csv = DataFrameWrapper.from_files(
+                name = "indicator_5__species_in_the_wider_countryside__farmland_1970_to_2020",
+                data_path="dbfs:/mnt/lab/unrestricted/source_isr/dataset_england_biodiversity_indicators/format_CSV_england_biodiversity_indicators/LATEST_england_biodiversity_indicators/indicator_5__species_in_the_wider_countryside__farmland_1970_to_2020.csv",
 
-                                        read_file_kwargs = {'header' :True}
-                                       )
+                read_file_kwargs = {'header' :True}
+            )
 
         Args:
             data_path (str): Path to data,
             metadata_path (Optional[str], optional): Path to metadata supplied by user. Defaults to None.
             metadata_kwargs (Optional[str]): Optional kwargs for metadata
-
             name (Optional[str], optional): Name for data, either supplied by caller or obtained from metadata title. Defaults to None.
             read_file_kwargs (Optional[Dict[str,Any]], optional): Additional kwargs supplied by the caller, dependent on the function called. Defaults to None.
             spark(Optional[SparkSession]): Optional spark session
@@ -100,7 +101,6 @@ class DataFrameWrapper:
         Returns:
             _DataFrameWrapper: SparkDataFrameWrapper
         """  # noqa: B950
-
         _spark = spark if spark else SparkSession.getActiveSession()
 
         if read_file_kwargs:
@@ -192,7 +192,6 @@ class DataFrameWrapper:
         Returns:
             Optional[Union[_DataFrameWrapper, Any]]: Updated SparkDataFrameWrapper or property output
         """  # noqa: B950
-
         attribute = getattr(self.data, method_name)
 
         if ismethod(attribute):
@@ -260,7 +259,6 @@ class DataFrameWrapper:
             data_array_name=data_array_name,
             path=path,
             geometry_column_name=geometry_column_name,
-
         )
 
         return (
@@ -283,16 +281,15 @@ class DataFrameWrapper:
         geometry_column_name: str = "geometry",
         exploded: bool = True,
     ) -> _DataFrameWrapper:
-        """_summary_
+        """_summary_.
 
         Args:
-            self (Self): _description_
             resolution (int): _description_
-            how (str, optional): _description_. Defaults to "intersects".
-            index_column_name (str, optional): _description_. Defaults to "bng".
-            bounds_column_name (str, optional): _description_. Defaults to "bounds".
-            geometry_column_name (str, optional): _description_. Defaults to "geometry".
-            exploded (bool, optional): _description_. Defaults to True.
+            how (str): _description_. Defaults to "intersects".
+            index_column_name (str): _description_. Defaults to "bng".
+            bounds_column_name (str): _description_. Defaults to "bounds".
+            geometry_column_name (str): _description_. Defaults to "geometry".
+            exploded (bool): _description_. Defaults to True.
 
         Returns:
             _DataFrameWrapper: _description_
@@ -316,4 +313,3 @@ class DataFrameWrapper:
             ).withColumn(bounds_column_name, _bng_to_bounds(col(index_column_name)))
 
         return self
-
