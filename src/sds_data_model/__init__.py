@@ -43,7 +43,7 @@ It will assume that any other file type is a vector file and will try and use
 Passing keyword arguments to the underlying reader
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The `read_file_kwargs` argument allows you can pass `kwargs` to the underlying reader.
+The `read_file_kwargs` argument allows you to pass `kwargs` to the underlying reader.
 
 For example, you can pass `kwargs` to `pyspark.pandas.read_excel`_ to read a specific
 section of an OpenDocument Spreadsheet:
@@ -96,7 +96,7 @@ without returning the GeoPackage Binary Header:
 
     See `register the geopackage dialect`_ for details.
 
-Or you can pass `kwargs` to `pyspark_vector_files.read_vector_files` to read three
+Or you can pass `kwargs` to `pyspark_vector_files.read_vector_files` to read multiple
 Shapefiles into single DataFrame:
 
 .. code-block:: python
@@ -321,7 +321,7 @@ Writing to zarr
 
 The final stage of the data model pipeline is to rasterise data to a standard
 10 m grid in British National Grid projection, and write the data to a zarr
-file. This can be done with the `to_zarr()` method:
+file. This can be done with the `to_zarr` method:
 
 .. code-block:: python
 
@@ -358,7 +358,8 @@ The whole workflow can be pulled together like this:
             "pattern": "filename_pattern*",
             "suffix": ".ext",
         },
-    ).call_method("filter", "col_a == 'val_a' or col_a == 'val_b'",).index(
+    ).call_method("filter", "col_a == 'val_a' or col_a == 'val_b'",
+    ).index(
         resolution=100_000,
     ).to_zarr(
         path="/path/to/out_directory/",
