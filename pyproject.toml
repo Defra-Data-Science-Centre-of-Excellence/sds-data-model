@@ -2,7 +2,7 @@
 name = "sds-data-model"
 version = "0.0.0"
 description = "SDS Data Model"
-authors = ["Ed Fawcett-Taylor <ed.fawcett-taylor@defra.gov.uk>"]
+authors = ["Piumi Algamagedona", "Tim Ashelford", "James Duffy", "Ed Fawcett-Taylor", "Samuel Flint", "James Kenyon", "Daniel Lewis", "Jordan Pinder", "Lara Spearman",]
 license = "MIT"
 readme = "README.rst"
 homepage = "https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model"
