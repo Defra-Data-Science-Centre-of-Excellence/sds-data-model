@@ -18,6 +18,15 @@ abstract common patterns to methods, and capture transformations.
 Reading in data
 ---------------
 
+To read a file, you just need to specify a name and a path:
+
+.. code-block:: python
+
+    sdf = DataFrameWrapper.from_files(
+        name="vector_name",
+        data_path="/path/to/files/",
+    )
+
 You can construct a DataFrameWrapper instance from several different spatial and
 aspatial file formats using the
 :meth:`sds_data_model.dataframe.DataFrameWrapper.from_files` alternative constructor.
@@ -33,7 +42,7 @@ aspatial file formats using the
 It will assume that any other file type is a vector file and will try and use
 `pyspark_vector_files.read_vector_files`_ to read it.
 
-.. warning:: 
+.. warning::
     Databricks File System paths
 
     The Excel, OpenDocument, CSV, JSON, and Parquet readers use Spark API Format
@@ -192,45 +201,6 @@ The Spark DataFrame `join`_ method allow you to join two Spark DataFrames. You c
 this method by passing the name of the method, followed by the relevant arguments, to
 the `DataFrameWrapper`'s `call_method` method.
 
-Both aspatial and spatial data can be joined to to the vector data once it is in the
-`DataFrameWrapper` class.
-
-Aspatial:
-
-.. code-block:: python
-
-    extra_data = spark.read.option("header", True,).csv(
-        "/path/to/my_data.csv",
-    )
-
-    sdf = DataFrameWrapper.from_files(
-        name="vector_name",
-        data_path="/path/to/files/",
-    ).call_method(
-        "join",
-        extra_data,
-        "name",
-        "left",
-    )
-
-Here, `name` and `left` are the the extra arguments passed to `join`s `on` and `how`
-parameters. The above is equivalent to:
-
-.. code-block:: python
-
-    sdf = DataFrameWrapper.from_files(
-        name="vector_name",
-        data_path="/path/to/files/",
-    ).call_method(
-        "join",
-        other=extra_data,
-        on="name",
-        how="left",
-    )
-
-
-Spatial:
-
 .. code-block:: python
 
     sdf1 = DataFrameWrapper.from_files(
@@ -243,9 +213,9 @@ Spatial:
         data_path="/path/to/files/",
     ).call_method(
         "join",
-        sdf1.data,
-        "name",
-        "left",
+        other=sdf1.data,
+        on="name",
+        how="left",
     )
 
 Note how the `data` object from the DataFrameWrapper classed `sdf1` is selected within
@@ -344,8 +314,8 @@ been changed from the defaults:
     )
 
 
-Part 2: A full workflow
-=======================
+A full workflow
+===============
 
 The whole workflow can be pulled together like this:
 
