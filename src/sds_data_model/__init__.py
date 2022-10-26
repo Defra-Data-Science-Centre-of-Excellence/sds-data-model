@@ -338,6 +338,25 @@ The whole workflow can be pulled together like this:
         data_array_name="array_name",
     )
 
+The `DatasetWrapper` class
+============================
+
+The SDS data model DatasetWrapper class is a thin wrapper around a
+`Xarray Dataset`_.
+
+Reading in data
+---------------
+
+To read a file, you just need to the path:
+
+.. code-block:: python
+
+    ds = DatasetWrapper.from_files(
+        data_path="/path/to/file.ext",
+    )
+
+If the raster dataset isn't the right shape or resolution, it will be resampled.
+
 .. _`Spark DataFrame`:
     https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html  # noqa: B950
 
@@ -379,4 +398,7 @@ The whole workflow can be pulled together like this:
 
 .. _`bng_indexer`:
     https://github.com/Defra-Data-Science-Centre-of-Excellence/bng-indexer  # noqa: B950
+
+.. _`Xarray Dataset`:
+    https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html
 """
