@@ -248,15 +248,19 @@ class DataFrameWrapper:
 
         Returns:
             None
+
+        Raises:
+            ValueError: If `index_column_name` isn't in the dataframe.
+            ValueError: If `geometry_column_name` isn't in the dataframe.
         """
         colnames = self.data.columns
-        
+
         if index_column_name not in colnames:
-            raise TypeError(f"{index_column_name} is not present in the data.")
-        
+            raise ValueError(f"{index_column_name} is not present in the data.")
+
         if geometry_column_name not in colnames:
-            raise TypeError(f"{geometry_column_name} is not present in the data.")
-        
+            raise ValueError(f"{geometry_column_name} is not present in the data.")
+
         _create_dummy_dataset(
             path=path,
             data_array_name=data_array_name,
