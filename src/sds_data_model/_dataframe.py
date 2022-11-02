@@ -328,7 +328,7 @@ def _create_dummy_dataset(
                 ),
             },
             name=data_array_name,
-            attrs=metadata
+            attrs=metadata,
         )
         .to_dataset(promote_attrs=True)
         .to_zarr(
