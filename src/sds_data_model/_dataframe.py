@@ -268,6 +268,7 @@ def _to_zarr_region(
 def _create_dummy_dataset(
     data_array_name: str,
     path: str,
+    metadata: Optional[Dict] = None,
     dtype: str = "uint8",
     cell_size: int = CELL_SIZE,
     bng_xmin: int = BNG_XMIN,
@@ -327,8 +328,9 @@ def _create_dummy_dataset(
                 ),
             },
             name=data_array_name,
+            attrs=metadata
         )
-        .to_dataset()
+        .to_dataset(promote_attrs=True)
         .to_zarr(
             store=path,
             mode="w",
