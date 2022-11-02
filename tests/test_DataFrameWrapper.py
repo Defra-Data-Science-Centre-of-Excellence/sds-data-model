@@ -1,4 +1,5 @@
 """Tests for DataFrame wrapper class."""
+from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Dict, Iterable, Optional, Sequence, Union
 
@@ -23,6 +24,7 @@ from xarray.testing import assert_identical
 
 from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, BNG_YMIN, CELL_SIZE
 from sds_data_model.dataframe import DataFrameWrapper
+from sds_data_model.metadata import Metadata
 
 
 @fixture
@@ -341,6 +343,29 @@ def hl_dataframe(
 
 
 @fixture
+def expected_metadata() -> Metadata:
+    """Expected metadata for Ramsar dataset."""
+    return Metadata(
+        title="Ramsar (England)",
+        dataset_language=("eng",),
+        abstract='A Ramsar site is the land listed as a Wetland of International Importance under the Convention on Wetlands of International Importance Especially as Waterfowl Habitat (the Ramsar Convention) 1973. Data supplied has the status of "Listed". The data does not include "proposed" sites. Boundaries are mapped against Ordnance Survey MasterMap. Attribution statement: © Natural England copyright. Contains Ordnance Survey data © Crown copyright and database right [year]. Attribution statement: © Natural England copyright. Contains Ordnance Survey data © Crown copyright and database right [year].',  # noqa: B950
+        topic_category=("environment",),
+        keyword=(
+            "OpenData",
+            "NEbatch4",
+            "Protected sites",
+        ),
+        lineage="All data is captured to the Ordnance Survey National Grid sometimes called the British National Grid. OS MasterMap Topographic Layer ? produced and supplied by Ordnance Survey from data at 1:1250, 1:2500 and 1:10000 surveying and mapping standards - is used as the primary source. Other sources ? acquired internally and from external suppliers - may include aerial imagery at resolutions ranging from 25cm to 2m, Ordnance Survey 1:10000 raster images, historical OS mapping, charts and chart data from UK Hydrographic Office and other sources, scanned images of paper designation mapping (mostly originally produced at 1:10560 or 1:10000 scales), GPS and other surveyed data, and absolute coordinates. The data was first captured against an August 2002 cut of OS MasterMap Topography. Natural England has successfully uploaded an up-to-date version of OS MasterMap Topographic Layer. However, we have not yet updated our designated data holding to this new version of MasterMap. This should occur in the near future, when we will simultaneously apply positional accuracy improvement (PAI) to our data.",  # noqa: B950
+        metadata_date="2020-10-21",
+        metadata_language="eng",
+        resource_type="dataset",
+        file_identifier="c626e031-e561-4861-8219-b04cd1002806",
+        quality_scope=("dataset",),
+        spatial_representation_type=("vector",),
+    )
+
+
+@fixture
 def hl_wrapper(
     hl_dataframe: SparkDataFrame,
 ) -> DataFrameWrapper:
@@ -348,7 +373,7 @@ def hl_wrapper(
     return DataFrameWrapper(
         name="hl",
         data=hl_dataframe,
-        metadata=None,
+        metadata=expected_metadata,
     )
 
 
@@ -361,6 +386,13 @@ def hl_zarr_path(tmp_path: Path, hl_wrapper: DataFrameWrapper) -> str:
         data_array_name="hl",
     )
     return path
+
+
+@fixture
+def expected_attrs(metadata: Metadata) -> Dict:
+    """What we would expect the metadata in attrs to look like."""
+    _metadata = asdict(metadata) if metadata else None
+    return _metadata
 
 
 @fixture
@@ -390,6 +422,7 @@ def expected_hl_dataset() -> Dataset:
             "hl": expected_data_array,
         },
         coords=coords,
+        attrs=expected_attrs,
     )
 
 
@@ -410,3 +443,22 @@ def test_to_zarr(
     )
 
     assert_identical(hl_dataset, expected_hl_dataset)
+
+
+def test_to_zarr_attrs(
+    hl_zarr_path: str,
+    expected_hl_dataset: Dataset,
+) -> None:
+    """The HL DataFrame wrapper is rasterised as expected."""
+    hl_dataset = open_dataset(
+        hl_zarr_path,
+        engine="zarr",
+        decode_coords=True,
+        mask_and_scale=False,
+        chunks={
+            "eastings": 10_000,
+            "northings": 10_000,
+        },
+    )
+
+    assert_identical(hl_dataset.attrs, expected_hl_dataset.attrs)
