@@ -6,7 +6,6 @@ from typing import Any, Dict, Iterable, Optional, Sequence, Union
 import pytest
 from chispa.dataframe_comparer import assert_df_equality
 from dask.array import concatenate, ones, zeros
-from fixtures.fixtures_metadata import *
 from numpy import arange
 from pyspark.sql import DataFrame as SparkDataFrame
 from pyspark.sql import SparkSession
