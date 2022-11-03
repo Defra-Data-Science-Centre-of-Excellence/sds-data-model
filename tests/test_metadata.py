@@ -8,7 +8,7 @@ from sds_data_model.metadata import Metadata
 
 
 @fixture
-def expected() -> Metadata:
+def expected_metadata() -> Metadata:
     """Expected metadata for Ramsar dataset."""
     return Metadata(
         title="Ramsar (England)",
@@ -63,7 +63,7 @@ def test_from_file(request: FixtureRequest, path: str, expected: Metadata) -> No
     # Act
     received = Metadata.from_file(metadata_path_string)
     # Assert
-    assert received == expected
+    assert received == expected_metadata
 
 
 @fixture
