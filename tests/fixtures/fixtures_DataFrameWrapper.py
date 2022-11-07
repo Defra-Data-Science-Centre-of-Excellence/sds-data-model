@@ -25,6 +25,7 @@ from xarray.testing import assert_identical
 from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, BNG_YMIN, CELL_SIZE
 from sds_data_model.dataframe import DataFrameWrapper
 from sds_data_model.metadata import Metadata
+from tests.fixtures.fixtures_metadata import expected_metadata
 
 
 @fixture
@@ -91,12 +92,6 @@ def temp_path(
 def expected_dataframewrapper_name() -> str:
     """Expected DataFrameWrapper name."""
     return "Trial csv"
-
-
-@fixture
-def expected_empty_metadata() -> None:
-    """Expected DataFrameWrapper metadata."""
-    return None
 
 
 @fixture
@@ -217,6 +212,11 @@ def expected_dataframe_joined(
         schema=expected_schema_joined,
     )
 
+@fixture
+def expected_empty_metadata() -> None:
+    """Expected DataFrameWrapper metadata."""
+    return None
+
 
 @fixture
 def hl_schema() -> StructType:
@@ -251,7 +251,48 @@ def hl_dataframe(
 
 
 @fixture
-def hl_wrapper(
+def expected_empty_attrs() -> None:
+    """Expected DataFrameWrapper metadata."""
+    return None
+
+
+@fixture
+def expected_attrs() -> Dict:
+    """What we would expect the metadata in attrs to look like."""
+    return Dict(
+        {
+            "title": "Ramsar (England)",
+            "dataset_language": ("eng",),
+            "abstract": 'A Ramsar site is the land listed as a Wetland of International Importance under the Convention on Wetlands of International Importance Especially as Waterfowl Habitat (the Ramsar Convention) 1973. Data supplied has the status of "Listed". The data does not include "proposed" sites. Boundaries are mapped against Ordnance Survey MasterMap. Attribution statement: © Natural England copyright. Contains Ordnance Survey data © Crown copyright and database right [year]. Attribution statement: © Natural England copyright. Contains Ordnance Survey data © Crown copyright and database right [year].',
+            "topic_category": ("environment",),
+            "keyword": ("OpenData", "NEbatch4", "Protected sites"),
+            "lineage": "All data is captured to the Ordnance Survey National Grid sometimes called the British National Grid. OS MasterMap Topographic Layer ? produced and supplied by Ordnance Survey from data at 1:1250, 1:2500 and 1:10000 surveying and mapping standards - is used as the primary source. Other sources ? acquired internally and from external suppliers - may include aerial imagery at resolutions ranging from 25cm to 2m, Ordnance Survey 1:10000 raster images, historical OS mapping, charts and chart data from UK Hydrographic Office and other sources, scanned images of paper designation mapping (mostly originally produced at 1:10560 or 1:10000 scales), GPS and other surveyed data, and absolute coordinates. The data was first captured against an August 2002 cut of OS MasterMap Topography. Natural England has successfully uploaded an up-to-date version of OS MasterMap Topographic Layer. However, we have not yet updated our designated data holding to this new version of MasterMap. This should occur in the near future, when we will simultaneously apply positional accuracy improvement (PAI) to our data.",
+            "metadata_date": "2020-10-21",
+            "metadata_language": "eng",
+            "resource_type": "dataset",
+            "file_identifier": "c626e031-e561-4861-8219-b04cd1002806",
+            "quality_scope": ("dataset",),
+            "spatial_representation_type": ("vector",),
+        }
+    )
+
+
+
+
+@fixture
+def hl_wrapper_no_metadata(
+    hl_dataframe: SparkDataFrame,
+) -> DataFrameWrapper:
+    """A wrapper for the HL DataFrame."""
+    return DataFrameWrapper(
+        name="hl",
+        data=hl_dataframe,
+        metadata=None,
+    )
+
+
+@fixture
+def hl_wrapper_with_metadata(
     hl_dataframe: SparkDataFrame,
 ) -> DataFrameWrapper:
     """A wrapper for the HL DataFrame."""
@@ -263,10 +304,12 @@ def hl_wrapper(
 
 
 @fixture
-def hl_zarr_path(tmp_path: Path, hl_wrapper: DataFrameWrapper) -> str:
+def hl_zarr_path_no_metadata(
+    tmp_path: Path, hl_wrapper_no_metadata: DataFrameWrapper
+) -> str:
     """Where the `zarr` file will be saved."""
     path = str(tmp_path / "hl.zarr")
-    hl_wrapper.to_zarr(
+    hl_wrapper_no_metadata.to_zarr(
         path=path,
         data_array_name="hl",
     )
@@ -274,23 +317,54 @@ def hl_zarr_path(tmp_path: Path, hl_wrapper: DataFrameWrapper) -> str:
 
 
 @fixture
-def expected_attrs(metadata: Metadata) -> Dict:
-    """What we would expect the metadata in attrs to look like."""
-    _metadata = asdict(metadata) if metadata else None
-    return _metadata
+def hl_zarr_path_with_metadata(
+    tmp_path: Path, hl_wrapper_with_metadata: DataFrameWrapper
+) -> str:
+    """Where the `zarr` file will be saved."""
+    path = str(tmp_path / "hl.zarr")
+    hl_wrapper_with_metadata.to_zarr(
+        path=path,
+        data_array_name="hl",
+    )
+    return path
 
 
 @fixture
-def expected_hl_dataset() -> Dataset:
-    """What we would expect the HL dataset to look like."""
+def expected_hl_dataset_no_metadata() -> Dataset:
+    """What we would expect the HL dataset (no attrs) to look like."""
     hl = ones(dtype="uint8", shape=(10_000, 10_000), chunks=(10_000, 10_000))
     top_row_rest = zeros(dtype="uint8", shape=(10_000, 60_000), chunks=(10_000, 10_000))
     top_row = concatenate([hl, top_row_rest], axis=1)
-
     rest = zeros(dtype="uint8", shape=(120_000, 70_000), chunks=(10_000, 10_000))
-
     expected_array = concatenate([top_row, rest], axis=0)
+    coords = {
+        "northings": arange(BNG_YMAX - (CELL_SIZE / 2), BNG_YMIN, -CELL_SIZE),
+        "eastings": arange(BNG_XMIN + (CELL_SIZE / 2), BNG_XMAX, CELL_SIZE),
+    }
 
+    expected_data_array = DataArray(
+        data=expected_array,
+        coords=coords,
+        name="hl",
+    )
+
+    return Dataset(
+        data_vars={
+            "hl": expected_data_array,
+        },
+        coords=coords,
+        attrs=expected_empty_attrs,
+    )
+
+
+@fixture
+def expected_hl_dataset_with_metadata() -> Dataset:
+    """What we would expect the HL dataset (with attrs) to look like."""
+    hl = ones(dtype="uint8", shape=(10_000, 10_000), chunks=(10_000, 10_000))
+    top_row_rest = zeros(dtype="uint8", shape=(10_000, 60_000), chunks=(10_000, 10_000))
+    top_row = concatenate([hl, top_row_rest], axis=1)
+    rest = zeros(dtype="uint8", shape=(120_000, 70_000), chunks=(10_000, 10_000))
+    expected_array = concatenate([top_row, rest], axis=0)
     coords = {
         "northings": arange(BNG_YMAX - (CELL_SIZE / 2), BNG_YMIN, -CELL_SIZE),
         "eastings": arange(BNG_XMIN + (CELL_SIZE / 2), BNG_XMAX, CELL_SIZE),

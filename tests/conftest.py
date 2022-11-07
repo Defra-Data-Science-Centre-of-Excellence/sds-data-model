@@ -10,19 +10,22 @@ from .fixtures.fixtures_DataFrameWrapper import (  # noqa: F401
     expected_dataframe_schema,
     expected_dataframe_select,
     expected_dataframewrapper_name,
+    expected_empty_attrs,
     expected_empty_metadata,
-    expected_hl_dataset,
+    expected_hl_dataset_no_metadata,
+    expected_hl_dataset_with_metadata,
     expected_schema_joined,
     expected_schema_select,
     hl_dataframe,
     hl_schema,
-    hl_wrapper,
-    hl_zarr_path,
+    hl_wrapper_no_metadata,
+    hl_wrapper_with_metadata,
+    hl_zarr_path_no_metadata,
+    hl_zarr_path_with_metadata,
     schema_other,
     spark_session,
     temp_path,
 )
-
 from .fixtures.fixtures_graph import expected_dag  # noqa: F401
 from .fixtures.fixtures_metadata import (  # noqa: F401
     expected_metadata,

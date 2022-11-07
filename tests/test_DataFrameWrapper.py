@@ -32,7 +32,7 @@ def test_vector_layer_from_files(
     temp_path: str,
     expected_dataframewrapper_name: str,
     expected_dataframe: SparkDataFrame,
-    expected_metadata: None,
+    expected_empty_metadata: None,
 ) -> None:
     """Reading test data returns a DataFrameWrapper with expected values."""
     received = DataFrameWrapper.from_files(
@@ -119,13 +119,13 @@ def test_call_method_join(
     assert_df_equality(received.data, expected_dataframe_joined)
 
 
-def test_to_zarr(
-    hl_zarr_path: str,
-    expected_hl_dataset: Dataset,
+def test_to_zarr_no_metadata(
+    hl_zarr_path_no_metadata: str,
+    expected_hl_dataset_no_metadata: Dataset,
 ) -> None:
     """The HL DataFrame wrapper is rasterised as expected."""
     hl_dataset = open_dataset(
-        hl_zarr_path,
+        hl_zarr_path_no_metadata,
         engine="zarr",
         decode_coords=True,
         mask_and_scale=False,
@@ -135,16 +135,16 @@ def test_to_zarr(
         },
     )
 
-    assert_identical(hl_dataset, expected_hl_dataset)
+    assert_identical(hl_dataset, expected_hl_dataset_no_metadata)
 
 
-def test_to_zarr_attrs(
-    hl_zarr_path: str,
-    expected_hl_dataset: Dataset,
+def test_to_zarr_with_metadata(
+    hl_zarr_path_with_metadata: str,
+    expected_hl_dataset_with_metadata: Dataset,
 ) -> None:
-    """The HL DataFrame wrapper is rasterised as expected."""
+    """Check that attrs in the zarr look as expected"""
     hl_dataset = open_dataset(
-        hl_zarr_path,
+        hl_zarr_path_with_metadata,
         engine="zarr",
         decode_coords=True,
         mask_and_scale=False,
@@ -154,4 +154,4 @@ def test_to_zarr_attrs(
         },
     )
 
-    assert_identical(hl_dataset.attrs, expected_hl_dataset.attrs)
+    assert_identical(hl_dataset.attrs, expected_hl_dataset_with_metadata.attrs)
