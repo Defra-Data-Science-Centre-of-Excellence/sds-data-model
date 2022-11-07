@@ -2,7 +2,7 @@
 from pathlib import Path
 
 import pytest
-from pytest import FixtureRequest
+from pytest import FixtureRequest, fixture
 
 from sds_data_model.metadata import Metadata
 
@@ -20,7 +20,9 @@ from sds_data_model.metadata import Metadata
         "Local file path",
     ],
 )
-def test_from_file(request: FixtureRequest, path: str, expected: Metadata) -> None:
+def test_from_file(
+    request: FixtureRequest, path: str, expected_metadata: Metadata
+) -> None:
     """Returns the expected `Metadata` object, given the path to a known XML file."""
     # Arrange
     metadata_path_string = request.getfixturevalue(path)

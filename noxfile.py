@@ -22,7 +22,7 @@ except ImportError:
 
 package = "sds_data_model"
 python_versions = ["3.8"]
-locations = "src", "tests", "noxfile.py"
+locations = "src", "noxfile.py"
 
 nox.needs_version = ">= 2021.6.6"
 nox.options.sessions = (

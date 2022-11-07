@@ -30,7 +30,7 @@ from sds_data_model.metadata import Metadata
 def test_vector_layer_from_files(
     spark_session: SparkSession,
     temp_path: str,
-    expected_name: str,
+    expected_dataframewrapper_name: str,
     expected_dataframe: SparkDataFrame,
     expected_metadata: None,
 ) -> None:
@@ -42,7 +42,7 @@ def test_vector_layer_from_files(
         name="Trial csv",
     )
 
-    assert received.name == expected_name
+    assert received.name == expected_dataframewrapper_name
     assert received.metadata == expected_empty_metadata
     assert_df_equality(received.data, expected_dataframe)
 
@@ -65,7 +65,6 @@ def test_vector_layer_from_files(
         "filter",
     ),
 )
-
 def test_call_method(
     spark_session: SparkSession,
     temp_path: str,

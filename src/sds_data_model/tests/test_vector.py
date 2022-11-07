@@ -13,14 +13,11 @@ from sds_data_model.constants import BBOXES, CategoryLookups, Schema
 from sds_data_model.vector import TiledVectorLayer, VectorLayer
 
 
-
-
-
 def test_vector_layer_from_files(
     shared_datadir: Path,
     expected_name: str,
     expected_schema: Schema,
-    expected_metadata: None,
+    expected_vector_metadata: None,
     expected_category_lookups: CategoryLookups,
 ) -> None:
     """Reading Countries[...].zip returns a VectorLayer with expected values."""
@@ -33,7 +30,7 @@ def test_vector_layer_from_files(
         name=expected_name,
     )
     assert received.name == expected_name
-    assert received.metadata == expected_metadata
+    assert received.metadata == expected_vector_metadata
     assert received.schema == expected_schema
     assert received.category_lookups == expected_category_lookups
 
@@ -42,7 +39,7 @@ def test_tiled_vector_layer_from_files(
     shared_datadir: Path,
     expected_name: str,
     expected_schema: Schema,
-    expected_metadata: None,
+    expected_vector_metadata: None,
     expected_category_lookups: CategoryLookups,
 ) -> None:
     """Reading Countries[...].zip returns a TiledVectorLayer with expected values."""
@@ -55,12 +52,9 @@ def test_tiled_vector_layer_from_files(
         name=expected_name,
     )
     assert received.name == expected_name
-    assert received.metadata == expected_metadata
+    assert received.metadata == expected_vector_metadata
     assert received.schema == expected_schema
     assert received.category_lookups == expected_category_lookups
-
-
-
 
 
 def test_pipeline(

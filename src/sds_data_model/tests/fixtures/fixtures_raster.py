@@ -9,6 +9,7 @@ from xarray.testing import assert_identical
 
 from sds_data_model._raster import _read_dataset_from_file
 
+
 @fixture
 def same_cell_size_same_shape_dataset() -> Dataset:
     """A dataset with the same cell size and same shape."""
@@ -448,4 +449,3 @@ def smaller_cell_size_smaller_shape(
     dataset.rio.to_raster(data_path)
 
     return str(data_path)
-

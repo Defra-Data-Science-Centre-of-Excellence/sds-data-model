@@ -42,7 +42,7 @@ def spark_session() -> SparkSession:
 
 
 @fixture
-def expected_schema() -> StructType:
+def expected_dataframe_schema() -> StructType:
     """Schema for expected DataFrame."""
     return StructType(
         [
@@ -56,7 +56,7 @@ def expected_schema() -> StructType:
 @fixture
 def expected_dataframe(
     spark_session: SparkSession,
-    expected_schema: StructType,
+    expected_dataframe_schema: StructType,
 ) -> SparkDataFrame:
     """A dummy `DataFrame` for testing."""
     # Annotating `data` with `Iterable` stop `mypy` from complaining that
@@ -69,7 +69,7 @@ def expected_dataframe(
     ]
     return spark_session.createDataFrame(
         data=data,
-        schema=expected_schema,
+        schema=expected_dataframe_schema,
     )
 
 
@@ -88,7 +88,7 @@ def temp_path(
 
 
 @fixture
-def expected_name() -> str:
+def expected_dataframewrapper_name() -> str:
     """Expected DataFrameWrapper name."""
     return "Trial csv"
 
@@ -102,7 +102,7 @@ def expected_empty_metadata() -> None:
 @fixture
 def expected_dataframe_limit(
     spark_session: SparkSession,
-    expected_schema: StructType,
+    expected_dataframe_schema: StructType,
 ) -> SparkDataFrame:
     """Expected data when using limit call method."""
     data: Iterable = [
@@ -111,7 +111,7 @@ def expected_dataframe_limit(
     ]
     return spark_session.createDataFrame(
         data=data,
-        schema=expected_schema,
+        schema=expected_dataframe_schema,
     )
 
 
@@ -146,7 +146,7 @@ def expected_dataframe_select(
 @fixture
 def expected_dataframe_filter(
     spark_session: SparkSession,
-    expected_schema: StructType,
+    expected_dataframe_schema: StructType,
 ) -> SparkDataFrame:
     """Expected data when using filter call method."""
     data: Iterable = [
@@ -154,9 +154,10 @@ def expected_dataframe_filter(
     ]
     return spark_session.createDataFrame(
         data=data,
-        schema=expected_schema,
+        schema=expected_dataframe_schema,
     )
-    
+
+
 @fixture
 def schema_other() -> StructType:
     """Schema of `other` DataFrame for joining."""
@@ -215,7 +216,8 @@ def expected_dataframe_joined(
         data=data,
         schema=expected_schema_joined,
     )
-    
+
+
 @fixture
 def hl_schema() -> StructType:
     """Schema HL DataFrame."""

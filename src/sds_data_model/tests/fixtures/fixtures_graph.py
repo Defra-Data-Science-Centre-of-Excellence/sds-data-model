@@ -7,6 +7,7 @@ from pytest import fixture
 
 from sds_data_model.vector import VectorLayer
 
+
 @fixture
 def expected_dag(shared_datadir: Path) -> str:
     """The DAG we expect our function to generate."""

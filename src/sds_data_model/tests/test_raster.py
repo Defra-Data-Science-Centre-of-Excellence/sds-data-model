@@ -11,9 +11,6 @@ from xarray.testing import assert_identical
 from sds_data_model._raster import _read_dataset_from_file
 
 
-
-
-
 @pytest.mark.parametrize(
     argnames=(
         "test_case_name",

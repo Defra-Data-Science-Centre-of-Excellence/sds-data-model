@@ -64,19 +64,6 @@ def local_file_path(datadir: Path) -> str:
     return str(metadata_path)
 
 
-@pytest.mark.parametrize(
-    argnames=[
-        "path",
-    ],
-    argvalues=[
-        ("remote_url",),
-        ("local_file_path",),
-    ],
-    ids=[
-        "Remote url",
-        "Local file path",
-    ],
-)
 @fixture
 def expected_without_title() -> Metadata:
     """Expected metadata (minus title) for Ramsar dataset."""

@@ -11,6 +11,7 @@ from xarray import open_dataset
 from sds_data_model.constants import BBOXES, CategoryLookups, Schema
 from sds_data_model.vector import TiledVectorLayer, VectorLayer
 
+
 @fixture
 def expected_name() -> str:
     """Expected VectorLayer name."""
@@ -18,7 +19,7 @@ def expected_name() -> str:
 
 
 @fixture
-def expected_metadata() -> None:
+def expected_vector_metadata() -> None:
     """Expected VectorLayer metadata."""
     return None
 
@@ -52,7 +53,8 @@ def expected_category_lookups() -> CategoryLookups:
             2: "Wales",
         },
     }
-    
+
+
 @fixture
 def gpdf() -> GeoDataFrame:
     """Dummy GeoDataFrame."""
