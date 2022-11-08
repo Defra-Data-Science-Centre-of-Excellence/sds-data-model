@@ -294,6 +294,7 @@ def hl_wrapper_no_metadata(
 @fixture
 def hl_wrapper_with_metadata(
     hl_dataframe: SparkDataFrame,
+    expected_metadata: Metadata,
 ) -> DataFrameWrapper:
     """A wrapper for the HL DataFrame."""
     return DataFrameWrapper(
