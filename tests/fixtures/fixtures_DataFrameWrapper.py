@@ -253,8 +253,8 @@ def hl_dataframe(
 @fixture
 def expected_attrs() -> Dict:
     """What we would expect the metadata in attrs to look like."""
-    return Dict(
-        {
+    return
+{
             "title": "Ramsar (England)",
             "dataset_language": ("eng",),
             "abstract": 'A Ramsar site is the land listed as a Wetland of International Importance under the Convention on Wetlands of International Importance Especially as Waterfowl Habitat (the Ramsar Convention) 1973. Data supplied has the status of "Listed". The data does not include "proposed" sites. Boundaries are mapped against Ordnance Survey MasterMap. Attribution statement: © Natural England copyright. Contains Ordnance Survey data © Crown copyright and database right [year]. Attribution statement: © Natural England copyright. Contains Ordnance Survey data © Crown copyright and database right [year].',
@@ -267,8 +267,7 @@ def expected_attrs() -> Dict:
             "file_identifier": "c626e031-e561-4861-8219-b04cd1002806",
             "quality_scope": ("dataset",),
             "spatial_representation_type": ("vector",),
-        }
-    )
+}
 
 
 
