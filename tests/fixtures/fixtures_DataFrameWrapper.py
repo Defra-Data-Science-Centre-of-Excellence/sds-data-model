@@ -354,7 +354,8 @@ def expected_hl_dataset_no_metadata() -> Dataset:
 
 
 @fixture
-def expected_hl_dataset_with_metadata() -> Dataset:
+def expected_hl_dataset_with_metadata(
+    expected_attrs: Dict) -> Dataset:
     """What we would expect the HL dataset (with attrs) to look like."""
     hl = ones(dtype="uint8", shape=(10_000, 10_000), chunks=(10_000, 10_000))
     top_row_rest = zeros(dtype="uint8", shape=(10_000, 60_000), chunks=(10_000, 10_000))
