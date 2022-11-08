@@ -335,7 +335,7 @@ def expected_hl_dataset_no_metadata() -> Dataset:
     coords = {
         "northings": arange(BNG_YMAX - (CELL_SIZE / 2), BNG_YMIN, -CELL_SIZE),
         "eastings": arange(BNG_XMIN + (CELL_SIZE / 2), BNG_XMAX, CELL_SIZE),
-    },
+    }
     expected_attrs = None
 
     expected_data_array = DataArray(
