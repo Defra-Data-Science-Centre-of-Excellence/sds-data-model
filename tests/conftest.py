@@ -10,7 +10,6 @@ from .fixtures.fixtures_DataFrameWrapper import (  # noqa: F401
     expected_dataframe_schema,
     expected_dataframe_select,
     expected_dataframewrapper_name,
-    expected_empty_attrs,
     expected_empty_metadata,
     expected_hl_dataset_no_metadata,
     expected_hl_dataset_with_metadata,

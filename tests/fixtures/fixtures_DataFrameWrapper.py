@@ -251,12 +251,6 @@ def hl_dataframe(
 
 
 @fixture
-def expected_empty_attrs() -> None:
-    """Expected DataFrameWrapper metadata."""
-    return None
-
-
-@fixture
 def expected_attrs() -> Dict:
     """What we would expect the metadata in attrs to look like."""
     return Dict(
@@ -341,7 +335,8 @@ def expected_hl_dataset_no_metadata() -> Dataset:
     coords = {
         "northings": arange(BNG_YMAX - (CELL_SIZE / 2), BNG_YMIN, -CELL_SIZE),
         "eastings": arange(BNG_XMIN + (CELL_SIZE / 2), BNG_XMAX, CELL_SIZE),
-    }
+    },
+    expected_attrs = None
 
     expected_data_array = DataArray(
         data=expected_array,
@@ -354,7 +349,7 @@ def expected_hl_dataset_no_metadata() -> Dataset:
             "hl": expected_data_array,
         },
         coords=coords,
-        attrs=expected_empty_attrs,
+        attrs=expected_attrs,
     )
 
 
