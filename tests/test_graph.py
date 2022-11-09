@@ -3,8 +3,7 @@ from getpass import getuser
 from pathlib import Path
 from re import sub
 
-from graphviz import Digraph, Source
-from pytest import fixture
+from graphviz import Digraph
 
 from sds_data_model.vector import VectorLayer
 

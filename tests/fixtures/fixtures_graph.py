@@ -1,11 +1,9 @@
-from getpass import getuser
+"""Fixtures for graph tests."""
+
 from pathlib import Path
-from re import sub
 
-from graphviz import Digraph, Source
+from graphviz import Source
 from pytest import fixture
-
-from sds_data_model.vector import VectorLayer
 
 
 @fixture

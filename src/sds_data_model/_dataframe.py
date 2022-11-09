@@ -293,6 +293,7 @@ def _create_dummy_dataset(
     Args:
         data_array_name (str): DataArray name given by the user.
         path (str): Path to save the zarr file including file name.
+        metadata (Optional[str], optional): Metadata object relating to data.
         dtype (str): Data type of the DataArray. Defaults to "uint8".
         cell_size (int): The resolution of the cells in the DataArray. Defaults to
             CELL_SIZE.

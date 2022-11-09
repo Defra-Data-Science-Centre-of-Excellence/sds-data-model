@@ -1,30 +1,16 @@
 """Tests for DataFrame wrapper class."""
-from dataclasses import asdict
-from pathlib import Path
-from typing import Any, Dict, Iterable, Optional, Sequence, Union
+
+from typing import Any, Dict, Optional, Sequence, Union
 
 import pytest
 from chispa.dataframe_comparer import assert_df_equality
-from dask.array import concatenate, ones, zeros
-from numpy import arange
 from pyspark.sql import DataFrame as SparkDataFrame
 from pyspark.sql import SparkSession
-from pyspark.sql.types import (
-    ArrayType,
-    BinaryType,
-    IntegerType,
-    StringType,
-    StructField,
-    StructType,
-)
-from pytest import FixtureRequest, fixture
-from shapely.geometry import box
-from xarray import DataArray, Dataset, open_dataset
+from pytest import FixtureRequest
+from xarray import Dataset, open_dataset
 from xarray.testing import assert_identical
 
-from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, BNG_YMIN, CELL_SIZE
 from sds_data_model.dataframe import DataFrameWrapper
-from sds_data_model.metadata import Metadata
 
 
 def test_vector_layer_from_files(
@@ -142,7 +128,7 @@ def test_to_zarr_with_metadata(
     hl_zarr_path_with_metadata: str,
     expected_hl_dataset_with_metadata: Dataset,
 ) -> None:
-    """Check that attrs in the zarr look as expected"""
+    """Check that attrs in the zarr look as expected."""
     hl_dataset = open_dataset(
         hl_zarr_path_with_metadata,
         engine="zarr",
@@ -154,4 +140,4 @@ def test_to_zarr_with_metadata(
         },
     )
 
-    assert(hl_dataset.attrs == expected_hl_dataset_with_metadata.attrs)
+    assert hl_dataset.attrs == expected_hl_dataset_with_metadata.attrs

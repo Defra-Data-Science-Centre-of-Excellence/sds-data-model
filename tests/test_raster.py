@@ -1,11 +1,8 @@
 """Tests for raster module."""
-from pathlib import Path
 
 import pytest
 import rioxarray  # noqa: F401 - Needed for `.rio` accessor methods
-from numpy import arange, array, ones
-from pytest import FixtureRequest, fixture
-from xarray import DataArray, Dataset
+from pytest import FixtureRequest
 from xarray.testing import assert_identical
 
 from sds_data_model._raster import _read_dataset_from_file

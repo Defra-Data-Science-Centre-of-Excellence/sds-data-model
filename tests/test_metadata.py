@@ -2,7 +2,7 @@
 from pathlib import Path
 
 import pytest
-from pytest import FixtureRequest, fixture
+from pytest import FixtureRequest
 
 from sds_data_model.metadata import Metadata
 

@@ -1,10 +1,8 @@
-"""Tests for Metadata module."""
-from dataclasses import asdict
-from pathlib import Path
-from typing import Any, Dict, Iterable, Optional, Sequence, Union
+"""Fixtures for Metadata tests."""
 
-import pytest
-from chispa.dataframe_comparer import assert_df_equality
+from pathlib import Path
+from typing import Dict, Iterable
+
 from dask.array import concatenate, ones, zeros
 from numpy import arange
 from pyspark.sql import DataFrame as SparkDataFrame
@@ -17,15 +15,13 @@ from pyspark.sql.types import (
     StructField,
     StructType,
 )
-from pytest import FixtureRequest, fixture
+from pytest import fixture
 from shapely.geometry import box
-from xarray import DataArray, Dataset, open_dataset
-from xarray.testing import assert_identical
+from xarray import DataArray, Dataset
 
 from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, BNG_YMIN, CELL_SIZE
 from sds_data_model.dataframe import DataFrameWrapper
 from sds_data_model.metadata import Metadata
-from tests.fixtures.fixtures_metadata import expected_metadata
 
 
 @fixture
@@ -212,6 +208,7 @@ def expected_dataframe_joined(
         schema=expected_schema_joined,
     )
 
+
 @fixture
 def expected_empty_metadata() -> None:
     """Expected DataFrameWrapper metadata."""
@@ -253,26 +250,22 @@ def hl_dataframe(
 @fixture
 def expected_attrs() -> Dict:
     """What we would expect the metadata in attrs to look like."""
-    
     expected_attrs = {
-            "title": "Ramsar (England)",
-            "dataset_language": ["eng"],
-            "abstract": 'A Ramsar site is the land listed as a Wetland of International Importance under the Convention on Wetlands of International Importance Especially as Waterfowl Habitat (the Ramsar Convention) 1973. Data supplied has the status of "Listed". The data does not include "proposed" sites. Boundaries are mapped against Ordnance Survey MasterMap. Attribution statement: © Natural England copyright. Contains Ordnance Survey data © Crown copyright and database right [year]. Attribution statement: © Natural England copyright. Contains Ordnance Survey data © Crown copyright and database right [year].',
-            "topic_category": ["environment"],
-            "keyword": ["OpenData", "NEbatch4", "Protected sites"],
-            "lineage": "All data is captured to the Ordnance Survey National Grid sometimes called the British National Grid. OS MasterMap Topographic Layer ? produced and supplied by Ordnance Survey from data at 1:1250, 1:2500 and 1:10000 surveying and mapping standards - is used as the primary source. Other sources ? acquired internally and from external suppliers - may include aerial imagery at resolutions ranging from 25cm to 2m, Ordnance Survey 1:10000 raster images, historical OS mapping, charts and chart data from UK Hydrographic Office and other sources, scanned images of paper designation mapping (mostly originally produced at 1:10560 or 1:10000 scales), GPS and other surveyed data, and absolute coordinates. The data was first captured against an August 2002 cut of OS MasterMap Topography. Natural England has successfully uploaded an up-to-date version of OS MasterMap Topographic Layer. However, we have not yet updated our designated data holding to this new version of MasterMap. This should occur in the near future, when we will simultaneously apply positional accuracy improvement (PAI) to our data.",
-            "metadata_date": "2020-10-21",
-            "metadata_language": "eng",
-            "resource_type": "dataset",
-            "file_identifier": "c626e031-e561-4861-8219-b04cd1002806",
-            "quality_scope": ["dataset"],
-            "spatial_representation_type": ["vector"]
-            }
-    
+        "title": "Ramsar (England)",
+        "dataset_language": ["eng"],
+        "abstract": 'A Ramsar site is the land listed as a Wetland of International Importance under the Convention on Wetlands of International Importance Especially as Waterfowl Habitat (the Ramsar Convention) 1973. Data supplied has the status of "Listed". The data does not include "proposed" sites. Boundaries are mapped against Ordnance Survey MasterMap. Attribution statement: © Natural England copyright. Contains Ordnance Survey data © Crown copyright and database right [year]. Attribution statement: © Natural England copyright. Contains Ordnance Survey data © Crown copyright and database right [year].',  # noqa: B950
+        "topic_category": ["environment"],
+        "keyword": ["OpenData", "NEbatch4", "Protected sites"],
+        "lineage": "All data is captured to the Ordnance Survey National Grid sometimes called the British National Grid. OS MasterMap Topographic Layer ? produced and supplied by Ordnance Survey from data at 1:1250, 1:2500 and 1:10000 surveying and mapping standards - is used as the primary source. Other sources ? acquired internally and from external suppliers - may include aerial imagery at resolutions ranging from 25cm to 2m, Ordnance Survey 1:10000 raster images, historical OS mapping, charts and chart data from UK Hydrographic Office and other sources, scanned images of paper designation mapping (mostly originally produced at 1:10560 or 1:10000 scales), GPS and other surveyed data, and absolute coordinates. The data was first captured against an August 2002 cut of OS MasterMap Topography. Natural England has successfully uploaded an up-to-date version of OS MasterMap Topographic Layer. However, we have not yet updated our designated data holding to this new version of MasterMap. This should occur in the near future, when we will simultaneously apply positional accuracy improvement (PAI) to our data.",  # noqa: B950
+        "metadata_date": "2020-10-21",
+        "metadata_language": "eng",
+        "resource_type": "dataset",
+        "file_identifier": "c626e031-e561-4861-8219-b04cd1002806",
+        "quality_scope": ["dataset"],
+        "spatial_representation_type": ["vector"],
+    }
+
     return expected_attrs
-    
-
-
 
 
 @fixture
@@ -356,8 +349,7 @@ def expected_hl_dataset_no_metadata() -> Dataset:
 
 
 @fixture
-def expected_hl_dataset_with_metadata(
-    expected_attrs: Dict) -> Dataset:
+def expected_hl_dataset_with_metadata(expected_attrs: Dict) -> Dataset:
     """What we would expect the HL dataset (with attrs) to look like."""
     hl = ones(dtype="uint8", shape=(10_000, 10_000), chunks=(10_000, 10_000))
     top_row_rest = zeros(dtype="uint8", shape=(10_000, 60_000), chunks=(10_000, 10_000))

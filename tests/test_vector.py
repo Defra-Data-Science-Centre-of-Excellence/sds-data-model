@@ -3,13 +3,11 @@ from pathlib import Path
 
 from dask.diagnostics import ProgressBar
 from geopandas import GeoDataFrame
-from numpy import array_equal, dtype, int8, ones, zeros
+from numpy import array_equal, int8
 from numpy.typing import NDArray
-from pytest import fixture
-from shapely.geometry import box
 from xarray import open_dataset
 
-from sds_data_model.constants import BBOXES, CategoryLookups, Schema
+from sds_data_model.constants import CategoryLookups, Schema
 from sds_data_model.vector import TiledVectorLayer, VectorLayer
 
 
