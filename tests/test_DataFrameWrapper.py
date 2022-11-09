@@ -154,4 +154,4 @@ def test_to_zarr_with_metadata(
         },
     )
 
-    assert_identical(hl_dataset.attrs, expected_hl_dataset_with_metadata.attrs)
+    assert(hl_dataset.attrs == expected_hl_dataset_with_metadata.attrs)
