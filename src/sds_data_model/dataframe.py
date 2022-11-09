@@ -248,7 +248,12 @@ class DataFrameWrapper:
             geometry_column_name (str): Name of the geometry column. Defaults to
                 "geometry".
 
+        Returns:
+            None
+
         Raises:
+            ValueError: If `index_column_name` isn't in the dataframe.
+            ValueError: If `geometry_column_name` isn't in the dataframe.
             ValueError: If `self.data` is an instance of `pyspark.sql.GroupedData`_
                 instead of `pyspark.sql.DataFrame`_.
 
@@ -258,6 +263,14 @@ class DataFrameWrapper:
         .. _`pyspark.sql.DataFrame`:
             https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html
         """  # noqa: B950
+        colnames = self.data.columns
+
+        if index_column_name not in colnames:
+            raise ValueError(f"{index_column_name} is not present in the data.")
+
+        if geometry_column_name not in colnames:
+            raise ValueError(f"{geometry_column_name} is not present in the data.")
+
         if not isinstance(self.data, SparkDataFrame):
             data_type = type(self.data)
             raise ValueError(
