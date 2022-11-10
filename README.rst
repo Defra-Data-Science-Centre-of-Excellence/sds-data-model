@@ -93,8 +93,8 @@ The required commands are:
 
 .. code:: console
 
-   sudo apt install default-jre
-   sudo apt install default-jdk
+   sudo apt install default-jre \
+     default-jdk
 
 Check that both the runtime environment (jre) and development kit (jdk) are installed:
 
