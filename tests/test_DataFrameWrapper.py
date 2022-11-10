@@ -11,6 +11,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import (
     ArrayType,
     BinaryType,
+    DoubleType,
     IntegerType,
     StringType,
     StructField,
@@ -44,6 +45,7 @@ def expected_schema() -> StructType:
     """Schema for expected DataFrame."""
     return StructType(
         [
+            StructField("category", StringType(), True),
             StructField("a", IntegerType(), True),
             StructField("b", IntegerType(), True),
             StructField("c", IntegerType(), True),
@@ -61,9 +63,9 @@ def expected_dataframe(
     # `Value of type variable "RowLike" of "createDataFrame" of "SparkSession" cannot
     # be "Dict[str, int]"`
     data: Iterable = [
-        {"a": 1, "b": 4, "c": 7},
-        {"a": 2, "b": 5, "c": 8},
-        {"a": 3, "b": 6, "c": 9},
+        {"category": "x", "a": 1, "b": 4, "c": 7},
+        {"category": "x", "a": 2, "b": 5, "c": 8},
+        {"category": "y", "a": 3, "b": 6, "c": 9},
     ]
     return spark_session.createDataFrame(
         data=data,
@@ -124,8 +126,8 @@ def expected_dataframe_limit(
 ) -> SparkDataFrame:
     """Expected data when using limit call method."""
     data: Iterable = [
-        {"a": 1, "b": 4, "c": 7},
-        {"a": 2, "b": 5, "c": 8},
+        {"category": "x", "a": 1, "b": 4, "c": 7},
+        {"category": "x", "a": 2, "b": 5, "c": 8},
     ]
     return spark_session.createDataFrame(
         data=data,
@@ -168,7 +170,7 @@ def expected_dataframe_filter(
 ) -> SparkDataFrame:
     """Expected data when using filter call method."""
     data: Iterable = [
-        {"a": 3, "b": 6, "c": 9},
+        {"category": "y", "a": 3, "b": 6, "c": 9},
     ]
     return spark_session.createDataFrame(
         data=data,
@@ -266,6 +268,7 @@ def expected_schema_joined() -> StructType:
     return StructType(
         [
             StructField("a", IntegerType(), True),
+            StructField("category", StringType(), True),
             StructField("b", IntegerType(), True),
             StructField("c", IntegerType(), True),
             StructField("d", IntegerType(), True),
@@ -281,9 +284,9 @@ def expected_dataframe_joined(
 ) -> SparkDataFrame:
     """Expected DataFrame once `received` and `other` have been joined."""
     data: Iterable = [
-        {"a": 1, "b": 4, "c": 7, "d": 10, "e": 13},
-        {"a": 2, "b": 5, "c": 8, "d": 11, "e": 14},
-        {"a": 3, "b": 6, "c": 9, "d": 12, "e": 15},
+        {"category": "x", "a": 1, "b": 4, "c": 7, "d": 10, "e": 13},
+        {"category": "x", "a": 2, "b": 5, "c": 8, "d": 11, "e": 14},
+        {"category": "y", "a": 3, "b": 6, "c": 9, "d": 12, "e": 15},
     ]
     return spark_session.createDataFrame(
         data=data,
@@ -306,6 +309,54 @@ def test_call_method_join(
     )
     received.call_method("join", other=dataframe_other, on="a")  # type: ignore[arg-type]  # noqa: B950
     assert_df_equality(received.data, expected_dataframe_joined)
+
+
+@fixture
+def expected_schema_grouped() -> StructType:
+    """Schema for expected DataFrame."""
+    return StructType(
+        [
+            StructField("category", StringType(), True),
+            StructField("avg(a)", DoubleType(), True),
+            StructField("avg(b)", DoubleType(), True),
+            StructField("avg(c)", DoubleType(), True),
+        ]
+    )
+
+
+@fixture
+def expected_dataframe_grouped(
+    spark_session: SparkSession,
+    expected_schema_grouped: StructType,
+) -> SparkDataFrame:
+    """A dummy `DataFrame` for testing."""
+    # Annotating `data` with `Iterable` stop `mypy` from complaining that
+    # `Value of type variable "RowLike" of "createDataFrame" of "SparkSession" cannot
+    # be "Dict[str, int]"`
+    data: Iterable = [
+        {"category": "x", "avg(a)": 1.5, "avg(b)": 4.5, "avg(c)": 7.5},
+        {"category": "y", "avg(a)": 3.0, "avg(b)": 6.0, "avg(c)": 9.0},
+    ]
+    return spark_session.createDataFrame(
+        data=data,
+        schema=expected_schema_grouped,
+    )
+
+
+def test_call_method_groupBy(
+    spark_session: SparkSession,
+    temp_path: str,
+    expected_dataframe_grouped: SparkDataFrame,
+) -> None:
+    """Passing the `.agg` method to `.call_method` produces the expected results."""
+    received = DataFrameWrapper.from_files(
+        spark=spark_session,
+        data_path=temp_path,
+        read_file_kwargs={"header": True, "inferSchema": True},
+        name="Trial csv",
+    )
+    received.call_method("groupBy", "category").call_method("avg")  # type: ignore[arg-type]  # noqa: B950
+    assert_df_equality(received.data, expected_dataframe_grouped)
 
 
 @fixture
