@@ -158,7 +158,7 @@ class DataFrameWrapper:
         /,
         *args: Optional[Union[str, Sequence[str]]],
         **kwargs: Optional[Dict[str, Any]],
-    ) -> Optional[Union[_DataFrameWrapper, Any]]:
+    ) -> _DataFrameWrapper:
         """Calls spark method specified by user on SparkDataFrame in wrapper.
 
         The function:
@@ -190,7 +190,7 @@ class DataFrameWrapper:
             **kwargs (Optional[Dict[str, int]]): Additional kwargs provided by user
 
         Returns:
-            Optional[Union[_DataFrameWrapper, Any]]: Updated SparkDataFrameWrapper or property output
+            _DataFrameWrapper: The SparkDataFrameWrapper, updated if necessary
         """  # noqa: B950
         attribute = getattr(self.data, method_name)
 
@@ -215,10 +215,8 @@ class DataFrameWrapper:
             return_value, GroupedData
         ):
             self.data = return_value
-            return self
 
-        else:
-            return return_value
+        return self
 
     def to_zarr(
         self: _DataFrameWrapper,
@@ -247,9 +245,6 @@ class DataFrameWrapper:
                 "bng_index".
             geometry_column_name (str): Name of the geometry column. Defaults to
                 "geometry".
-
-        Returns:
-            None
 
         Raises:
             ValueError: If `index_column_name` isn't in the dataframe.
