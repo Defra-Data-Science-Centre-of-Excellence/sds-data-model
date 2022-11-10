@@ -258,6 +258,12 @@ class DataFrameWrapper:
         .. _`pyspark.sql.DataFrame`:
             https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html
         """  # noqa: B950
+        if not isinstance(self.data, SparkDataFrame):
+            data_type = type(self.data)
+            raise ValueError(
+                f"`self.data` must be a `pyspark.sql.DataFrame` not a {data_type}"
+            )
+
         colnames = self.data.columns
 
         if index_column_name not in colnames:
@@ -265,12 +271,6 @@ class DataFrameWrapper:
 
         if geometry_column_name not in colnames:
             raise ValueError(f"{geometry_column_name} is not present in the data.")
-
-        if not isinstance(self.data, SparkDataFrame):
-            data_type = type(self.data)
-            raise ValueError(
-                f"`self.data` must be a `pyspark.sql.DataFrame` not a {data_type}"
-            )
 
         _create_dummy_dataset(
             path=path,
