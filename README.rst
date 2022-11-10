@@ -79,7 +79,7 @@ Verify the installation:
    # GDAL 3.4.3, released 2022/04/22
 
 
-Install `poetry 1.1.13`
+Install `poetry 1.2`
 ++++++++++++++++++++++
 
 See poetry's `osx / linux / bashonwindows install instructions <https://python-poetry.org/docs/#osx--linux--bashonwindows-install-instructions>`__.
