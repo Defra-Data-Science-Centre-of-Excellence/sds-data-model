@@ -189,11 +189,13 @@ def expected_dataframe_filter(
         ("limit", None, {"num": 2}, "expected_dataframe_limit"),
         ("select", ["a", "b"], None, "expected_dataframe_select"),
         ("filter", "a = 3", None, "expected_dataframe_filter"),
+        ("show", None, None, "expected_dataframe"),
     ),
     ids=(
         "limit",
         "select",
         "filter",
+        "show",
     ),
 )
 def test_call_method(
