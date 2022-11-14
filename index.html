@@ -160,6 +160,79 @@
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
 <p>Please see the <a class="reference external" href="https://defra-data-science-centre-of-excellence.github.io/sds-data-model/usage.html">Usage</a> for details.</p>
 </section>
+<section id="local-development">
+<h2>Local Development<a class="headerlink" href="#local-development" title="Permalink to this headline">¶</a></h2>
+<p>To ensure compatibility with <a class="reference external" href="https://docs.databricks.com/release-notes/runtime/10.4.htm">Databricks Runtime 10.4 LTS</a>, this package was developed on a Linux machine running the <cite>Ubuntu 20.04 LTS</cite> operating system using <cite>Python3.8.10</cite>, <cite>GDAL 3.4.3</cite>, and <cite>spark 3.2.1.</cite>.</p>
+<section id="install-python-3-8-10-using-pyenv">
+<h3>Install <cite>Python 3.8.10</cite> using <a class="reference external" href="https://github.com/pyenv/pyenv">pyenv</a><a class="headerlink" href="#install-python-3-8-10-using-pyenv" title="Permalink to this headline">¶</a></h3>
+<p>See the <cite>pyenv-installer</cite>’s <a class="reference external" href="https://github.com/pyenv/pyenv-installer#installation--update--uninstallation">Installation / Update / Uninstallation</a> instructions.</p>
+<p>Install Python 3.8.10 globally:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pyenv install 3.8.10</span>
+</pre></div>
+</div>
+<p>Then install it locally in the repository you’re using:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pyenv local 3.8.10</span>
+</pre></div>
+</div>
+</section>
+<section id="install-gdal-3-4-3">
+<h3>Install <cite>GDAL 3.4.3</cite><a class="headerlink" href="#install-gdal-3-4-3" title="Permalink to this headline">¶</a></h3>
+<p>Add the <a class="reference external" href="https://launchpad.net/~ubuntugis/+archive/ubuntu/ubuntugis-unstable">UbuntuGIS unstable Private Package Archive (PPA)</a>.
+and update your package list:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable \</span>
+<span class="go"> &amp;&amp; sudo apt-get update</span>
+</pre></div>
+</div>
+<p>Install <cite>gdal 3.4.3</cite>, I found I also had to install python3-gdal (even though
+I’m going to use poetry to install it in a virtual environment later) to
+avoid version conflicts:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo apt-get install -y gdal-bin=3.4.3+dfsg-1~focal0 \</span>
+<span class="go"> libgdal-dev=3.4.3+dfsg-1~focal0 \</span>
+<span class="go"> python3-gdal=3.4.3+dfsg-1~focal0</span>
+</pre></div>
+</div>
+<p>Verify the installation:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">ogrinfo --version</span>
+<span class="gp"># </span>GDAL <span class="m">3</span>.4.3, released <span class="m">2022</span>/04/22
+</pre></div>
+</div>
+</section>
+<section id="install-poetry-1-2">
+<h3>Install <cite>poetry 1.2</cite><a class="headerlink" href="#install-poetry-1-2" title="Permalink to this headline">¶</a></h3>
+<p>See poetry’s <a class="reference external" href="https://python-poetry.org/docs/#osx--linux--bashonwindows-install-instructions">osx / linux / bashonwindows install instructions</a>.</p>
+</section>
+<section id="install-java">
+<h3>Install Java<a class="headerlink" href="#install-java" title="Permalink to this headline">¶</a></h3>
+<p>Java is required for Spark to work correctly. This guide details <a class="reference external" href="https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-on-ubuntu-22-04">Java installation on Ubuntu</a>.</p>
+<p>The required commands are:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo apt install default-jre \</span>
+<span class="go">  default-jdk</span>
+</pre></div>
+</div>
+<p>Check that both the runtime environment (jre) and development kit (jdk) are installed:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">java -version</span>
+<span class="gp"># </span>openjdk version <span class="s2">&quot;11.0.14&quot;</span> <span class="m">2022</span>-01-18
+<span class="gp"># </span>OpenJDK Runtime Environment <span class="o">(</span>build <span class="m">11</span>.0.14+9-Ubuntu-0ubuntu2<span class="o">)</span>
+<span class="gp"># </span>OpenJDK <span class="m">64</span>-Bit Server VM <span class="o">(</span>build <span class="m">11</span>.0.14+9-Ubuntu-0ubuntu2, mixed mode, sharing<span class="o">)</span>
+
+<span class="go">javac -version</span>
+<span class="gp"># </span>javac <span class="m">11</span>.0.14
+</pre></div>
+</div>
+</section>
+<section id="clone-this-repository">
+<h3>Clone this repository<a class="headerlink" href="#clone-this-repository" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">git clone https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model.git</span>
+</pre></div>
+</div>
+</section>
+<section id="install-dependencies-using-poetry">
+<h3>Install dependencies using <cite>poetry</cite><a class="headerlink" href="#install-dependencies-using-poetry" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">poetry install</span>
+</pre></div>
+</div>
+</section>
+</section>
 <section id="license">
 <h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
 <p>Distributed under the terms of the <a class="reference external" href="https://opensource.org/licenses/MIT">MIT license</a>,
@@ -198,6 +271,15 @@ please <a class="reference external" href="https://github.com/Defra-Data-Science
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#aim">Aim</a></li>
 <li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#local-development">Local Development</a><ul>
+<li><a class="reference internal" href="#install-python-3-8-10-using-pyenv">Install <cite>Python 3.8.10</cite> using pyenv</a></li>
+<li><a class="reference internal" href="#install-gdal-3-4-3">Install <cite>GDAL 3.4.3</cite></a></li>
+<li><a class="reference internal" href="#install-poetry-1-2">Install <cite>poetry 1.2</cite></a></li>
+<li><a class="reference internal" href="#install-java">Install Java</a></li>
+<li><a class="reference internal" href="#clone-this-repository">Clone this repository</a></li>
+<li><a class="reference internal" href="#install-dependencies-using-poetry">Install dependencies using <cite>poetry</cite></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#license">License</a></li>
 <li><a class="reference internal" href="#issues">Issues</a></li>
 </ul>
