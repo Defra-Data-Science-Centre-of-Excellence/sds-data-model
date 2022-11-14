@@ -250,7 +250,9 @@ class DataFrameWrapper:
             None
         """
         _create_dummy_dataset(
-            path=path, data_array_name=data_array_name, metadata=self.metadata
+            path=path, 
+            data_array_name=data_array_name, 
+            metadata=self.metadata
         )
 
         _partial_to_zarr_region = partial(
