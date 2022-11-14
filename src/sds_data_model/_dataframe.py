@@ -1,4 +1,5 @@
 """Private functions for the DataFrame wrapper class."""
+from dataclasses import asdict
 from json import load
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
@@ -268,6 +269,7 @@ def _to_zarr_region(
 def _create_dummy_dataset(
     data_array_name: str,
     path: str,
+    metadata: Optional[Metadata],
     dtype: str = "uint8",
     cell_size: int = CELL_SIZE,
     bng_xmin: int = BNG_XMIN,
@@ -291,6 +293,7 @@ def _create_dummy_dataset(
     Args:
         data_array_name (str): DataArray name given by the user.
         path (str): Path to save the zarr file including file name.
+        metadata (Optional[str], optional): Metadata object relating to data.
         dtype (str): Data type of the DataArray. Defaults to "uint8".
         cell_size (int): The resolution of the cells in the DataArray. Defaults to
             CELL_SIZE.
@@ -306,6 +309,8 @@ def _create_dummy_dataset(
     .. _`Appending to existing Zarr stores`:
         https://docs.xarray.dev/en/stable/user-guide/io.html#appending-to-existing-zarr-stores  # noqa: B950
     """
+    _metadata = asdict(metadata) if metadata else None
+
     (
         DataArray(
             data=zeros(
@@ -327,8 +332,9 @@ def _create_dummy_dataset(
                 ),
             },
             name=data_array_name,
+            attrs=_metadata,
         )
-        .to_dataset()
+        .to_dataset(promote_attrs=True)
         .to_zarr(
             store=path,
             mode="w",
