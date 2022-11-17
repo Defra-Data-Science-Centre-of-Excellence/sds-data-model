@@ -19,6 +19,7 @@ from pyspark_vector_files.gpkg import read_gpkg
 
 from sds_data_model._dataframe import (
     _bng_to_bounds,
+    _check_for_zarr,
     _create_dummy_dataset,
     _to_zarr_region,
 )
@@ -246,6 +247,7 @@ class DataFrameWrapper:
                 "bng_index".
             geometry_column_name (str): Name of the geometry column. Defaults to
                 "geometry".
+            overwrite (bool): Overwrite existing zarr? Defaults to False.
 
         Returns:
             None
@@ -253,6 +255,7 @@ class DataFrameWrapper:
         Raises:
             ValueError: If `index_column_name` isn't in the dataframe.
             ValueError: If `geometry_column_name` isn't in the dataframe.
+            ValueError: If Zarr file exists and overwrite set to False.
         """
         colnames = self.data.columns
 
@@ -262,11 +265,13 @@ class DataFrameWrapper:
         if geometry_column_name not in colnames:
             raise ValueError(f"{geometry_column_name} is not present in the data.")
 
+        if overwrite is False and _check_for_zarr(path):
+            raise ValueError(f"Zarr file already exists in {path}.")
+
         _create_dummy_dataset(
             path=path,
             data_array_name=data_array_name,
             metadata=self.metadata,
-            overwrite=overwrite,
         )
 
         _partial_to_zarr_region = partial(

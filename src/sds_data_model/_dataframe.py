@@ -13,7 +13,8 @@ from pyspark.sql.functions import udf
 from pyspark.sql.types import ArrayType, FloatType
 from rasterio.features import geometry_mask
 from shapely.wkt import loads
-from xarray import DataArray
+from xarray import DataArray, open_zarr
+from xarray.core.dataset import Dataset
 
 from sds_data_model.constants import (
     BNG_XMAX,
@@ -276,7 +277,6 @@ def _create_dummy_dataset(
     bng_xmax: int = BNG_XMAX,
     bng_ymin: int = BNG_YMIN,
     bng_ymax: int = BNG_YMAX,
-    overwrite: bool = False,
 ) -> None:
     """A dummy Dataset. It's metadata is used to create the initial `zarr` store.
 
@@ -310,11 +310,6 @@ def _create_dummy_dataset(
     .. _`Appending to existing Zarr stores`:
         https://docs.xarray.dev/en/stable/user-guide/io.html#appending-to-existing-zarr-stores  # noqa: B950
     """
-    
-    if not overwrite:
-        write_mode="w-"
-    write_mode="w"
-    
     _metadata = asdict(metadata) if metadata else None
 
     (
@@ -343,7 +338,27 @@ def _create_dummy_dataset(
         .to_dataset(promote_attrs=True)
         .to_zarr(
             store=path,
-            mode=write_mode,
+            mode="w",
             compute=False,
         )
     )
+
+
+def _check_for_zarr(path: str) -> bool:
+    """Check if a Zarr file exists in a given location.
+
+    Args:
+        path (str): Directory to check for Zarr files.
+
+    Returns:
+        bool: Whether the Zarr exists.
+    """
+    p = Path(path)
+    if p.exists():
+        try:
+            z = open_zarr(p)
+            if isinstance(z, Dataset):
+                return True
+        except ValueError:
+            return False
+    return False
