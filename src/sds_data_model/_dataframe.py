@@ -276,6 +276,7 @@ def _create_dummy_dataset(
     bng_xmax: int = BNG_XMAX,
     bng_ymin: int = BNG_YMIN,
     bng_ymax: int = BNG_YMAX,
+    overwrite: bool = False,
 ) -> None:
     """A dummy Dataset. It's metadata is used to create the initial `zarr` store.
 
@@ -309,6 +310,11 @@ def _create_dummy_dataset(
     .. _`Appending to existing Zarr stores`:
         https://docs.xarray.dev/en/stable/user-guide/io.html#appending-to-existing-zarr-stores  # noqa: B950
     """
+    
+    if not overwrite:
+        write_mode="w-"
+    write_mode="w"
+    
     _metadata = asdict(metadata) if metadata else None
 
     (
@@ -337,7 +343,7 @@ def _create_dummy_dataset(
         .to_dataset(promote_attrs=True)
         .to_zarr(
             store=path,
-            mode="w",
+            mode=write_mode,
             compute=False,
         )
     )

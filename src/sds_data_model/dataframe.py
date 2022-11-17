@@ -224,6 +224,7 @@ class DataFrameWrapper:
         data_array_name: str,
         index_column_name: str = "bng_index",
         geometry_column_name: str = "geometry",
+        overwrite: bool = False,
     ) -> None:
         """Rasterises `self.data` and writes it to `zarr`.
 
@@ -265,6 +266,7 @@ class DataFrameWrapper:
             path=path,
             data_array_name=data_array_name,
             metadata=self.metadata,
+            overwrite=overwrite,
         )
 
         _partial_to_zarr_region = partial(
