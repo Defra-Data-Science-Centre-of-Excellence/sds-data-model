@@ -17,8 +17,6 @@ from pyspark.sql.types import ArrayType, StringType
 from pyspark_vector_files import read_vector_files
 from pyspark_vector_files.gpkg import read_gpkg
 
-from os.path import exists
-
 from sds_data_model._dataframe import (
     _bng_to_bounds,
     _check_for_zarr,
@@ -267,7 +265,12 @@ class DataFrameWrapper:
         if geometry_column_name not in colnames:
             raise ValueError(f"{geometry_column_name} is not present in the data.")
         
-        if exists(path):
+        path = Path(path)
+        
+        if not path.is_dir():
+            raise ValueError("{path} is not a directory.")
+        
+        if path.exists():
             
             if overwrite is False and _check_for_zarr(path):
                 raise ValueError(f"Zarr file already exists in {path}.")
