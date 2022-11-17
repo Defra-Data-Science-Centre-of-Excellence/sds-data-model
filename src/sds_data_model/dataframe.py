@@ -268,7 +268,7 @@ class DataFrameWrapper:
         path = Path(path)
         
         if not path.is_dir():
-            raise ValueError("{path} is not a directory.")
+            raise ValueError(f"{path} is not a directory.")
         
         if path.exists():
             
