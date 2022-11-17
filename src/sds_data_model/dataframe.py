@@ -268,6 +268,9 @@ class DataFrameWrapper:
         if overwrite is False and _check_for_zarr(path):
             raise ValueError(f"Zarr file already exists in {path}.")
 
+        if overwrite is True and _check_for_zarr(path):
+            print("Overwriting existing Zarr.")
+
         _create_dummy_dataset(
             path=path,
             data_array_name=data_array_name,
