@@ -267,6 +267,9 @@ class DataFrameWrapper:
         
         path = Path(path)
         
+        if path.suffix == '.zarr':
+            path = path.with_suffix("")
+        
         if path.exists():
             
             if overwrite is False and _check_for_zarr(path):
