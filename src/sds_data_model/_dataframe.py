@@ -354,11 +354,9 @@ def _check_for_zarr(path: str) -> bool:
         bool: Whether the Zarr exists.
     """
     p = Path(path)
-    if p.exists():
-        try:
-            z = open_zarr(p)
-            if isinstance(z, Dataset):
-                return True
-        except ValueError:
-            return False
-    return False
+    try:
+        z = open_zarr(p)
+        if isinstance(z, Dataset):
+            return True
+    except ValueError:
+        return False
