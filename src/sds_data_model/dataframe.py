@@ -267,9 +267,6 @@ class DataFrameWrapper:
         
         path = Path(path)
         
-        if not path.is_dir():
-            raise ValueError(f"{path} is not a directory.")
-        
         if path.exists():
             
             if overwrite is False and _check_for_zarr(path):
