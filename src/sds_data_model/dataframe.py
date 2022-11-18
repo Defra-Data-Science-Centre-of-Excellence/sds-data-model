@@ -264,20 +264,20 @@ class DataFrameWrapper:
 
         if geometry_column_name not in colnames:
             raise ValueError(f"{geometry_column_name} is not present in the data.")
-        
+
         path = Path(path)
-        
-        if path.suffix == '.zarr':
+
+        if path.suffix == ".zarr":
             path = path.with_suffix("")
-        
+
         if path.exists():
-            
+
             if overwrite is False and _check_for_zarr(path):
                 raise ValueError(f"Zarr file already exists in {path}.")
-                
+
             if overwrite is True and _check_for_zarr(path):
                 print("Overwriting existing Zarr.")
-                
+
         _create_dummy_dataset(
             path=path,
             data_array_name=data_array_name,

@@ -310,6 +310,16 @@ been changed from the defaults:
         geometry_column_name="custom_geometry",
     )
 
+In line with the `xarray.Dataset.to_zarr` method, `to_zarr` will accept both a
+path to a directory and a path to a directory suffixed with .zarr.
+
+Overwriting
+^^^^^^^^^^^
+
+The `to_zarr` method has a default overwrite flag set to False. This means that
+if a zarr dataset exists in the path provided to the method, then an error will
+be thrown. The flag can be set by the user to True to allow overwriting.
+
 
 A full workflow
 ---------------
