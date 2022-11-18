@@ -13,7 +13,7 @@ from pyspark.sql.functions import udf
 from pyspark.sql.types import ArrayType, FloatType
 from rasterio.features import geometry_mask
 from shapely.wkt import loads
-from xarray import DataArray, open_zarr
+from xarray import DataArray, open_dataset
 from xarray.core.dataset import Dataset
 
 from sds_data_model.constants import (
@@ -353,10 +353,9 @@ def _check_for_zarr(path: str) -> bool:
     Returns:
         bool: Whether the Zarr exists.
     """
-    p = Path(path)
+    _path = Path(path)
     try:
-        z = open_zarr(p)
-        if isinstance(z, Dataset):
-            return True
+        open_dataset(_path, engine = 'zarr')
+        return True
     except ValueError:
         return False
