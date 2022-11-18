@@ -347,7 +347,7 @@ def _check_for_zarr(path: Path) -> bool:
     """Check if a zarr file exists in a given location.
 
     Args:
-        path (str): Directory to check for zarr file(s).
+        path (Path): Directory to check for zarr file(s).
 
     Returns:
         bool: Whether the zarr exists.

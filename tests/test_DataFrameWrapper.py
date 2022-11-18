@@ -1,5 +1,6 @@
 """Tests for DataFrame wrapper class."""
 
+from pathlib import Path
 from typing import Any, Dict, Optional, Sequence, Union
 
 import pytest
@@ -141,3 +142,19 @@ def test_to_zarr_with_metadata(
     )
 
     assert hl_dataset.attrs == expected_hl_dataset_with_metadata.attrs
+
+
+def test_zarr_overwrite_check(
+    hl_wrapper_no_metadata: DataFrameWrapper,
+    tmp_path: str,
+    # expected_exception: Any,
+) -> None:
+    """?."""
+    _path = Path(tmp_path)
+    with pytest.raises(ValueError, match=f"Zarr file already exists in {_path}."):
+        hl_wrapper_no_metadata.to_zarr(
+            path=str(tmp_path / "hl.zarr"), data_array_name="tmp_zarr"
+        )
+        hl_wrapper_no_metadata.to_zarr(
+            path=str(tmp_path / "hl.zarr"), data_array_name="tmp_zarr"
+        )
