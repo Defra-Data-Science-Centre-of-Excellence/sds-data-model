@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from functools import partial
 from inspect import ismethod, signature
-from logging import INFO, Formatter, StreamHandler, getLogger
+from logging import INFO, Formatter, StreamHandler, getLogger, warning
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional, Sequence, Type, TypeVar, Union
 
@@ -265,18 +265,18 @@ class DataFrameWrapper:
         if geometry_column_name not in colnames:
             raise ValueError(f"{geometry_column_name} is not present in the data.")
 
-        path = Path(path)
+        _path = Path(path)
 
-        if path.suffix == ".zarr":
-            path = path.with_suffix("")
+        if _path.suffix == ".zarr":
+            _path = _path.with_suffix("")
 
-        if path.exists():
+        if _path.exists():
 
-            if overwrite is False and _check_for_zarr(path):
-                raise ValueError(f"Zarr file already exists in {path}.")
+            if overwrite is False and _check_for_zarr(_path):
+                raise ValueError(f"Zarr file already exists in {_path}.")
 
-            if overwrite is True and _check_for_zarr(path):
-                print("Overwriting existing Zarr.")
+            if overwrite is True and _check_for_zarr(_path):
+                warning("Overwriting existing zarr.")
 
         _create_dummy_dataset(
             path=path,
