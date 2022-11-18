@@ -343,7 +343,7 @@ def _create_dummy_dataset(
     )
 
 
-def _check_for_zarr(path: str) -> bool:
+def _check_for_zarr(path: Path) -> bool:
     """Check if a zarr file exists in a given location.
 
     Args:
@@ -352,9 +352,8 @@ def _check_for_zarr(path: str) -> bool:
     Returns:
         bool: Whether the zarr exists.
     """
-    _path = Path(path)
     try:
-        open_dataset(_path, engine="zarr")
+        open_dataset(path, engine="zarr")
         return True
     except FileNotFoundError:
         return False
