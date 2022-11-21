@@ -1,5 +1,6 @@
 """Tests for DataFrame wrapper class."""
 
+from pathlib import Path
 from typing import Any, Dict, Optional, Sequence, Union
 
 import pytest
@@ -156,7 +157,7 @@ def test_to_zarr_with_metadata(
 )
 def test_zarr_overwrite_check(
     out_path: str,
-    tmp_path: str,
+    tmp_path: Path,
     hl_wrapper_no_metadata: DataFrameWrapper,
 ) -> None:
     """Check error thrown when a zarr output path already contains a zarr."""
