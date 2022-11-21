@@ -146,19 +146,34 @@ def test_to_zarr_with_metadata(
     assert hl_dataset.attrs == expected_hl_dataset_with_metadata.attrs
 
 
+@pytest.mark.parametrize(
+    argnames=(
+        "out_path",
+    ),
+    argvalues=(
+        (str(tmp_path)),
+        (str(tmp_path / 'hl.zarr')),
+    ),
+    ids=(
+        "out_directory",
+        "out_zarr",
+    ),
+)
+
 def test_zarr_overwrite_check(
+    out_path: str,
     hl_wrapper_no_metadata: DataFrameWrapper,
-    tmp_path: str,
-    # expected_exception: Any,
 ) -> None:
     """?."""
 
     with pytest.raises(ValueError, match="Zarr file already exists"):
         
-        hl_wrapper_no_metadata.to_zarr(path=str(tmp_path / "hl.zarr"),
+        #hl_wrapper_no_metadata.to_zarr(path=str(tmp_path / "hl.zarr"),
         #hl_wrapper_no_metadata.to_zarr(path=tmp_path,
+        hl_wrapper_no_metadata.to_zarr(out_path,
                                        data_array_name="tmp_zarr")
         
-        hl_wrapper_no_metadata.to_zarr(path=str(tmp_path / "hl.zarr"),
+        #hl_wrapper_no_metadata.to_zarr(path=str(tmp_path / "hl.zarr"),
         #hl_wrapper_no_metadata.to_zarr(path=tmp_path,
+        hl_wrapper_no_metadata.to_zarr(out_path,
                                        data_array_name="tmp_zarr")
