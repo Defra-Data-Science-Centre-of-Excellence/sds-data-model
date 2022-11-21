@@ -157,7 +157,6 @@ def test_to_zarr_with_metadata(
         "out_zarr",
     ),
 )
-
 def test_zarr_overwrite_check(
     out_path: str,
     hl_wrapper_no_metadata: DataFrameWrapper,
