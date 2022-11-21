@@ -160,13 +160,15 @@ def test_zarr_overwrite_check(
     
     with pytest.raises(ValueError, match="Zarr file already exists"):
         
-        hl_wrapper_no_metadata.to_zarr(path=str(tmp_path / "hl.zarr"),
+        #hl_wrapper_no_metadata.to_zarr(path=str(tmp_path / "hl.zarr"),
+        hl_wrapper_no_metadata.to_zarr(path=tmp_path,
                                        data_array_name="tmp_zarr")
         
         print(tmp_path)
         print(os.listdir(tmp_path))
         
-        hl_wrapper_no_metadata.to_zarr(path=str(tmp_path / "hl2.zarr"),
+        #hl_wrapper_no_metadata.to_zarr(path=str(tmp_path / "hl2.zarr"),
+        hl_wrapper_no_metadata.to_zarr(path=tmp_path,
                                        data_array_name="tmp_zarr")
         
         print(os.listdir(tmp_path))
