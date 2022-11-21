@@ -3,6 +3,8 @@
 from pathlib import Path
 from typing import Any, Dict, Optional, Sequence, Union
 
+import os
+
 import pytest
 from chispa.dataframe_comparer import assert_df_equality
 from pyspark.sql import DataFrame as SparkDataFrame
@@ -154,12 +156,17 @@ def test_zarr_overwrite_check(
     
     print(tmp_path)
     
+    os.listdir(tmp_path)
+    
     with pytest.raises(ValueError, match="Zarr file already exists"):
         
         hl_wrapper_no_metadata.to_zarr(path=str(tmp_path / "hl.zarr"),
                                        data_array_name="tmp_zarr")
         
         print(tmp_path)
+        os.listdir(tmp_path)
         
         hl_wrapper_no_metadata.to_zarr(path=str(tmp_path / "hl.zarr"),
                                        data_array_name="tmp_zarr")
+        
+        os.listdir(tmp_path)
