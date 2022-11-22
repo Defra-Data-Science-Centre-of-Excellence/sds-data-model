@@ -267,7 +267,6 @@ class DataFrameWrapper:
 
         _path = Path(path)
 
-
         if _path.exists():
 
             if overwrite is False and _check_for_zarr(_path):
