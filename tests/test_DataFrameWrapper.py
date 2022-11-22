@@ -151,8 +151,8 @@ def test_to_zarr_with_metadata(
         ("hl.zarr",),
     ),
     ids=(
-        "out_directory",
-        "out_zarr",
+        "directory",
+        ".zarr file",
     ),
 )
 def test_zarr_overwrite_check(
