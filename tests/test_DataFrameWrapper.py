@@ -145,15 +145,17 @@ def test_to_zarr_with_metadata(
 
 
 @pytest.mark.parametrize(
-    argnames="out_path",
-    argvalues=(
+    argnames=[
+    "out_path",
+    ],
+    argvalues=[
         ("",),
         ("hl.zarr",),
-    ),
-    ids=(
+    ],
+    ids=[
         "directory",
         ".zarr file",
-    ),
+    ],
 )
 def test_zarr_overwrite_check(
     out_path: str,
