@@ -147,8 +147,8 @@ def test_to_zarr_with_metadata(
 @pytest.mark.parametrize(
     argnames="out_path",
     argvalues=(
-        str(""),
-        str("hl.zarr"),
+        ("",),
+        ("hl.zarr",),
     ),
     ids=(
         "out_directory",
