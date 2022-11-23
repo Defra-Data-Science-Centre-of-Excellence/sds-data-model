@@ -13,7 +13,7 @@ from pyspark.sql.functions import udf
 from pyspark.sql.types import ArrayType, FloatType
 from rasterio.features import geometry_mask
 from shapely.wkt import loads
-from xarray import DataArray
+from xarray import DataArray, open_dataset
 
 from sds_data_model.constants import (
     BNG_XMAX,
@@ -341,3 +341,19 @@ def _create_dummy_dataset(
             compute=False,
         )
     )
+
+
+def _check_for_zarr(path: Path) -> bool:
+    """Check if a zarr file exists in a given location.
+
+    Args:
+        path (Path): Directory to check for zarr file(s).
+
+    Returns:
+        bool: Whether the zarr exists.
+    """
+    try:
+        open_dataset(path, engine="zarr")
+        return True
+    except FileNotFoundError:
+        return False

@@ -1,12 +1,13 @@
 """Tests for DataFrame wrapper class."""
 
+from pathlib import Path
 from typing import Any, Dict, Optional, Sequence, Union
 
 import pytest
 from chispa.dataframe_comparer import assert_df_equality
 from pyspark.sql import DataFrame as SparkDataFrame
 from pyspark.sql import SparkSession
-from pytest import FixtureRequest
+from pytest import FixtureRequest, raises
 from xarray import Dataset, open_dataset
 from xarray.testing import assert_identical
 
@@ -141,3 +142,33 @@ def test_to_zarr_with_metadata(
     )
 
     assert hl_dataset.attrs == expected_hl_dataset_with_metadata.attrs
+
+
+@pytest.mark.parametrize(
+    argnames=[
+        "out_path",
+    ],
+    argvalues=[
+        ("",),
+        ("hl.zarr",),
+    ],
+    ids=[
+        "directory",
+        ".zarr file",
+    ],
+)
+def test_zarr_overwrite_check(
+    out_path: str,
+    tmp_path: Path,
+    hl_wrapper_no_metadata: DataFrameWrapper,
+) -> None:
+    """Check error thrown when a zarr output path already contains a zarr."""
+    with raises(ValueError, match="Zarr file already exists"):
+
+        hl_wrapper_no_metadata.to_zarr(
+            path=str(tmp_path / out_path), data_array_name="tmp_zarr"
+        )
+
+        hl_wrapper_no_metadata.to_zarr(
+            path=str(tmp_path / out_path), data_array_name="tmp_zarr"
+        )

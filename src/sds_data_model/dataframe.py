@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from functools import partial
 from inspect import ismethod, signature
-from logging import INFO, Formatter, StreamHandler, getLogger
+from logging import INFO, Formatter, StreamHandler, getLogger, warning
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional, Sequence, Type, TypeVar, Union
 
@@ -19,6 +19,7 @@ from pyspark_vector_files.gpkg import read_gpkg
 
 from sds_data_model._dataframe import (
     _bng_to_bounds,
+    _check_for_zarr,
     _create_dummy_dataset,
     _to_zarr_region,
 )
@@ -224,6 +225,7 @@ class DataFrameWrapper:
         data_array_name: str,
         index_column_name: str = "bng_index",
         geometry_column_name: str = "geometry",
+        overwrite: bool = False,
     ) -> None:
         """Rasterises `self.data` and writes it to `zarr`.
 
@@ -245,6 +247,7 @@ class DataFrameWrapper:
                 "bng_index".
             geometry_column_name (str): Name of the geometry column. Defaults to
                 "geometry".
+            overwrite (bool): Overwrite existing zarr? Defaults to False.
 
         Returns:
             None
@@ -252,6 +255,7 @@ class DataFrameWrapper:
         Raises:
             ValueError: If `index_column_name` isn't in the dataframe.
             ValueError: If `geometry_column_name` isn't in the dataframe.
+            ValueError: If Zarr file exists and overwrite set to False.
         """
         colnames = self.data.columns
 
@@ -260,6 +264,16 @@ class DataFrameWrapper:
 
         if geometry_column_name not in colnames:
             raise ValueError(f"{geometry_column_name} is not present in the data.")
+
+        _path = Path(path)
+
+        if _path.exists():
+
+            if overwrite is False and _check_for_zarr(_path):
+                raise ValueError(f"Zarr file already exists in {_path}.")
+
+            if overwrite is True and _check_for_zarr(_path):
+                warning("Overwriting existing zarr.")
 
         _create_dummy_dataset(
             path=path,
