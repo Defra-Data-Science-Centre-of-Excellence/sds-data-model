@@ -404,6 +404,14 @@ been changed from the defaults:</p>
 <span class="p">)</span>
 </pre></div>
 </div>
+<p>In line with the <cite>xarray.Dataset.to_zarr</cite> method, <cite>to_zarr</cite> will accept both a
+path to a directory and a path to a directory suffixed with .zarr.</p>
+<section id="overwriting">
+<h4>Overwriting<a class="headerlink" href="#overwriting" title="Permalink to this headline">¶</a></h4>
+<p>The <cite>to_zarr</cite> method has a default overwrite flag set to False. This means that
+if a zarr dataset exists in the path provided to the method, then an error will
+be thrown. The flag can be set by the user to True to allow overwriting.</p>
+</section>
 </section>
 <section id="a-full-workflow">
 <h3>A full workflow<a class="headerlink" href="#a-full-workflow" title="Permalink to this headline">¶</a></h3>
@@ -468,7 +476,10 @@ been changed from the defaults:</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#indexing">Indexing</a></li>
-<li><a class="reference internal" href="#writing-to-zarr">Writing to zarr</a></li>
+<li><a class="reference internal" href="#writing-to-zarr">Writing to zarr</a><ul>
+<li><a class="reference internal" href="#overwriting">Overwriting</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#a-full-workflow">A full workflow</a></li>
 </ul>
 </li>

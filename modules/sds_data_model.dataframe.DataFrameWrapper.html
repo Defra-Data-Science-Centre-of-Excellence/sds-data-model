@@ -342,7 +342,7 @@ Look at data
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sds_data_model.dataframe.DataFrameWrapper.to_zarr">
-<span class="sig-name descname"><span class="pre">to_zarr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_array_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bng_index'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'geometry'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.dataframe.DataFrameWrapper.to_zarr" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">to_zarr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_array_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bng_index'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'geometry'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.dataframe.DataFrameWrapper.to_zarr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rasterises <cite>self.data</cite> and writes it to <cite>zarr</cite>.</p>
 <p>This function requires two additional columns:
 * A “bng_index” column containing the BNG index of the geometry in each row.
@@ -366,6 +366,7 @@ Look at data
 “bng_index”.</p></li>
 <li><p><strong>geometry_column_name</strong> (<em>str</em>) – Name of the geometry column. Defaults to
 “geometry”.</p></li>
+<li><p><strong>overwrite</strong> (<em>bool</em>) – Overwrite existing zarr? Defaults to False.</p></li>
 <li><p><strong>self</strong> (<em>sds_data_model.dataframe._DataFrameWrapper</em>) – </p></li>
 </ul>
 </dd>
@@ -376,6 +377,7 @@ Look at data
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ValueError</strong> – If <cite>index_column_name</cite> isn’t in the dataframe.</p></li>
 <li><p><strong>ValueError</strong> – If <cite>geometry_column_name</cite> isn’t in the dataframe.</p></li>
+<li><p><strong>ValueError</strong> – If Zarr file exists and overwrite set to False.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
