@@ -1,10 +1,11 @@
 """Tests for DataFrame wrapper class."""
 
 from pathlib import Path
-from typing import Any, Dict, Optional, Sequence, Union
+from typing import Any, Dict, Iterable, Optional, Sequence, Union
 
 import pytest
 from chispa.dataframe_comparer import assert_df_equality
+from dask.array import arange, concatenate, ones, zeros
 from pyspark.sql import DataFrame as SparkDataFrame
 from pyspark.sql import SparkSession
 from pyspark.sql.types import (
@@ -16,11 +17,12 @@ from pyspark.sql.types import (
     StructField,
     StructType,
 )
-from pytest import FixtureRequest, fixture
+from pytest import FixtureRequest, fixture, raises
 from shapely.geometry import box
 from xarray import DataArray, Dataset, open_dataset
 from xarray.testing import assert_identical
 
+from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, BNG_YMIN, CELL_SIZE
 from sds_data_model.dataframe import DataFrameWrapper
 
 
@@ -442,7 +444,24 @@ def expected_hl_dataset() -> Dataset:
         },
     )
 
-    assert_identical(hl_dataset, expected_hl_dataset_no_metadata)
+
+def test_to_zarr(
+    hl_zarr_path: str,
+    expected_hl_dataset: Dataset,
+) -> None:
+    """The HL DataFrame wrapper is rasterised as expected."""
+    hl_dataset = open_dataset(
+        hl_zarr_path,
+        engine="zarr",
+        decode_coords=True,
+        mask_and_scale=False,
+        chunks={
+            "eastings": 10_000,
+            "northings": 10_000,
+        },
+    )
+
+    assert_identical(hl_dataset, expected_hl_dataset)
 
 
 def test_to_zarr_with_metadata(
