@@ -254,6 +254,7 @@ class DataFrameWrapper:
             ValueError: If `geometry_column_name` isn't in the dataframe.
             ValueError: If `self.data` is an instance of `pyspark.sql.GroupedData`_
                 instead of `pyspark.sql.DataFrame`_.
+            ValueError: If Zarr file exists and overwrite set to False.
 
         .. _`pyspark.sql.GroupedData`:
             https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.GroupedData.html
