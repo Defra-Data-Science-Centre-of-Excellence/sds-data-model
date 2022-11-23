@@ -1,11 +1,10 @@
 """Tests for DataFrame wrapper class."""
+
 from pathlib import Path
-from typing import Any, Dict, Iterable, Optional, Sequence, Union
+from typing import Any, Dict, Optional, Sequence, Union
 
 import pytest
 from chispa.dataframe_comparer import assert_df_equality
-from dask.array import concatenate, ones, zeros
-from numpy import arange
 from pyspark.sql import DataFrame as SparkDataFrame
 from pyspark.sql import SparkSession
 from pyspark.sql.types import (
@@ -22,7 +21,6 @@ from shapely.geometry import box
 from xarray import DataArray, Dataset, open_dataset
 from xarray.testing import assert_identical
 
-from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, BNG_YMIN, CELL_SIZE
 from sds_data_model.dataframe import DataFrameWrapper
 
 
@@ -102,9 +100,9 @@ def expected_metadata() -> None:
 def test_vector_layer_from_files(
     spark_session: SparkSession,
     temp_path: str,
-    expected_name: str,
+    expected_dataframewrapper_name: str,
     expected_dataframe: SparkDataFrame,
-    expected_metadata: None,
+    expected_empty_metadata: None,
 ) -> None:
     """Reading test data returns a DataFrameWrapper with expected values."""
     received = DataFrameWrapper.from_files(
@@ -114,8 +112,8 @@ def test_vector_layer_from_files(
         name="Trial csv",
     )
 
-    assert received.name == expected_name
-    assert received.metadata == expected_metadata
+    assert received.name == expected_dataframewrapper_name
+    assert received.metadata == expected_empty_metadata
     assert_df_equality(received.data, expected_dataframe)
 
 
@@ -442,17 +440,18 @@ def expected_hl_dataset() -> Dataset:
         data_vars={
             "hl": expected_data_array,
         },
-        coords=coords,
     )
 
+    assert_identical(hl_dataset, expected_hl_dataset_no_metadata)
 
-def test_to_zarr(
-    hl_zarr_path: str,
-    expected_hl_dataset: Dataset,
+
+def test_to_zarr_with_metadata(
+    hl_zarr_path_with_metadata: str,
+    expected_hl_dataset_with_metadata: Dataset,
 ) -> None:
-    """The HL DataFrame wrapper is rasterised as expected."""
+    """Check that attrs in the zarr look as expected."""
     hl_dataset = open_dataset(
-        hl_zarr_path,
+        hl_zarr_path_with_metadata,
         engine="zarr",
         decode_coords=True,
         mask_and_scale=False,
@@ -462,4 +461,34 @@ def test_to_zarr(
         },
     )
 
-    assert_identical(hl_dataset, expected_hl_dataset)
+    assert hl_dataset.attrs == expected_hl_dataset_with_metadata.attrs
+
+
+@pytest.mark.parametrize(
+    argnames=[
+        "out_path",
+    ],
+    argvalues=[
+        ("",),
+        ("hl.zarr",),
+    ],
+    ids=[
+        "directory",
+        ".zarr file",
+    ],
+)
+def test_zarr_overwrite_check(
+    out_path: str,
+    tmp_path: Path,
+    hl_wrapper_no_metadata: DataFrameWrapper,
+) -> None:
+    """Check error thrown when a zarr output path already contains a zarr."""
+    with raises(ValueError, match="Zarr file already exists"):
+
+        hl_wrapper_no_metadata.to_zarr(
+            path=str(tmp_path / out_path), data_array_name="tmp_zarr"
+        )
+
+        hl_wrapper_no_metadata.to_zarr(
+            path=str(tmp_path / out_path), data_array_name="tmp_zarr"
+        )
