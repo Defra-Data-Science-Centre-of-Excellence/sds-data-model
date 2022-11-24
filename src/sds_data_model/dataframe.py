@@ -21,6 +21,7 @@ from sds_data_model._dataframe import (
     _bng_to_bounds,
     _check_for_zarr,
     _create_dummy_dataset,
+    _get_minimum_dtypes_and_fill_vals,
     _to_zarr_region,
 )
 from sds_data_model._vector import _get_metadata, _get_name
@@ -222,12 +223,16 @@ class DataFrameWrapper:
     def to_zarr(
         self: _DataFrameWrapper,
         path: str,
-        data_array_name: str,
+        columns: Optional[Sequence[str]] = None,
+        categorical_columns: Optional[Sequence[str]] = None,
+        dtype: Dict[str, str] = {},
+        nodata: Dict[str, float] = {},
+        lookup: Dict[str, Dict[Any, float]] = {},
         index_column_name: str = "bng_index",
         geometry_column_name: str = "geometry",
         overwrite: bool = False,
     ) -> None:
-        """Rasterises `self.data` and writes it to `zarr`.
+        """Rasterises columns of `self.data` and writes them to `zarr`.
 
         This function requires two additional columns:
         * A "bng_index" column containing the BNG index of the geometry in each row.
@@ -242,7 +247,6 @@ class DataFrameWrapper:
 
         Args:
             path (str): Path to save the zarr file including file name.
-            data_array_name (str): DataArray name given by the user.
             index_column_name (str): Name of the BNG index column. Defaults to
                 "bng_index".
             geometry_column_name (str): Name of the geometry column. Defaults to
@@ -273,22 +277,39 @@ class DataFrameWrapper:
                 raise ValueError(f"Zarr file already exists in {_path}.")
 
             if overwrite is True and _check_for_zarr(_path):
-                warning("Overwriting existing zarr.")
+                    warning("Overwriting existing zarr.")
+
+        columns, dtype, nodata, lookup = _get_minimum_dtypes_and_fill_vals(
+            self,
+            columns=columns,
+            categorical_columns=categorical_columns,
+            dtype=dtype,
+            nodata=nodata,
+            lookup=lookup,
+            dataset_name=self.name,
+        )
 
         _create_dummy_dataset(
             path=path,
-            data_array_name=data_array_name,
+            columns=columns,
+            dtype=dtype,
+            nodata=nodata,
+            lookup=lookup,
+            dataset_name=self.name,
             metadata=self.metadata,
         )
 
         _partial_to_zarr_region = partial(
             _to_zarr_region,
-            data_array_name=data_array_name,
             path=path,
+            columns=columns,
+            dtype=dtype,
+            nodata=nodata,
+            dataset_name=self.name,
             geometry_column_name=geometry_column_name,
         )
 
-        return (
+        (
             self.data.groupby(index_column_name)
             .applyInPandas(
                 _partial_to_zarr_region,
