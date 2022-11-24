@@ -11,7 +11,7 @@ from pyspark.pandas import DataFrame as SparkPandasDataFrame
 from pyspark.pandas import Series as SparkPandasSeries
 from pyspark.pandas import read_excel
 from pyspark.sql import DataFrame as SparkDataFrame
-from pyspark.sql import SparkSession
+from pyspark.sql import GroupedData, SparkSession
 from pyspark.sql.functions import col, explode, udf
 from pyspark.sql.types import ArrayType, StringType
 from pyspark_vector_files import read_vector_files
@@ -60,7 +60,7 @@ class DataFrameWrapper:
     """
 
     name: str
-    data: SparkDataFrame
+    data: Union[SparkDataFrame, GroupedData]
     metadata: Optional[Metadata]
     # graph: Optional[DiGraph]
 
@@ -159,7 +159,7 @@ class DataFrameWrapper:
         /,
         *args: Optional[Union[str, Sequence[str]]],
         **kwargs: Optional[Dict[str, Any]],
-    ) -> Optional[Union[_DataFrameWrapper, Any]]:
+    ) -> _DataFrameWrapper:
         """Calls spark method specified by user on SparkDataFrame in wrapper.
 
         The function:
@@ -191,7 +191,7 @@ class DataFrameWrapper:
             **kwargs (Optional[Dict[str, int]]): Additional kwargs provided by user
 
         Returns:
-            Optional[Union[_DataFrameWrapper, Any]]: Updated SparkDataFrameWrapper or property output
+            _DataFrameWrapper: The SparkDataFrameWrapper, updated if necessary
         """  # noqa: B950
         attribute = getattr(self.data, method_name)
 
@@ -212,12 +212,12 @@ class DataFrameWrapper:
             logger.info(f"Calling {attribute.__qualname__}")
             return_value = attribute
 
-        if isinstance(return_value, SparkDataFrame):
+        if isinstance(return_value, SparkDataFrame) or isinstance(
+            return_value, GroupedData
+        ):
             self.data = return_value
-            return self
 
-        else:
-            return return_value
+        return self
 
     def to_zarr(
         self: _DataFrameWrapper,
@@ -249,14 +249,25 @@ class DataFrameWrapper:
                 "geometry".
             overwrite (bool): Overwrite existing zarr? Defaults to False.
 
-        Returns:
-            None
-
         Raises:
             ValueError: If `index_column_name` isn't in the dataframe.
             ValueError: If `geometry_column_name` isn't in the dataframe.
+            ValueError: If `self.data` is an instance of `pyspark.sql.GroupedData`_
+                instead of `pyspark.sql.DataFrame`_.
             ValueError: If Zarr file exists and overwrite set to False.
-        """
+
+        .. _`pyspark.sql.GroupedData`:
+            https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.GroupedData.html
+
+        .. _`pyspark.sql.DataFrame`:
+            https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html
+        """  # noqa: B950
+        if not isinstance(self.data, SparkDataFrame):
+            data_type = type(self.data)
+            raise ValueError(
+                f"`self.data` must be a `pyspark.sql.DataFrame` not a {data_type}"
+            )
+
         colnames = self.data.columns
 
         if index_column_name not in colnames:
@@ -288,7 +299,7 @@ class DataFrameWrapper:
             geometry_column_name=geometry_column_name,
         )
 
-        return (
+        (
             self.data.groupby(index_column_name)
             .applyInPandas(
                 _partial_to_zarr_region,
@@ -318,9 +329,25 @@ class DataFrameWrapper:
             geometry_column_name (str): _description_. Defaults to "geometry".
             exploded (bool): _description_. Defaults to True.
 
+        Raises:
+            ValueError: If `self.data` is an instance of `pyspark.sql.GroupedData`_
+                instead of `pyspark.sql.DataFrame`_.
+
         Returns:
-            _DataFrameWrapper: _description_
-        """
+            _DataFrameWrapper: An indexed DataFrameWrapper.
+
+        .. _`pyspark.sql.GroupedData`:
+            https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.GroupedData.html
+
+        .. _`pyspark.sql.DataFrame`:
+            https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html
+        """  # noqa: B950
+        if not isinstance(self.data, SparkDataFrame):
+            data_type = type(self.data)
+            raise ValueError(
+                f"`self.data` must be a `pyspark.sql.DataFrame` not a {data_type}"
+            )
+
         _partial_calculate_bng_index = partial(
             calculate_bng_index, resolution=resolution, how=how
         )
