@@ -165,7 +165,7 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<em>str</em>) – </p></li>
-<li><p><strong>data</strong> (<em>pyspark.sql.dataframe.DataFrame</em>) – </p></li>
+<li><p><strong>data</strong> (<em>Union</em><em>[</em><em>pyspark.sql.dataframe.DataFrame</em><em>, </em><em>pyspark.sql.group.GroupedData</em><em>]</em>) – </p></li>
 <li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="sds_data_model.metadata.Metadata.html#sds_data_model.metadata.Metadata" title="sds_data_model.metadata.Metadata"><em>sds_data_model.metadata.Metadata</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
@@ -177,7 +177,7 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<em>str</em>) – </p></li>
-<li><p><strong>data</strong> (<em>pyspark.sql.dataframe.DataFrame</em>) – </p></li>
+<li><p><strong>data</strong> (<em>Union</em><em>[</em><em>pyspark.sql.dataframe.DataFrame</em><em>, </em><em>pyspark.sql.group.GroupedData</em><em>]</em>) – </p></li>
 <li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="sds_data_model.metadata.Metadata.html#sds_data_model.metadata.Metadata" title="sds_data_model.metadata.Metadata"><em>sds_data_model.metadata.Metadata</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
@@ -266,10 +266,10 @@ Look at data
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Updated SparkDataFrameWrapper or property output</p>
+<dd class="field-even"><p>The SparkDataFrameWrapper, updated if necessary</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Optional[Union[_DataFrameWrapper, Any]]</p>
+<dd class="field-odd"><p>_DataFrameWrapper</p>
 </dd>
 </dl>
 </dd></dl>
@@ -331,11 +331,15 @@ Look at data
 <li><p><strong>self</strong> (<em>sds_data_model.dataframe._DataFrameWrapper</em>) – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>_description_</p>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <cite>self.data</cite> is an instance of <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.GroupedData.html">pyspark.sql.GroupedData</a>
+    instead of <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html">pyspark.sql.DataFrame</a>.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>_DataFrameWrapper</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An indexed DataFrameWrapper.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>_DataFrameWrapper</p>
 </dd>
 </dl>
 </dd></dl>
@@ -370,18 +374,17 @@ Look at data
 <li><p><strong>self</strong> (<em>sds_data_model.dataframe._DataFrameWrapper</em>) – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>None</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>ValueError</strong> – If <cite>index_column_name</cite> isn’t in the dataframe.</p></li>
 <li><p><strong>ValueError</strong> – If <cite>geometry_column_name</cite> isn’t in the dataframe.</p></li>
+<li><p><strong>ValueError</strong> – If <cite>self.data</cite> is an instance of <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.GroupedData.html">pyspark.sql.GroupedData</a>
+    instead of <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html">pyspark.sql.DataFrame</a>.</p></li>
 <li><p><strong>ValueError</strong> – If Zarr file exists and overwrite set to False.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>None</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
