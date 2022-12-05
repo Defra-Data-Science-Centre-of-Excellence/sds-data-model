@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Sequence, Union
 
 import pytest
+import rioxarray  # noqa: F401
 from chispa.dataframe_comparer import assert_df_equality
 from pyspark.sql import DataFrame as SparkDataFrame
 from pyspark.sql import SparkSession
@@ -12,6 +13,7 @@ from xarray import Dataset, open_dataset
 from xarray.testing import assert_identical
 
 from sds_data_model.dataframe import DataFrameWrapper
+from sds_data_model.raster import DatasetWrapper
 
 
 def test_vector_layer_from_files(
@@ -104,6 +106,24 @@ def test_call_method_join(
     )
     received.call_method("join", other=dataframe_other, on="a")  # type: ignore[arg-type]  # noqa: B950
     assert_df_equality(received.data, expected_dataframe_joined)
+
+
+def test_to_zarr(
+    dataframe_for_rasterisations: SparkDataFrame,
+    tmp_path: Path,
+    expected_geometry_mask: Dataset,
+) -> None:
+    """Rasterisation produces the expected results."""
+    dfw = DataFrameWrapper(
+        name="geometry_mask",
+        data=dataframe_for_rasterisations,
+        metadata=None,
+    )
+    path = tmp_path / "geometry_mask.zarr"
+    dfw.to_zarr(path, overwrite=True)
+    dsw = DatasetWrapper.from_files(path)
+    dsw.dataset = dsw.dataset.chunk(10_000, 10_000)
+    assert_identical(dsw.dataset, expected_geometry_mask)
 
 
 def test_to_zarr_no_metadata(
