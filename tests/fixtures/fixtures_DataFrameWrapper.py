@@ -1,16 +1,26 @@
 """Fixtures for Metadata tests."""
 
+from itertools import chain, repeat
 from pathlib import Path
-from typing import Dict, Iterable
+from typing import Dict, Iterable, List, Tuple, Union
 
+from affine import Affine
 from dask.array import concatenate, ones, zeros
-from numpy import arange
+from more_itertools import chunked, interleave_longest
+from numpy import arange, float32, float64, int8, int16, int32, int64, linspace, uint8
+from numpy.typing import NDArray
 from pyspark.sql import DataFrame as SparkDataFrame
 from pyspark.sql import SparkSession
 from pyspark.sql.types import (
     ArrayType,
     BinaryType,
+    BooleanType,
+    ByteType,
+    DoubleType,
+    FloatType,
     IntegerType,
+    LongType,
+    ShortType,
     StringType,
     StructField,
     StructType,
@@ -19,7 +29,16 @@ from pytest import fixture
 from shapely.geometry import box
 from xarray import DataArray, Dataset
 
-from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, BNG_YMIN, CELL_SIZE
+from sds_data_model.constants import (
+    BBOXES,
+    BNG_XMAX,
+    BNG_XMIN,
+    BNG_YMAX,
+    BNG_YMIN,
+    CELL_SIZE,
+    OUT_SHAPE,
+    BoundingBox,
+)
 from sds_data_model.dataframe import DataFrameWrapper
 from sds_data_model.metadata import Metadata
 
@@ -207,6 +226,303 @@ def expected_dataframe_joined(
         data=data,
         schema=expected_schema_joined,
     )
+
+
+@fixture
+def schema_for_rasterisation() -> StructType:
+    return StructType(
+        fields=[
+            StructField("bool", BooleanType(), True),
+            StructField("int8", ByteType(), True),
+            StructField("int16", ShortType(), True),
+            StructField("int32", IntegerType(), True),
+            StructField("int64", LongType(), True),
+            StructField("float32", FloatType(), True),
+            StructField("float64", DoubleType(), True),
+            StructField("string_category", StringType(), True),
+            StructField("bng_index", StringType(), True),
+            StructField("bounds", ArrayType(IntegerType()), True),
+            StructField("geometry", BinaryType(), True),
+        ]
+    )
+
+
+@fixture
+def bounds_column(bboxes=BBOXES) -> Tuple[BoundingBox, ...]:
+    return tuple(bbox for index, bbox in enumerate(bboxes) if index % 2 == 0)
+
+
+@fixture
+def geometry_column(
+    bounds_column,
+) -> Tuple[bytearray, ...]:
+    return tuple(box(*bounds).wkb for bounds in bounds_column)
+
+
+@fixture
+def bng_index_column() -> Tuple[str, ...]:
+    return (
+        "HL",
+        "HN",
+        "HP",
+        "JM",
+        "HP",
+        "HT",
+        "JQ",
+        "HV",
+        "HX",
+        "HZ",
+        "JW",
+        "NB",
+        "ND",
+        "OA",
+        "NF",
+        "NH",
+        "NK",
+        "OG",
+        "NM",
+        "NO",
+        "OL",
+        "NQ",
+        "NS",
+        "NU",
+        "OR",
+        "NW",
+        "NY",
+        "OV",
+        "SA",
+        "SC",
+        "SE",
+        "TB",
+        "SG",
+        "SJ",
+        "TF",
+        "SL",
+        "SN",
+        "SP",
+        "TM",
+        "SP",
+        "ST",
+        "TQ",
+        "SV",
+        "SX",
+        "SZ",
+        "TW",
+    )
+
+
+@fixture
+def num_rows(
+    bounds_column: Tuple[BoundingBox, ...],
+) -> int:
+    return len(bounds_column)
+
+
+INT8_MINIMUM = 2**8 // -2
+INT8_MAXIMUM = (2**8 // 2) - 1
+INT16_MINIMUM = 2**16 // -2
+INT16_MAXIMUM = (2**16 // 2) - 1
+INT32_MINIMUM = 2**32 // -2
+INT32_MAXIMUM = (2**32 // 2) - 1
+INT64_MINIMUM = 2**64 // -2
+INT64_MAXIMUM = (2**64 // 2) - 1
+
+
+@fixture
+def int8_column(
+    num_rows: int,
+    int8_minimum: int = INT8_MINIMUM,
+    int8_maximum: int = INT8_MAXIMUM,
+) -> NDArray[int8]:
+    return linspace(
+        int8_minimum,
+        int8_maximum,
+        num=num_rows,
+        dtype=int8,
+    )
+
+
+@fixture
+def int16_column(
+    num_rows: int,
+    int16_minimum: int = INT16_MINIMUM,
+    int16_maximum: int = INT16_MAXIMUM,
+) -> NDArray[int16]:
+    return linspace(
+        int16_minimum,
+        int16_maximum,
+        num=num_rows,
+        dtype=int16,
+    )
+
+
+@fixture
+def int32_column(
+    num_rows: int,
+    int32_minimum: int = INT32_MINIMUM,
+    int32_maximum: int = INT32_MAXIMUM,
+) -> NDArray[int32]:
+    return linspace(
+        int32_minimum,
+        int32_maximum,
+        num=num_rows,
+        dtype=int32,
+    )
+
+
+@fixture
+def int64_column(
+    num_rows: int,
+    int64_minimum: int = INT64_MINIMUM,
+    int64_maximum: int = INT64_MAXIMUM,
+) -> NDArray[int64]:
+    return linspace(
+        int64_minimum,
+        int64_maximum,
+        num=num_rows,
+        dtype=int64,
+    )
+
+
+# See https://stackoverflow.com/questions/15174953/range-of-representable-values-of-32-bit-64-bit-and-80-bit-float-ieee-754
+def _get_float_maximum(exponent: int, mantissa: int) -> float:
+    return float(
+        2 ** (2 ** (exponent - 1) - 1) * (1 + (2**mantissa - 1) / 2**mantissa)
+    )
+
+
+def _get_float_minimum(exponent: int) -> float:
+    return float(2 ** (2 - 2 ** (exponent - 1)))
+
+
+FLOAT32_EXPONENT = 8
+FLOAT32_MANTISSA = 23
+FLOAT64_EXPONENT = 11
+FLOAT64_MANTISSA = 52
+
+float32_minimum = _get_float_minimum(FLOAT32_EXPONENT)
+float32_maximum = _get_float_maximum(FLOAT32_EXPONENT, FLOAT32_MANTISSA)
+float64_minimum = _get_float_minimum(FLOAT64_EXPONENT)
+float64_maximum = _get_float_maximum(FLOAT64_EXPONENT, FLOAT64_MANTISSA)
+
+
+@fixture
+def float32_column(
+    num_rows: int,
+    float32_minimum: float = float32_minimum,
+    float32_maximum: float = float32_maximum,
+) -> NDArray[float32]:
+    return linspace(
+        float32_minimum,
+        float32_maximum,
+        num=num_rows,
+        dtype=float32,
+    )
+
+
+@fixture
+def float64_column(
+    num_rows: int,
+    float64_minimum: float = float64_minimum,
+    float64_maximum: float = float64_maximum,
+) -> NDArray[float64]:
+    return linspace(
+        float64_minimum,
+        float64_maximum,
+        num=num_rows,
+        dtype=float64,
+    )
+
+
+@fixture
+def boolean_column(num_rows: int) -> Tuple[bool, ...]:
+    return tuple(chain.from_iterable(repeat([True, False], num_rows)))
+
+
+@fixture
+def string_category_column(num_rows: int) -> Tuple[str, ...]:
+    return tuple(chain.from_iterable(repeat("ABC", num_rows)))
+
+
+@fixture
+def data_for_rasterisation(
+    boolean_column=boolean_column,
+    int8_column=int8_column,
+    int16_column=int16_column,
+    int32_column=int32_column,
+    int64_column=int64_column,
+    float32_column=float32_column,
+    float64_column=float64_column,
+    string_category_column=string_category_column,
+    bng_index_column=bng_index_column,
+    bounds_column=bounds_column,
+    geometry_column=geometry_column,
+) -> List[Dict[str, Union[bool, int, float, str, BoundingBox, bytearray]]]:
+    list_of_dicts: List[
+        Dict[str, Union[bool, int, float, str, BoundingBox, bytearray]]
+    ] = [
+        {
+            "bool": bool(boolean_column[index]),
+            "int8": int(int8_column[index]),
+            "int16": int(int16_column[index]),
+            "int32": int(int32_column[index]),
+            "int64": int(int64_column[index]),
+            "float32": float(float32_column[index]),
+            "float64": float(float64_column[index]),
+            "string_category": str(string_category_column[index]),
+            "bng_index": str(bng_index_column[index]),
+            "bounds": tuple(bounds_column[index]),
+            "geometry": geometry,
+        }
+        for index, geometry in enumerate(geometry_column)
+    ]
+
+    return list_of_dicts
+
+
+@fixture
+def dataframe_for_rasterisations(
+    spark_session: SparkSession,
+    data_for_rasterisation: List,
+    schema_for_rasterisation: StructType,
+) -> SparkDataFrame:
+    return spark_session.createDataFrame(
+        data=data_for_rasterisation,
+        schema=schema_for_rasterisation,
+    )
+
+
+@fixture
+def expected_geometry_mask() -> Dataset:
+    _ones = ones(dtype=uint8, shape=OUT_SHAPE, chunks=(10_000, 10_000))
+    _zeros = zeros(dtype=uint8, shape=OUT_SHAPE, chunks=(10_000, 10_000))
+
+    interleaved = interleave_longest(
+        repeat(_ones, 46),
+        repeat(_zeros, 45),
+    )
+
+    data = concatenate(
+        (concatenate(chunk, axis=1) for chunk in chunked(interleaved, 7)), axis=0
+    )
+
+    coords = {
+        "northings": arange(BNG_YMAX - (CELL_SIZE / 2), BNG_YMIN, -CELL_SIZE),
+        "eastings": arange(BNG_XMIN + (CELL_SIZE / 2), BNG_XMAX, CELL_SIZE),
+    }
+
+    ds = DataArray(
+        name="geometry_mask",
+        data=data,
+        coords=coords,
+        attrs={"No data": 0},
+    ).to_dataset()
+
+    transform = Affine(CELL_SIZE, 0, BNG_XMIN, 0, -CELL_SIZE, BNG_YMAX)
+    ds.rio.write_crs("EPSG:27700", inplace=True)
+    ds.rio.write_transform(transform, inplace=True)
+
+    return ds
 
 
 @fixture
