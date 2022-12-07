@@ -367,13 +367,12 @@ def _create_empty_dataset(
     column: str,
     nodata: float,
     lookup: Dict[str, Dict[Any, float]],
-    metadata: Dict,
     dtype: str,
     dims: Tuple[str, str],
     height: int,
     width: int,
 ) -> Dataset:
-    attrs = {**metadata, "No data": nodata}
+    attrs = {"No data": nodata}
     if column in lookup:
         attrs["lookup"] = str(lookup[column])
     return DataArray(
@@ -425,7 +424,6 @@ def _create_dummy_dataset(
     .. _`Appending to existing Zarr stores`:
         https://docs.xarray.dev/en/stable/user-guide/io.html#appending-to-existing-zarr-stores  # noqa: B950
     """
-    _metadata = asdict(metadata) if metadata else {}
     dims = ("northings", "eastings")
     height = int(bng_ymax / cell_size)
     width = int(bng_xmax / cell_size)
@@ -438,7 +436,6 @@ def _create_dummy_dataset(
             column,
             nodata[column],
             lookup,
-            _metadata,
             dtype[column],
             dims,
             height,
@@ -457,7 +454,7 @@ def _create_dummy_dataset(
     )
     dataset.rio.write_crs("EPSG:27700", inplace=True)
     dataset.rio.write_transform(transform, inplace=True)
-    dataset.attrs.clear()
+    dataset.attrs = asdict(metadata) if metadata else {}
     dataset.to_zarr(
         store=path,
         mode="w",

@@ -242,7 +242,6 @@ class DataFrameWrapper:
         Examples:
             >>> wrapper.to_zarr(
                 path = "/path/to/file.zarr",
-                data_array_name = "test",
             )
 
         Args:

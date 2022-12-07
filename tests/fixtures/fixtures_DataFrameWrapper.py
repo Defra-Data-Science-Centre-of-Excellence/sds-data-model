@@ -266,7 +266,7 @@ def bng_index_column() -> Tuple[str, ...]:
         "HN",
         "HP",
         "JM",
-        "HP",
+        "HR",
         "HT",
         "JQ",
         "HV",
@@ -301,7 +301,7 @@ def bng_index_column() -> Tuple[str, ...]:
         "SN",
         "SP",
         "TM",
-        "SP",
+        "SR",
         "ST",
         "TQ",
         "SV",
@@ -617,7 +617,6 @@ def hl_zarr_path_no_metadata(
     path = str(tmp_path / "hl.zarr")
     hl_wrapper_no_metadata.to_zarr(
         path=path,
-        data_array_name="hl",
     )
     return path
 
@@ -630,7 +629,6 @@ def hl_zarr_path_with_metadata(
     path = str(tmp_path / "hl.zarr")
     hl_wrapper_with_metadata.to_zarr(
         path=path,
-        data_array_name="hl",
     )
     return path
 

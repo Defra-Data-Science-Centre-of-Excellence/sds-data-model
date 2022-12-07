@@ -294,7 +294,6 @@ file. This can be done with the `.to_zarr` method:
 
     sdf.to_zarr(
         path="/path/to/out_directory/",
-        data_array_name="array_name",
     )
 
 
@@ -305,7 +304,6 @@ been changed from the defaults:
 
     sdf.to_zarr(
         path="/path/to/out_directory/",
-        data_array_name="array_name",
         index_column_name="custom_index",
         geometry_column_name="custom_geometry",
     )

@@ -27,7 +27,7 @@ def test_vector_layer_from_files(
     received = DataFrameWrapper.from_files(
         spark=spark_session,
         data_path=temp_path,
-        read_file_kwargs={"header": True, "inferSchema": True},
+        # read_file_kwargs={"header": True, "inferSchema": True},
         name="Trial csv",
     )
 
@@ -67,7 +67,7 @@ def test_call_method(
     received = DataFrameWrapper.from_files(
         spark=spark_session,
         data_path=temp_path,
-        read_file_kwargs={"header": True, "inferSchema": True},
+        # read_file_kwargs={"header": True, "inferSchema": True},
         name="Trial csv",
     )
 
@@ -101,7 +101,7 @@ def test_call_method_join(
     received = DataFrameWrapper.from_files(
         spark=spark_session,
         data_path=temp_path,
-        read_file_kwargs={"header": True, "inferSchema": True},
+        # read_file_kwargs={"header": True, "inferSchema": True},
         name="Trial csv",
     )
     received.call_method("join", other=dataframe_other, on="a")  # type: ignore[arg-type]  # noqa: B950
@@ -125,24 +125,30 @@ def test_to_zarr(
     dsw.dataset = dsw.dataset.chunk(10_000, 10_000)
     assert_identical(dsw.dataset, expected_geometry_mask)
 
+def open_as_chunks(
+    path: str,
+) -> Dataset:
+    """Open zarr chunked. Remove grid mapping and array metadata."""
+    dataset = open_dataset(
+        path,
+        engine="zarr",
+        decode_coords=True,
+        chunks={
+            "eastings": 10_000,
+            "northings": 10_000,
+        },
+    )
+    dataset[dataset.rio.vars[0]].attrs.clear()
+    del dataset[dataset.rio.grid_mapping]
+    return dataset
+
 
 def test_to_zarr_no_metadata(
     hl_zarr_path_no_metadata: str,
     expected_hl_dataset_no_metadata: Dataset,
 ) -> None:
     """The HL DataFrame wrapper is rasterised as expected."""
-    hl_dataset = open_dataset(
-        hl_zarr_path_no_metadata,
-        engine="zarr",
-        decode_coords=True,
-        mask_and_scale=False,
-        chunks={
-            "eastings": 10_000,
-            "northings": 10_000,
-        },
-    )
-
-    assert_identical(hl_dataset, expected_hl_dataset_no_metadata)
+    assert_identical(open_as_chunks(hl_zarr_path_no_metadata), expected_hl_dataset_no_metadata)
 
 
 def test_to_zarr_with_metadata(
@@ -150,18 +156,7 @@ def test_to_zarr_with_metadata(
     expected_hl_dataset_with_metadata: Dataset,
 ) -> None:
     """Check that attrs in the zarr look as expected."""
-    hl_dataset = open_dataset(
-        hl_zarr_path_with_metadata,
-        engine="zarr",
-        decode_coords=True,
-        mask_and_scale=False,
-        chunks={
-            "eastings": 10_000,
-            "northings": 10_000,
-        },
-    )
-
-    assert hl_dataset.attrs == expected_hl_dataset_with_metadata.attrs
+    assert open_as_chunks(hl_zarr_path_with_metadata).attrs == expected_hl_dataset_with_metadata.attrs
 
 
 @pytest.mark.parametrize(
@@ -186,9 +181,9 @@ def test_zarr_overwrite_check(
     with raises(ValueError, match="Zarr file already exists"):
 
         hl_wrapper_no_metadata.to_zarr(
-            path=str(tmp_path / out_path), data_array_name="tmp_zarr"
+            path=str(tmp_path / out_path),
         )
 
         hl_wrapper_no_metadata.to_zarr(
-            path=str(tmp_path / out_path), data_array_name="tmp_zarr"
+            path=str(tmp_path / out_path),
         )
