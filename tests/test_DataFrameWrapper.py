@@ -27,7 +27,7 @@ def test_vector_layer_from_files(
     received = DataFrameWrapper.from_files(
         spark=spark_session,
         data_path=temp_path,
-        # read_file_kwargs={"header": True, "inferSchema": True},
+        read_file_kwargs={"header": True, "inferSchema": True},
         name="Trial csv",
     )
 
@@ -47,11 +47,13 @@ def test_vector_layer_from_files(
         ("limit", None, {"num": 2}, "expected_dataframe_limit"),
         ("select", ["a", "b"], None, "expected_dataframe_select"),
         ("filter", "a = 3", None, "expected_dataframe_filter"),
+        ("show", None, None, "expected_dataframe"),
     ),
     ids=(
         "limit",
         "select",
         "filter",
+        "show",
     ),
 )
 def test_call_method(
@@ -67,7 +69,7 @@ def test_call_method(
     received = DataFrameWrapper.from_files(
         spark=spark_session,
         data_path=temp_path,
-        # read_file_kwargs={"header": True, "inferSchema": True},
+        read_file_kwargs={"header": True, "inferSchema": True},
         name="Trial csv",
     )
 
@@ -101,29 +103,28 @@ def test_call_method_join(
     received = DataFrameWrapper.from_files(
         spark=spark_session,
         data_path=temp_path,
-        # read_file_kwargs={"header": True, "inferSchema": True},
+        read_file_kwargs={"header": True, "inferSchema": True},
         name="Trial csv",
     )
     received.call_method("join", other=dataframe_other, on="a")  # type: ignore[arg-type]  # noqa: B950
     assert_df_equality(received.data, expected_dataframe_joined)
 
 
-def test_to_zarr(
-    dataframe_for_rasterisations: SparkDataFrame,
-    tmp_path: Path,
-    expected_geometry_mask: Dataset,
+def test_call_method_groupBy(
+    spark_session: SparkSession,
+    temp_path: str,
+    expected_dataframe_grouped: SparkDataFrame,
 ) -> None:
-    """Rasterisation produces the expected results."""
-    dfw = DataFrameWrapper(
-        name="geometry_mask",
-        data=dataframe_for_rasterisations,
-        metadata=None,
+    """Passing the `.agg` method to `.call_method` produces the expected results."""
+    received = DataFrameWrapper.from_files(
+        spark=spark_session,
+        data_path=temp_path,
+        read_file_kwargs={"header": True, "inferSchema": True},
+        name="Trial csv",
     )
-    path = tmp_path / "geometry_mask.zarr"
-    dfw.to_zarr(path, overwrite=True)
-    dsw = DatasetWrapper.from_files(path)
-    dsw.dataset = dsw.dataset.chunk(10_000, 10_000)
-    assert_identical(dsw.dataset, expected_geometry_mask)
+    received.call_method("groupBy", "category").call_method("avg")  # type: ignore[arg-type]  # noqa: B950
+    assert_df_equality(received.data, expected_dataframe_grouped)
+
 
 def open_as_chunks(
     path: str,
@@ -148,7 +149,9 @@ def test_to_zarr_no_metadata(
     expected_hl_dataset_no_metadata: Dataset,
 ) -> None:
     """The HL DataFrame wrapper is rasterised as expected."""
-    assert_identical(open_as_chunks(hl_zarr_path_no_metadata), expected_hl_dataset_no_metadata)
+    assert_identical(
+        open_as_chunks(hl_zarr_path_no_metadata), expected_hl_dataset_no_metadata
+    )
 
 
 def test_to_zarr_with_metadata(
@@ -156,7 +159,10 @@ def test_to_zarr_with_metadata(
     expected_hl_dataset_with_metadata: Dataset,
 ) -> None:
     """Check that attrs in the zarr look as expected."""
-    assert open_as_chunks(hl_zarr_path_with_metadata).attrs == expected_hl_dataset_with_metadata.attrs
+    assert (
+        open_as_chunks(hl_zarr_path_with_metadata).attrs
+        == expected_hl_dataset_with_metadata.attrs
+    )
 
 
 @pytest.mark.parametrize(
