@@ -627,6 +627,7 @@ def hl_wrapper_no_metadata(
         name="hl",
         data=hl_dataframe,
         metadata=None,
+        lookup=None,
     )
 
 
@@ -640,6 +641,7 @@ def hl_wrapper_with_metadata(
         name="hl",
         data=hl_dataframe,
         metadata=expected_metadata,
+        lookup=None,
     )
 
 

@@ -4,7 +4,7 @@ from functools import partial
 from inspect import ismethod, signature
 from logging import INFO, Formatter, StreamHandler, getLogger, warning
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional, Sequence, Type, TypeVar, Union
+from typing import Any, Callable, Dict, List, Optional, Sequence, Type, TypeVar, Union
 
 from bng_indexer import calculate_bng_index
 from pyspark.pandas import DataFrame as SparkPandasDataFrame
@@ -21,7 +21,8 @@ from sds_data_model._dataframe import (
     _bng_to_bounds,
     _check_for_zarr,
     _create_dummy_dataset,
-    _get_minimum_dtypes_and_fill_vals,
+    _get_minimum_dtypes_and_nodata,
+    _recode_column,
     _to_zarr_region,
 )
 from sds_data_model._vector import _get_metadata, _get_name
@@ -63,6 +64,7 @@ class DataFrameWrapper:
     name: str
     data: Union[SparkDataFrame, GroupedData]
     metadata: Optional[Metadata]
+    lookup: Optional[Dict[str, Dict[Any, float]]]
     # graph: Optional[DiGraph]
 
     @classmethod
@@ -71,6 +73,7 @@ class DataFrameWrapper:
         data_path: str,
         metadata_path: Optional[str] = None,
         metadata_kwargs: Optional[Dict[str, Any]] = None,
+        lookup: Optional[Dict[str, Dict[Any, float]]] = None,
         name: Optional[str] = None,
         read_file_kwargs: Optional[Dict[str, Any]] = None,
         spark: Optional[SparkSession] = None,
@@ -152,7 +155,7 @@ class DataFrameWrapper:
             metadata=metadata,
         )
 
-        return cls(name=_name, data=data, metadata=metadata)
+        return cls(name=_name, data=data, metadata=metadata, lookup=lookup)
 
     def call_method(
         self: _DataFrameWrapper,
@@ -220,14 +223,23 @@ class DataFrameWrapper:
 
         return self
 
+    def categorize(
+        self: _DataFrameWrapper,
+        columns: Sequence[str],
+        lookup: Dict[str, Dict[Any, float]] = {},
+    ) -> _DataFrameWrapper:
+        if not self.lookup:
+            self.lookup = {}
+        for column in columns:
+            _recode_column(self, column, lookup)
+        return self
+
     def to_zarr(
         self: _DataFrameWrapper,
         path: str,
-        columns: Optional[Sequence[str]] = None,
-        categorical_columns: Optional[Sequence[str]] = None,
-        dtype: Dict[str, str] = {},
-        nodata: Dict[str, float] = {},
-        lookup: Dict[str, Dict[Any, float]] = {},
+        columns: Optional[List[str]] = None,
+        # dtype: Dict[str, str] = {},
+        nodata: Optional[Dict[str, float]] = None,
         index_column_name: str = "bng_index",
         geometry_column_name: str = "geometry",
         overwrite: bool = False,
@@ -258,6 +270,7 @@ class DataFrameWrapper:
             ValueError: If `self.data` is an instance of `pyspark.sql.GroupedData`_
                 instead of `pyspark.sql.DataFrame`_.
             ValueError: If Zarr file exists and overwrite set to False.
+            ValueError:
 
         .. _`pyspark.sql.GroupedData`:
             https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.GroupedData.html
@@ -265,6 +278,7 @@ class DataFrameWrapper:
         .. _`pyspark.sql.DataFrame`:
             https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html
         """  # noqa: B950
+
         if not isinstance(self.data, SparkDataFrame):
             data_type = type(self.data)
             raise ValueError(
@@ -289,14 +303,18 @@ class DataFrameWrapper:
             if overwrite is True and _check_for_zarr(_path):
                 warning("Overwriting existing zarr.")
 
-        columns, dtype, nodata, lookup = _get_minimum_dtypes_and_fill_vals(
+        if columns:
+            for column, _type in self.data.select(columns).dtypes:
+                if "string" in _type:
+                    raise ValueError(
+                        f"Column `{column}` is of type string. Cast or `categorize` to rasterize this column."
+                    )
+
+        dtype, nodata = _get_minimum_dtypes_and_nodata(
             self,
             columns=columns,
-            categorical_columns=categorical_columns,
-            dtype=dtype,
+            # dtype=dtype,
             nodata=nodata,
-            lookup=lookup,
-            dataset_name=self.name,
         )
 
         _create_dummy_dataset(
@@ -304,7 +322,7 @@ class DataFrameWrapper:
             columns=columns,
             dtype=dtype,
             nodata=nodata,
-            lookup=lookup,
+            lookup=self.lookup,
             dataset_name=self.name,
             metadata=self.metadata,
         )

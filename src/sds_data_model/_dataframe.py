@@ -2,7 +2,7 @@
 from dataclasses import asdict
 from json import load
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, cast, Dict, Generator, Iterable, List, Optional, Tuple, Union
 
 from affine import Affine
 from bng_indexer import wkt_from_bng
@@ -12,10 +12,11 @@ from numpy import arange, array, can_cast, full, isnan, nan, ndarray
 from pandas import DataFrame as PandasDataFrame
 from pyspark.sql import DataFrame as SparkDataFrame
 from pyspark.sql.functions import col, create_map, lit, max as _max, min as _min, udf
-from pyspark.sql.types import ArrayType, FloatType
+from pyspark.sql.types import ArrayType, FloatType, Row
 from rasterio.env import GDALVersion
 from rasterio.features import rasterize
 from rioxarray.rioxarray import affine_to_coords
+from shapely.geometry.base import BaseGeometry
 from shapely.wkt import loads
 from xarray import DataArray, Dataset, merge, open_dataset
 
@@ -244,18 +245,20 @@ def _map_dictionary_on_column(
     return sdf.withColumn(column, _map[col(column)])
 
 
-def _create_category_lookup(
-    self, column: str
-) -> Tuple[str, float, Dict[str, float]]:
-    unique = self.data.select(column).distinct()
-    length = unique.count()
-    lookup = dict(zip(unique.rdd.flatMap(lambda x: x).collect(), range(length)))
-    dtype = _get_minimum_dtype(length)
-    self.data = _map_dictionary_on_column(self.data, column, lookup)
-
-    lookup["No data"] = nodata = dtype_fill_value[dtype]
-
-    return dtype, nodata, lookup
+def _recode_column(
+    self,
+    column: str,
+    lookup: Union[Dict[str, Dict[Any, float]], Dict],
+) -> None:
+    if column in lookup:
+        _lookup = lookup[column]
+    else:
+        unique = self.data.select(column).distinct()
+        _lookup = dict(
+            zip(unique.rdd.flatMap(lambda x: x).collect(), range(unique.count()))
+        )
+    self.data = _map_dictionary_on_column(self.data, column, _lookup)
+    self.lookup[column] = _lookup
 
 
 def _get_minimum_dtype_from_column(
@@ -267,114 +270,71 @@ def _get_minimum_dtype_from_column(
     )
 
 
-def _get_minimum_dtype_and_fill(
+def _get_minimum_dtype_and_nodata_value(
     sdf: SparkDataFrame,
     column: str,
+    nodata: Optional[Dict[str, float]],
 ) -> Tuple[str, float]:
+    _next_dtype = lambda _type: list(dtype_fill_value.items())[
+        list(dtype_fill_value.keys()).index(_type) + 1
+    ]
+    _nodata: float
     dtype = _get_minimum_dtype_from_column(sdf, column)
-    _max_value = sdf.dropna().select(_max(sdf[column])).first()[0]
-
-    if _max_value == dtype_fill_value[dtype]:
-        _next_dtype = lambda _type: list(dtype_fill_value.items())[
-            list(dtype_fill_value.keys()).index(_type) + 1
-        ]
-        dtype, fill = _next_dtype(dtype)
-        _min_value = sdf.select(_min(sdf[column])).first()[0]
-        while not can_cast(_min_value, dtype):
-            dtype, fill = _next_dtype(dtype)
+    if nodata:
+        if column in nodata:
+            _nodata = nodata[column]
+            while not can_cast(_nodata, dtype):
+                dtype, _ = _next_dtype(dtype)
     else:
-        fill = dtype_fill_value[dtype]
-
-    return dtype, fill
-
-
-def _get_minimum_dtype_from_fill(
-    sdf: SparkDataFrame,
-    column: str,
-    nodata: float,
-) -> str:
-    dtype = _get_minimum_dtype_from_column(sdf, column)
-    while not can_cast(nodata, dtype):
-        dtype = list(dtype_fill_value.keys())[
-            list(dtype_fill_value.keys()).index(dtype) + 1
-        ]
-    return dtype
+        _max_value: float = cast(Row, sdf.dropna().select(_max(sdf[column])).first())[0]
+        if _max_value == dtype_fill_value[dtype]:
+            dtype, _nodata = _next_dtype(dtype)
+            _min_value: float = cast(Row, sdf.select(_min(sdf[column])).first())[0]
+            while not can_cast(_min_value, dtype):
+                dtype, _nodata = _next_dtype(dtype)
+        else:
+            _nodata = dtype_fill_value[dtype]
+    return dtype, _nodata
 
 
-def _process_category_lookup(
+def _get_minimum_dtypes_and_nodata(
     self,
-    column: str,
-    nodata: Dict[str, float],
-    lookup: Dict[str, Dict[Any, float]],
-) -> Tuple[str, float, Dict[Any, float]]:
-    dtype = _get_minimum_dtype(list(lookup[column].values()))
-    _nodata = (
-        lookup[column].pop("No data") if "No data" in lookup[column] else nodata[column]
-    )
-    self.data = _map_dictionary_on_column(self.data, column, lookup[column])
-    lookup[column]["No data"] = _nodata
-    return dtype, _nodata, lookup[column]
-
-
-def _get_minimum_dtypes_and_fill_vals(
-    self,
-    columns: Optional[Sequence],
-    categorical_columns: Optional[Sequence],
-    dtype: Dict[str, str],
-    nodata: Dict[str, float],
-    lookup: Dict[str, Dict[Any, float]],
-    dataset_name: str,
-) -> Tuple[List[str], Dict[str, str], Dict[str, float], Dict[str, Dict[Any, float]]]:
-    _columns, _dtype, _nodata, _lookup = [], {}, {}, {}
-    if not all((columns, categorical_columns)):
-        _dtype[dataset_name] = "uint8"
-        _nodata[dataset_name] = 0
+    columns: Optional[List],
+    nodata: Optional[Dict[str, float]],
+) -> Tuple[Dict[str, str], Dict[str, float]]:
+    _dtype: Dict[str, str] = {}
+    _nodata: Dict[str, float] = {}
+    if not columns:
+        _dtype[self.name] = "uint8"
+        _nodata[self.name] = 0
     else:
-        if columns:
+        for column in columns:
+            _dtype[column], _nodata[column] = _get_minimum_dtype_and_nodata_value(
+                self.data, column, nodata
+            )
+
+        if self.lookup:
             for column in columns:
-                _columns.append(column)
-                if column in dtype:
-                    _dtype[column] = dtype[column]
-                    _nodata[column] = nodata[column]
-                elif nodata:
-                    _dtype[column] = _get_minimum_dtype_from_fill(
-                        self.data, column, nodata[column]
-                    )
-                    _nodata[column] = nodata[column]
-                else:
-                    _dtype[column], _nodata[column] = _get_minimum_dtype_and_fill(
-                        self.data, column
-                    )
-        if categorical_columns:
-            for column in categorical_columns:
-                _columns.append(column)
-                if column in lookup:
-                    (
-                        _dtype[column],
-                        _nodata[column],
-                        _lookup[column],
-                    ) = _process_category_lookup(self, column, nodata, lookup)
-                elif column:
-                    (
-                        _dtype[column],
-                        _nodata[column],
-                        _lookup[column],
-                    ) = _create_category_lookup(self, column)
-    return _columns, _dtype, _nodata, _lookup
+                if column in self.lookup:
+                    if not "nodata" in self.lookup[column]:
+                        self.lookup[column]["nodata"] = _nodata[column]
+
+    return _dtype, _nodata
 
 
 def _create_empty_dataset(
     column: str,
     nodata: float,
-    lookup: Dict[str, Dict[Any, float]],
+    lookup: Optional[Dict[str, Dict[Any, float]]],
     dtype: str,
     dims: Tuple[str, str],
     height: int,
     width: int,
 ) -> Dataset:
-    attrs = {"No data": nodata}
-    if column in lookup:
-        attrs["lookup"] = str(lookup[column])
+    attrs: Dict[str, Any] = {"nodata": nodata}
+    if lookup:
+        if column in lookup:
+            attrs["lookup"] = str(lookup[column])
     return DataArray(
         data=full(shape=(height, width), fill_value=nodata, dtype=dtype),
         dims=dims,
@@ -385,12 +345,12 @@ def _create_empty_dataset(
 
 def _create_dummy_dataset(
     path: str,
-    columns: List,
+    columns: Optional[List],
     dtype: Dict[str, str],
     nodata: Dict[str, float],
-    lookup: Dict[str, Dict[Any, float]],
+    lookup: Optional[Dict[str, Dict[Any, float]]],
     dataset_name: str,
-    metadata: Optional[Metadata] = None,
+    metadata: Optional[Metadata],
     cell_size: int = CELL_SIZE,
     bng_xmin: int = BNG_XMIN,
     bng_xmax: int = BNG_XMAX,
@@ -513,7 +473,9 @@ def _to_zarr_region(
         geometry=GeoSeries.from_wkb(pdf[geometry_column_name]),
         crs="EPSG:27700",
     )
-
+    shapes: Union[
+        List[BaseGeometry], Generator[Iterable[Tuple[BaseGeometry, Any]], None, None]
+    ]
     if not columns:
         columns = [dataset_name]
         shapes = [gpdf.geometry]
