@@ -472,9 +472,11 @@ def data_for_rasterisation(
     bng_index_column=bng_index_column,
     bounds_column=bounds_column,
     geometry_column=geometry_column,
-) -> List[Dict[str, Union[bool, int, float, str, BoundingBox, bytearray]]]:
+) -> List[
+    Dict[str, Union[bool, int, float, str, BoundingBox, bytearray, Tuple[str, ...]]]
+]:
     list_of_dicts: List[
-        Dict[str, Union[bool, int, float, str, BoundingBox, bytearray]]
+        Dict[str, Union[bool, int, float, str, BoundingBox, bytearray, Tuple[str, ...]]]
     ] = [
         {
             "bool": bool(boolean_column[index]),

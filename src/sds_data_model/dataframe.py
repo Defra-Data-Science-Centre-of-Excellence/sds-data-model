@@ -20,6 +20,7 @@ from pyspark_vector_files.gpkg import read_gpkg
 from sds_data_model._dataframe import (
     _bng_to_bounds,
     _check_for_zarr,
+    _check_sparkdataframe,
     _create_dummy_dataset,
     _get_minimum_dtypes_and_nodata,
     _recode_column,
@@ -99,6 +100,7 @@ class DataFrameWrapper:
             data_path (str): Path to data,
             metadata_path (Optional[str], optional): Path to metadata supplied by user. Defaults to None.
             metadata_kwargs (Optional[str]): Optional kwargs for metadata
+            lookup (Optional[Dict[str, Dict[Any, float]]]): Dictionary of `{column: value-map, ...}` for columns in the data. Not applied to the data. Defaults to None.
             name (Optional[str], optional): Name for data, either supplied by caller or obtained from metadata title. Defaults to None.
             read_file_kwargs (Optional[Dict[str,Any]], optional): Additional kwargs supplied by the caller, dependent on the function called. Defaults to None.
             spark(Optional[SparkSession]): Optional spark session
@@ -226,19 +228,31 @@ class DataFrameWrapper:
     def categorize(
         self: _DataFrameWrapper,
         columns: Sequence[str],
-        lookup: Dict[str, Dict[Any, float]] = {},
+        lookup: Optional[Dict[str, Dict[Any, float]]] = None,
     ) -> _DataFrameWrapper:
+        """Maps an auto-generated or given dictionary onto provided columns.
+
+        Args:
+            columns (Sequence[str]): Columns to map on.
+            lookup (Optional[Dict[str, Dict[Any, float]]]): `{column: value-map}`
+                dictionary to map. Defaults to {}.
+
+        Returns:
+            _DataFrameWrapper: SparkDataFrameWrapper
+        """
+        self.data = _check_sparkdataframe(self.data)
         if not self.lookup:
             self.lookup = {}
+        if not lookup:
+            lookup = {}
         for column in columns:
-            _recode_column(self, column, lookup)
+            self.data, self.lookup[column] = _recode_column(self.data, column, lookup)
         return self
 
     def to_zarr(
         self: _DataFrameWrapper,
         path: str,
         columns: Optional[List[str]] = None,
-        # dtype: Dict[str, str] = {},
         nodata: Optional[Dict[str, float]] = None,
         index_column_name: str = "bng_index",
         geometry_column_name: str = "geometry",
@@ -258,6 +272,8 @@ class DataFrameWrapper:
 
         Args:
             path (str): Path to save the zarr file including file name.
+            columns (Optional[List[str]]): Columns to rasterize. If `None`, a geometry mask will be generated. Defaults to None.
+            nodata (Optional[Dict[str, float]]): Dictionary of `{column: nodata}`. Manual assignment of the nodata/fill value. Defaults to None.
             index_column_name (str): Name of the BNG index column. Defaults to
                 "bng_index".
             geometry_column_name (str): Name of the geometry column. Defaults to
@@ -265,12 +281,11 @@ class DataFrameWrapper:
             overwrite (bool): Overwrite existing zarr? Defaults to False.
 
         Raises:
+            ValueError: If `self.data` is not an instance of of `pyspark.sql.DataFrame`.
             ValueError: If `index_column_name` isn't in the dataframe.
             ValueError: If `geometry_column_name` isn't in the dataframe.
-            ValueError: If `self.data` is an instance of `pyspark.sql.GroupedData`_
-                instead of `pyspark.sql.DataFrame`_.
             ValueError: If Zarr file exists and overwrite set to False.
-            ValueError:
+            ValueError: If column of type string is in `columns`.
 
         .. _`pyspark.sql.GroupedData`:
             https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.GroupedData.html
@@ -278,12 +293,7 @@ class DataFrameWrapper:
         .. _`pyspark.sql.DataFrame`:
             https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html
         """  # noqa: B950
-
-        if not isinstance(self.data, SparkDataFrame):
-            data_type = type(self.data)
-            raise ValueError(
-                f"`self.data` must be a `pyspark.sql.DataFrame` not a {data_type}"
-            )
+        self.data = _check_sparkdataframe(self.data)
 
         colnames = self.data.columns
 
@@ -307,14 +317,16 @@ class DataFrameWrapper:
             for column, _type in self.data.select(columns).dtypes:
                 if "string" in _type:
                     raise ValueError(
-                        f"Column `{column}` is of type string. Cast or `categorize` to rasterize this column."
+                        f"Column `{column}` is of type string."
+                        f"Cast or `categorize` to rasterize this column."
                     )
 
-        dtype, nodata = _get_minimum_dtypes_and_nodata(
-            self,
+        dtype, nodata, self.lookup = _get_minimum_dtypes_and_nodata(
+            sdf=self.data,
             columns=columns,
-            # dtype=dtype,
             nodata=nodata,
+            lookup=self.lookup,
+            mask_name=self.name,
         )
 
         _create_dummy_dataset(
@@ -323,7 +335,7 @@ class DataFrameWrapper:
             dtype=dtype,
             nodata=nodata,
             lookup=self.lookup,
-            dataset_name=self.name,
+            mask_name=self.name,
             metadata=self.metadata,
         )
 
@@ -333,7 +345,7 @@ class DataFrameWrapper:
             columns=columns,
             dtype=dtype,
             nodata=nodata,
-            dataset_name=self.name,
+            mask_name=self.name,
             geometry_column_name=geometry_column_name,
         )
 
