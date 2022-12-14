@@ -22,7 +22,8 @@ from numpy import (
 from numpy.typing import NDArray
 from pandas import DataFrame as PandasDataFrame
 from pyspark.sql import DataFrame as SparkDataFrame
-from pyspark.sql.functions import Column, col, create_map, lit
+from pyspark.sql.column import Column
+from pyspark.sql.functions import col, create_map, lit
 from pyspark.sql.functions import max as _max
 from pyspark.sql.functions import min as _min
 from pyspark.sql.functions import udf
