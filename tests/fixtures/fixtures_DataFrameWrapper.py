@@ -408,7 +408,6 @@ def int64_column(
     )
 
 
-# See https://stackoverflow.com/questions/15174953/range-of-representable-values-of-32-bit-64-bit-and-80-bit-float-ieee-754
 def _get_float_maximum(exponent: int, mantissa: int) -> float:
     return float(
         2 ** (2 ** (exponent - 1) - 1) * (1 + (2**mantissa - 1) / 2**mantissa)

@@ -181,7 +181,7 @@ def _get_metadata(
     return metadata
 
 
-def _check_sparkdataframe(data: Any) -> SparkDataFrame:
+def _check_sparkdataframe(data: Any) -> SparkDataFrame:  # noqa ANN401
     """Check input object is a `pyspark.sql.DataFrame`.
 
     Args:
@@ -222,7 +222,7 @@ _GDAL_AT_LEAST_35, _GDAL_AT_LEAST_37 = map(
 )
 
 
-def _get_minimum_dtype(array: NDArray[generic]) -> str:
+def _get_minimum_dtype(array: NDArray[generic]) -> str:  # noqa: C901
     """Return minimum type that has rasterization support.
 
     Args:
