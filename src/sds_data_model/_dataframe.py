@@ -22,7 +22,7 @@ from numpy import (
 from numpy.typing import NDArray
 from pandas import DataFrame as PandasDataFrame
 from pyspark.sql import DataFrame as SparkDataFrame
-from pyspark.sql.functions import col, create_map, lit
+from pyspark.sql.functions import Column, col, create_map, lit
 from pyspark.sql.functions import max as _max
 from pyspark.sql.functions import min as _min
 from pyspark.sql.functions import udf
@@ -285,7 +285,7 @@ def _map_dictionary_on_column(
     Returns:
         SparkDataFrame: SparkDataFrame with updated column.
     """
-    _map = create_map([lit(x) for x in chain(*lookup.items())])
+    _map = create_map(cast(Column, [lit(x) for x in chain(*lookup.items())]))
     return sdf.withColumn(column, _map[col(column)])
 
 
