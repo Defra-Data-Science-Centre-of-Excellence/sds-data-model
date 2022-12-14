@@ -125,12 +125,13 @@ def test_call_method_groupBy(
     assert_df_equality(received.data, expected_dataframe_grouped)
 
 
-def open_as_chunks(
-    path: str,
-) -> Dataset:
-    """Open zarr chunked. Remove grid mapping and array metadata."""
-    return open_dataset(
-        path,
+def test_to_zarr_with_metadata(
+    hl_zarr_path_with_metadata: str,
+    expected_hl_dataset_with_metadata: Dataset,
+) -> None:
+    """Check that attrs in the zarr look as expected."""
+    hl_dataset = open_dataset(
+        hl_zarr_path_with_metadata,
         engine="zarr",
         decode_coords=True,
         chunks={
@@ -138,32 +139,21 @@ def open_as_chunks(
             "northings": 10_000,
         },
     )
-
-
-# def test_to_zarr_no_metadata(
-#     hl_zarr_path_no_metadata: str,
-#     expected_hl_dataset_no_metadata: Dataset,
-# ) -> None:
-#     """The HL DataFrame wrapper is rasterised as expected."""
-#     assert_identical(
-#         open_as_chunks(hl_zarr_path_no_metadata), expected_hl_dataset_no_metadata
-#     )
-
-
-# def test_to_zarr_with_metadata(
-#     hl_zarr_path_with_metadata: str,
-#     expected_hl_dataset_with_metadata: Dataset,
-# ) -> None:
-#     """Check that attrs in the zarr look as expected."""
-#     assert (
-#         open_as_chunks(hl_zarr_path_with_metadata).attrs
-#         == expected_hl_dataset_with_metadata.attrs
-#     )
+    assert hl_dataset.attrs == expected_hl_dataset_with_metadata.attrs
 
 
 def test_to_zarr_mask(geometry_mask_path: str, expected_geometry_mask: Dataset) -> None:
     """Check geometry mask generation."""
-    assert_identical(open_as_chunks(geometry_mask_path), expected_geometry_mask)
+    geometry_mask = open_dataset(
+        geometry_mask_path,
+        engine="zarr",
+        decode_coords=True,
+        chunks={
+            "eastings": 10_000,
+            "northings": 10_000,
+        },
+    )
+    assert_identical(geometry_mask, expected_geometry_mask)
 
 
 @pytest.mark.parametrize(
