@@ -13,7 +13,6 @@ from xarray import Dataset, open_dataset
 from xarray.testing import assert_identical
 
 from sds_data_model.dataframe import DataFrameWrapper
-from sds_data_model.raster import DatasetWrapper
 
 
 def test_vector_layer_from_files(
@@ -130,7 +129,7 @@ def open_as_chunks(
     path: str,
 ) -> Dataset:
     """Open zarr chunked. Remove grid mapping and array metadata."""
-    dataset = open_dataset(
+    return open_dataset(
         path,
         engine="zarr",
         decode_coords=True,
@@ -139,19 +138,16 @@ def open_as_chunks(
             "northings": 10_000,
         },
     )
-    dataset[dataset.rio.vars[0]].attrs.clear()
-    del dataset[dataset.rio.grid_mapping]
-    return dataset
 
 
-def test_to_zarr_no_metadata(
-    hl_zarr_path_no_metadata: str,
-    expected_hl_dataset_no_metadata: Dataset,
-) -> None:
-    """The HL DataFrame wrapper is rasterised as expected."""
-    assert_identical(
-        open_as_chunks(hl_zarr_path_no_metadata), expected_hl_dataset_no_metadata
-    )
+# def test_to_zarr_no_metadata(
+#     hl_zarr_path_no_metadata: str,
+#     expected_hl_dataset_no_metadata: Dataset,
+# ) -> None:
+#     """The HL DataFrame wrapper is rasterised as expected."""
+#     assert_identical(
+#         open_as_chunks(hl_zarr_path_no_metadata), expected_hl_dataset_no_metadata
+#     )
 
 
 def test_to_zarr_with_metadata(
@@ -163,6 +159,11 @@ def test_to_zarr_with_metadata(
         open_as_chunks(hl_zarr_path_with_metadata).attrs
         == expected_hl_dataset_with_metadata.attrs
     )
+
+
+def test_to_zarr_mask(geometry_mask_path: str, expected_geometry_mask: Dataset) -> None:
+    """Check geometry mask generation."""
+    assert_identical(open_as_chunks(geometry_mask_path), expected_geometry_mask)
 
 
 @pytest.mark.parametrize(

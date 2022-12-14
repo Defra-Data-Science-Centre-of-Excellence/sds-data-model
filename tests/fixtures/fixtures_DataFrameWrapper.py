@@ -231,7 +231,21 @@ def expected_dataframe_joined(
 
 
 @fixture
+def expected_schema_grouped() -> StructType:
+    """Schema for expected DataFrame."""
+    return StructType(
+        [
+            StructField("category", StringType(), True),
+            StructField("avg(a)", DoubleType(), True),
+            StructField("avg(b)", DoubleType(), True),
+            StructField("avg(c)", DoubleType(), True),
+        ]
+    )
+
+
+@fixture
 def schema_for_rasterisation() -> StructType:
+    """Schema for different data types."""
     return StructType(
         fields=[
             StructField("bool", BooleanType(), True),
@@ -250,32 +264,22 @@ def schema_for_rasterisation() -> StructType:
 
 
 @fixture
-def expected_schema_grouped() -> StructType:
-    """Schema for expected DataFrame."""
-    return StructType(
-        [
-            StructField("category", StringType(), True),
-            StructField("avg(a)", DoubleType(), True),
-            StructField("avg(b)", DoubleType(), True),
-            StructField("avg(c)", DoubleType(), True),
-        ]
-    )
-
-
-@fixture
-def bounds_column(bboxes=BBOXES) -> Tuple[BoundingBox, ...]:
+def bounds_column(bboxes: Tuple[BoundingBox, ...] = BBOXES) -> Tuple[BoundingBox, ...]:
+    """Generate bounds column from `BBOXES`."""
     return tuple(bbox for index, bbox in enumerate(bboxes) if index % 2 == 0)
 
 
 @fixture
 def geometry_column(
-    bounds_column,
+    bounds_column: Tuple[BoundingBox, ...],
 ) -> Tuple[bytearray, ...]:
+    """Geometry column from bounds."""
     return tuple(box(*bounds).wkb for bounds in bounds_column)
 
 
 @fixture
 def bng_index_column() -> Tuple[str, ...]:
+    """BNG 100km grid squares."""
     return (
         "HL",
         "HN",
@@ -330,6 +334,7 @@ def bng_index_column() -> Tuple[str, ...]:
 def num_rows(
     bounds_column: Tuple[BoundingBox, ...],
 ) -> int:
+    """Return length of bounds."""
     return len(bounds_column)
 
 
@@ -349,6 +354,7 @@ def int8_column(
     int8_minimum: int = INT8_MINIMUM,
     int8_maximum: int = INT8_MAXIMUM,
 ) -> NDArray[int8]:
+    """Generate int8 minmax range."""
     return linspace(
         int8_minimum,
         int8_maximum,
@@ -363,6 +369,7 @@ def int16_column(
     int16_minimum: int = INT16_MINIMUM,
     int16_maximum: int = INT16_MAXIMUM,
 ) -> NDArray[int16]:
+    """Generate int16 minmax range."""
     return linspace(
         int16_minimum,
         int16_maximum,
@@ -377,6 +384,7 @@ def int32_column(
     int32_minimum: int = INT32_MINIMUM,
     int32_maximum: int = INT32_MAXIMUM,
 ) -> NDArray[int32]:
+    """Generate int32 minmax range."""
     return linspace(
         int32_minimum,
         int32_maximum,
@@ -391,6 +399,7 @@ def int64_column(
     int64_minimum: int = INT64_MINIMUM,
     int64_maximum: int = INT64_MAXIMUM,
 ) -> NDArray[int64]:
+    """Generate int64 minmax range."""
     return linspace(
         int64_minimum,
         int64_maximum,
@@ -427,6 +436,7 @@ def float32_column(
     float32_minimum: float = float32_minimum,
     float32_maximum: float = float32_maximum,
 ) -> NDArray[float32]:
+    """Generate float32 minmax range."""
     return linspace(
         float32_minimum,
         float32_maximum,
@@ -441,6 +451,7 @@ def float64_column(
     float64_minimum: float = float64_minimum,
     float64_maximum: float = float64_maximum,
 ) -> NDArray[float64]:
+    """Generate float64 minmax range."""
     return linspace(
         float64_minimum,
         float64_maximum,
@@ -451,32 +462,33 @@ def float64_column(
 
 @fixture
 def boolean_column(num_rows: int) -> Tuple[bool, ...]:
+    """Generate boolean sequence."""
     return tuple(chain.from_iterable(repeat([True, False], num_rows)))
 
 
 @fixture
 def string_category_column(num_rows: int) -> Tuple[str, ...]:
+    """Generate string sequence."""
     return tuple(chain.from_iterable(repeat("ABC", num_rows)))
 
 
 @fixture
 def data_for_rasterisation(
-    boolean_column=boolean_column,
-    int8_column=int8_column,
-    int16_column=int16_column,
-    int32_column=int32_column,
-    int64_column=int64_column,
-    float32_column=float32_column,
-    float64_column=float64_column,
-    string_category_column=string_category_column,
-    bng_index_column=bng_index_column,
-    bounds_column=bounds_column,
-    geometry_column=geometry_column,
-) -> List[
-    Dict[str, Union[bool, int, float, str, BoundingBox, bytearray, Tuple[str, ...]]]
-]:
+    boolean_column: Tuple[bool, ...],
+    int8_column: NDArray[int8],
+    int16_column: NDArray[int16],
+    int32_column: NDArray[int32],
+    int64_column: NDArray[int64],
+    float32_column: NDArray[float32],
+    float64_column: NDArray[float64],
+    string_category_column: Tuple[str, ...],
+    bng_index_column: Tuple[str, ...],
+    bounds_column: Tuple[BoundingBox, ...],
+    geometry_column: Tuple[bytearray, ...],
+) -> List[Dict[str, Union[bool, int, float, str, Tuple[int, ...], bytearray]]]:
+    """Generate data of different types."""
     list_of_dicts: List[
-        Dict[str, Union[bool, int, float, str, BoundingBox, bytearray, Tuple[str, ...]]]
+        Dict[str, Union[bool, int, float, str, Tuple[int, ...], bytearray]]
     ] = [
         {
             "bool": bool(boolean_column[index]),
@@ -503,6 +515,7 @@ def dataframe_for_rasterisations(
     data_for_rasterisation: List,
     schema_for_rasterisation: StructType,
 ) -> SparkDataFrame:
+    """Generate SparkDataFrame consisting of columns of different types."""
     return spark_session.createDataFrame(
         data=data_for_rasterisation,
         schema=schema_for_rasterisation,
@@ -510,7 +523,26 @@ def dataframe_for_rasterisations(
 
 
 @fixture
+def geometry_mask_path(
+    tmp_path: Path,
+    dataframe_for_rasterisations: SparkDataFrame,
+) -> str:
+    """Write geometry mask and return path."""
+    path = str(tmp_path / "mask.zarr")
+    DataFrameWrapper(
+        name="geometry_mask",
+        data=dataframe_for_rasterisations,
+        metadata=None,
+        lookup=None,
+    ).to_zarr(
+        path=path,
+    )
+    return path
+
+
+@fixture
 def expected_geometry_mask() -> Dataset:
+    """Expected geometry mask `Dataset`."""
     _ones = ones(dtype=uint8, shape=OUT_SHAPE, chunks=(10_000, 10_000))
     _zeros = zeros(dtype=uint8, shape=OUT_SHAPE, chunks=(10_000, 10_000))
 
@@ -532,7 +564,7 @@ def expected_geometry_mask() -> Dataset:
         name="geometry_mask",
         data=data,
         coords=coords,
-        attrs={"No data": 0},
+        attrs={"nodata": 0},
     ).to_dataset()
 
     transform = Affine(CELL_SIZE, 0, BNG_XMIN, 0, -CELL_SIZE, BNG_YMAX)
