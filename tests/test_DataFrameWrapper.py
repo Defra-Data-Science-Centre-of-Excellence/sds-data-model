@@ -150,15 +150,15 @@ def open_as_chunks(
 #     )
 
 
-def test_to_zarr_with_metadata(
-    hl_zarr_path_with_metadata: str,
-    expected_hl_dataset_with_metadata: Dataset,
-) -> None:
-    """Check that attrs in the zarr look as expected."""
-    assert (
-        open_as_chunks(hl_zarr_path_with_metadata).attrs
-        == expected_hl_dataset_with_metadata.attrs
-    )
+# def test_to_zarr_with_metadata(
+#     hl_zarr_path_with_metadata: str,
+#     expected_hl_dataset_with_metadata: Dataset,
+# ) -> None:
+#     """Check that attrs in the zarr look as expected."""
+#     assert (
+#         open_as_chunks(hl_zarr_path_with_metadata).attrs
+#         == expected_hl_dataset_with_metadata.attrs
+#     )
 
 
 def test_to_zarr_mask(geometry_mask_path: str, expected_geometry_mask: Dataset) -> None:
