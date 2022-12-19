@@ -1,37 +1,51 @@
 """Tests for `DataFrameWrapper.to_zarr`."""
 
 # from pathlib import Path
+from typing import Callable, List, Optional
+
+import pytest
 
 # import pytest
 import rioxarray  # noqa: F401
-
-# from pytest import raises
-from xarray import Dataset, open_dataset
+from pytest import FixtureRequest
+from xarray import open_dataset
 from xarray.testing import assert_identical
 
-# from sds_data_model.dataframe import DataFrameWrapper
 
-# def test_to_zarr_with_metadata(
-#     hl_zarr_path_with_metadata: str,
-#     expected_hl_dataset_with_metadata: Dataset,
-# ) -> None:
-#     """Check that attrs in the zarr look as expected."""
-#     hl_dataset = open_dataset(
-#         hl_zarr_path_with_metadata,
-#         engine="zarr",
-#         decode_coords=True,
-#         chunks={
-#             "eastings": 10_000,
-#             "northings": 10_000,
-#         },
-#     )
-#     assert hl_dataset.attrs == expected_hl_dataset_with_metadata.attrs
-
-
-def test_to_zarr_mask(geometry_mask_path: str, expected_geometry_mask: Dataset) -> None:
+@pytest.mark.parametrize(
+    argnames=(
+        "name",
+        "columns",
+        "expected_dataset_name",
+    ),
+    argvalues=(
+        ("mask", None, "expected_mask_dataset"),
+        ("int16", ["int16"], "expected_int16_dataset"),
+        ("int32", ["int32"], "expected_int32_dataset"),
+        ("int64", ["int64"], "expected_int64_dataset"),
+        ("float32", ["float32"], "expected_float32_dataset"),
+        ("float64", ["float64"], "expected_float64_dataset"),
+    ),
+    ids=(
+        "mask",
+        "int16",
+        "int32",
+        "int64",
+        "float32",
+        "float64",
+    ),
+)
+def test_to_zarr_mask(
+    name: str,
+    columns: Optional[List[str]],
+    expected_dataset_name: str,
+    request: FixtureRequest,
+    make_expected_dataset_path: Callable[[str, Optional[List[str]]], str],
+) -> None:
     """Check geometry mask generation."""
-    geometry_mask = open_dataset(
-        geometry_mask_path,
+    expected_dataset_path = make_expected_dataset_path(name, columns)
+    dataset = open_dataset(
+        expected_dataset_path,
         engine="zarr",
         decode_coords=True,
         chunks={
@@ -39,7 +53,8 @@ def test_to_zarr_mask(geometry_mask_path: str, expected_geometry_mask: Dataset) 
             "northings": 1,
         },
     )
-    assert_identical(geometry_mask, expected_geometry_mask)
+    expected_dataset = request.getfixturevalue(expected_dataset_name)
+    assert_identical(dataset, expected_dataset)
 
 
 # @pytest.mark.parametrize(
