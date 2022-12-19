@@ -36,7 +36,6 @@ from sds_data_model.constants import (
     BNG_YMAX,
     BNG_YMIN,
     CELL_SIZE,
-    OUT_SHAPE,
     BoundingBox,
 )
 from sds_data_model.dataframe import DataFrameWrapper
@@ -535,15 +534,32 @@ def geometry_mask_path(
         lookup=None,
     ).to_zarr(
         path=path,
+        cell_size=100_000,
+        out_shape=(1, 1),
     )
     return path
 
 
 @fixture
-def expected_geometry_mask() -> Dataset:
+def out_shape() -> Tuple[int, int]:
+    """Mocked OUT_SHAPE."""
+    return (1, 1)
+
+
+@fixture
+def cell_size() -> int:
+    """Mocked CELL_SIZE."""
+    return 100_000
+
+
+@fixture
+def expected_geometry_mask(
+    out_shape: Tuple[int, int],
+    cell_size: int,
+) -> Dataset:
     """Expected geometry mask `Dataset`."""
-    _ones = ones(dtype=uint8, shape=OUT_SHAPE, chunks=(10_000, 10_000))
-    _zeros = zeros(dtype=uint8, shape=OUT_SHAPE, chunks=(10_000, 10_000))
+    _ones = ones(dtype=uint8, shape=out_shape, chunks=out_shape)
+    _zeros = zeros(dtype=uint8, shape=out_shape, chunks=out_shape)
 
     interleaved = interleave_longest(
         repeat(_ones, 46),
@@ -555,8 +571,8 @@ def expected_geometry_mask() -> Dataset:
     )
 
     coords = {
-        "northings": arange(BNG_YMAX - (CELL_SIZE / 2), BNG_YMIN, -CELL_SIZE),
-        "eastings": arange(BNG_XMIN + (CELL_SIZE / 2), BNG_XMAX, CELL_SIZE),
+        "northings": arange(BNG_YMAX - (cell_size / 2), BNG_YMIN, -cell_size),
+        "eastings": arange(BNG_XMIN + (cell_size / 2), BNG_XMAX, cell_size),
     }
 
     ds = DataArray(
@@ -566,7 +582,7 @@ def expected_geometry_mask() -> Dataset:
         attrs={"nodata": 0},
     ).to_dataset()
 
-    transform = Affine(CELL_SIZE, 0, BNG_XMIN, 0, -CELL_SIZE, BNG_YMAX)
+    transform = Affine(cell_size, 0, BNG_XMIN, 0, -cell_size, BNG_YMAX)
     ds.rio.write_crs("EPSG:27700", inplace=True)
     ds.rio.write_transform(transform, inplace=True)
 

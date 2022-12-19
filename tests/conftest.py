@@ -1,9 +1,10 @@
 """conftest.py."""
 
-from .fixtures.fixtures_DataFrameWrapper import (  # noqa: F401
+from .fixtures.fixtures_dataframe import (  # noqa: F401
     bng_index_column,
     boolean_column,
     bounds_column,
+    cell_size,
     data_for_rasterisation,
     dataframe_for_rasterisations,
     dataframe_other,
@@ -38,6 +39,7 @@ from .fixtures.fixtures_DataFrameWrapper import (  # noqa: F401
     int32_column,
     int64_column,
     num_rows,
+    out_shape,
     schema_for_rasterisation,
     schema_other,
     spark_session,
