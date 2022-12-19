@@ -76,6 +76,38 @@ def _get_bboxes(
 # A tuple of BoundingBox for BNG 100km grid squares.
 BBOXES = _get_bboxes()
 
+# Numeric constants
+INT8_MINIMUM = 2**8 // -2
+INT8_MAXIMUM = (2**8 // 2) - 1
+INT16_MINIMUM = 2**16 // -2
+INT16_MAXIMUM = (2**16 // 2) - 1
+INT32_MINIMUM = 2**32 // -2
+INT32_MAXIMUM = (2**32 // 2) - 1
+INT64_MINIMUM = 2**64 // -2
+INT64_MAXIMUM = (2**64 // 2) - 1
+
+
+def _get_float_maximum(exponent: int, mantissa: int) -> float:
+    return float(
+        2 ** (2 ** (exponent - 1) - 1) * (1 + (2**mantissa - 1) / 2**mantissa)
+    )
+
+
+def _get_float_minimum(exponent: int) -> float:
+    return float(2 ** (2 - 2 ** (exponent - 1)))
+
+
+FLOAT32_EXPONENT = 8
+FLOAT32_MANTISSA = 23
+FLOAT64_EXPONENT = 11
+FLOAT64_MANTISSA = 52
+
+float32_minimum = _get_float_minimum(FLOAT32_EXPONENT)
+float32_maximum = _get_float_maximum(FLOAT32_EXPONENT, FLOAT32_MANTISSA)
+float64_minimum = _get_float_minimum(FLOAT64_EXPONENT)
+float64_maximum = _get_float_maximum(FLOAT64_EXPONENT, FLOAT64_MANTISSA)
+
+# Metadata paths
 TITLE_XPATH = [
     "gmd:identificationInfo",
     "gmd:MD_DataIdentification",
