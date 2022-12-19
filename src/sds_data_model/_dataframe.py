@@ -35,7 +35,6 @@ from shapely.geometry.base import BaseGeometry
 from shapely.wkt import loads
 from xarray import DataArray, Dataset, merge, open_dataset
 
-from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, CELL_SIZE, OUT_SHAPE
 from sds_data_model.metadata import Metadata
 
 
@@ -479,16 +478,16 @@ def _create_empty_dataset(
 
 def _create_dummy_dataset(
     path: str,
-    columns: Optional[List],
     dtype: Dict[str, str],
     nodata: Dict[str, float],
-    lookup: Optional[Dict[str, Dict[Any, float]]],
     mask_name: str,
+    cell_size: int,
+    bng_xmin: int,
+    bng_xmax: int,
+    bng_ymax: int,
+    columns: Optional[List],
+    lookup: Optional[Dict[str, Dict[Any, float]]],
     metadata: Optional[Metadata],
-    cell_size: int = CELL_SIZE,
-    bng_xmin: int = BNG_XMIN,
-    bng_xmax: int = BNG_XMAX,
-    bng_ymax: int = BNG_YMAX,
 ) -> None:
     """A dummy Dataset. It's metadata is used to create the initial `zarr` store.
 
@@ -513,14 +512,10 @@ def _create_dummy_dataset(
         lookup (Optional[Dict[str, Dict[Any, Float]]]): lookup for a column if applicable.
         mask_name (str): Name for the geometry mask.
         metadata (Optional[str]): Metadata object relating to data.
-        cell_size (int): The resolution of the cells in the DataArray. Defaults to
-            CELL_SIZE.
-        bng_xmin (int): The minimum x value of the British National Grid.
-            Defaults to BNG_XMIN.
-        bng_xmax (int): The maximum x value of the British National Grid.
-            Defaults to BNG_XMAX.
-        bng_ymax (int): The maximum y value of the British National Grid.
-            Defaults to BNG_YMAX.
+        cell_size (int): The resolution of the cells in the DataArray.
+        bng_xmin (int): The minimum x value of the DataArray.
+        bng_xmax (int): The maximum x value of the DataArray.
+        bng_ymax (int): The maximum y value of the DataArray.
 
     .. _`Appending to existing Zarr stores`:
         https://docs.xarray.dev/en/stable/user-guide/io.html#appending-to-existing-zarr-stores  # noqa: B950
@@ -570,10 +565,10 @@ def _to_zarr_region(
     dtype: Dict[str, str],
     nodata: Dict[str, float],
     mask_name: str,
-    cell_size: int = CELL_SIZE,
-    out_shape: Tuple[int, int] = OUT_SHAPE,
-    bng_ymax: int = BNG_YMAX,
-    geometry_column_name: str = "geometry",
+    cell_size: int,
+    out_shape: Tuple[int, int],
+    bng_ymax: int,
+    geometry_column_name: str,
 ) -> PandasDataFrame:
     """Rasterises a BNG grid cell and writes to the relevant region of a `zarr` file.
 
@@ -593,14 +588,11 @@ def _to_zarr_region(
         dtype (Dict[str, str]): Data type for the array of each column.
         nodata (Dict[str, float]): nodata value for the array of each column.
         mask_name (str): Name for the geometry mask.
-        cell_size (int): The resolution of the cells in the DataArray. Defaults to
-            CELL_SIZE.
+        cell_size (int): The resolution of the cells in the DataArray.
         out_shape (Tuple[int, int]): The shape (height, width) of the DataArray.
-            Defaults to OUT_SHAPE.
-        bng_ymax (int): The maximum y value of the British National Grid.
-            Defaults to BNG_YMAX.
+        bng_ymax (int): The maximum y value of the DataArray.
         geometry_column_name (str): The name of the geometry column in the
-            Pandas DataFrame. Defaults to "geometry".
+            Pandas DataFrame.
 
     Returns:
         PandasDataFrame: The input Pandas DataFrame is returned unchanged.

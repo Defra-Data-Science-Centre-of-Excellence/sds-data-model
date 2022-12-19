@@ -4,7 +4,18 @@ from functools import partial
 from inspect import ismethod, signature
 from logging import INFO, Formatter, StreamHandler, getLogger, warning
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Sequence, Type, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+)
 
 from bng_indexer import calculate_bng_index
 from pyspark.pandas import DataFrame as SparkPandasDataFrame
@@ -27,6 +38,7 @@ from sds_data_model._dataframe import (
     _to_zarr_region,
 )
 from sds_data_model._vector import _get_metadata, _get_name
+from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, CELL_SIZE, OUT_SHAPE
 from sds_data_model.metadata import Metadata
 
 spark = SparkSession.getActiveSession()
@@ -257,6 +269,11 @@ class DataFrameWrapper:
         index_column_name: str = "bng_index",
         geometry_column_name: str = "geometry",
         overwrite: bool = False,
+        cell_size: int = CELL_SIZE,
+        bng_xmin: int = BNG_XMIN,
+        bng_xmax: int = BNG_XMAX,
+        bng_ymax: int = BNG_YMAX,
+        out_shape: Tuple[int, int] = OUT_SHAPE,
     ) -> None:
         """Rasterises columns of `self.data` and writes them to `zarr`.
 
@@ -272,13 +289,25 @@ class DataFrameWrapper:
 
         Args:
             path (str): Path to save the zarr file including file name.
-            columns (Optional[List[str]]): Columns to rasterize. If `None`, a geometry mask will be generated. Defaults to None.
-            nodata (Optional[Dict[str, float]]): Dictionary of `{column: nodata}`. Manual assignment of the nodata/fill value. Defaults to None.
+            columns (Optional[List[str]]): Columns to rasterize. If `None`, a
+                geometry mask will be generated. Defaults to None.
+            nodata (Optional[Dict[str, float]]): Dictionary of `{column: nodata}`.
+                Manual assignment of the nodata/fill value. Defaults to None.
             index_column_name (str): Name of the BNG index column. Defaults to
                 "bng_index".
             geometry_column_name (str): Name of the geometry column. Defaults to
                 "geometry".
             overwrite (bool): Overwrite existing zarr? Defaults to False.
+            cell_size (int): The resolution of the cells in the DataArray. Defaults to
+                CELL_SIZE.
+            out_shape (Tuple[int, int]): The shape (height, width) of the DataArray.
+                Defaults to OUT_SHAPE.
+            bng_xmin (int): The minimum x value of the DataArray. Defaults to BNG_XMIN,
+                the minimum x value of the British National Grid.
+            bng_xmax (int): The maximum x value of the DataArray. Defaults to BNG_XMAX,
+                the maximum x value of the British National Grid.
+            bng_ymax (int): The maximum y value of the DataArray. Defaults to BNG_YMAX,
+                the maximum y value of the British National Grid.
 
         Raises:
             ValueError: If `self.data` is not an instance of of `pyspark.sql.DataFrame`.
@@ -337,6 +366,10 @@ class DataFrameWrapper:
             lookup=self.lookup,
             mask_name=self.name,
             metadata=self.metadata,
+            cell_size=cell_size,
+            bng_xmin=bng_xmin,
+            bng_xmax=bng_xmax,
+            bng_ymax=bng_ymax,
         )
 
         _partial_to_zarr_region = partial(
@@ -346,6 +379,9 @@ class DataFrameWrapper:
             dtype=dtype,
             nodata=nodata,
             mask_name=self.name,
+            cell_size=cell_size,
+            out_shape=out_shape,
+            bng_ymax=bng_ymax,
             geometry_column_name=geometry_column_name,
         )
 
