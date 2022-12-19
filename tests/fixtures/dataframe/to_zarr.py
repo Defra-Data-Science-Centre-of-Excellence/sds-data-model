@@ -668,7 +668,11 @@ def make_expected_dataset_path(
 # ) -> Dataset:
 #     """What we would expect the HL dataset (with attrs) to look like."""
 #     hl = ones(dtype="uint8", shape=(10_000, 10_000), chunks=(10_000, 10_000))
-#     top_row_rest = zeros(dtype="uint8", shape=(10_000, 60_000), chunks=(10_000, 10_000))
+#     top_row_rest = zeros(
+#         dtype="uint8",
+#         shape=(10_000, 60_000),
+#         chunks=(10_000, 10_000),
+#     )
 #     top_row = concatenate([hl, top_row_rest], axis=1)
 #     rest = zeros(dtype="uint8", shape=(120_000, 70_000), chunks=(10_000, 10_000))
 #     expected_array = concatenate([top_row, rest], axis=0)
