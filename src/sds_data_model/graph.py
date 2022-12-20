@@ -2,6 +2,7 @@
 from functools import partial
 from re import search
 from typing import Any, Dict, List, Optional, Tuple
+from uuid import uuid4
 
 from graphviz import Digraph
 
@@ -105,6 +106,7 @@ def _add_edges(
 def _add_output_node(
     graph: Digraph,
     output_name: str,
+    output_label: str,
 ) -> None:
     """Add an output node to an existing graph.
 
@@ -115,7 +117,7 @@ def _add_output_node(
     _add_input_output_node(
         graph,
         output_name,
-        label=f"output:\n{output_name}",
+        label=f"output:\n{output_label}",
     )
 
 
@@ -157,6 +159,7 @@ def initialise_graph(
     _add_output_node(
         graph=graph,
         output_name=class_name,
+        output_label=class_name,
     )
 
     if metadata_path:
@@ -207,6 +210,7 @@ def _get_input_node(
 def update_graph(
     graph: Digraph,
     method: str,
+    args: str,
     output_class_name: str,
 ) -> Digraph:
     """Update an existing graph.
@@ -223,23 +227,29 @@ def update_graph(
         graph=graph,
     )
 
-    _method = f"{input_node}.{method}"
+    _method = f"{input_node.split('_')[0]}.{method}(\n{args}\n)"
 
     _add_function_node(
         graph=graph,
         function_name=_method,
     )
 
+    num = sum(
+        1 if f"output:\n{output_class_name}" in line else 0 for line in graph.body
+    )
+    output_name = f"{output_class_name}_{num}"
+
     _add_output_node(
         graph=graph,
-        output_name=output_class_name,
+        output_name=output_name,
+        output_label=output_class_name,
     )
 
     _add_edges(
         graph=graph,
         edges=[
             (input_node, _method),
-            (_method, output_class_name),
+            (_method, output_name),
         ],
     )
 

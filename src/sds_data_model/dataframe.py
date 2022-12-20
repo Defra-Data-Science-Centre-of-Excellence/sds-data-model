@@ -18,6 +18,7 @@ from typing import (
 )
 
 from bng_indexer import calculate_bng_index
+from graphviz import Digraph
 from pyspark.pandas import DataFrame as SparkPandasDataFrame
 from pyspark.pandas import Series as SparkPandasSeries
 from pyspark.pandas import read_excel
@@ -39,6 +40,7 @@ from sds_data_model._dataframe import (
 )
 from sds_data_model._vector import _get_metadata, _get_name
 from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, CELL_SIZE, OUT_SHAPE
+from sds_data_model.graph import initialise_graph, update_graph
 from sds_data_model.metadata import Metadata
 
 spark = SparkSession.getActiveSession()
@@ -78,7 +80,7 @@ class DataFrameWrapper:
     data: Union[SparkDataFrame, GroupedData]
     metadata: Optional[Metadata]
     lookup: Optional[Dict[str, Dict[Any, float]]]
-    # graph: Optional[DiGraph]
+    graph: Optional[Digraph]
 
     @classmethod
     def from_files(
@@ -138,7 +140,7 @@ class DataFrameWrapper:
         }
 
         file_reader_spark: Dict[str, Callable] = {
-            ".csv": _spark.read.csv,
+            ".csv": _spark.read.options(header=True).csv,
             ".json": _spark.read.json,
             ".parquet": _spark.read.parquet,
         }
@@ -169,7 +171,13 @@ class DataFrameWrapper:
             metadata=metadata,
         )
 
-        return cls(name=_name, data=data, metadata=metadata, lookup=lookup)
+        graph = initialise_graph(
+            data_path=data_path,
+            metadata_path=metadata_path,
+            class_name="DataFrameWrapper",
+        )
+
+        return cls(name=_name, data=data, metadata=metadata, lookup=lookup, graph=graph)
 
     def call_method(
         self: _DataFrameWrapper,
@@ -234,6 +242,13 @@ class DataFrameWrapper:
             return_value, GroupedData
         ):
             self.data = return_value
+
+            self.graph = update_graph(
+                graph=self.graph,
+                method=method_name,
+                args=formatted_arguments,
+                output_class_name="DataFrameWrapper",
+            )
 
         return self
 
