@@ -153,7 +153,7 @@
 <h1>Dataframewrapper<a class="headerlink" href="#dataframewrapper" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="sds_data_model.dataframe.DataFrameWrapper">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sds_data_model.dataframe.</span></span><span class="sig-name descname"><span class="pre">DataFrameWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.dataframe.DataFrameWrapper" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sds_data_model.dataframe.</span></span><span class="sig-name descname"><span class="pre">DataFrameWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookup</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.dataframe.DataFrameWrapper" title="Permalink to this definition">¶</a></dt>
 <dd><p>DataFrameWrapper class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -167,18 +167,20 @@
 <li><p><strong>name</strong> (<em>str</em>) – </p></li>
 <li><p><strong>data</strong> (<em>Union</em><em>[</em><em>pyspark.sql.dataframe.DataFrame</em><em>, </em><em>pyspark.sql.group.GroupedData</em><em>]</em>) – </p></li>
 <li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="sds_data_model.metadata.Metadata.html#sds_data_model.metadata.Metadata" title="sds_data_model.metadata.Metadata"><em>sds_data_model.metadata.Metadata</em></a><em>]</em>) – </p></li>
+<li><p><strong>lookup</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Dict</em><em>[</em><em>Any</em><em>, </em><em>float</em><em>]</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="sds_data_model.dataframe.DataFrameWrapper.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.dataframe.DataFrameWrapper.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookup</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.dataframe.DataFrameWrapper.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<em>str</em>) – </p></li>
 <li><p><strong>data</strong> (<em>Union</em><em>[</em><em>pyspark.sql.dataframe.DataFrame</em><em>, </em><em>pyspark.sql.group.GroupedData</em><em>]</em>) – </p></li>
 <li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="sds_data_model.metadata.Metadata.html#sds_data_model.metadata.Metadata" title="sds_data_model.metadata.Metadata"><em>sds_data_model.metadata.Metadata</em></a><em>]</em>) – </p></li>
+<li><p><strong>lookup</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Dict</em><em>[</em><em>Any</em><em>, </em><em>float</em><em>]</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -194,20 +196,23 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sds_data_model.dataframe.DataFrameWrapper.__init__" title="sds_data_model.dataframe.DataFrameWrapper.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(name, data, metadata)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sds_data_model.dataframe.DataFrameWrapper.__init__" title="sds_data_model.dataframe.DataFrameWrapper.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(name, data, metadata, lookup)</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sds_data_model.dataframe.DataFrameWrapper.call_method" title="sds_data_model.dataframe.DataFrameWrapper.call_method"><code class="xref py py-obj docutils literal notranslate"><span class="pre">call_method</span></code></a>(method_name, /, *args, **kwargs)</p></td>
 <td><p>Calls spark method specified by user on SparkDataFrame in wrapper.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sds_data_model.dataframe.DataFrameWrapper.from_files" title="sds_data_model.dataframe.DataFrameWrapper.from_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_files</span></code></a>(data_path[, metadata_path, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sds_data_model.dataframe.DataFrameWrapper.categorize" title="sds_data_model.dataframe.DataFrameWrapper.categorize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">categorize</span></code></a>(columns[, lookup])</p></td>
+<td><p>Maps an auto-generated or given dictionary onto provided columns.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sds_data_model.dataframe.DataFrameWrapper.from_files" title="sds_data_model.dataframe.DataFrameWrapper.from_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_files</span></code></a>(data_path[, metadata_path, ...])</p></td>
 <td><p>Reads in data and converts it to a SparkDataFrame.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sds_data_model.dataframe.DataFrameWrapper.index" title="sds_data_model.dataframe.DataFrameWrapper.index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">index</span></code></a>([resolution, how, index_column_name, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sds_data_model.dataframe.DataFrameWrapper.index" title="sds_data_model.dataframe.DataFrameWrapper.index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">index</span></code></a>([resolution, how, index_column_name, ...])</p></td>
 <td><p>_summary_.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sds_data_model.dataframe.DataFrameWrapper.to_zarr" title="sds_data_model.dataframe.DataFrameWrapper.to_zarr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_zarr</span></code></a>(path, data_array_name[, ...])</p></td>
-<td><p>Rasterises <cite>self.data</cite> and writes it to <cite>zarr</cite>.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sds_data_model.dataframe.DataFrameWrapper.to_zarr" title="sds_data_model.dataframe.DataFrameWrapper.to_zarr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_zarr</span></code></a>(path[, columns, nodata, ...])</p></td>
+<td><p>Rasterises columns of <cite>self.data</cite> and writes them to <cite>zarr</cite>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -225,6 +230,9 @@
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">metadata</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">lookup</span></code></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -275,8 +283,30 @@ Look at data
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.dataframe.DataFrameWrapper.categorize">
+<span class="sig-name descname"><span class="pre">categorize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.dataframe.DataFrameWrapper.categorize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps an auto-generated or given dictionary onto provided columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>columns</strong> (<em>Sequence</em><em>[</em><em>str</em><em>]</em>) – Columns to map on.</p></li>
+<li><p><strong>lookup</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Dict</em><em>[</em><em>Any</em><em>, </em><em>float</em><em>]</em><em>]</em><em>]</em>) – <cite>{column: value-map}</cite>
+dictionary to map. Defaults to {}.</p></li>
+<li><p><strong>self</strong> (<em>sds_data_model.dataframe._DataFrameWrapper</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SparkDataFrameWrapper</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>_DataFrameWrapper</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sds_data_model.dataframe.DataFrameWrapper.from_files">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_file_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spark</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.dataframe.DataFrameWrapper.from_files" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_file_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spark</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.dataframe.DataFrameWrapper.from_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads in data and converts it to a SparkDataFrame.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sds_data_model.dataframe</span> <span class="kn">import</span> <span class="n">DataFrameWrapper</span>
@@ -301,6 +331,7 @@ Look at data
 <li><p><strong>data_path</strong> (<em>str</em>) – Path to data,</p></li>
 <li><p><strong>metadata_path</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Path to metadata supplied by user. Defaults to None.</p></li>
 <li><p><strong>metadata_kwargs</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Optional kwargs for metadata</p></li>
+<li><p><strong>lookup</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Dict</em><em>[</em><em>Any</em><em>, </em><em>float</em><em>]</em><em>]</em><em>]</em>) – Dictionary of <cite>{column: value-map, …}</cite> for columns in the data. Not applied to the data. Defaults to None.</p></li>
 <li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Name for data, either supplied by caller or obtained from metadata title. Defaults to None.</p></li>
 <li><p><strong>read_file_kwargs</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>,</em><em>Any</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Additional kwargs supplied by the caller, dependent on the function called. Defaults to None.</p></li>
 <li><p><strong>spark</strong> (<em>Optional</em><em>[</em><em>SparkSession</em><em>]</em>) – Optional spark session</p></li>
@@ -346,8 +377,8 @@ Look at data
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sds_data_model.dataframe.DataFrameWrapper.to_zarr">
-<span class="sig-name descname"><span class="pre">to_zarr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_array_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bng_index'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'geometry'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.dataframe.DataFrameWrapper.to_zarr" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rasterises <cite>self.data</cite> and writes it to <cite>zarr</cite>.</p>
+<span class="sig-name descname"><span class="pre">to_zarr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bng_index'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'geometry'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bng_xmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bng_xmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">700000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bng_ymax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1300000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10000,</span> <span class="pre">10000)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.dataframe.DataFrameWrapper.to_zarr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rasterises columns of <cite>self.data</cite> and writes them to <cite>zarr</cite>.</p>
 <p>This function requires two additional columns:
 * A “bng_index” column containing the BNG index of the geometry in each row.
 * A “bounds” column containing the BNG bounds of the BNG index as a list in</p>
@@ -357,7 +388,6 @@ Look at data
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">wrapper</span><span class="o">.</span><span class="n">to_zarr</span><span class="p">(</span>
 <span class="go">    path = &quot;/path/to/file.zarr&quot;,</span>
-<span class="go">    data_array_name = &quot;test&quot;,</span>
 <span class="go">)</span>
 </pre></div>
 </div>
@@ -365,22 +395,35 @@ Look at data
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>path</strong> (<em>str</em>) – Path to save the zarr file including file name.</p></li>
-<li><p><strong>data_array_name</strong> (<em>str</em>) – DataArray name given by the user.</p></li>
+<li><p><strong>columns</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – Columns to rasterize. If <cite>None</cite>, a
+geometry mask will be generated. Defaults to None.</p></li>
+<li><p><strong>nodata</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>float</em><em>]</em><em>]</em>) – Dictionary of <cite>{column: nodata}</cite>.
+Manual assignment of the nodata/fill value. Defaults to None.</p></li>
 <li><p><strong>index_column_name</strong> (<em>str</em>) – Name of the BNG index column. Defaults to
 “bng_index”.</p></li>
 <li><p><strong>geometry_column_name</strong> (<em>str</em>) – Name of the geometry column. Defaults to
 “geometry”.</p></li>
 <li><p><strong>overwrite</strong> (<em>bool</em>) – Overwrite existing zarr? Defaults to False.</p></li>
+<li><p><strong>cell_size</strong> (<em>int</em>) – The resolution of the cells in the DataArray. Defaults to
+CELL_SIZE.</p></li>
+<li><p><strong>out_shape</strong> (<em>Tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em>) – The shape (height, width) of the DataArray.
+Defaults to OUT_SHAPE.</p></li>
+<li><p><strong>bng_xmin</strong> (<em>int</em>) – The minimum x value of the DataArray. Defaults to BNG_XMIN,
+the minimum x value of the British National Grid.</p></li>
+<li><p><strong>bng_xmax</strong> (<em>int</em>) – The maximum x value of the DataArray. Defaults to BNG_XMAX,
+the maximum x value of the British National Grid.</p></li>
+<li><p><strong>bng_ymax</strong> (<em>int</em>) – The maximum y value of the DataArray. Defaults to BNG_YMAX,
+the maximum y value of the British National Grid.</p></li>
 <li><p><strong>self</strong> (<em>sds_data_model.dataframe._DataFrameWrapper</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <cite>self.data</cite> is not an instance of of <cite>pyspark.sql.DataFrame</cite>.</p></li>
 <li><p><strong>ValueError</strong> – If <cite>index_column_name</cite> isn’t in the dataframe.</p></li>
 <li><p><strong>ValueError</strong> – If <cite>geometry_column_name</cite> isn’t in the dataframe.</p></li>
-<li><p><strong>ValueError</strong> – If <cite>self.data</cite> is an instance of <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.GroupedData.html">pyspark.sql.GroupedData</a>
-    instead of <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html">pyspark.sql.DataFrame</a>.</p></li>
 <li><p><strong>ValueError</strong> – If Zarr file exists and overwrite set to False.</p></li>
+<li><p><strong>ValueError</strong> – If column of type string is in <cite>columns</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-odd">Return type</dt>

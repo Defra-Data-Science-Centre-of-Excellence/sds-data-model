@@ -1,4 +1,4 @@
-Dataframewrapper
+﻿Dataframewrapper
 ================
 
 .. currentmodule:: sds_data_model.dataframe
@@ -17,6 +17,7 @@ Dataframewrapper
    
       ~DataFrameWrapper.__init__
       ~DataFrameWrapper.call_method
+      ~DataFrameWrapper.categorize
       ~DataFrameWrapper.from_files
       ~DataFrameWrapper.index
       ~DataFrameWrapper.to_zarr
@@ -32,5 +33,6 @@ Dataframewrapper
       ~DataFrameWrapper.name
       ~DataFrameWrapper.data
       ~DataFrameWrapper.metadata
+      ~DataFrameWrapper.lookup
    
    
