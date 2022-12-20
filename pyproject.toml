@@ -104,6 +104,8 @@ show_column_numbers = true
 show_error_codes = true
 show_error_context = true
 ignore_missing_imports = true
+# See https://numpy.org/devdocs/reference/typing.html#mypy-plugin
+plugins = "numpy.typing.mypy_plugin"
 
 [tool.flake8]
 select = [

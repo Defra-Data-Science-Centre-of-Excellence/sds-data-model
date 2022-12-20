@@ -4,7 +4,18 @@ from functools import partial
 from inspect import ismethod, signature
 from logging import INFO, Formatter, StreamHandler, getLogger, warning
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional, Sequence, Type, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+)
 
 from bng_indexer import calculate_bng_index
 from pyspark.pandas import DataFrame as SparkPandasDataFrame
@@ -20,10 +31,14 @@ from pyspark_vector_files.gpkg import read_gpkg
 from sds_data_model._dataframe import (
     _bng_to_bounds,
     _check_for_zarr,
+    _check_sparkdataframe,
     _create_dummy_dataset,
+    _get_minimum_dtypes_and_nodata,
+    _recode_column,
     _to_zarr_region,
 )
 from sds_data_model._vector import _get_metadata, _get_name
+from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, CELL_SIZE, OUT_SHAPE
 from sds_data_model.metadata import Metadata
 
 spark = SparkSession.getActiveSession()
@@ -62,6 +77,7 @@ class DataFrameWrapper:
     name: str
     data: Union[SparkDataFrame, GroupedData]
     metadata: Optional[Metadata]
+    lookup: Optional[Dict[str, Dict[Any, float]]]
     # graph: Optional[DiGraph]
 
     @classmethod
@@ -70,6 +86,7 @@ class DataFrameWrapper:
         data_path: str,
         metadata_path: Optional[str] = None,
         metadata_kwargs: Optional[Dict[str, Any]] = None,
+        lookup: Optional[Dict[str, Dict[Any, float]]] = None,
         name: Optional[str] = None,
         read_file_kwargs: Optional[Dict[str, Any]] = None,
         spark: Optional[SparkSession] = None,
@@ -95,6 +112,7 @@ class DataFrameWrapper:
             data_path (str): Path to data,
             metadata_path (Optional[str], optional): Path to metadata supplied by user. Defaults to None.
             metadata_kwargs (Optional[str]): Optional kwargs for metadata
+            lookup (Optional[Dict[str, Dict[Any, float]]]): Dictionary of `{column: value-map, ...}` for columns in the data. Not applied to the data. Defaults to None.
             name (Optional[str], optional): Name for data, either supplied by caller or obtained from metadata title. Defaults to None.
             read_file_kwargs (Optional[Dict[str,Any]], optional): Additional kwargs supplied by the caller, dependent on the function called. Defaults to None.
             spark(Optional[SparkSession]): Optional spark session
@@ -151,7 +169,7 @@ class DataFrameWrapper:
             metadata=metadata,
         )
 
-        return cls(name=_name, data=data, metadata=metadata)
+        return cls(name=_name, data=data, metadata=metadata, lookup=lookup)
 
     def call_method(
         self: _DataFrameWrapper,
@@ -219,15 +237,45 @@ class DataFrameWrapper:
 
         return self
 
+    def categorize(
+        self: _DataFrameWrapper,
+        columns: Sequence[str],
+        lookup: Optional[Dict[str, Dict[Any, float]]] = None,
+    ) -> _DataFrameWrapper:
+        """Maps an auto-generated or given dictionary onto provided columns.
+
+        Args:
+            columns (Sequence[str]): Columns to map on.
+            lookup (Optional[Dict[str, Dict[Any, float]]]): `{column: value-map}`
+                dictionary to map. Defaults to {}.
+
+        Returns:
+            _DataFrameWrapper: SparkDataFrameWrapper
+        """
+        self.data = _check_sparkdataframe(self.data)
+        if not self.lookup:
+            self.lookup = {}
+        if not lookup:
+            lookup = {}
+        for column in columns:
+            self.data, self.lookup[column] = _recode_column(self.data, column, lookup)
+        return self
+
     def to_zarr(
         self: _DataFrameWrapper,
         path: str,
-        data_array_name: str,
+        columns: Optional[List[str]] = None,
+        nodata: Optional[Dict[str, float]] = None,
         index_column_name: str = "bng_index",
         geometry_column_name: str = "geometry",
         overwrite: bool = False,
+        cell_size: int = CELL_SIZE,
+        bng_xmin: int = BNG_XMIN,
+        bng_xmax: int = BNG_XMAX,
+        bng_ymax: int = BNG_YMAX,
+        out_shape: Tuple[int, int] = OUT_SHAPE,
     ) -> None:
-        """Rasterises `self.data` and writes it to `zarr`.
+        """Rasterises columns of `self.data` and writes them to `zarr`.
 
         This function requires two additional columns:
         * A "bng_index" column containing the BNG index of the geometry in each row.
@@ -237,24 +285,36 @@ class DataFrameWrapper:
         Examples:
             >>> wrapper.to_zarr(
                 path = "/path/to/file.zarr",
-                data_array_name = "test",
             )
 
         Args:
             path (str): Path to save the zarr file including file name.
-            data_array_name (str): DataArray name given by the user.
+            columns (Optional[List[str]]): Columns to rasterize. If `None`, a
+                geometry mask will be generated. Defaults to None.
+            nodata (Optional[Dict[str, float]]): Dictionary of `{column: nodata}`.
+                Manual assignment of the nodata/fill value. Defaults to None.
             index_column_name (str): Name of the BNG index column. Defaults to
                 "bng_index".
             geometry_column_name (str): Name of the geometry column. Defaults to
                 "geometry".
             overwrite (bool): Overwrite existing zarr? Defaults to False.
+            cell_size (int): The resolution of the cells in the DataArray. Defaults to
+                CELL_SIZE.
+            out_shape (Tuple[int, int]): The shape (height, width) of the DataArray.
+                Defaults to OUT_SHAPE.
+            bng_xmin (int): The minimum x value of the DataArray. Defaults to BNG_XMIN,
+                the minimum x value of the British National Grid.
+            bng_xmax (int): The maximum x value of the DataArray. Defaults to BNG_XMAX,
+                the maximum x value of the British National Grid.
+            bng_ymax (int): The maximum y value of the DataArray. Defaults to BNG_YMAX,
+                the maximum y value of the British National Grid.
 
         Raises:
+            ValueError: If `self.data` is not an instance of of `pyspark.sql.DataFrame`.
             ValueError: If `index_column_name` isn't in the dataframe.
             ValueError: If `geometry_column_name` isn't in the dataframe.
-            ValueError: If `self.data` is an instance of `pyspark.sql.GroupedData`_
-                instead of `pyspark.sql.DataFrame`_.
             ValueError: If Zarr file exists and overwrite set to False.
+            ValueError: If column of type string is in `columns`.
 
         .. _`pyspark.sql.GroupedData`:
             https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.GroupedData.html
@@ -262,11 +322,7 @@ class DataFrameWrapper:
         .. _`pyspark.sql.DataFrame`:
             https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html
         """  # noqa: B950
-        if not isinstance(self.data, SparkDataFrame):
-            data_type = type(self.data)
-            raise ValueError(
-                f"`self.data` must be a `pyspark.sql.DataFrame` not a {data_type}"
-            )
+        self.data = _check_sparkdataframe(self.data)
 
         colnames = self.data.columns
 
@@ -286,16 +342,46 @@ class DataFrameWrapper:
             if overwrite is True and _check_for_zarr(_path):
                 warning("Overwriting existing zarr.")
 
+        if columns:
+            for column, _type in self.data.select(columns).dtypes:
+                if "string" in _type:
+                    raise ValueError(
+                        f"Column `{column}` is of type string."
+                        f"Cast or `categorize` to rasterize this column."
+                    )
+
+        dtype, nodata, self.lookup = _get_minimum_dtypes_and_nodata(
+            sdf=self.data,
+            columns=columns,
+            nodata=nodata,
+            lookup=self.lookup,
+            mask_name=self.name,
+        )
+
         _create_dummy_dataset(
             path=path,
-            data_array_name=data_array_name,
+            columns=columns,
+            dtype=dtype,
+            nodata=nodata,
+            lookup=self.lookup,
+            mask_name=self.name,
             metadata=self.metadata,
+            cell_size=cell_size,
+            bng_xmin=bng_xmin,
+            bng_xmax=bng_xmax,
+            bng_ymax=bng_ymax,
         )
 
         _partial_to_zarr_region = partial(
             _to_zarr_region,
-            data_array_name=data_array_name,
             path=path,
+            columns=columns,
+            dtype=dtype,
+            nodata=nodata,
+            mask_name=self.name,
+            cell_size=cell_size,
+            out_shape=out_shape,
+            bng_ymax=bng_ymax,
             geometry_column_name=geometry_column_name,
         )
 
