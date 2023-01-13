@@ -37,6 +37,7 @@ from sds_data_model._dataframe import (
     _get_minimum_dtypes_and_nodata,
     _recode_column,
     _to_zarr_region,
+    _graph_to_zarr,
 )
 from sds_data_model._vector import _get_metadata, _get_name
 from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, CELL_SIZE, OUT_SHAPE
@@ -399,6 +400,12 @@ class DataFrameWrapper:
             bng_ymax=bng_ymax,
             geometry_column_name=geometry_column_name,
         )
+        
+        if self.graph:
+            _graph_to_zarr(
+                df_wrapper = self,
+                zarr_path = path,
+            )
 
         (
             self.data.groupby(index_column_name)
