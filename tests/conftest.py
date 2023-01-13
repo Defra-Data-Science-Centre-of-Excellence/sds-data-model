@@ -20,6 +20,12 @@ from .fixtures.dataframe.common import (  # noqa: F401
     expected_empty_metadata,
     spark_session,
 )
+from .fixtures.dataframe.pipeline import( # noqa: F401
+    data,
+    schema,
+    make_dummy_shp,
+    spark_dataframe,
+)
 from .fixtures.dataframe.to_zarr import (  # noqa: F401
     bng_index_column,
     boolean_column,
