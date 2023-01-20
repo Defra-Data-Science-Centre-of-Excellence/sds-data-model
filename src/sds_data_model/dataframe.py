@@ -71,8 +71,29 @@ _DataFrameWrapper = TypeVar("_DataFrameWrapper", bound="DataFrameWrapper")
 
 @dataclass
 class DataFrameWrapper:
-    """DataFrameWrapper class.
-
+    """This is a thin wrapper around a Spark DataFrame.
+    
+    This class stores a Spark DataFrame alongside other objects which both enhance
+    the richness of information associated with the data, and allow for increased
+    flexibility in transforming it.
+    
+    Attributes:
+        name (str): The name of the dataset.
+        data (Union[SparkDataFrame, GroupedData]): Tabular data, optionally containing
+        a geometry column. 
+        metadata (Metadata, optional): Object of class `Metadata` containing descriptive
+        information relating to the dataset represented in `data`. 
+        lookup (Dict, optional): ???
+        graph (Digraph, optional): Object of class `Digraph` containing nodes and edges
+        relating to the source data and transformations that have taken place.
+        
+    Methods:
+        from_files: Reads in data and converts it to a SparkDataFrame.
+        call_method: Calls spark method specified by user on SparkDataFrame in wrapper.
+        categorize: Maps an auto-generated or given dictionary onto provided columns.
+        index: Adds a spatial index to data in a Spark DataFrame.
+        to_zarr: Rasterises columns of `self.data` and writes them to `zarr`.
+        
     Returns:
         _DataFrameWrapper: SparkDataFrameWrapper
     """
@@ -277,6 +298,64 @@ class DataFrameWrapper:
             self.data, self.lookup[column] = _recode_column(self.data, column, lookup)
         return self
 
+    def index(
+        self: _DataFrameWrapper,
+        resolution: int = 100_000,
+        how: str = "intersects",
+        index_column_name: str = "bng_index",
+        bounds_column_name: str = "bounds",
+        geometry_column_name: str = "geometry",
+        exploded: bool = True,
+    ) -> _DataFrameWrapper:
+        """Adds a spatial index to data in a Spark DataFrame.
+
+        Args:
+            resolution (int): _description_. Defaults to 100_000.
+            how (str): _description_. Defaults to "intersects".
+            index_column_name (str): _description_. Defaults to "bng_index".
+            bounds_column_name (str): _description_. Defaults to "bounds".
+            geometry_column_name (str): _description_. Defaults to "geometry".
+            exploded (bool): _description_. Defaults to True.
+
+        Raises:
+            ValueError: If `self.data` is an instance of `pyspark.sql.GroupedData`_
+                instead of `pyspark.sql.DataFrame`_.
+
+        Returns:
+            _DataFrameWrapper: An indexed DataFrameWrapper.
+
+        .. _`pyspark.sql.GroupedData`:
+            https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.GroupedData.html
+
+        .. _`pyspark.sql.DataFrame`:
+            https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html
+        """  # noqa: B950
+        if not isinstance(self.data, SparkDataFrame):
+            data_type = type(self.data)
+            raise ValueError(
+                f"`self.data` must be a `pyspark.sql.DataFrame` not a {data_type}"
+            )
+
+        _partial_calculate_bng_index = partial(
+            calculate_bng_index, resolution=resolution, how=how
+        )
+
+        _calculate_bng_index_udf = udf(
+            _partial_calculate_bng_index,
+            returnType=ArrayType(StringType()),
+        )
+
+        self.data = self.data.withColumn(
+            index_column_name, _calculate_bng_index_udf(col(geometry_column_name))
+        )
+
+        if exploded:
+            self.data = self.data.withColumn(
+                index_column_name, explode(col(index_column_name))
+            ).withColumn(bounds_column_name, _bng_to_bounds(col(index_column_name)))
+
+        return self
+
     def to_zarr(
         self: _DataFrameWrapper,
         path: str,
@@ -417,61 +496,3 @@ class DataFrameWrapper:
             .mode("overwrite")
             .save()
         )
-
-    def index(
-        self: _DataFrameWrapper,
-        resolution: int = 100_000,
-        how: str = "intersects",
-        index_column_name: str = "bng_index",
-        bounds_column_name: str = "bounds",
-        geometry_column_name: str = "geometry",
-        exploded: bool = True,
-    ) -> _DataFrameWrapper:
-        """_summary_.
-
-        Args:
-            resolution (int): _description_. Defaults to 100_000.
-            how (str): _description_. Defaults to "intersects".
-            index_column_name (str): _description_. Defaults to "bng_index".
-            bounds_column_name (str): _description_. Defaults to "bounds".
-            geometry_column_name (str): _description_. Defaults to "geometry".
-            exploded (bool): _description_. Defaults to True.
-
-        Raises:
-            ValueError: If `self.data` is an instance of `pyspark.sql.GroupedData`_
-                instead of `pyspark.sql.DataFrame`_.
-
-        Returns:
-            _DataFrameWrapper: An indexed DataFrameWrapper.
-
-        .. _`pyspark.sql.GroupedData`:
-            https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.GroupedData.html
-
-        .. _`pyspark.sql.DataFrame`:
-            https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html
-        """  # noqa: B950
-        if not isinstance(self.data, SparkDataFrame):
-            data_type = type(self.data)
-            raise ValueError(
-                f"`self.data` must be a `pyspark.sql.DataFrame` not a {data_type}"
-            )
-
-        _partial_calculate_bng_index = partial(
-            calculate_bng_index, resolution=resolution, how=how
-        )
-
-        _calculate_bng_index_udf = udf(
-            _partial_calculate_bng_index,
-            returnType=ArrayType(StringType()),
-        )
-
-        self.data = self.data.withColumn(
-            index_column_name, _calculate_bng_index_udf(col(geometry_column_name))
-        )
-
-        if exploded:
-            self.data = self.data.withColumn(
-                index_column_name, explode(col(index_column_name))
-            ).withColumn(bounds_column_name, _bng_to_bounds(col(index_column_name)))
-
-        return self
