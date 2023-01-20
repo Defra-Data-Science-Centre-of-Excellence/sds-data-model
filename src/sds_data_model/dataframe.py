@@ -116,6 +116,10 @@ class DataFrameWrapper:
         spark: Optional[SparkSession] = None,
     ) -> _DataFrameWrapper:
         """Reads in data and converts it to a SparkDataFrame.
+        
+        A wide range of data can be read in with from_files. This includes vector 
+        data supported by GDAL drivers, multiple spreadsheet formats read with
+        pandas.read_excel, and csvs, json and parquet files are handled by Spark. 
 
         Examples:
             >>> from sds_data_model.dataframe import DataFrameWrapper
@@ -133,13 +137,13 @@ class DataFrameWrapper:
             )
 
         Args:
-            data_path (str): Path to data,
+            data_path (str): Path to data.
             metadata_path (Optional[str], optional): Path to metadata supplied by user. Defaults to None.
-            metadata_kwargs (Optional[str]): Optional kwargs for metadata
+            metadata_kwargs (Optional[str]): Optional kwargs for metadata.
             lookup (Optional[Dict[str, Dict[Any, float]]]): Dictionary of `{column: value-map, ...}` for columns in the data. Not applied to the data. Defaults to None.
             name (Optional[str], optional): Name for data, either supplied by caller or obtained from metadata title. Defaults to None.
             read_file_kwargs (Optional[Dict[str,Any]], optional): Additional kwargs supplied by the caller, dependent on the function called. Defaults to None.
-            spark(Optional[SparkSession]): Optional spark session
+            spark(Optional[SparkSession]): Optional spark session.
 
         Returns:
             _DataFrameWrapper: SparkDataFrameWrapper
@@ -208,16 +212,16 @@ class DataFrameWrapper:
         *args: Optional[Union[str, Sequence[str]]],
         **kwargs: Optional[Dict[str, Any]],
     ) -> _DataFrameWrapper:
-        """Calls spark method specified by user on SparkDataFrame in wrapper.
+        """Calls Spark method specified by user on Spark DataFrame in wrapper.
 
-        The function:
-        1) assign method call to attribute object, to examine it before implementing anything
+        The function does the following:
+        1) assigns method call to attribute object, to examine it before implementing anything
         2) check if method_name is a method
         3) get the signature of method (what argument it takes, return type, etc.)
         4) bind arguments to function arguments
         5) create string to pass through graph generator
         6) return value, as have checked relevant information and can now call method
-        7) if not method, assume its a property (eg. crs)
+        7) if not a method, assume its a property (eg. CRS)
         8) check if method_name returns a dataframe, if so update self.data attribute with that new data
         9) if dataframe not returned, (eg. display called), return original data
 
@@ -234,9 +238,9 @@ class DataFrameWrapper:
             >>> wrapped_small.call_method("show")
 
         Args:
-            method_name (str): Name of method or property called by user
-            *args (Optional[Union[List[int], int]]): Additional args provided by user
-            **kwargs (Optional[Dict[str, int]]): Additional kwargs provided by user
+            method_name (str): Name of method or property called by user.
+            *args (Optional[Union[List[int], int]]): Additional args provided by user.
+            **kwargs (Optional[Dict[str, int]]): Additional kwargs provided by user.
 
         Returns:
             _DataFrameWrapper: The SparkDataFrameWrapper, updated if necessary
