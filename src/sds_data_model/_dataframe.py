@@ -489,6 +489,7 @@ def _create_dummy_dataset(
     columns: Optional[List],
     lookup: Optional[Dict[str, Dict[Any, float]]],
     metadata: Optional[Metadata],
+    graph: Optional[Digraph],
 ) -> None:
     """A dummy Dataset. It's metadata is used to create the initial `zarr` store.
 
@@ -551,7 +552,18 @@ def _create_dummy_dataset(
     )
     dataset.rio.write_crs("EPSG:27700", inplace=True)
     dataset.rio.write_transform(transform, inplace=True)
-    dataset.attrs = asdict(metadata) if metadata else {}
+
+    if metadata and graph:
+        temp = asdict(metadata)
+        temp["DAG_source"] = graph.source
+    elif metadata:
+        temp = asdict(metadata)
+    elif graph:
+        temp = {"DAG_source": graph.source}
+    else:
+        temp = {}
+
+    dataset.attrs = temp
     dataset.to_zarr(
         store=path,
         mode="w",
@@ -670,18 +682,20 @@ def _check_for_zarr(path: Path) -> bool:
         return True
     except FileNotFoundError:
         return False
-    
 
-def _graph_to_zarr(
-    graph: Digraph,
-    zarr_path: str,
-) -> None:
-    """Write a Digraph source string to the attrs of a zarr.
 
-    Args:
-        self (DataFrameWrapper): _description_
-        zarr_path (str): Directory containing a zarr file.
-    """
-    dataset = open_dataset(zarr_path, engine = 'zarr')
-    dataset.attrs['DAG_source'] = graph.source 
-    dataset.close
+# def _graph_to_zarr(
+#    graph: Digraph,
+#    zarr_path: str,
+# ) -> None:
+#    """Write a Digraph source string to the attrs of a zarr.
+
+#    Args:
+#        self (DataFrameWrapper): _description_
+#        zarr_path (str): Directory containing a zarr file.
+#    """
+#    dataset = open_dataset(zarr_path, engine="zarr")
+#    dataset.attrs["DAG_source"] = graph.source
+
+
+#    dataset.close
