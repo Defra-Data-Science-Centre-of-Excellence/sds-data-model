@@ -386,6 +386,7 @@ class DataFrameWrapper:
             bng_xmin=bng_xmin,
             bng_xmax=bng_xmax,
             bng_ymax=bng_ymax,
+            graph=self.graph,
         )
 
         _partial_to_zarr_region = partial(
