@@ -674,7 +674,7 @@ def _check_for_zarr(path: Path) -> bool:
     
 
 def _graph_to_zarr(
-    df_wrapper: DataFrameWrapper,
+    graph: Digraph,
     zarr_path: str,
 ) -> None:
     """Write a Digraph source string to the attrs of a zarr.
@@ -684,5 +684,5 @@ def _graph_to_zarr(
         zarr_path (str): Directory containing a zarr file.
     """
     dataset = open_dataset(zarr_path, engine = 'zarr')
-    dataset.attrs['DAG_source'] = df_wrapper.graph.source 
+    dataset.attrs['DAG_source'] = graph.source 
     dataset.close

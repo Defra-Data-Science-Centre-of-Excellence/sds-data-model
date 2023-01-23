@@ -403,7 +403,7 @@ class DataFrameWrapper:
         
         if self.graph:
             _graph_to_zarr(
-                df_wrapper = self,
+                graph = self.graph,
                 zarr_path = path,
             )
 
