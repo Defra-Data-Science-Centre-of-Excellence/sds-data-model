@@ -1,5 +1,6 @@
 """Private functions for the DataFrame wrapper class."""
 from dataclasses import asdict
+from gc import collect
 from itertools import chain
 from json import load
 from pathlib import Path
@@ -480,7 +481,7 @@ def _create_dummy_dataset(
     path: str,
     dtype: Dict[str, str],
     nodata: Dict[str, float],
-    mask_name: str,
+    mask_name: Optional[str],
     cell_size: int,
     bng_xmin: int,
     bng_xmax: int,
@@ -510,7 +511,7 @@ def _create_dummy_dataset(
         dtype (Dict[str, str]): Data type for the array of each column.
         nodata (Dict[str, str]): nodata value for the array of each column.
         lookup (Optional[Dict[str, Dict[Any, Float]]]): lookup for a column if applicable.
-        mask_name (str): Name for the geometry mask.
+        mask_name (Optional[str]): Name for the geometry mask.
         metadata (Optional[str]): Metadata object relating to data.
         cell_size (int): The resolution of the cells in the DataArray.
         bng_xmin (int): The minimum x value of the DataArray.
@@ -556,6 +557,8 @@ def _create_dummy_dataset(
         mode="w",
         compute=False,
     )
+    del dataset
+    collect()
 
 
 def _to_zarr_region(

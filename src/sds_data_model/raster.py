@@ -1,6 +1,6 @@
 """Raster wrapper class."""
 from dataclasses import dataclass
-from typing import Dict, List, Literal, Optional, Type, TypeVar, Union
+from typing import Any, Dict, List, Literal, Optional, Type, TypeVar, Union
 
 from xarray import Dataset
 
@@ -22,6 +22,8 @@ class DatasetWrapper:
         bands: Union[List[int], List[str], None] = None,
         categorical: Union[bool, Dict[Union[int, str], bool]] = False,
         nodata: Optional[float] = None,
+        out_path: Optional[str] = None,
+        chunks: Optional[Union[int, Dict[Any, Any], Literal["auto"]]] = "auto",
         engine: Optional[str] = None,
         decode_coords: Optional[Union[bool, Literal["coordinates", "all"]]] = "all",
     ) -> _DatasetWrapper:
@@ -53,6 +55,9 @@ class DatasetWrapper:
                 used to resample. Defaults to False.
             nodata (Optional[float]): Value that will fill the grid where
                 there is no data (if it is not `None`). Defaults to None.
+            out_path (Optional[str]): Path to write reshaped data. Defaults to None.
+            chunks (Optional[Union[int, Dict[Any, Any], Literal["auto"]]]): Chunk size or state.
+                Passed to `chunks` in `xarray.open_dataset`. Defaults to "auto".
             engine (Optional[str]): Engine used by `open_dataset`. Defaults to None.
             decode_coords (Optional[Union[bool, Literal["coordinates", "all"]]]):
                 Value used by `open_dataset`. Variable upon `engine` selection.
@@ -69,6 +74,8 @@ class DatasetWrapper:
             nodata=nodata,
             engine=engine,
             decode_coords=decode_coords,
+            out_path=out_path,
+            chunks=chunks,
         )
 
         return cls(
