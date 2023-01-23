@@ -47,6 +47,7 @@ def _has_wrong_shape(
 
     Args:
         transform (Affine): Input transform, the data being checked.
+        expected_cell_size: The expected cell size.
         expected_x_min (int): The expected value for the x minimum.
         expected_y_max (int): The expected value for the y maximum.
 
@@ -222,9 +223,10 @@ def _reshape_raster(
 
     If a `DataArray` of the input dataset does not conform to the expected extent
     an empty zarr will be written to disk in that shape.
-    If the cell size of the `DataArray` isn't equal to the expected it will be resampled.
-    The `DataArray` is then written to the empty zarr.
-    This process is executed in chunks as significant upsampling can cause memory issues.
+    If the cell size of the `DataArray` isn't equal to the expected,
+    it will be resampled. The `DataArray` is then written to the empty zarr.
+    This process is executed in chunks as significant upsampling can cause
+    memory issues.
     If the `Dataset`'s contents does conform to the expected extent and cell size
     it is returned.
 
@@ -417,8 +419,8 @@ def _read_dataset_from_file(
             Value used by `open_dataset`. Variable upon `engine` selection.
             Defaults to "all".
         out_path (Optional[str]): Path to write reshaped data. Defaults to None.
-        chunks (Optional[Union[int, Dict[Any, Any], Literal["auto"]]]): Chunk size or state.
-            Passed to `chunks` in `xarray.open_dataset`. Defaults to "auto".
+        chunks (Optional[Union[int, Dict[Any, Any], Literal["auto"]]]): Chunk size or
+            state. Passed to `chunks` in `xarray.open_dataset`. Defaults to "auto".
         expected_cell_size (int): Cell size to resample the data to if it is not already
             this value. Defaults to CELL_SIZE.
         expected_x_min (int): x minimum. Defaults to BNG_XMIN.

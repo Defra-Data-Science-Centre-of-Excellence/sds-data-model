@@ -56,8 +56,9 @@ class DatasetWrapper:
             nodata (Optional[float]): Value that will fill the grid where
                 there is no data (if it is not `None`). Defaults to None.
             out_path (Optional[str]): Path to write reshaped data. Defaults to None.
-            chunks (Optional[Union[int, Dict[Any, Any], Literal["auto"]]]): Chunk size or state.
-                Passed to `chunks` in `xarray.open_dataset`. Defaults to "auto".
+            chunks (Optional[Union[int, Dict[Any, Any], Literal["auto"]]]): Chunk size
+                or state. Passed to `chunks` in `xarray.open_dataset`.
+                Defaults to "auto".
             engine (Optional[str]): Engine used by `open_dataset`. Defaults to None.
             decode_coords (Optional[Union[bool, Literal["coordinates", "all"]]]):
                 Value used by `open_dataset`. Variable upon `engine` selection.
