@@ -36,7 +36,6 @@ from shapely.wkt import loads
 from xarray import DataArray, Dataset, merge, open_dataset
 
 from sds_data_model.metadata import Metadata
-from sds_data_model.dataframe import DataFrameWrapper
 from graphviz import Digraph
 
 
