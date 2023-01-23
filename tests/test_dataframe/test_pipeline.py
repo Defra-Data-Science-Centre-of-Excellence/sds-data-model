@@ -2,7 +2,10 @@
 from pathlib import Path
 
 from chispa import assert_df_equality
+from shapely.wkb import loads
+from shapely.geometry.polygon import orient
 from pyspark.sql import DataFrame as SparkDataFrame
+from pyspark.sql.functions import udf
 
 from sds_data_model.dataframe import DataFrameWrapper
 
@@ -18,7 +21,8 @@ def test_pipeline(
             "suffix": ".shp",
         },
         name="test",
-
+    ).call_method(
+        "withColumn", "geometry", udf(lambda x: orient(loads(bytes(x))).wkt)("geometry")
     )
 
     assert_df_equality(dfw.data, spark_dataframe)
