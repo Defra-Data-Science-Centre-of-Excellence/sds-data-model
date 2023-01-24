@@ -20,9 +20,10 @@ from .fixtures.dataframe.common import (  # noqa: F401
     expected_empty_metadata,
     spark_session,
 )
-from .fixtures.dataframe.pipeline import( # noqa: F401
+from .fixtures.dataframe.pipeline import (  # noqa: F401
     data,
     schema,
+    output_schema,
     make_dummy_vector_file,
     spark_dataframe,
 )
