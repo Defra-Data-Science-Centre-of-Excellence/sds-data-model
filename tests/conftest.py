@@ -25,6 +25,7 @@ from .fixtures.dataframe.pipeline import (  # noqa: F401
     schema,
     output_schema,
     make_dummy_vector_file,
+    make_dummy_csv,
     spark_dataframe,
 )
 from .fixtures.dataframe.to_zarr import (  # noqa: F401
