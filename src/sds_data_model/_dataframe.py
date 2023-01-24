@@ -682,6 +682,10 @@ def _package_attrs(metadata: Union[None, Metadata] = None,
                    ) -> Dict:
     """Create a dictionary of attributes to be added to a zarr file.
     
+    This function is flexible, creating a dictionary, depending on which data
+    are present to be written into the attrs. It always returns a dictionary
+    but it's contents will differ depending on what is provided.
+    
     Args:
         metadata (Optional[None, metadata]): Metadata object to include in the attrs.
         graph (Optional[None, Digraph]): DAG object to include in the attrs.
