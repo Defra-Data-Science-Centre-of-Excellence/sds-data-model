@@ -5,9 +5,11 @@ from geopandas import GeoDataFrame, GeoSeries
 from pandas import DataFrame
 from pyspark.sql import SparkSession, DataFrame as SparkDataFrame
 from pyspark.sql.functions import udf
-from pyspark.sql.types import StructField, StringType, BinaryType, StructType, LongType
+from pyspark.sql.types import StructField, StringType, BinaryType, StructType, LongType, ArrayType, IntegerType
 from pytest import fixture
 from shapely.wkb import loads
+
+from sds_data_model.constants import BoundingBox
 
 
 @fixture
@@ -39,15 +41,19 @@ def make_dummy_vector_file(
         gdf.to_file(out_path)
     return _make_dummy_vector_file
 
-@fixture 
+
+@fixture() 
 def make_dummy_csv(
-    tmp_path: Path,) -> None:
+    tmp_path: Path,
+) -> str:
+    output_path = tmp_path / 'dummy.csv'
     DataFrame(
     {
         "category": ["A", "B", "C"],
         "land_cover":['grassland', 'woodland', 'wetland'] 
     }
-    ).to_csv(tmp_path / 'dummy.csv')
+    ).to_csv(output_path)
+    return str(output_path)
 
 
 
