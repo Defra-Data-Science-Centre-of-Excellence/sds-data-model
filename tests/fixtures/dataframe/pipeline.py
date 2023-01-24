@@ -49,8 +49,8 @@ def make_dummy_csv(
     output_path = tmp_path / 'dummy.csv'
     DataFrame(
     {
-        "category": ["A", "B", "C"],
-        "land_cover":['grassland', 'woodland', 'wetland'] 
+        "category": ["A", "B", "C", "D"],
+        "land_cover":['grassland', 'woodland', 'wetland', "farmland"] 
     }
     ).to_csv(output_path)
     return str(output_path)
