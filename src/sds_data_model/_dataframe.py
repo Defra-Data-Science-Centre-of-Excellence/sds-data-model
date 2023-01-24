@@ -677,7 +677,7 @@ def _check_for_zarr(path: Path) -> bool:
         return False
     
     
-def _package_attrs(metadata: Union[None, metadata] = None,
+def _package_attrs(metadata: Union[None, Metadata] = None,
                    graph: Union[None, Digraph] = None,
                    ) -> Dict:
     """Create a dictionary of attributes to be added to a zarr file.
