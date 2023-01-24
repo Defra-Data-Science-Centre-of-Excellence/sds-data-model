@@ -23,7 +23,7 @@ from .fixtures.dataframe.common import (  # noqa: F401
 from .fixtures.dataframe.pipeline import( # noqa: F401
     data,
     schema,
-    make_dummy_shp,
+    make_dummy_vector_file,
     spark_dataframe,
 )
 from .fixtures.dataframe.to_zarr import (  # noqa: F401

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Dict, Tuple, Union
+from typing import Callable, List, Dict, Tuple, Union
 
 from geopandas import GeoDataFrame, GeoSeries
 from pandas import DataFrame
@@ -25,18 +25,16 @@ def data(
     return list_of_dicts
 
 
-@fixture(autouse=True)
-def make_dummy_shp(
+def make_dummy_vector_file(
     tmp_path: Path,
     data: List[Dict[str, Union[str, bytearray]]],
-) -> None:
-
-    out_path = tmp_path / "tmp_geodata.shp"
-
-    df = DataFrame(data)
-
-    gdf = GeoDataFrame(df, geometry=GeoSeries.from_wkb(df.geometry))
-    gdf.to_file(out_path)
+) -> Callable[[str], None]:
+    def _make_dummy_vector_file(ext: str):
+        out_path = tmp_path / f"tmp_geodata{ext}"
+        df = DataFrame(data)
+        gdf = GeoDataFrame(df, geometry=GeoSeries.from_wkb(df.geometry))
+        gdf.to_file(out_path)
+    return _make_dummy_vector_file
 
 
 @fixture
