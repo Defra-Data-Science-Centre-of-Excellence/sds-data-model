@@ -1,5 +1,6 @@
 """Raster wrapper class."""
 from dataclasses import dataclass
+from logging import warning
 from typing import Any, Dict, List, Literal, Optional, Type, TypeVar, Union
 
 from xarray import Dataset
@@ -78,7 +79,8 @@ class DatasetWrapper:
             out_path=out_path,
             chunks=chunks,
         )
-
+        if chunks == "auto":
+            warning("Chunks set to auto. OOM errors could occur.")
         return cls(
             dataset=dataset,
         )

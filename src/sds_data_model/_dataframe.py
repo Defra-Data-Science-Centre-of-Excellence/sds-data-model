@@ -558,6 +558,7 @@ def _create_dummy_dataset(
         compute=False,
     )
     del dataset
+    # gc appears to be slow here without explicit call
     collect()
 
 

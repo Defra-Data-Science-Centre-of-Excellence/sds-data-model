@@ -328,7 +328,9 @@ def _reshape_raster(
                     if isinstance(categorical, dict)
                     else False,
                     name=str(data_array.name),
-                ).drop_vars([*dims]).to_zarr(
+                ).drop_vars(
+                    dims  # drop dims so coordinates don't interfere with zarr region
+                ).to_zarr(
                     store=out_path,
                     mode="r+",
                     region={
