@@ -35,9 +35,9 @@ from sds_data_model._dataframe import (
     _check_sparkdataframe,
     _create_dummy_dataset,
     _get_minimum_dtypes_and_nodata,
+    _graph_to_zarr,
     _recode_column,
     _to_zarr_region,
-    _graph_to_zarr,
 )
 from sds_data_model._vector import _get_metadata, _get_name
 from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, CELL_SIZE, OUT_SHAPE
@@ -72,28 +72,28 @@ _DataFrameWrapper = TypeVar("_DataFrameWrapper", bound="DataFrameWrapper")
 @dataclass
 class DataFrameWrapper:
     """This is a thin wrapper around a Spark DataFrame.
-    
+
     This class stores a Spark DataFrame alongside other objects which both enhance
     the richness of information associated with the data, and allow for increased
     flexibility in transforming it.
-    
+
     Attributes:
         name (str): The name of the dataset.
         data (Union[SparkDataFrame, GroupedData]): Tabular data, optionally containing
-        a geometry column. 
+        a geometry column.
         metadata (Metadata, optional): Object of class `Metadata` containing descriptive
-        information relating to the dataset represented in `data`. 
+        information relating to the dataset represented in `data`.
         lookup (Dict, optional): ???
         graph (Digraph, optional): Object of class `Digraph` containing nodes and edges
         relating to the source data and transformations that have taken place.
-        
+
     Methods:
         from_files: Reads in data and converts it to a SparkDataFrame.
         call_method: Calls spark method specified by user on SparkDataFrame in wrapper.
         categorize: Maps an auto-generated or given dictionary onto provided columns.
         index: Adds a spatial index to data in a Spark DataFrame.
         to_zarr: Rasterises columns of `self.data` and writes them to `zarr`.
-        
+
     Returns:
         _DataFrameWrapper: SparkDataFrameWrapper
     """
@@ -116,10 +116,10 @@ class DataFrameWrapper:
         spark: Optional[SparkSession] = None,
     ) -> _DataFrameWrapper:
         """Reads in data and converts it to a SparkDataFrame.
-        
-        A wide range of data can be read in with from_files. This includes vector 
+
+        A wide range of data can be read in with from_files. This includes vector
         data supported by GDAL drivers, multiple spreadsheet formats read with
-        pandas.read_excel, and csvs, json and parquet files are handled by Spark. 
+        pandas.read_excel, and csvs, json and parquet files are handled by Spark.
 
         Examples:
             >>> from sds_data_model.dataframe import DataFrameWrapper
@@ -283,9 +283,8 @@ class DataFrameWrapper:
         lookup: Optional[Dict[str, Dict[Any, float]]] = None,
     ) -> _DataFrameWrapper:
         """Maps an auto-generated or given dictionary onto provided columns.
-        
+
         Examples:
-        
             >>> from sds_data_model.dataframe import DataFrameWrapper
             >>> wrapped = DataFrameWrapper.from_files(name = "priority_habitats",
             data_path = '/dbfs/mnt/base/unrestricted/source_defra_data_services_platform',
@@ -305,7 +304,7 @@ class DataFrameWrapper:
 
         Returns:
             _DataFrameWrapper: SparkDataFrameWrapper
-        """
+        """  # noqa: B950
         self.data = _check_sparkdataframe(self.data)
         if not self.lookup:
             self.lookup = {}
@@ -325,28 +324,27 @@ class DataFrameWrapper:
         exploded: bool = True,
     ) -> _DataFrameWrapper:
         """Adds a spatial index to data in a Spark DataFrame.
-        
-        Calculates the grid index or indices for the geometrty provided in 
+
+        Calculates the grid index or indices for the geometrty provided in
         well-known binary format at a given resolution. An index is required
         for the rasterisation process executed in the `to_zarr` maethod. Executing
         this method will add relevant index columns to the dataframe stored within
         the DataFrameWrapper.
-        
+
         Examples:
-        
             >>> from sds_data_model.dataframe import DataFrameWrapper
             >>> wrapped = DataFrameWrapper.from_files(name = "priority_habitats",
             data_path = '/dbfs/mnt/base/unrestricted/source_defra_data_services_platform',
             metadata_path = 'https://ckan.publishing.service.gov.uk/harvest/object/85e03bf0-4e95-4739-a5fa-21d60cf7f069',
             read_file_kwargs = {'pattern': 'dataset_priority_habitat_inventory_*/format_SHP_priority_habitat_inventory_*/LATEST_priority_habitat_inventory_*/PHI_v2_3_*',
             'suffix': '.shp'})
-            
+
             Index data.
             >>> wrapped.index(resolution = 100_000)
-            
+
             Look at additional columns added to dataframe.
             >>> wrapped.data.dtypes
-            
+
         Args:
             resolution (int): Resolution of British National Grid cell(s) to return. Defaults to 100_000.
             how (str): Indexing method of: bounding box, intersects (default), contains. Defaults to "intersects".
@@ -454,12 +452,10 @@ class DataFrameWrapper:
 
         .. _`pyspark.sql.DataFrame`:
             https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html
-            
+
         Returns:
-        
         None.
         """  # noqa: B950
-        
         self.data = _check_sparkdataframe(self.data)
 
         colnames = self.data.columns
@@ -522,11 +518,11 @@ class DataFrameWrapper:
             bng_ymax=bng_ymax,
             geometry_column_name=geometry_column_name,
         )
-        
+
         if self.graph:
             _graph_to_zarr(
-                df_wrapper = self,
-                zarr_path = path,
+                df_wrapper=self,
+                zarr_path=path,
             )
 
         (

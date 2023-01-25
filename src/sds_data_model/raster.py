@@ -12,23 +12,23 @@ _DatasetWrapper = TypeVar("_DatasetWrapper", bound="DatasetWrapper")
 @dataclass
 class DatasetWrapper:
     """A wrapper for an `xarray.dataset`.
-    
+
     This class forms a light wrapper around the `xarray.Dataset` class. It's key
     feature is a method to ingest many types of raster files, and resample the
     data to the data model format of British National Grid extent and 10m spatial
     resolution.
-    
+
     Attributes:
     dataset(Dataset): An xarray Dataset containing one or more DataArrays.
-    
+
     Methods:
     from_files: Read in a raster from file at 10m cell size and British National Grid extent.
-    
+
     Returns:
     _DatasetWrapper: Dataset
-    
-    """
-    
+
+    """  # noqa: B950
+
     dataset: Dataset
 
     @classmethod
