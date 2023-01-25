@@ -231,7 +231,6 @@ class DataFrameWrapper:
                         data_path="/dbfs/mnt/base/unrestricted/source_defra_data_services_platform/dataset_traditional_orchards/format_SHP_traditional_orchards/LATEST_traditional_orchards/",
                         read_file_kwargs = {'suffix':'.shp'})
 
-
             Limit number of rows to 5
             >>> wrapped_small =  wrapped.call_method('limit', num = 5)
             Look at data
@@ -239,8 +238,8 @@ class DataFrameWrapper:
 
         Args:
             method_name (str): Name of method or property called by user.
-            *args (Optional[Union[List[int], int]]): Additional args provided by user.
-            **kwargs (Optional[Dict[str, int]]): Additional kwargs provided by user.
+            *args (Optional[Union[List[int], int]]): Additional non-keyword arguments provided by user.
+            **kwargs (Optional[Dict[str, int]]): Additional keyword arguments provided by user.
 
         Returns:
             _DataFrameWrapper: The SparkDataFrameWrapper, updated if necessary
@@ -284,6 +283,20 @@ class DataFrameWrapper:
         lookup: Optional[Dict[str, Dict[Any, float]]] = None,
     ) -> _DataFrameWrapper:
         """Maps an auto-generated or given dictionary onto provided columns.
+        
+        Examples:
+        
+            >>> from sds_data_model.dataframe import DataFrameWrapper
+            >>> wrapped = DataFrameWrapper.from_files(name = "priority_habitats",
+            data_path = '/dbfs/mnt/base/unrestricted/source_defra_data_services_platform',
+            metadata_path = 'https://ckan.publishing.service.gov.uk/harvest/object/85e03bf0-4e95-4739-a5fa-21d60cf7f069',
+            read_file_kwargs = {'pattern': 'dataset_priority_habitat_inventory_*/format_SHP_priority_habitat_inventory_*/LATEST_priority_habitat_inventory_*/PHI_v2_3_*',
+            'suffix': '.shp'})
+
+            Categorize by main habitat type
+            >>> wrapped.categorize(['Main_Habit'])
+            Look at lookup
+            >>> wrapped.lookup
 
         Args:
             columns (Sequence[str]): Columns to map on.
@@ -312,14 +325,35 @@ class DataFrameWrapper:
         exploded: bool = True,
     ) -> _DataFrameWrapper:
         """Adds a spatial index to data in a Spark DataFrame.
-
+        
+        Calculates the grid index or indices for the geometrty provided in 
+        well-known binary format at a given resolution. An index is required
+        for the rasterisation process executed in the `to_zarr` maethod. Executing
+        this method will add relevant index columns to the dataframe stored within
+        the DataFrameWrapper.
+        
+        Examples:
+        
+            >>> from sds_data_model.dataframe import DataFrameWrapper
+            >>> wrapped = DataFrameWrapper.from_files(name = "priority_habitats",
+            data_path = '/dbfs/mnt/base/unrestricted/source_defra_data_services_platform',
+            metadata_path = 'https://ckan.publishing.service.gov.uk/harvest/object/85e03bf0-4e95-4739-a5fa-21d60cf7f069',
+            read_file_kwargs = {'pattern': 'dataset_priority_habitat_inventory_*/format_SHP_priority_habitat_inventory_*/LATEST_priority_habitat_inventory_*/PHI_v2_3_*',
+            'suffix': '.shp'})
+            
+            Index data.
+            >>> wrapped.index(resolution = 100_000)
+            
+            Look at additional columns added to dataframe.
+            >>> wrapped.data.dtypes
+            
         Args:
-            resolution (int): _description_. Defaults to 100_000.
-            how (str): _description_. Defaults to "intersects".
-            index_column_name (str): _description_. Defaults to "bng_index".
-            bounds_column_name (str): _description_. Defaults to "bounds".
-            geometry_column_name (str): _description_. Defaults to "geometry".
-            exploded (bool): _description_. Defaults to True.
+            resolution (int): Resolution of British National Grid cell(s) to return. Defaults to 100_000.
+            how (str): Indexing method of: bounding box, intersects (default), contains. Defaults to "intersects".
+            index_column_name (str): Name of column in dataframe. Defaults to "bng_index".
+            bounds_column_name (str): Name of column in dataframe. Defaults to "bounds".
+            geometry_column_name (str): Name of column in dataframe. Defaults to "geometry".
+            exploded (bool): ???. Defaults to True.
 
         Raises:
             ValueError: If `self.data` is an instance of `pyspark.sql.GroupedData`_
@@ -420,7 +454,12 @@ class DataFrameWrapper:
 
         .. _`pyspark.sql.DataFrame`:
             https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html
+            
+        Returns:
+        
+        None.
         """  # noqa: B950
+        
         self.data = _check_sparkdataframe(self.data)
 
         colnames = self.data.columns
