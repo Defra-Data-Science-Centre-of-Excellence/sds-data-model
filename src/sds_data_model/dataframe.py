@@ -35,7 +35,6 @@ from sds_data_model._dataframe import (
     _check_sparkdataframe,
     _create_dummy_dataset,
     _get_minimum_dtypes_and_nodata,
-    _graph_to_zarr,
     _recode_column,
     _to_zarr_region,
 )
@@ -518,12 +517,6 @@ class DataFrameWrapper:
             bng_ymax=bng_ymax,
             geometry_column_name=geometry_column_name,
         )
-
-        if self.graph:
-            _graph_to_zarr(
-                df_wrapper=self,
-                zarr_path=path,
-            )
 
         (
             self.data.groupby(index_column_name)

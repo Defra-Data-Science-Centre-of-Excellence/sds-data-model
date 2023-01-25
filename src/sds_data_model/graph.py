@@ -210,7 +210,7 @@ def _get_input_node(
 def update_graph(
     graph: Digraph,
     method: str,
-    args: str,
+    args: Optional[str],
     output_class_name: str,
 ) -> Digraph:
     """Update an existing graph.

@@ -35,7 +35,6 @@ from shapely.geometry.base import BaseGeometry
 from shapely.wkt import loads
 from xarray import DataArray, Dataset, merge, open_dataset
 
-from sds_data_model.dataframe import DataFrameWrapper
 from sds_data_model.metadata import Metadata
 
 
@@ -670,18 +669,3 @@ def _check_for_zarr(path: Path) -> bool:
         return True
     except FileNotFoundError:
         return False
-
-
-def _graph_to_zarr(
-    df_wrapper: DataFrameWrapper,
-    zarr_path: str,
-) -> None:
-    """Write a Digraph source string to the attrs of a zarr.
-
-    Args:
-        df_wrapper (DataFrameWrapper): _description_.
-        zarr_path (str): Directory containing a zarr file.
-    """
-    dataset = open_dataset(zarr_path, engine="zarr")
-    dataset.attrs["DAG_source"] = df_wrapper.graph.source
-    dataset.close
