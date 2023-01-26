@@ -15,6 +15,7 @@ from typing import (
     Type,
     TypeVar,
     Union,
+    cast,
 )
 
 from bng_indexer import calculate_bng_index
@@ -280,8 +281,16 @@ class DataFrameWrapper:
         self: _DataFrameWrapper,
         columns: Sequence[str],
         lookup: Optional[Dict[str, Dict[Any, float]]] = None,
+        spark: Optional[SparkSession] = None,
     ) -> _DataFrameWrapper:
         """Maps an auto-generated or given dictionary onto provided columns.
+
+        This method is used to create a lookup (stored within the DataFrameWrapper)
+        that is then used during the rasterisation process.
+
+        Note: do not use `categorize` more than once in a given session, as the
+        data from each run of the method update values inplace. If a new
+        categorization is required then, re-create the DataFrameWrapper first.
 
         Examples:
             >>> from sds_data_model.dataframe import DataFrameWrapper
@@ -300,17 +309,23 @@ class DataFrameWrapper:
             columns (Sequence[str]): Columns to map on.
             lookup (Optional[Dict[str, Dict[Any, float]]]): `{column: value-map}`
                 dictionary to map. Defaults to {}.
+            spark (Optional[SparkSession]): spark session.
 
         Returns:
             _DataFrameWrapper: SparkDataFrameWrapper
-        """  # noqa: B950
+
+        """ # noqa: B950
+        _spark = spark if spark else SparkSession.getActiveSession()
+
         self.data = _check_sparkdataframe(self.data)
         if not self.lookup:
             self.lookup = {}
         if not lookup:
             lookup = {}
         for column in columns:
-            self.data, self.lookup[column] = _recode_column(self.data, column, lookup)
+            self.data, self.lookup[column] = _recode_column(
+                self.data, column, lookup, spark=cast(SparkSession, _spark)
+            )
         return self
 
     def index(
