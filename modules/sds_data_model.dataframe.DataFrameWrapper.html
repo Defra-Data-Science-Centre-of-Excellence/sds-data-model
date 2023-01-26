@@ -202,7 +202,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#sds_data_model.dataframe.DataFrameWrapper.call_method" title="sds_data_model.dataframe.DataFrameWrapper.call_method"><code class="xref py py-obj docutils literal notranslate"><span class="pre">call_method</span></code></a>(method_name, /, *args, **kwargs)</p></td>
 <td><p>Calls spark method specified by user on SparkDataFrame in wrapper.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sds_data_model.dataframe.DataFrameWrapper.categorize" title="sds_data_model.dataframe.DataFrameWrapper.categorize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">categorize</span></code></a>(columns[, lookup])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sds_data_model.dataframe.DataFrameWrapper.categorize" title="sds_data_model.dataframe.DataFrameWrapper.categorize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">categorize</span></code></a>(columns[, lookup, spark])</p></td>
 <td><p>Maps an auto-generated or given dictionary onto provided columns.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sds_data_model.dataframe.DataFrameWrapper.from_files" title="sds_data_model.dataframe.DataFrameWrapper.from_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_files</span></code></a>(data_path[, metadata_path, ...])</p></td>
@@ -284,14 +284,20 @@ Look at data
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sds_data_model.dataframe.DataFrameWrapper.categorize">
-<span class="sig-name descname"><span class="pre">categorize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.dataframe.DataFrameWrapper.categorize" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">categorize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spark</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.dataframe.DataFrameWrapper.categorize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maps an auto-generated or given dictionary onto provided columns.</p>
+<p>This method is used to create a lookup (stored within the DataFrameWrapper)
+that is then used during the rasterisation process.</p>
+<p>Note: do not use <cite>categorize</cite> more than once in a given session, as the
+data from each run of the method update values inplace. If a new
+categorization is required then, re-create the DataFrameWrapper first.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>columns</strong> (<em>Sequence</em><em>[</em><em>str</em><em>]</em>) – Columns to map on.</p></li>
 <li><p><strong>lookup</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Dict</em><em>[</em><em>Any</em><em>, </em><em>float</em><em>]</em><em>]</em><em>]</em>) – <cite>{column: value-map}</cite>
 dictionary to map. Defaults to {}.</p></li>
+<li><p><strong>spark</strong> (<em>Optional</em><em>[</em><em>SparkSession</em><em>]</em>) – spark session.</p></li>
 <li><p><strong>self</strong> (<em>sds_data_model.dataframe._DataFrameWrapper</em>) – </p></li>
 </ul>
 </dd>
@@ -464,7 +470,7 @@ the maximum y value of the British National Grid.</p></li>
 
 
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2022, Piumi Algamagedona, Tim Ashelford, James Duffy, Ed Fawcett-Taylor, Samuel Flint, James Kenyon, Daniel Lewis, Jordan Pinder, Lara Spearman.
+        &#169; Copyright 2023, Piumi Algamagedona, Tim Ashelford, James Duffy, Ed Fawcett-Taylor, Samuel Flint, James Kenyon, Daniel Lewis, Jordan Pinder, Lara Spearman.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
     </div>
 
