@@ -18,6 +18,9 @@ class DatasetWrapper:
     data to the data model format of British National Grid extent and 10m spatial
     resolution.
 
+    During raster resampling, linear interpolation is used, unless categorical
+    data is provided, in which case, nearest neighbour interpolation is applied.
+
     Attributes:
     dataset(Dataset): An xarray Dataset containing one or more DataArrays.
 
