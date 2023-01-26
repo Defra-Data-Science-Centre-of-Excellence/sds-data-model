@@ -245,11 +245,11 @@ class DataFrameWrapper:
         spark: Optional[SparkSession] = None,
     ) -> _DataFrameWrapper:
         """Maps an auto-generated or given dictionary onto provided columns.
-        
+
         This method is used to create a lookup (stored within the DataFrameWrapper)
-        that is then used during the rasterisation process. 
-        
-        Note: do not use `categorize` more than once in a given session, as the 
+        that is then used during the rasterisation process.
+
+        Note: do not use `categorize` more than once in a given session, as the
         data from each run of the method update values inplace. If a new
         categorization is required then, re-create the DataFrameWrapper first.
 
