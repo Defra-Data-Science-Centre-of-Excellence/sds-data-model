@@ -314,7 +314,7 @@ class DataFrameWrapper:
         Returns:
             _DataFrameWrapper: SparkDataFrameWrapper
 
-        """ # noqa: B950
+        """  # noqa: B950
         _spark = spark if spark else SparkSession.getActiveSession()
 
         self.data = _check_sparkdataframe(self.data)
