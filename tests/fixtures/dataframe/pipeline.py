@@ -10,7 +10,7 @@ from pytest import fixture
 from shapely.wkb import loads
 from shapely.geometry import box
 
-from itertools import chain, repeat
+from itertools import chain, repeat, product
 
 from dask import delayed
 from dask.array import from_delayed
@@ -29,7 +29,7 @@ from sds_data_model.constants import (
 )
 
 # create a new fixture which has smaller boxes centred on the original boxes
-# produce a list of tuples comparing bounds for 20_000 x 20_000 boxes with their
+# produce a list of tuples containing bounds for 20_000 x 20_000 boxes with their
 # centres on the existing 100_000 grid system. 
 
 @fixture
@@ -40,8 +40,8 @@ def small_boxes(
     BNG_YMAX: int,
     BOX_SIZE: int,
 ) -> List[Tuple]:
-    x_centres = list(range(int(xmin+(box_size/2)), xmax, box_size))
-    y_centres = list(range(int(ymin+(box_size/2)), ymax, box_size))
+    x_centres = list(range(int(BNG_XMIN+(BOX_SIZE/2)), BNG_XMAX, BOX_SIZE))
+    y_centres = list(range(int(BNG_YMIN+(BOX_SIZE/2)), BNG_YMAX, BOX_SIZE))
     comb = list(product(x_centres, y_centres))
     collector = []
     for centre in comb:
@@ -76,10 +76,18 @@ def new_string_category_column(new_num_rows: int) -> Tuple[str, ...]:
     """Generate string sequence."""
     return tuple(chain.from_iterable(repeat("ABCD", new_num_rows)))
 
+# repeat values 0,1,2,3 for the number of the rows in the dataset
+# this indicates the lookup value that would be assigned by 'categorize'
+@fixture
+def new_category_lookup_column(new_num_rows: int) -> Tuple[str, ...]:
+    """Generate categorical lookup sequence."""
+    return tuple(chain.from_iterable(repeat([0,1,2,3], new_num_rows)))
+
 # create a set of data that can feed into creating a raster
 @fixture
 def new_data(
     new_string_category_column: Tuple[str, ...],
+    new_category_lookup_column: Tuple[int, ...],
     new_geometry_column: Tuple[bytearray, ...],
 ) -> List[Dict[str, Union[str, bytearray]]]:
     """Generate data of different types."""
@@ -87,6 +95,7 @@ def new_data(
         {
             "index": index,
             "category": str(new_string_category_column[index]),
+            "lookup_val": int(new_category_lookup_column[index]),
             "geometry": geometry,
         }
         for index, geometry in enumerate(new_geometry_column)
@@ -96,17 +105,17 @@ def new_data(
 
 # create xarray that looks as you would expect from rasterisation
 @fixture
-def expected_categorical_zarr(
-    BNG_XMAX,
-    BNG_XMIN,
-    BNG_YMAX,
-    BNG_YMIN,
-    CELL_SIZE,
-    new_num_rows,
-    new_data,
-    small_boxes,
+def expected_categorical_dataset(
+    BNG_XMAX: int,
+    BNG_XMIN: int,
+    BNG_YMAX: int,
+    BNG_YMIN: int,
+    CELL_SIZE: int,
+    new_num_rows: int,
+    new_data: List[Dict[str, Union[str, bytearray]]],
+    small_boxes: List[Tuple],
 ) -> Dataset:
-    """Generate a zarr with blocks of values in known positions
+    """Generate an xarray Dataset with blocks of integer values in known positions.
     
     This zarr will contain squares of 3 different values, in sequential order
     to represent what rasterising a set of polygons with 3 different values
@@ -127,14 +136,20 @@ def expected_categorical_zarr(
     # main_array with the relevant values
     
     for row in range(0,new_num_rows):
-        focal_box = small_boxes[row]
-        sub_xlen = len(list(range(focal_box[0], focal_box[2], CELL_SIZE))) 
-        sub_ylen = len(list(range(focal_box[1], focal_box[3], CELL_SIZE)))
         
-        # NEED TO ADD THE CATEGORISED LOOKUP VALUE TO new_data for each row (VAL) - determined in new_data
-        # Does the box size (e.g. 20000 x 20000) need to be a fixture?
+        # because in the pipeline test we are filtering out 'grassland', any boxes with
+        # a lookup value of 0 should be excluded from this rasterisation process
         
-        sub_array = DataArray(from_delayed(ones([20000,20000]*VAL, dtype = 'unint8'),
+        lookup_val = new_data[row]['lookup_val']
+        
+        if lookup_val != 0:
+            
+            focal_box = small_boxes[row]
+            sub_xlen = len(list(range(focal_box[0], focal_box[2], CELL_SIZE))) 
+            sub_ylen = len(list(range(focal_box[1], focal_box[3], CELL_SIZE)))
+            
+            # create a smaller array using the lookup_val as the fill value
+            sub_array = DataArray(from_delayed(ones([20000,20000]*lookup_val, dtype = 'unint8'),
                                            shape = (sub_ylen, sub_xlen), dtype = 'unint8'),
                               name = 'sub',
                               coords = {"eastings":list(range(focal_box[0],(focal_box[2]+CELL_SIZE), CELL_SIZE)),
@@ -145,26 +160,34 @@ def expected_categorical_zarr(
         
     main_array.to_dataset()
     
+    return main_array
     
     
-
-
+# TODO    
+@fixture
+def expected_dag_source(
     
+) -> str:
+    """Generate a DAG and return it's source as a string."""
+    
+    dag = make the dag
+    
+    return dag.source
     
 
 
 
-# at this stage we have a dataset ready to rasterise
-# the rasterised output will be used to compare to what the test is creating
-
-# create an array that looks as expected - loop through values 
-
-# create array of 0s loop through box values and update the array
-# make a dask array for starters then turn it into an xarray dataarray
-
-# then wrap this dataarray in an xarray dataset in a datasetwrapper and compare
-
-# use xarray data comparison in test. 
+# add the DAG source code as attrs in the Dataset
+@fixture
+def expected_categorical_dataset_with_dag(
+    expected_categorical_dataset: Dataset,
+    expected_dag_source: str
+    ) -> Dataset:
+    
+    expected_categorical_dataset.attrs = expected_dag_source
+    
+    return expected_categorical_dataset
+    
 
 @fixture
 def make_dummy_vector_file(

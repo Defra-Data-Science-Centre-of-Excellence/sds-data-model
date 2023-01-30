@@ -14,6 +14,9 @@ from sds_data_model.dataframe import DataFrameWrapper
 from sds_data_model.raster import DatasetWrapper
 from sds_data_model.constants import BBOXES
 
+from xarray import Dataset
+from xarray.testing import assert_identical
+
 from osgeo.ogr import Open, Feature, wkbNDR
 import pytest
 
@@ -65,6 +68,7 @@ def test_pipeline(
     make_dummy_csv: str,
     ext: str,
     schema: StructType,
+    expected_categorical_dataset_with_dag: Dataset,
 ) -> None:
     """End to end test."""
     make_dummy_vector_file(ext)
@@ -91,7 +95,7 @@ def test_pipeline(
     (
         spatial_dfw
         .call_method("join", other=aspatial_dfw.data, on="category")
-        .call_method("filter", "land_cover != 'woodland'")
+        .call_method("filter", "land_cover != 'grassland'")
         .categorize(["land_cover"])
         .index()
         .to_zarr(
@@ -100,6 +104,8 @@ def test_pipeline(
         )
     )
 
-    DatasetWrapper.from_files(
+    out_data = DatasetWrapper.from_files(
         data_path=zarr_path,
     )
+    
+    assert_identical(out_data.data, expected_categorical_dataset_with_dag)
