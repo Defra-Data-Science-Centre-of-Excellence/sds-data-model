@@ -21,9 +21,15 @@ from .fixtures.dataframe.common import (  # noqa: F401
     spark_session,
 )
 from .fixtures.dataframe.pipeline import (  # noqa: F401
-    data,
+    new_data,
+    expected_categorical_dataset,
     schema,
+    small_boxes,
     output_schema,
+    new_string_category_column,
+    new_num_rows,
+    new_geometry_column,
+    new_category_lookup_column,
     make_dummy_vector_file,
     make_dummy_csv,
     spark_dataframe,
