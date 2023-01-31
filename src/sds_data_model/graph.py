@@ -84,7 +84,8 @@ def _add_function_node(
     """
     _add_process_node(
         graph,
-        function_name,
+        # dots mess with graphviz labels so replace with underscores
+        function_name=function_name.replace('.','_'),
         label=f"function:\n{function_name}",
     )
 
