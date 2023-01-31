@@ -36,6 +36,8 @@ from sds_data_model.constants import (
     BBOXES,
 )
 
+import rioxarray
+
 # create a new fixture which has smaller boxes centred on the original boxes
 # produce a list of tuples containing bounds for 20_000 x 20_000 boxes with their
 # centres on the existing 100_000 grid system.
@@ -143,7 +145,7 @@ def expected_categorical_dataset(
 
     main_array = DataArray(
         full([ylen, xlen], fill_value=255, dtype="uint8"),
-        name="main",
+        name="landcover",
         coords={
             "northings": arange(BNG_YMAX - (CELL_SIZE / 2), BNG_YMIN, -CELL_SIZE),
             "eastings": arange(BNG_XMIN + (CELL_SIZE / 2), BNG_XMAX, CELL_SIZE),
@@ -189,7 +191,9 @@ def expected_categorical_dataset(
 
             # update the main array
             #main_array = sub_array.combine_first(main_array)
-
+    
+    main_array.rio.write_crs("EPSG:27700", inplace=True)
+    
     return main_array.to_dataset()
 
 
