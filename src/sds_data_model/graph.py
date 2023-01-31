@@ -84,8 +84,7 @@ def _add_function_node(
     """
     _add_process_node(
         graph,
-        # dots mess with graphviz labels so replace with underscores
-        function_name=function_name.replace('.','_'),
+        function_name,
         label=f"function:\n{function_name}",
     )
 
@@ -227,8 +226,8 @@ def update_graph(
     input_node = _get_input_node(
         graph=graph,
     )
-
-    _method = f"{input_node.split('_')[0]}.{method}(\n{args}\n)"
+    # dots mess with graphviz node names so replace with underscores
+    _method = f"{input_node.split('_')[0]}.{method}(\n{args}\n)".replace('.','_')
 
     _add_function_node(
         graph=graph,
