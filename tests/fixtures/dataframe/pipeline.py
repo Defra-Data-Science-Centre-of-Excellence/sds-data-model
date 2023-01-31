@@ -169,6 +169,7 @@ def expected_categorical_dataset(
                             eastings=slice(focal_box[0],
                                            focal_box[2]))] = lookup_val
             
+            
             #sub_xlen = len(list(range(focal_box[0], focal_box[2], CELL_SIZE)))
             #sub_ylen = len(list(range(focal_box[1], focal_box[3], CELL_SIZE)))
 
