@@ -202,7 +202,8 @@ def expected_categorical_dataset(
     
     main_dataset = main_array.to_dataset()
     
-    main_array.update(
+    
+    main_dataset.update(
         affine_to_coords(
             transform,
             height=height,
