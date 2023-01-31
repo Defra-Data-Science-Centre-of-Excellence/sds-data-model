@@ -5,7 +5,9 @@ name: CI
 
 on:
   push:
-    branches: [ develop, EFT-Defra/issue204 ]
+    branches: 
+      - develop 
+      - EFT-Defra/issue204 
 
   pull_request:
     branches: [ develop ]
