@@ -161,27 +161,33 @@ def expected_categorical_dataset(
         lookup_val = new_data[row]["lookup_val"]
 
         if lookup_val != 0:
-
+            
             focal_box = small_boxes[row]
-            sub_xlen = len(list(range(focal_box[0], focal_box[2], CELL_SIZE)))
-            sub_ylen = len(list(range(focal_box[1], focal_box[3], CELL_SIZE)))
+            
+            main_array[dict(northings=slice(focal_box[1],
+                                            focal_box[3]), 
+                            eastings=slice(focal_box[0],
+                                           focal_box[2]))] = lookup_val
+            
+            #sub_xlen = len(list(range(focal_box[0], focal_box[2], CELL_SIZE)))
+            #sub_ylen = len(list(range(focal_box[1], focal_box[3], CELL_SIZE)))
 
             # create a smaller array using the lookup_val as the fill value
-            sub_array = DataArray(
-                ones([2000, 2000], dtype="uint8") * lookup_val,
-                name="sub",
-                coords={
-                    "eastings": arange(
-                        focal_box[0] + (CELL_SIZE / 2), focal_box[2], CELL_SIZE
-                    ),
-                    "northings": arange(
-                        focal_box[3] - (CELL_SIZE / 2), focal_box[1], -CELL_SIZE
-                    ),
-                },
-            )
+            #sub_array = DataArray(
+            #    ones([2000, 2000], dtype="uint8") * lookup_val,
+            #    name="sub",
+            #    coords={
+            #        "eastings": arange(
+            #            focal_box[0] + (CELL_SIZE / 2), focal_box[2], CELL_SIZE
+            #        ),
+            #        "northings": arange(
+            #            focal_box[3] - (CELL_SIZE / 2), focal_box[1], -CELL_SIZE
+            #        ),
+            #    },
+            #)
 
             # update the main array
-            main_array = sub_array.combine_first(main_array)
+            #main_array = sub_array.combine_first(main_array)
 
     return main_array.to_dataset()
 
