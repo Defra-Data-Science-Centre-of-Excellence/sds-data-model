@@ -1,7 +1,6 @@
 """Private functions for the DataFrame wrapper class."""
 from dataclasses import asdict
 from gc import collect
-from itertools import chain
 from json import load
 from pathlib import Path
 from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple, Union, cast
@@ -23,8 +22,8 @@ from numpy import (
 from numpy.typing import NDArray
 from pandas import DataFrame as PandasDataFrame
 from pyspark.sql import DataFrame as SparkDataFrame
-from pyspark.sql.column import Column
-from pyspark.sql.functions import col, create_map, lit
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
 from pyspark.sql.functions import max as _max
 from pyspark.sql.functions import min as _min
 from pyspark.sql.functions import udf
@@ -275,6 +274,7 @@ def _map_dictionary_on_column(
     sdf: SparkDataFrame,
     column: str,
     lookup: Dict[Any, float],
+    spark: SparkSession,
 ) -> SparkDataFrame:
     """Map a lookup on a column of a `SparkDataFrame`.
 
@@ -282,18 +282,24 @@ def _map_dictionary_on_column(
         sdf (SparkDataFrame): Input DataFrame.
         column (str): Column to map lookup on.
         lookup (Dict[Any, float]): Input dictionary of `{original_value: new_value}`.
+        spark (SparkSession): spark session.
 
     Returns:
         SparkDataFrame: SparkDataFrame with updated column.
     """
-    _map = create_map(cast(Column, [lit(x) for x in chain(*lookup.items())]))
-    return sdf.withColumn(column, _map[col(column)])
+    _map = spark.createDataFrame(lookup.items(), schema=[column, "__value__"])
+    return (
+        sdf.join(_map, column, "left")
+        .withColumn(column, col("__value__"))
+        .drop("__value__")
+    )
 
 
 def _recode_column(
     sdf: SparkDataFrame,
     column: str,
     lookup: Union[Dict[str, Dict[Any, float]], Dict],
+    spark: SparkSession,
 ) -> Tuple[SparkDataFrame, Dict[Any, float]]:
     """Apply an auto-generated or input lookup to a columnn of a `SparkDataFrame`.
 
@@ -302,6 +308,7 @@ def _recode_column(
         column (str): Column to optionally generate lookup for and map lookup on.
         lookup (Union[Dict[str, Dict[Any, float]], Dict]): Optional input `dict` of
             `{column: {original_value: new_value}}`.
+        spark (SparkSession): spark session.
 
     Returns:
         Tuple[SparkDataFrame, Dict[Any, float]]: Updated SparkDataFrame, lookup
@@ -314,7 +321,7 @@ def _recode_column(
         _lookup = dict(
             zip(unique.rdd.flatMap(lambda x: x).collect(), range(unique.count()))
         )
-    return _map_dictionary_on_column(sdf, column, _lookup), _lookup
+    return _map_dictionary_on_column(sdf, column, _lookup, spark), _lookup
 
 
 def _get_minimum_column_dtype(

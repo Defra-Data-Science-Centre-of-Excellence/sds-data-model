@@ -324,6 +324,7 @@ class TiledVectorLayer:
             graph=self.graph,
             method="select",
             output_class_name="TiledVectorLayer",
+            args="",
         )
 
         return self
@@ -344,6 +345,7 @@ class TiledVectorLayer:
             graph=self.graph,
             method="where",
             output_class_name="TiledVectorLayer",
+            args="",
         )
 
         return self
@@ -388,6 +390,7 @@ class TiledVectorLayer:
             graph=self.graph,
             method="join",
             output_class_name="TiledVectorLayer",
+            args="",
         )
 
         self.graph = graph
@@ -407,6 +410,7 @@ class TiledVectorLayer:
             graph=self.graph,
             method="to_data_array_as_mask",
             output_class_name="TiledVectorLayer",
+            args="",
         )
 
         self.graph = graph
@@ -446,6 +450,7 @@ class TiledVectorLayer:
             graph=self.graph,
             method="to_dataset_as_raster",
             output_class_name="TiledVectorLayer",
+            args="",
         )
 
         self.graph = graph
@@ -616,6 +621,7 @@ class VectorLayer:
             graph=self.graph,
             method="to_tiles",
             output_class_name="TiledVectorLayer",
+            args="",
         )
 
         return TiledVectorLayer(
