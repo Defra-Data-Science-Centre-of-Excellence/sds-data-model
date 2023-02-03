@@ -164,7 +164,7 @@ abstract common patterns to methods, and capture transformations.</p>
 </div>
 <p>You can construct a DataFrameWrapper instance from several different spatial and
 aspatial file formats using the
-<a class="reference internal" href="modules/sds_data_model.dataframe.DataFrameWrapper.html#sds_data_model.dataframe.DataFrameWrapper.from_files" title="sds_data_model.dataframe.DataFrameWrapper.from_files"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sds_data_model.dataframe.DataFrameWrapper.from_files()</span></code></a> alternative constructor.
+<a class="reference internal" href="modules/sds_data_model.dataframe.DataFrameWrapper.html#id2" title="sds_data_model.dataframe.DataFrameWrapper.from_files"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sds_data_model.dataframe.DataFrameWrapper.from_files()</span></code></a> alternative constructor.
 <cite>from_files</cite> will use a different reader depending on the file extension.</p>
 <ul class="simple">
 <li><dl class="simple">
@@ -369,8 +369,8 @@ letters. The indexing functions are called from the <a class="reference external
 </div>
 <p>The above code would update the <cite>sdf</cite> object, providing the wrapped DataFrame
 with the additional columns.</p>
-<p>Some of the other arguments allow the user to provide custom column names for the
-geometry column as an input, and the two output columns:</p>
+<p>Some of the other arguments allow the user to provide custom column names for
+the geometry column as an input, and the two output columns:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span><span class="o">.</span><span class="n">index</span><span class="p">(</span>
     <span class="n">resolution</span><span class="o">=</span><span class="mi">10_000</span><span class="p">,</span>
     <span class="n">geometry_column_name</span><span class="o">=</span><span class="s2">&quot;custom_geom&quot;</span><span class="p">,</span>
@@ -379,9 +379,15 @@ geometry column as an input, and the two output columns:</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p><strong>TODO: how do variations in `how` work?</strong></p>
-<p>Once the spatial index has been created, the DataFrameWrapper is ready for writing
-to a zarr file.</p>
+<p>For polygons/multipolygons ‘how’ methods of ‘bounding box’, ‘intersects’ and
+‘contains’ are available. The ‘bounding box’ method returns all grid cells
+covering the bounding box of the geometry; the ‘intersects’ method is the
+default returning the grid cells that the polygon intersects; the ‘contains’
+methods additionally returns a boolean for each grid cell that the polygon
+intersects with indicating whether that grid cell is contained by the polygon
+(True) or intersects but is not contained (False).</p>
+<p>Once the spatial index has been created, the DataFrameWrapper is ready for
+writing to a zarr file.</p>
 </section>
 <section id="writing-to-zarr">
 <h3>Writing to zarr<a class="headerlink" href="#writing-to-zarr" title="Permalink to this headline">¶</a></h3>

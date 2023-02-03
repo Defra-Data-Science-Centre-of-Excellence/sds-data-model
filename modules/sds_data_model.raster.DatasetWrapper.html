@@ -155,12 +155,54 @@
 <dt class="sig sig-object py" id="sds_data_model.raster.DatasetWrapper">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sds_data_model.raster.</span></span><span class="sig-name descname"><span class="pre">DatasetWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.raster.DatasetWrapper" title="Permalink to this definition">¶</a></dt>
 <dd><p>A wrapper for an <cite>xarray.dataset</cite>.</p>
+<p>This class forms a light wrapper around the <cite>xarray.Dataset</cite> class. It’s key
+feature is a method to ingest many types of raster files, and resample the
+data to the data model format of British National Grid extent and 10m spatial
+resolution.</p>
+<p>During raster resampling, linear interpolation is used, unless categorical
+data is provided, in which case, nearest neighbour interpolation is applied.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sds_data_model.raster.DatasetWrapper.dataset">
+<span class="sig-name descname"><span class="pre">dataset</span></span><a class="headerlink" href="#sds_data_model.raster.DatasetWrapper.dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>An xarray Dataset containing one or more DataArrays.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Dataset</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sds_data_model.raster.DatasetWrapper.from_files">
+<span class="sig-name descname"><span class="pre">from_files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.raster.DatasetWrapper.from_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in a raster from file at 10m cell size and
+British National Grid extent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dataset</strong> (<em>xarray.core.dataset.Dataset</em>) – </p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_path</strong> (<em>str</em>) – </p></li>
+<li><p><strong>bands</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>List</em><em>[</em><em>int</em><em>]</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>categorical</strong> (<em>Union</em><em>[</em><em>bool</em><em>, </em><em>Dict</em><em>[</em><em>Union</em><em>[</em><em>int</em><em>, </em><em>str</em><em>]</em><em>, </em><em>bool</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>nodata</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
+<li><p><strong>engine</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>decode_coords</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>bool</em><em>, </em><em>Literal</em><em>[</em><em>'coordinates'</em><em>, </em><em>'all'</em><em>]</em><em>]</em><em>]</em>) – </p></li>
+</ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>None</p>
+<dd class="field-even"><p>sds_data_model.raster._DatasetWrapper</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dataset</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>_DatasetWrapper</p>
+</dd>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dataset</strong> (<em>xarray.core.dataset.Dataset</em>) – </p>
 </dd>
 </dl>
 <dl class="py method">
@@ -186,7 +228,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#sds_data_model.raster.DatasetWrapper.__init__" title="sds_data_model.raster.DatasetWrapper.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(dataset)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sds_data_model.raster.DatasetWrapper.from_files" title="sds_data_model.raster.DatasetWrapper.from_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_files</span></code></a>(data_path[, bands, categorical, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#id0" title="sds_data_model.raster.DatasetWrapper.from_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_files</span></code></a>(data_path[, bands, categorical, ...])</p></td>
 <td><p>Read in a raster from file at 10m cell size and British National Grid extent.</p></td>
 </tr>
 </tbody>
@@ -198,14 +240,14 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataset</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sds_data_model.raster.DatasetWrapper.dataset" title="sds_data_model.raster.DatasetWrapper.dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataset</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py method">
-<dt class="sig sig-object py" id="sds_data_model.raster.DatasetWrapper.from_files">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bands</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categorical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decode_coords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sds_data_model.raster.DatasetWrapper.from_files" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bands</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categorical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decode_coords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read in a raster from file at 10m cell size and British National Grid extent.</p>
 <p class="rubric">Examples</p>
 <p>Read 2 bands from raster, specifying that the first is categorical.</p>

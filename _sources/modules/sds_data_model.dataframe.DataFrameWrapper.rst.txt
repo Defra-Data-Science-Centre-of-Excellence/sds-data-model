@@ -34,5 +34,6 @@
       ~DataFrameWrapper.data
       ~DataFrameWrapper.metadata
       ~DataFrameWrapper.lookup
+      ~DataFrameWrapper.graph
    
    
