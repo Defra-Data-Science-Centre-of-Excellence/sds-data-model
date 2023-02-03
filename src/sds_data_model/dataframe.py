@@ -80,12 +80,15 @@ class DataFrameWrapper:
     Attributes:
         name (str): The name of the dataset.
         data (Union[SparkDataFrame, GroupedData]): Tabular data, optionally containing
-        a geometry column.
+            a geometry column.
         metadata (Metadata, optional): Object of class `Metadata` containing descriptive
-        information relating to the dataset represented in `data`.
-        lookup (Dict, optional): ???
+            information relating to the dataset represented in `data`.
+        lookup (Dict[str, Dict[Any, float]], optional): Dictionary of 
+            `{column: value-map, ...}` for columns in the data. Not applied to the data. 
+            Use of `categorize` will write the lookups used by the method to this
+            attribute. This attribute is written to the output of `to_zarr`.
         graph (Digraph, optional): Object of class `Digraph` containing nodes and edges
-        relating to the source data and transformations that have taken place.
+            relating to the source data and transformations that have taken place.
 
     Methods:
         from_files: Reads in data and converts it to a SparkDataFrame.
