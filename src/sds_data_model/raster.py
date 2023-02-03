@@ -22,13 +22,14 @@ class DatasetWrapper:
     data is provided, in which case, nearest neighbour interpolation is applied.
 
     Attributes:
-    dataset(Dataset): An xarray Dataset containing one or more DataArrays.
+        dataset(Dataset): An xarray Dataset containing one or more DataArrays.
 
     Methods:
-    from_files: Read in a raster from file at 10m cell size and British National Grid extent.
+        from_files: Read in a raster from file at 10m cell size and
+            British National Grid extent.
 
     Returns:
-    _DatasetWrapper: Dataset
+        _DatasetWrapper: Dataset
 
     """  # noqa: B950
 
