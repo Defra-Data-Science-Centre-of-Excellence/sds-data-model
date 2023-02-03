@@ -19,6 +19,7 @@ from typing import (
 )
 
 from bng_indexer import calculate_bng_index
+from graphviz import Digraph
 from pyspark.pandas import DataFrame as SparkPandasDataFrame
 from pyspark.pandas import Series as SparkPandasSeries
 from pyspark.pandas import read_excel
@@ -40,6 +41,7 @@ from sds_data_model._dataframe import (
 )
 from sds_data_model._vector import _get_metadata, _get_name
 from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, CELL_SIZE, OUT_SHAPE
+from sds_data_model.graph import initialise_graph, update_graph
 from sds_data_model.metadata import Metadata
 
 spark = SparkSession.getActiveSession()
@@ -69,7 +71,31 @@ _DataFrameWrapper = TypeVar("_DataFrameWrapper", bound="DataFrameWrapper")
 
 @dataclass
 class DataFrameWrapper:
-    """DataFrameWrapper class.
+    """This is a thin wrapper around a Spark DataFrame.
+
+    This class stores a Spark DataFrame alongside other objects which both enhance
+    the richness of information associated with the data, and allow for increased
+    flexibility in transforming it.
+
+    Attributes:
+        name (str): The name of the dataset.
+        data (Union[SparkDataFrame, GroupedData]): Tabular data, optionally containing
+            a geometry column.
+        metadata (Metadata, optional): Object of class `Metadata` containing descriptive
+            information relating to the dataset represented in `data`.
+        lookup (Dict[str, Dict[Any, float]], optional): Dictionary of
+            `{column: value-map, ...}` for columns in the data. Not applied to the data.
+            Use of `categorize` will write the lookups used by the method to this
+            attribute. This attribute is written to the output of `to_zarr`.
+        graph (Digraph, optional): Object of class `Digraph` containing nodes and edges
+            relating to the source data and transformations that have taken place.
+
+    Methods:
+        from_files: Reads in data and converts it to a SparkDataFrame.
+        call_method: Calls spark method specified by user on SparkDataFrame in wrapper.
+        categorize: Maps an auto-generated or given dictionary onto provided columns.
+        index: Adds a spatial index to data in a Spark DataFrame.
+        to_zarr: Rasterises columns of `self.data` and writes them to `zarr`.
 
     Returns:
         _DataFrameWrapper: SparkDataFrameWrapper
@@ -79,7 +105,7 @@ class DataFrameWrapper:
     data: Union[SparkDataFrame, GroupedData]
     metadata: Optional[Metadata]
     lookup: Optional[Dict[str, Dict[Any, float]]]
-    # graph: Optional[DiGraph]
+    graph: Optional[Digraph]
 
     @classmethod
     def from_files(
@@ -93,6 +119,10 @@ class DataFrameWrapper:
         spark: Optional[SparkSession] = None,
     ) -> _DataFrameWrapper:
         """Reads in data and converts it to a SparkDataFrame.
+
+        A wide range of data can be read in with from_files. This includes vector
+        data supported by GDAL drivers, multiple spreadsheet formats read with
+        pandas.read_excel, and csvs, json and parquet files are handled by Spark.
 
         Examples:
             >>> from sds_data_model.dataframe import DataFrameWrapper
@@ -110,13 +140,13 @@ class DataFrameWrapper:
             )
 
         Args:
-            data_path (str): Path to data,
+            data_path (str): Path to data.
             metadata_path (Optional[str], optional): Path to metadata supplied by user. Defaults to None.
-            metadata_kwargs (Optional[str]): Optional kwargs for metadata
+            metadata_kwargs (Optional[str]): Optional kwargs for metadata.
             lookup (Optional[Dict[str, Dict[Any, float]]]): Dictionary of `{column: value-map, ...}` for columns in the data. Not applied to the data. Defaults to None.
             name (Optional[str], optional): Name for data, either supplied by caller or obtained from metadata title. Defaults to None.
             read_file_kwargs (Optional[Dict[str,Any]], optional): Additional kwargs supplied by the caller, dependent on the function called. Defaults to None.
-            spark(Optional[SparkSession]): Optional spark session
+            spark(Optional[SparkSession]): Optional spark session.
 
         Returns:
             _DataFrameWrapper: SparkDataFrameWrapper
@@ -139,7 +169,7 @@ class DataFrameWrapper:
         }
 
         file_reader_spark: Dict[str, Callable] = {
-            ".csv": _spark.read.csv,
+            ".csv": _spark.read.options(header=True).csv,
             ".json": _spark.read.json,
             ".parquet": _spark.read.parquet,
         }
@@ -170,7 +200,13 @@ class DataFrameWrapper:
             metadata=metadata,
         )
 
-        return cls(name=_name, data=data, metadata=metadata, lookup=lookup)
+        graph = initialise_graph(
+            data_path=data_path,
+            metadata_path=metadata_path,
+            class_name="DataFrameWrapper",
+        )
+
+        return cls(name=_name, data=data, metadata=metadata, lookup=lookup, graph=graph)
 
     def call_method(
         self: _DataFrameWrapper,
@@ -179,16 +215,16 @@ class DataFrameWrapper:
         *args: Optional[Union[str, Sequence[str]]],
         **kwargs: Optional[Dict[str, Any]],
     ) -> _DataFrameWrapper:
-        """Calls spark method specified by user on SparkDataFrame in wrapper.
+        """Calls Spark method specified by user on Spark DataFrame in wrapper.
 
-        The function:
-        1) assign method call to attribute object, to examine it before implementing anything
+        The function does the following:
+        1) assigns method call to attribute object, to examine it before implementing anything
         2) check if method_name is a method
         3) get the signature of method (what argument it takes, return type, etc.)
         4) bind arguments to function arguments
         5) create string to pass through graph generator
         6) return value, as have checked relevant information and can now call method
-        7) if not method, assume its a property (eg. crs)
+        7) if not a method, assume its a property (eg. CRS)
         8) check if method_name returns a dataframe, if so update self.data attribute with that new data
         9) if dataframe not returned, (eg. display called), return original data
 
@@ -198,16 +234,15 @@ class DataFrameWrapper:
                         data_path="/dbfs/mnt/base/unrestricted/source_defra_data_services_platform/dataset_traditional_orchards/format_SHP_traditional_orchards/LATEST_traditional_orchards/",
                         read_file_kwargs = {'suffix':'.shp'})
 
-
             Limit number of rows to 5
             >>> wrapped_small =  wrapped.call_method('limit', num = 5)
             Look at data
             >>> wrapped_small.call_method("show")
 
         Args:
-            method_name (str): Name of method or property called by user
-            *args (Optional[Union[List[int], int]]): Additional args provided by user
-            **kwargs (Optional[Dict[str, int]]): Additional kwargs provided by user
+            method_name (str): Name of method or property called by user.
+            *args (Optional[Union[List[int], int]]): Additional non-keyword arguments provided by user.
+            **kwargs (Optional[Dict[str, int]]): Additional keyword arguments provided by user.
 
         Returns:
             _DataFrameWrapper: The SparkDataFrameWrapper, updated if necessary
@@ -236,6 +271,13 @@ class DataFrameWrapper:
         ):
             self.data = return_value
 
+            self.graph = update_graph(
+                graph=self.graph,
+                method=method_name,
+                args=formatted_arguments,
+                output_class_name="DataFrameWrapper",
+            )
+
         return self
 
     def categorize(
@@ -253,6 +295,19 @@ class DataFrameWrapper:
         data from each run of the method update values inplace. If a new
         categorization is required then, re-create the DataFrameWrapper first.
 
+        Examples:
+            >>> from sds_data_model.dataframe import DataFrameWrapper
+            >>> wrapped = DataFrameWrapper.from_files(name = "priority_habitats",
+            data_path = '/dbfs/mnt/base/unrestricted/source_defra_data_services_platform',
+            metadata_path = 'https://ckan.publishing.service.gov.uk/harvest/object/85e03bf0-4e95-4739-a5fa-21d60cf7f069',
+            read_file_kwargs = {'pattern': 'dataset_priority_habitat_inventory_*/format_SHP_priority_habitat_inventory_*/LATEST_priority_habitat_inventory_*/PHI_v2_3_*',
+            'suffix': '.shp'})
+
+            Categorize by main habitat type
+            >>> wrapped.categorize(['Main_Habit'])
+            Look at lookup
+            >>> wrapped.lookup
+
         Args:
             columns (Sequence[str]): Columns to map on.
             lookup (Optional[Dict[str, Dict[Any, float]]]): `{column: value-map}`
@@ -261,8 +316,10 @@ class DataFrameWrapper:
 
         Returns:
             _DataFrameWrapper: SparkDataFrameWrapper
-        """
+
+        """  # noqa: B950
         _spark = spark if spark else SparkSession.getActiveSession()
+
         self.data = _check_sparkdataframe(self.data)
         if not self.lookup:
             self.lookup = {}
@@ -272,6 +329,84 @@ class DataFrameWrapper:
             self.data, self.lookup[column] = _recode_column(
                 self.data, column, lookup, spark=cast(SparkSession, _spark)
             )
+        return self
+
+    def index(
+        self: _DataFrameWrapper,
+        resolution: int = 100_000,
+        how: str = "intersects",
+        index_column_name: str = "bng_index",
+        bounds_column_name: str = "bounds",
+        geometry_column_name: str = "geometry",
+        exploded: bool = True,
+    ) -> _DataFrameWrapper:
+        """Adds a spatial index to data in a Spark DataFrame.
+
+        Calculates the grid index or indices for the geometrty provided in
+        well-known binary format at a given resolution. An index is required
+        for the rasterisation process executed in the `to_zarr` maethod. Executing
+        this method will add relevant index columns to the dataframe stored within
+        the DataFrameWrapper.
+
+        Examples:
+            >>> from sds_data_model.dataframe import DataFrameWrapper
+            >>> wrapped = DataFrameWrapper.from_files(name = "priority_habitats",
+            data_path = '/dbfs/mnt/base/unrestricted/source_defra_data_services_platform',
+            metadata_path = 'https://ckan.publishing.service.gov.uk/harvest/object/85e03bf0-4e95-4739-a5fa-21d60cf7f069',
+            read_file_kwargs = {'pattern': 'dataset_priority_habitat_inventory_*/format_SHP_priority_habitat_inventory_*/LATEST_priority_habitat_inventory_*/PHI_v2_3_*',
+            'suffix': '.shp'})
+
+            Index data.
+            >>> wrapped.index(resolution = 100_000)
+
+            Look at additional columns added to dataframe.
+            >>> wrapped.data.dtypes
+
+        Args:
+            resolution (int): Resolution of British National Grid cell(s) to return. Defaults to 100_000.
+            how (str): Indexing method of: bounding box, intersects (default), contains. Defaults to "intersects".
+            index_column_name (str): Name of column in dataframe. Defaults to "bng_index".
+            bounds_column_name (str): Name of column in dataframe. Defaults to "bounds".
+            geometry_column_name (str): Name of column in dataframe. Defaults to "geometry".
+            exploded (bool): ???. Defaults to True.
+
+        Raises:
+            ValueError: If `self.data` is an instance of `pyspark.sql.GroupedData`_
+                instead of `pyspark.sql.DataFrame`_.
+
+        Returns:
+            _DataFrameWrapper: An indexed DataFrameWrapper.
+
+        .. _`pyspark.sql.GroupedData`:
+            https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.GroupedData.html
+
+        .. _`pyspark.sql.DataFrame`:
+            https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html
+        """  # noqa: B950
+        if not isinstance(self.data, SparkDataFrame):
+            data_type = type(self.data)
+            raise ValueError(
+                f"`self.data` must be a `pyspark.sql.DataFrame` not a {data_type}"
+            )
+
+        _partial_calculate_bng_index = partial(
+            calculate_bng_index, resolution=resolution, how=how
+        )
+
+        _calculate_bng_index_udf = udf(
+            _partial_calculate_bng_index,
+            returnType=ArrayType(StringType()),
+        )
+
+        self.data = self.data.withColumn(
+            index_column_name, _calculate_bng_index_udf(col(geometry_column_name))
+        )
+
+        if exploded:
+            self.data = self.data.withColumn(
+                index_column_name, explode(col(index_column_name))
+            ).withColumn(bounds_column_name, _bng_to_bounds(col(index_column_name)))
+
         return self
 
     def to_zarr(
@@ -334,6 +469,9 @@ class DataFrameWrapper:
 
         .. _`pyspark.sql.DataFrame`:
             https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html
+
+        Returns:
+        None.
         """  # noqa: B950
         self.data = _check_sparkdataframe(self.data)
 
@@ -408,61 +546,3 @@ class DataFrameWrapper:
             .mode("overwrite")
             .save()
         )
-
-    def index(
-        self: _DataFrameWrapper,
-        resolution: int = 100_000,
-        how: str = "intersects",
-        index_column_name: str = "bng_index",
-        bounds_column_name: str = "bounds",
-        geometry_column_name: str = "geometry",
-        exploded: bool = True,
-    ) -> _DataFrameWrapper:
-        """_summary_.
-
-        Args:
-            resolution (int): _description_. Defaults to 100_000.
-            how (str): _description_. Defaults to "intersects".
-            index_column_name (str): _description_. Defaults to "bng_index".
-            bounds_column_name (str): _description_. Defaults to "bounds".
-            geometry_column_name (str): _description_. Defaults to "geometry".
-            exploded (bool): _description_. Defaults to True.
-
-        Raises:
-            ValueError: If `self.data` is an instance of `pyspark.sql.GroupedData`_
-                instead of `pyspark.sql.DataFrame`_.
-
-        Returns:
-            _DataFrameWrapper: An indexed DataFrameWrapper.
-
-        .. _`pyspark.sql.GroupedData`:
-            https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.GroupedData.html
-
-        .. _`pyspark.sql.DataFrame`:
-            https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html
-        """  # noqa: B950
-        if not isinstance(self.data, SparkDataFrame):
-            data_type = type(self.data)
-            raise ValueError(
-                f"`self.data` must be a `pyspark.sql.DataFrame` not a {data_type}"
-            )
-
-        _partial_calculate_bng_index = partial(
-            calculate_bng_index, resolution=resolution, how=how
-        )
-
-        _calculate_bng_index_udf = udf(
-            _partial_calculate_bng_index,
-            returnType=ArrayType(StringType()),
-        )
-
-        self.data = self.data.withColumn(
-            index_column_name, _calculate_bng_index_udf(col(geometry_column_name))
-        )
-
-        if exploded:
-            self.data = self.data.withColumn(
-                index_column_name, explode(col(index_column_name))
-            ).withColumn(bounds_column_name, _bng_to_bounds(col(index_column_name)))
-
-        return self

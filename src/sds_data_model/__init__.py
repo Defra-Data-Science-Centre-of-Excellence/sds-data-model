@@ -266,8 +266,8 @@ For example:
 The above code would update the `sdf` object, providing the wrapped DataFrame
 with the additional columns.
 
-Some of the other arguments allow the user to provide custom column names for the
-geometry column as an input, and the two output columns:
+Some of the other arguments allow the user to provide custom column names for
+the geometry column as an input, and the two output columns:
 
 .. code-block:: python
 
@@ -278,10 +278,16 @@ geometry column as an input, and the two output columns:
         bounds_column_name="custom_bounds",
     )
 
-**TODO: how do variations in `how` work?**
+For polygons/multipolygons 'how' methods of 'bounding box', 'intersects' and
+'contains' are available. The 'bounding box' method returns all grid cells
+covering the bounding box of the geometry; the 'intersects' method is the
+default returning the grid cells that the polygon intersects; the 'contains'
+methods additionally returns a boolean for each grid cell that the polygon
+intersects with indicating whether that grid cell is contained by the polygon
+(True) or intersects but is not contained (False).
 
-Once the spatial index has been created, the DataFrameWrapper is ready for writing
-to a zarr file.
+Once the spatial index has been created, the DataFrameWrapper is ready for
+writing to a zarr file.
 
 Writing to zarr
 ---------------
