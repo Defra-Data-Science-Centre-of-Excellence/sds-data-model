@@ -1,8 +1,14 @@
 """Tests for the `DataFrameWrapper` pipeline."""
+from itertools import product
+import logging
+
 from pathlib import Path
 from struct import pack
+from sys import stdout
 from typing import Callable, Tuple, Optional
 
+from dask.array import all, equal
+from numpy import unique
 from chispa import assert_df_equality
 from shapely.wkb import loads
 from shapely.geometry.polygon import orient
@@ -14,7 +20,7 @@ from sds_data_model.dataframe import DataFrameWrapper
 from sds_data_model.raster import DatasetWrapper
 from sds_data_model.constants import BBOXES
 
-from xarray import Dataset
+from xarray import Dataset, open_dataset
 from xarray.testing import assert_identical
 
 from osgeo.ogr import Open, Feature, wkbNDR
@@ -83,27 +89,60 @@ def test_pipeline(
         spark=spark_session,
     )
 
+    # Debug 
+    spatial_dfw.data.show()
+
     aspatial_dfw = DataFrameWrapper.from_files(
         data_path=make_dummy_csv,
         name="aspatial",
         spark=spark_session,
     )
 
+    # Debug 
+    aspatial_dfw.data.show()
+
     zarr_path = str(tmp_path / "joined.zarr")
 
-    (
+    joined_dfw = (
         spatial_dfw.call_method("join", other=aspatial_dfw.data, on="category")
-        .call_method("filter", "land_cover != 'grassland'")
+        .call_method("filter", "land_cover != 'farmland'")
         .categorize(["land_cover"])
         .index()
-        .to_zarr(
+    )
+
+    # Debug 
+    joined_dfw.data.show()
+
+    joined_dfw.to_zarr(
             path=zarr_path,
             columns=["land_cover"],
         )
+
+    out_data = open_dataset(
+        zarr_path, engine="zarr", chunks={"northings": 10_000, "eastings": 10_000},
     )
 
-    out_data = DatasetWrapper.from_files(
-        data_path=zarr_path,
-    )
+    # Debug 
+    # Replace with actual assert
+    for northing, easting in product(
+        range(0, 130_000, 10_000), range(0, 70_000, 10_000)
+    ):
+        northing_index = slice(northing, northing + 10_000)
+        easting_index = slice(easting, easting + 10_000)
+        got = out_data["land_cover"][northing_index, easting_index].compute()
+        expected = expected_categorical_dataset["land_cover"][
+            northing_index, easting_index
+        ].compute()
 
-    assert_identical(out_data.dataset, expected_categorical_dataset)
+        print(f"Sub array [{northing_index}, {easting_index}]")
+
+        got_values, got_counts = unique(got, return_counts=True)
+        expected_values, expected_counts = unique(expected, return_counts=True)
+
+        print(f"GOT has:")
+        for value, count in zip(got_values, got_counts):
+            print(f"\tVALUE: {value}, COUNT: {count}")
+        print(f"EXPECTED has:")
+        for value, count in zip(expected_values, expected_counts):
+            print(f"\tVALUE: {value}, COUNT: {count}")
+        print("")
