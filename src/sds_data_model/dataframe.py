@@ -83,8 +83,8 @@ class DataFrameWrapper:
             a geometry column.
         metadata (Metadata, optional): Object of class `Metadata` containing descriptive
             information relating to the dataset represented in `data`.
-        lookup (Dict[str, Dict[Any, float]], optional): Dictionary of 
-            `{column: value-map, ...}` for columns in the data. Not applied to the data. 
+        lookup (Dict[str, Dict[Any, float]], optional): Dictionary of
+            `{column: value-map, ...}` for columns in the data. Not applied to the data.
             Use of `categorize` will write the lookups used by the method to this
             attribute. This attribute is written to the output of `to_zarr`.
         graph (Digraph, optional): Object of class `Digraph` containing nodes and edges
