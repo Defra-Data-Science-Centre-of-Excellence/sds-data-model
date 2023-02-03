@@ -64,7 +64,12 @@ def small_boxes(
     # return collector
     centers = [box(*bbox).centroid for bbox in bboxes]
     return [
-        (int(center.x - 10_000), int(center.y - 10_000), int(center.x + 10_000), int(center.y + 10_000))
+        (
+            int(center.x - 10_000),
+            int(center.y - 10_000),
+            int(center.x + 10_000),
+            int(center.y + 10_000),
+        )
         for center in centers
     ]
 
@@ -126,8 +131,7 @@ def new_data(
 # create xarray that looks as you would expect from rasterisation
 @fixture
 def expected_categorical_dataset(
-    new_num_rows: int,
-    new_data: List[Dict[str, Union[str, bytearray]]],
+    new_category_lookup_column: Tuple[int, ...],
     small_boxes: List[Tuple],
     BNG_XMIN: int = BNG_XMIN,
     BNG_XMAX: int = BNG_XMAX,
@@ -142,12 +146,15 @@ def expected_categorical_dataset(
     should look like.
     """
 
-    # create empty zarr of 0s with full extent
-    xlen = len(list(range(BNG_XMIN, BNG_XMAX, CELL_SIZE)))
-    ylen = len(list(range(BNG_YMIN, BNG_YMAX, CELL_SIZE)))
+    dask_array = full(shape=(BNG_YMAX / CELL_SIZE, BNG_XMAX / CELL_SIZE), fill_value=255, dtype="uint8")
 
-    main_array = DataArray(
-        full([ylen, xlen], fill_value=255, dtype="uint8"),
+    for box, lookup in zip(small_boxes, new_category_lookup_column):
+        if lookup != 3:
+            xmin, ymin, xmax, ymax = tuple(coordinate / CELL_SIZE for coordinate in box)
+            dask_array[slice(ymin, ymax), slice(xmin, xmax)] = lookup
+
+    data_array = DataArray(
+        dask_array,
         name="land_cover",
         coords={
             "northings": arange(BNG_YMAX - (CELL_SIZE / 2), BNG_YMIN, -CELL_SIZE),
@@ -155,54 +162,13 @@ def expected_categorical_dataset(
         },
     )
 
-    # for each polygon geometry, create an xarray and update the values in
-    # main_array with the relevant values
-
-    for row in range(0, new_num_rows):
-
-        # because in the pipeline test we are filtering out 'grassland', any boxes with
-        # a lookup value of 0 should be excluded from this rasterisation process
-
-        lookup_val = new_data[row]["lookup_val"]
-
-        if lookup_val != 0:
-            
-            focal_box = small_boxes[row]
-            
-            main_array[dict(northings=slice(focal_box[1],
-                                            focal_box[3]), 
-                            eastings=slice(focal_box[0],
-                                           focal_box[2]))] = lookup_val
-            
-            
-            #sub_xlen = len(list(range(focal_box[0], focal_box[2], CELL_SIZE)))
-            #sub_ylen = len(list(range(focal_box[1], focal_box[3], CELL_SIZE)))
-
-            # create a smaller array using the lookup_val as the fill value
-            #sub_array = DataArray(
-            #    ones([2000, 2000], dtype="uint8") * lookup_val,
-            #    name="sub",
-            #    coords={
-            #        "eastings": arange(
-            #            focal_box[0] + (CELL_SIZE / 2), focal_box[2], CELL_SIZE
-            #        ),
-            #        "northings": arange(
-            #            focal_box[3] - (CELL_SIZE / 2), focal_box[1], -CELL_SIZE
-            #        ),
-            #    },
-            #)
-
-            # update the main array
-            #main_array = sub_array.combine_first(main_array)
-    
     dims = ("northings", "eastings")
     height = int(BNG_YMAX / CELL_SIZE)
     width = int(BNG_XMAX / CELL_SIZE)
     transform = Affine(CELL_SIZE, 0, BNG_XMIN, 0, -CELL_SIZE, BNG_YMAX)
-    
-    main_dataset = main_array.to_dataset()
-    
-    
+
+    main_dataset = data_array.to_dataset()
+
     main_dataset.update(
         affine_to_coords(
             transform,
@@ -212,12 +178,17 @@ def expected_categorical_dataset(
             x_dim=dims[1],
         ),
     )
-    
+
     main_dataset.rio.write_crs("EPSG:27700", inplace=True)
     main_dataset.rio.write_transform(transform, inplace=True)
-    
-    return main_dataset
+    main_dataset["land_cover"] = main_dataset["land_cover"].assign_attrs(
+        {
+            "lookup": {"grassland": 0, "woodland": 1, "wetland": 2, "nodata": 255},
+            "nodata": 255,
+        }
+    )
 
+    return main_dataset
 
 
 # TODO
@@ -267,7 +238,7 @@ def make_dummy_csv(
             "category": ["A", "B", "C", "D"],
             "land_cover": ["grassland", "woodland", "wetland", "farmland"],
         }
-    ).to_csv(output_path)
+    ).to_csv(output_path, index=False)
     return str(output_path)
 
 
