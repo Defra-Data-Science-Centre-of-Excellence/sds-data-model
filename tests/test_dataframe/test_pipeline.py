@@ -46,7 +46,7 @@ import pytest
 # 2) A dummy csv is created
 # 3) Both are read in as dataframewrappers.
 # 4) They are joined, filtered and categorized.
-# 5) Then indexed (need to fix as problem with edge case (edge coords being used in test))
+# 5) Then indexed
 # 6) Then written as a zarr file, using the categorized column.
 
 # Possibly add metadata into the mix...
