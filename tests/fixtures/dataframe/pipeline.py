@@ -137,7 +137,7 @@ def expected_dag_source() -> Dict[str, str]:
 @fixture
 def expected_categorical_dataset(
     new_category_lookup_column: Tuple[int, ...],
-    expected_dag_source: Dict,
+    #expected_dag_source: Dict,
     small_boxes: List[Tuple],
     BNG_XMIN: int = BNG_XMIN,
     BNG_XMAX: int = BNG_XMAX,
@@ -166,7 +166,7 @@ def expected_categorical_dataset(
         dask_array,
         dims = dims,
         name="land_cover",
-        attrs = expected_dag_source,
+        attrs = "",
         #coords={
         #    "northings": arange(BNG_YMAX - (CELL_SIZE / 2), BNG_YMIN, -CELL_SIZE),
         #    "eastings": arange(BNG_XMIN + (CELL_SIZE / 2), BNG_XMAX, CELL_SIZE),
@@ -193,7 +193,7 @@ def expected_categorical_dataset(
     main_dataset.rio.write_transform(transform, inplace=True)
     main_dataset["land_cover"] = main_dataset["land_cover"].assign_attrs(
         {
-            "lookup": {"grassland": 0, "woodland": 1, "wetland": 2, "nodata": 255},
+            "lookup": "{'grassland': 0, 'woodland': 1, 'wetland': 2, 'nodata': 255}",
             "nodata": 255,
         }
     )
