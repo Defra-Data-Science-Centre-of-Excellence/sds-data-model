@@ -36,6 +36,9 @@ import pytest
 # Having 3 classes will test that categorization works as the results should be 3
 # unique values, rather than a binary mask of 2.
 
+# In the test, the last categorical value is filtered out of the data, so that
+# when categorized, the values match those in the fixture (no re-ordering).
+
 # A/B/C/D are used as adjoining values as that's what the dummy vector data inherits
 # from other fixtures.
 
@@ -90,7 +93,7 @@ def test_pipeline(
     )
 
     # Debug 
-    spatial_dfw.data.show()
+    #spatial_dfw.data.show()
 
     aspatial_dfw = DataFrameWrapper.from_files(
         data_path=make_dummy_csv,
@@ -99,7 +102,7 @@ def test_pipeline(
     )
 
     # Debug 
-    aspatial_dfw.data.show()
+    #aspatial_dfw.data.show()
 
     zarr_path = str(tmp_path / "joined.zarr")
 
@@ -111,7 +114,7 @@ def test_pipeline(
     )
 
     # Debug 
-    joined_dfw.data.show()
+    #joined_dfw.data.show()
 
     joined_dfw.to_zarr(
             path=zarr_path,
@@ -121,28 +124,36 @@ def test_pipeline(
     out_data = open_dataset(
         zarr_path, engine="zarr", chunks={"northings": 10_000, "eastings": 10_000},
     )
+    
+    print("TEST OUTPUT")
+    print(out_data.keys())
+    print(out_data.attrs)
+    print("FIXTURE OUTPUT")
+    print(expected_categorical_dataset.keys())
+    print(expected_categorical_dataset.attrs)
+    
+    assert_identical(out_data, expected_categorical_dataset)
 
     # Debug 
-    # Replace with actual assert
-    for northing, easting in product(
-        range(0, 130_000, 10_000), range(0, 70_000, 10_000)
-    ):
-        northing_index = slice(northing, northing + 10_000)
-        easting_index = slice(easting, easting + 10_000)
-        got = out_data["land_cover"][northing_index, easting_index].compute()
-        expected = expected_categorical_dataset["land_cover"][
-            northing_index, easting_index
-        ].compute()
-
-        print(f"Sub array [{northing_index}, {easting_index}]")
-
-        got_values, got_counts = unique(got, return_counts=True)
-        expected_values, expected_counts = unique(expected, return_counts=True)
-
-        print(f"GOT has:")
-        for value, count in zip(got_values, got_counts):
-            print(f"\tVALUE: {value}, COUNT: {count}")
-        print(f"EXPECTED has:")
-        for value, count in zip(expected_values, expected_counts):
-            print(f"\tVALUE: {value}, COUNT: {count}")
-        print("")
+    #for northing, easting in product(
+    #    range(0, 130_000, 10_000), range(0, 70_000, 10_000)
+    #):
+    #    northing_index = slice(northing, northing + 10_000)
+    #    easting_index = slice(easting, easting + 10_000)
+    #    got = out_data["land_cover"][northing_index, easting_index].compute()
+    #    expected = expected_categorical_dataset["land_cover"][
+    #        northing_index, easting_index
+    #    ].compute()
+#
+    #    print(f"Sub array [{northing_index}, {easting_index}]")
+#
+    #    got_values, got_counts = unique(got, return_counts=True)
+    #    expected_values, expected_counts = unique(expected, return_counts=True)
+#
+    #    print(f"GOT has:")
+    #    for value, count in zip(got_values, got_counts):
+    #        print(f"\tVALUE: {value}, COUNT: {count}")
+    #    print(f"EXPECTED has:")
+    #    for value, count in zip(expected_values, expected_counts):
+    #        print(f"\tVALUE: {value}, COUNT: {count}")
+    #    print("")

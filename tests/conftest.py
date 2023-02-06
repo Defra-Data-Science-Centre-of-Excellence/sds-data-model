@@ -22,6 +22,7 @@ from .fixtures.dataframe.common import (  # noqa: F401
 )
 from .fixtures.dataframe.pipeline import (  # noqa: F401
     new_data,
+    expected_dag_source,
     expected_categorical_dataset,
     schema,
     small_boxes,

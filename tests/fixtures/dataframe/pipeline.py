@@ -128,10 +128,16 @@ def new_data(
     return list_of_dicts
 
 
+@fixture
+def expected_dag_source() -> Dict[str, str]:
+    source = 'digraph {\n\tdata_path [label="data input:\n/tmp/pytest-of-jamesduffy/pytest-14/test_pipeline_ESRI_Shapefile_0" shape=oval]\n\t"DataFrameWrapper.from_files" [label="function:\nDataFrameWrapper.from_files" shape=box]\n\tDataFrameWrapper [label="output:\nDataFrameWrapper" shape=parallelogram]\n\tdata_path -> "DataFrameWrapper.from_files"\n\t"DataFrameWrapper.from_files" -> DataFrameWrapper\n\t"DataFrameWrapper.join(\nother=DataFrame[category: string, land_cover: string],on=category\n)" [label="function:\nDataFrameWrapper.join(\nother=DataFrame[category: string, land_cover: string],on=category\n)" shape=box]\n\tDataFrameWrapper_1 [label="output:\nDataFrameWrapper" shape=parallelogram]\n\tDataFrameWrapper -> "DataFrameWrapper.join(\nother=DataFrame[category":" string, land_cover": string],on=category\n)\n\t"DataFrameWrapper.join(\nother=DataFrame[category":" string, land_cover": string],on=category\n) -> DataFrameWrapper_1\n\t"DataFrameWrapper.filter(\ncondition=land_cover != \'farmland\'\n)" [label="function:\nDataFrameWrapper.filter(\ncondition=land_cover != \'farmland\'\n)" shape=box]\n\tDataFrameWrapper_2 [label="output:\nDataFrameWrapper" shape=parallelogram]\n\tDataFrameWrapper_1 -> "DataFrameWrapper.filter(\ncondition=land_cover != \'farmland\'\n)"\n\t"DataFrameWrapper.filter(\ncondition=land_cover != \'farmland\'\n)" -> DataFrameWrapper_2\n}\n'
+    return {'DAG_source': source}
+
 # create xarray that looks as you would expect from rasterisation
 @fixture
 def expected_categorical_dataset(
     new_category_lookup_column: Tuple[int, ...],
+    expected_dag_source: Dict,
     small_boxes: List[Tuple],
     BNG_XMIN: int = BNG_XMIN,
     BNG_XMAX: int = BNG_XMAX,
@@ -147,22 +153,26 @@ def expected_categorical_dataset(
     """
 
     dask_array = full(shape=(BNG_YMAX / CELL_SIZE, BNG_XMAX / CELL_SIZE), fill_value=255, dtype="uint8")
-
+    
+    # loop through each small box and assign the relevant value to the region of the zarr the box represent
     for box, lookup in zip(small_boxes, new_category_lookup_column):
         if lookup != 3:
             xmin, ymin, xmax, ymax = tuple(coordinate / CELL_SIZE for coordinate in box)
             dask_array[slice(ymin, ymax), slice(xmin, xmax)] = lookup
-
+    
+    dims = ("northings", "eastings")
+    
     data_array = DataArray(
         dask_array,
+        dims = dims,
         name="land_cover",
-        coords={
-            "northings": arange(BNG_YMAX - (CELL_SIZE / 2), BNG_YMIN, -CELL_SIZE),
-            "eastings": arange(BNG_XMIN + (CELL_SIZE / 2), BNG_XMAX, CELL_SIZE),
-        },
+        attrs = expected_dag_source,
+        #coords={
+        #    "northings": arange(BNG_YMAX - (CELL_SIZE / 2), BNG_YMIN, -CELL_SIZE),
+        #    "eastings": arange(BNG_XMIN + (CELL_SIZE / 2), BNG_XMAX, CELL_SIZE),
+        #},
     )
 
-    dims = ("northings", "eastings")
     height = int(BNG_YMAX / CELL_SIZE)
     width = int(BNG_XMAX / CELL_SIZE)
     transform = Affine(CELL_SIZE, 0, BNG_XMIN, 0, -CELL_SIZE, BNG_YMAX)
@@ -187,31 +197,11 @@ def expected_categorical_dataset(
             "nodata": 255,
         }
     )
+    
+    # reorder coordinates to match test output
+    main_dataset = main_dataset[['eastings', 'northings', 'land_cover']]
 
     return main_dataset
-
-
-# TODO
-# @fixture
-# def expected_dag_source(
-
-# ) -> str:
-#     """Generate a DAG and return it's source as a string."""
-
-# dag = make the dag
-
-# return dag.source
-
-
-# # add the DAG source code as attrs in the Dataset
-# @fixture
-# def expected_categorical_dataset_with_dag(
-#     expected_categorical_dataset: Dataset, expected_dag_source: str
-# ) -> Dataset:
-
-#     expected_categorical_dataset.attrs = expected_dag_source
-
-#     return expected_categorical_dataset
 
 
 @fixture
