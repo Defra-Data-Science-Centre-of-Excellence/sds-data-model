@@ -245,6 +245,10 @@ def _reshape_raster(
             there is no data (if it is not `None`).
         engine (Optional[str]): Engine used by open_dataset.
 
+    Raises:
+        ValueError: If input data needs to be reshaped and no path is provided
+            to `out_path`.
+
     Returns:
         Dataset: A dataset of `DataArray`s that conform to the `expected_...` values.
     """
@@ -257,6 +261,10 @@ def _reshape_raster(
         expected_x_min=expected_x_min,
         expected_y_max=expected_y_max,
     ):
+        if not out_path:
+            raise ValueError(
+                "Provide a path to `out_path` to reshape the input Dataset."
+            )
         _dtype, _nodata = {}, {}
         for data_array in data_arrays:
             _dtype[str(data_array.name)] = data_array.dtype.name

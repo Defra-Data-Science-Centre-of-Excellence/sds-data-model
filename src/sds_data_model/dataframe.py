@@ -38,6 +38,7 @@ from sds_data_model._dataframe import (
     _get_minimum_dtypes_and_nodata,
     _recode_column,
     _to_zarr_region,
+    _warn_zarr_overwrite,
 )
 from sds_data_model._vector import _get_metadata, _get_name
 from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, CELL_SIZE, OUT_SHAPE
@@ -180,7 +181,10 @@ class DataFrameWrapper:
             spark_pandas_data = file_reader_pandas[suffix_data_path](
                 data_path, **read_file_kwargs
             )
-            if isinstance(spark_pandas_data, SparkPandasDataFrame,) or isinstance(
+            if isinstance(
+                spark_pandas_data,
+                SparkPandasDataFrame,
+            ) or isinstance(
                 spark_pandas_data,
                 SparkPandasSeries,
             ):
@@ -250,7 +254,6 @@ class DataFrameWrapper:
         attribute = getattr(self.data, method_name)
 
         if ismethod(attribute):
-
             sig = signature(attribute)
 
             arguments = sig.bind(*args, **kwargs).arguments
@@ -262,7 +265,6 @@ class DataFrameWrapper:
 
             return_value = attribute(*args, **kwargs)
         else:
-
             logger.info(f"Calling {attribute.__qualname__}")
             return_value = attribute
 
@@ -483,15 +485,7 @@ class DataFrameWrapper:
         if geometry_column_name not in colnames:
             raise ValueError(f"{geometry_column_name} is not present in the data.")
 
-        _path = Path(path)
-
-        if _path.exists():
-
-            if overwrite is False and _check_for_zarr(_path):
-                raise ValueError(f"Zarr file already exists in {_path}.")
-
-            if overwrite is True and _check_for_zarr(_path):
-                warning("Overwriting existing zarr.")
+        _warn_zarr_overwrite(path, overwrite)
 
         if columns:
             for column, _type in self.data.select(columns).dtypes:

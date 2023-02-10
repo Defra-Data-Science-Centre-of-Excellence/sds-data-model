@@ -2,6 +2,7 @@
 from dataclasses import asdict
 from gc import collect
 from json import load
+from logging import warning
 from pathlib import Path
 from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple, Union, cast
 
@@ -680,3 +681,24 @@ def _check_for_zarr(path: Path) -> bool:
         return True
     except FileNotFoundError:
         return False
+
+
+def _warn_zarr_overwrite(
+    path: str,
+    overwrite: bool,
+) -> None:
+    """Conditionally raise error or warning for a given zarr path.
+
+    Args:
+        path (str): Directory to check for zarr file(s).
+        overwrite (bool): Whether zarr is intended to be overwritten.
+
+    Raises:
+        ValueError: If overwrite is false and path exists.
+    """
+    if (_path := Path(path)).exists():
+        if overwrite is False and _check_for_zarr(_path):
+            raise ValueError(f"Zarr file already exists in {_path}.")
+
+        if overwrite is True and _check_for_zarr(_path):
+            warning("Overwriting existing zarr.")

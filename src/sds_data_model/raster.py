@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Literal, Optional, Type, TypeVar, Union
 
 from xarray import Dataset
 
+from sds_data_model._dataframe import _warn_zarr_overwrite
 from sds_data_model._raster import _read_dataset_from_file
 
 _DatasetWrapper = TypeVar("_DatasetWrapper", bound="DatasetWrapper")
@@ -44,6 +45,7 @@ class DatasetWrapper:
         categorical: Union[bool, Dict[Union[int, str], bool]] = False,
         nodata: Optional[float] = None,
         out_path: Optional[str] = None,
+        overwrite: bool = False,
         chunks: Optional[Union[int, Dict[Any, Any], Literal["auto"]]] = "auto",
         engine: Optional[str] = None,
         decode_coords: Optional[Union[bool, Literal["coordinates", "all"]]] = "all",
@@ -77,6 +79,7 @@ class DatasetWrapper:
             nodata (Optional[float]): Value that will fill the grid where
                 there is no data (if it is not `None`). Defaults to None.
             out_path (Optional[str]): Path to write reshaped data. Defaults to None.
+            overwrite (bool): Overwrite existing zarr? Defaults to False.
             chunks (Optional[Union[int, Dict[Any, Any], Literal["auto"]]]): Chunk size
                 or state. Passed to `chunks` in `xarray.open_dataset`.
                 Defaults to "auto".
@@ -85,10 +88,18 @@ class DatasetWrapper:
                 Value used by `open_dataset`. Variable upon `engine` selection.
                 Defaults to "all".
 
+        Raises:
+            ValueError: If Zarr file exists at `out_path` and overwrite set to `False`.
+
         Returns:
             _DatasetWrapper: A thin wrapper around an `xarray.Dataset` containing
                 `xarray.DataArray with 10m cell size and British National Grid extent.
         """
+        if chunks == "auto":
+            warning("Chunks set to auto. OOM errors could occur.")
+
+        _warn_zarr_overwrite(out_path, overwrite)
+
         dataset = _read_dataset_from_file(
             data_path=data_path,
             bands=bands,
@@ -99,8 +110,6 @@ class DatasetWrapper:
             out_path=out_path,
             chunks=chunks,
         )
-        if chunks == "auto":
-            warning("Chunks set to auto. OOM errors could occur.")
         return cls(
             dataset=dataset,
         )
