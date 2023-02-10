@@ -180,10 +180,7 @@ class DataFrameWrapper:
             spark_pandas_data = file_reader_pandas[suffix_data_path](
                 data_path, **read_file_kwargs
             )
-            if isinstance(
-                spark_pandas_data,
-                SparkPandasDataFrame,
-            ) or isinstance(
+            if isinstance(spark_pandas_data, SparkPandasDataFrame,) or isinstance(
                 spark_pandas_data,
                 SparkPandasSeries,
             ):
