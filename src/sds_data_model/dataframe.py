@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from functools import partial
 from inspect import ismethod, signature
-from logging import INFO, Formatter, StreamHandler, getLogger, warning
+from logging import INFO, Formatter, StreamHandler, getLogger
 from pathlib import Path
 from typing import (
     Any,
@@ -32,7 +32,6 @@ from pyspark_vector_files.gpkg import read_gpkg
 
 from sds_data_model._dataframe import (
     _bng_to_bounds,
-    _check_for_zarr,
     _check_sparkdataframe,
     _create_dummy_dataset,
     _get_minimum_dtypes_and_nodata,
@@ -463,7 +462,6 @@ class DataFrameWrapper:
             ValueError: If `self.data` is not an instance of of `pyspark.sql.DataFrame`.
             ValueError: If `index_column_name` isn't in the dataframe.
             ValueError: If `geometry_column_name` isn't in the dataframe.
-            ValueError: If Zarr file exists and overwrite set to False.
             ValueError: If column of type string is in `columns`.
 
         .. _`pyspark.sql.GroupedData`:

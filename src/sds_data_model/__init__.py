@@ -374,13 +374,13 @@ and the data uses a large datatype e.g. float32:
 .. code-block:: python
 
     ds = DatasetWrapper.from_files(
-        data_path="path/to/file.ext", # path to file
-        bands=["0", "4"], # select band names
-        categorical=True, # all input bands are categorical
-        nodata=-9999, # set a nodata value
-        out_path="path/to/reshaped_file.zarr", # provide a path for the BNG raster
-        overwrite=True, # overwrite the `out_path` if it exists
-        chunks=300, # use a small chunksize because of the large data type
+        data_path="path/to/file.ext",  # path to file
+        bands=["0", "4"],  # select band names
+        categorical=True,  # all input bands are categorical
+        nodata=-9999,  # set a nodata value
+        out_path="path/to/reshaped_file.zarr",  # provide a path for the BNG raster
+        overwrite=True,  # overwrite the `out_path` if it exists
+        chunks=300,  # use a small chunksize because of the large data type
     )
 
 

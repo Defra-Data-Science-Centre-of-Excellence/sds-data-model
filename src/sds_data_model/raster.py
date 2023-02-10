@@ -88,17 +88,14 @@ class DatasetWrapper:
                 Value used by `open_dataset`. Variable upon `engine` selection.
                 Defaults to "all".
 
-        Raises:
-            ValueError: If Zarr file exists at `out_path` and overwrite set to `False`.
-
         Returns:
             _DatasetWrapper: A thin wrapper around an `xarray.Dataset` containing
                 `xarray.DataArray with 10m cell size and British National Grid extent.
         """
         if chunks == "auto":
             warning("Chunks set to auto. OOM errors could occur.")
-
-        _warn_zarr_overwrite(out_path, overwrite)
+        if out_path:
+            _warn_zarr_overwrite(out_path, overwrite)
 
         dataset = _read_dataset_from_file(
             data_path=data_path,
