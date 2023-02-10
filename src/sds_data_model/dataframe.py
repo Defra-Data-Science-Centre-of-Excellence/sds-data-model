@@ -180,10 +180,7 @@ class DataFrameWrapper:
             spark_pandas_data = file_reader_pandas[suffix_data_path](
                 data_path, **read_file_kwargs
             )
-            if isinstance(
-                spark_pandas_data,
-                SparkPandasDataFrame,
-            ) or isinstance(
+            if isinstance(spark_pandas_data, SparkPandasDataFrame,) or isinstance(
                 spark_pandas_data,
                 SparkPandasSeries,
             ):
@@ -253,6 +250,7 @@ class DataFrameWrapper:
         attribute = getattr(self.data, method_name)
 
         if ismethod(attribute):
+
             sig = signature(attribute)
 
             arguments = sig.bind(*args, **kwargs).arguments
@@ -264,6 +262,7 @@ class DataFrameWrapper:
 
             return_value = attribute(*args, **kwargs)
         else:
+
             logger.info(f"Calling {attribute.__qualname__}")
             return_value = attribute
 
@@ -487,6 +486,7 @@ class DataFrameWrapper:
         _path = Path(path)
 
         if _path.exists():
+
             if overwrite is False and _check_for_zarr(_path):
                 raise ValueError(f"Zarr file already exists in {_path}.")
 
