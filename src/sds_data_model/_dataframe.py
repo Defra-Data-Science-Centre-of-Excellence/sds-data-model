@@ -1,6 +1,8 @@
 """Private functions for the DataFrame wrapper class."""
 from dataclasses import asdict
+from gc import collect
 from json import load
+from logging import warning
 from pathlib import Path
 from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple, Union, cast
 
@@ -487,7 +489,7 @@ def _create_dummy_dataset(
     path: str,
     dtype: Dict[str, str],
     nodata: Dict[str, float],
-    mask_name: str,
+    mask_name: Optional[str],
     cell_size: int,
     bng_xmin: int,
     bng_xmax: int,
@@ -517,7 +519,7 @@ def _create_dummy_dataset(
         dtype (Dict[str, str]): Data type for the array of each column.
         nodata (Dict[str, str]): nodata value for the array of each column.
         lookup (Optional[Dict[str, Dict[Any, Float]]]): lookup for a column if applicable.
-        mask_name (str): Name for the geometry mask.
+        mask_name (Optional[str]): Name for the geometry mask.
         metadata (Optional[str]): Metadata object relating to data.
         cell_size (int): The resolution of the cells in the DataArray.
         bng_xmin (int): The minimum x value of the DataArray.
@@ -563,6 +565,9 @@ def _create_dummy_dataset(
         mode="w",
         compute=False,
     )
+    del dataset
+    # gc appears to be slow here without explicit call
+    collect()
 
 
 def _to_zarr_region(
@@ -676,3 +681,24 @@ def _check_for_zarr(path: Path) -> bool:
         return True
     except FileNotFoundError:
         return False
+
+
+def _warn_zarr_overwrite(
+    path: str,
+    overwrite: bool,
+) -> None:
+    """Conditionally raise error or warning for a given zarr path.
+
+    Args:
+        path (str): Directory to check for zarr file(s).
+        overwrite (bool): Whether zarr is intended to be overwritten.
+
+    Raises:
+        ValueError: If overwrite is false and path exists.
+    """
+    if (_path := Path(path)).exists():
+        if overwrite is False and _check_for_zarr(_path):
+            raise ValueError(f"Zarr file already exists in {_path}.")
+
+        if overwrite is True and _check_for_zarr(_path):
+            warning("Overwriting existing zarr.")
