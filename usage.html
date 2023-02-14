@@ -441,13 +441,30 @@ be thrown. The flag can be set by the user to True to allow overwriting.</p>
 <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html">Xarray Dataset</a>.</p>
 <section id="id1">
 <h3>Reading in data<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
-<p>To read a file, you just need to the path:</p>
+<p>Input data that is not the shape of the British National Grid at 10m cell size
+will be reshaped/placed into an array of that shape.
+Data that does not have a cell size of 10m will be resampled to that cell size.</p>
+<p>Read a file where that has a 10m cell size and British National Grid extent:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">DatasetWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
     <span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;/path/to/file.ext&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>If the raster dataset isn’t the right shape or resolution, it will be resampled.</p>
+<p>Read the first and fourth band from a file where both bands are categorical,
+the nodata value/variable does not exist in the metadata,
+the data does not have BNG extent,
+and the data uses a large datatype e.g. float32:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">DatasetWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;path/to/file.ext&quot;</span><span class="p">,</span>  <span class="c1"># path to file</span>
+    <span class="n">bands</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;4&quot;</span><span class="p">],</span>  <span class="c1"># select band names</span>
+    <span class="n">categorical</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># all input bands are categorical</span>
+    <span class="n">nodata</span><span class="o">=-</span><span class="mi">9999</span><span class="p">,</span>  <span class="c1"># set a nodata value</span>
+    <span class="n">out_path</span><span class="o">=</span><span class="s2">&quot;path/to/reshaped_file.zarr&quot;</span><span class="p">,</span>  <span class="c1"># provide a path for the BNG raster</span>
+    <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># overwrite the `out_path` if it exists</span>
+    <span class="n">chunks</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>  <span class="c1"># use a small chunksize because of the large data type</span>
+<span class="p">)</span>
+</pre></div>
+</div>
 </section>
 </section>
 </section>
