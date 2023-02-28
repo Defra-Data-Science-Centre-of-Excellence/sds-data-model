@@ -92,8 +92,8 @@ def test_pipeline(
         spark=spark_session,
     )
 
-    # Debug 
-    #spatial_dfw.data.show()
+    # Debug
+    # spatial_dfw.data.show()
 
     aspatial_dfw = DataFrameWrapper.from_files(
         data_path=make_dummy_csv,
@@ -101,8 +101,8 @@ def test_pipeline(
         spark=spark_session,
     )
 
-    # Debug 
-    #aspatial_dfw.data.show()
+    # Debug
+    # aspatial_dfw.data.show()
 
     zarr_path = str(tmp_path / "joined.zarr")
 
@@ -113,47 +113,51 @@ def test_pipeline(
         .index()
     )
 
-    # Debug 
-    #joined_dfw.data.show()
+    # Debug
+    # joined_dfw.data.show()
 
     joined_dfw.to_zarr(
-            path=zarr_path,
-            columns=["land_cover"],
-        )
-
-    out_data = open_dataset(
-        zarr_path, engine="zarr", chunks={"northings": 10_000, "eastings": 10_000},
+        path=zarr_path,
+        columns=["land_cover"],
     )
-    
+    out_data = open_dataset(
+        zarr_path,
+        engine="zarr",
+        chunks={"northings": 10_000, "eastings": 10_000},
+    )
     print("TEST OUTPUT")
     print(out_data.keys())
     print(out_data.attrs)
     print("FIXTURE OUTPUT")
     print(expected_categorical_dataset.keys())
     print(expected_categorical_dataset.attrs)
-    
+
+    # expected_categorical_dataset doesn't have dag
+    del out_data.attrs["DAG_source"]
     assert_identical(out_data, expected_categorical_dataset)
 
-    # Debug 
-    #for northing, easting in product(
+    # Debug
+    # for northing, easting in product(
     #    range(0, 130_000, 10_000), range(0, 70_000, 10_000)
-    #):
+    # ):
     #    northing_index = slice(northing, northing + 10_000)
     #    easting_index = slice(easting, easting + 10_000)
     #    got = out_data["land_cover"][northing_index, easting_index].compute()
     #    expected = expected_categorical_dataset["land_cover"][
     #        northing_index, easting_index
     #    ].compute()
+
+
 #
-    #    print(f"Sub array [{northing_index}, {easting_index}]")
+#    print(f"Sub array [{northing_index}, {easting_index}]")
 #
-    #    got_values, got_counts = unique(got, return_counts=True)
-    #    expected_values, expected_counts = unique(expected, return_counts=True)
+#    got_values, got_counts = unique(got, return_counts=True)
+#    expected_values, expected_counts = unique(expected, return_counts=True)
 #
-    #    print(f"GOT has:")
-    #    for value, count in zip(got_values, got_counts):
-    #        print(f"\tVALUE: {value}, COUNT: {count}")
-    #    print(f"EXPECTED has:")
-    #    for value, count in zip(expected_values, expected_counts):
-    #        print(f"\tVALUE: {value}, COUNT: {count}")
-    #    print("")
+#    print(f"GOT has:")
+#    for value, count in zip(got_values, got_counts):
+#        print(f"\tVALUE: {value}, COUNT: {count}")
+#    print(f"EXPECTED has:")
+#    for value, count in zip(expected_values, expected_counts):
+#        print(f"\tVALUE: {value}, COUNT: {count}")
+#    print("")

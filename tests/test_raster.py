@@ -58,17 +58,21 @@ def test_read_dataset_from_file(
     output_dataset = _read_dataset_from_file(
         data_path=test_case_path,
         categorical=True,
+        out_path="__test_out.zarr__",
         expected_cell_size=1,
         expected_x_min=0,
         expected_x_max=6,
         expected_y_max=6,
         nodata=0,
-    )
+    ).load()
     # remove attrs that are created by **reading** a dataset
     # the attrs are correct but do not exist in the dataset created directly in memory
     output_dataset.spatial_ref.attrs.pop("GeoTransform")
     output_dataset.ones.attrs.clear()
     output_dataset.numbers.attrs.clear()
+    for var in output_dataset.variables:
+        if "_FillValue" in output_dataset[var].attrs:
+            del output_dataset[var].attrs["_FillValue"]
 
     expected_output = request.getfixturevalue(expected_output_name)
 

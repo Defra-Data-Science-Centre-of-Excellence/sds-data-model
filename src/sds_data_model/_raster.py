@@ -1,14 +1,16 @@
+from itertools import product
 from pathlib import Path
-from typing import Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Sequence, Tuple, Union, cast
 
 from affine import Affine
 from cv2 import INTER_LINEAR, INTER_NEAREST, resize
-from numpy import array, full
+from numpy import arange, array
 from numpy.typing import NDArray
 from rasterio.drivers import raster_driver_extensions
 from rioxarray.rioxarray import affine_to_coords
 from xarray import DataArray, Dataset, merge, open_dataset
 
+from sds_data_model._dataframe import _create_dummy_dataset
 from sds_data_model._vector import _check_layer_projection
 from sds_data_model.constants import BNG_XMAX, BNG_XMIN, BNG_YMAX, CELL_SIZE
 
@@ -27,7 +29,7 @@ def _has_wrong_cell_size(
         expected_cell_size (int): The expected cell size in the transform.
 
     Returns:
-        bool: An indication in :func:`_resample_and_reshape` whether to resample data.
+        bool: An indication in :func:`_reshape_raster` whether to resample data.
     """
     if transform.a != expected_cell_size or -transform.e != expected_cell_size:
         return True
@@ -37,6 +39,7 @@ def _has_wrong_cell_size(
 
 def _has_wrong_shape(
     transform: Affine,
+    expected_cell_size: int,
     expected_x_min: int,
     expected_y_max: int,
 ) -> bool:
@@ -44,114 +47,101 @@ def _has_wrong_shape(
 
     Args:
         transform (Affine): Input transform, the data being checked.
+        expected_cell_size: The expected cell size.
         expected_x_min (int): The expected value for the x minimum.
         expected_y_max (int): The expected value for the y maximum.
 
     Returns:
-        bool: An indication in :func:`_resample_and_reshape` whether to reshape data.
+        bool: An indication in :func:`_reshape_raster` whether to reshape data.
     """
-    if transform.f != expected_y_max or transform.c != expected_x_min:
+    if (transform.f / -transform.e) != (expected_y_max / expected_cell_size) or (
+        transform.c / transform.a
+    ) != (expected_x_min / expected_cell_size):
         return True
     else:
         return False
 
 
-def _create_data_array(
-    data_array: DataArray,
-    data: NDArray,
-    geotransform: str,
-) -> DataArray:
-    """An intermediate `DataArray` constructor for updating the shape/extent/transform.
-
-    Args:
-        data_array (DataArray): Original `DataArray`.
-        data (NDArray): New array data.
-        geotransform (str): New (gdal) geotransform.
-
-    Returns:
-        DataArray: `DataArray` with the input data and geotransform added.
-    """
-    return DataArray(
-        data=data,
-        coords={
-            data_array.rio.grid_mapping: data_array[
-                data_array.rio.grid_mapping
-            ].rio.update_attrs({"GeoTransform": geotransform}),
-        },
-        dims=("northings", "eastings"),
-        attrs={"nodata": data_array.rio.nodata},
-    ).rename(data_array.name)
-
-
 def _get_resample_shape(
-    data_array: DataArray,
+    shape: Tuple[int, int],
+    transform: Affine,
     expected_cell_size: int,
 ) -> NDArray:
-    """Determine the new (scaled) shape of an input DataArray from a cell_size value.
+    """Determine the scaled shape from an input cell size.
 
     Args:
-        data_array (DataArray): Input `DataArray`.
+        shape (Tuple[int, int]): Input shape.
+        transform (Affine): Shape transform. Used to determine current cell size.
         expected_cell_size (int): New cell size for data. Acts as the resampling factor.
 
     Returns:
         NDArray: 2d array of (height, width).
     """
     return (
-        (
-            (
-                array([data_array.rio.transform().a, -data_array.rio.transform().e])
-                / expected_cell_size
-            )
-            * data_array.shape
-        )
+        ((array([transform.a, -transform.e]) / expected_cell_size) * shape)
         .round()
         .astype("int")
     )
 
 
 def _resample_cell_size(
-    data_array: DataArray,
+    _array: NDArray,
+    resample_shape: Union[Sequence, NDArray],
     expected_cell_size: int,
+    expected_x_max: int,
+    expected_x_min: int,
+    expected_y_max: int,
+    expected_y_min: int,
     categorical: bool,
-) -> DataArray:
-    """Returns a `DataArray` with scaled/resampled data using `OpenCV`_.
+    name: str,
+) -> Dataset:
+    """Returns a `Dataset` with scaled/resampled data using `OpenCV`_.
 
     Args:
-        data_array (DataArray): Input `DataArray`.
-        expected_cell_size (int): New cell size for data. Acts as the resampling factor.
-        categorical (bool): Determines which resampling/interpolation is used.
-            Set to False will use bilinear. Set to True will use nearest-neighbour.
+        _array (NDArray): Input data.
+        resample_shape (Union[Sequence, NDArray]): Shape to resample to.
+        categorical (bool): determines which resampling/interpolation is used.
+            Set to False will use bilinear. Set to True will use nearest-neighbor.
+        expected_cell_size (int): cell size of resampled array.
+        expected_x_max (int): x maximum.
+        expected_x_min (int): x minimum.
+        expected_y_max (int): y maximum.
+        expected_y_min (int): y minimum.
+        name (str): `DataArray` name.
 
     Returns:
-        DataArray: a `DataArray` with scaled/resampled data.
+        Dataset: A dataset with resampled data.
 
     .. _`OpenCV`:
         https://github.com/opencv/opencv-python
     """
-    if categorical:
-        interpolation = INTER_NEAREST
-    else:
-        interpolation = INTER_LINEAR
-    resampled = resize(
-        src=data_array.data,
-        dsize=_get_resample_shape(data_array, expected_cell_size)[::-1],
-        interpolation=interpolation,
-    )
-
-    return _create_data_array(
-        data_array=data_array,
-        data=resampled,
-        geotransform=(
-            f"{data_array.rio.transform().c} {expected_cell_size} 0 "
-            f"{data_array.rio.transform().f} 0 -{expected_cell_size}"
+    return DataArray(
+        data=resize(
+            src=_array,
+            dsize=resample_shape[::-1],
+            interpolation=INTER_NEAREST if categorical else INTER_LINEAR,
         ),
-    )
+        coords={
+            "northings": arange(
+                expected_y_max - (expected_cell_size / 2),
+                expected_y_min,
+                -expected_cell_size,
+            ),
+            "eastings": arange(
+                expected_x_min + (expected_cell_size / 2),
+                expected_x_max,
+                expected_cell_size,
+            ),
+        },
+        dims=("northings", "eastings"),
+        name=name,
+    ).to_dataset()
 
 
 def _check_no_data(
     data_array: DataArray,
     nodata: Optional[float],
-) -> None:
+) -> Optional[float]:
     """Checks and conditionally writes a `nodata` value to data_array.
 
     Args:
@@ -162,95 +152,18 @@ def _check_no_data(
     Raises:
         ValueError: If the `nodata` arg is `None` and the input `DataArray`
             does not have a nodata value (that is not equal to None).
+
+    Returns:
+        Optional[float]: `nodata§ if `nodata` provided.
     """
     if nodata is not None:
         data_array.rio.write_nodata(nodata, inplace=True)
+        return nodata
     elif data_array.rio.nodata is None:
         raise ValueError(
             "Input dataset does not have a nodata value. One must be provided."
         )
-
-
-def _get_origin_offset(
-    data_array: DataArray,
-    expected_x_min: int,
-    expected_y_max: int,
-) -> NDArray:
-    """Determines the offset of the input `DataArray` from the origin (ymax, xmin).
-
-    Args:
-        data_array (DataArray): Input `DataArray`.
-        expected_x_min (int): x minimum.
-        expected_y_max (int): y maximum.
-
-    Returns:
-        NDArray: 2d array of the offset, (height, width).
-    """
-    return (
-        (
-            array(
-                [
-                    expected_y_max - data_array.rio.transform().f,
-                    expected_x_min + data_array.rio.transform().c,
-                ]
-            )
-            / int(data_array.rio.transform().a)
-        )
-        .round()
-        .astype("int")
-    )
-
-
-def _to_grid_extent(
-    data_array: DataArray,
-    expected_x_min: int,
-    expected_x_max: int,
-    expected_y_max: int,
-    nodata: Optional[float],
-) -> DataArray:
-    """Inserts the input `data_array` into a `expected_y_max` * `expected_x_max` grid.
-
-    Where the data of the input `DataArray` does not occupy the grid, these
-    cells are set to the `nodata` value if it is provided, else the
-    value of the `nodata` attribute of the input `DataArray`.
-
-    Args:
-        data_array (DataArray): Input `DataArray`.
-        expected_x_min (int): x minimum.
-        expected_x_max (int): x maximum (width).
-        expected_y_max (int): y maximum (height).
-        nodata (Optional[float]): value that will fill the grid where
-            there is no data (if it is not `None`).
-
-    Returns:
-        DataArray: A `DataArray` the shape of the specified grid,
-        containing the data of the input `DataArray`.
-    """
-    _check_no_data(data_array, nodata)
-
-    offset = _get_origin_offset(data_array, expected_x_min, expected_y_max)
-
-    bng = full(
-        shape=(
-            array([expected_y_max, expected_x_max]) / data_array.rio.transform().a
-        ).astype("int"),
-        fill_value=data_array.rio.nodata,
-        dtype=data_array.dtype,
-    )
-
-    bng[
-        offset[0] : offset[0] + data_array.shape[0],
-        offset[1] : offset[1] + data_array.shape[1],
-    ] = data_array.data
-
-    return _create_data_array(
-        data_array=data_array,
-        data=bng,
-        geotransform=(
-            f"{expected_x_min} {data_array.rio.transform().a} 0 "
-            f"{expected_y_max} 0 {data_array.rio.transform().e}"
-        ),
-    )
+    return None
 
 
 def _select_bands(
@@ -294,101 +207,190 @@ def _select_bands(
     return data_arrays
 
 
-def _resample_and_reshape(
+def _reshape_raster(
     dataset: Dataset,
     expected_cell_size: int,
-    expected_x_min: int,
     expected_x_max: int,
+    expected_x_min: int,
     expected_y_max: int,
     bands: Optional[Union[List[int], List[str]]],
     categorical: Union[bool, Dict[Union[int, str], bool]],
+    out_path: Optional[str],
     nodata: Optional[float],
     engine: Optional[str],
 ) -> Dataset:
-    """Resamples and/or reshapes a `Dataset` with the wrong extent or cell size.
+    """Condtionally reshape (to arg vals) and return input dataset.
 
-    Functions will resample every DataArray in a `Dataset`
-    (to `expected_cell_size`) and reshape/regrid (to `expected_y_max`, `expected_x_max`)
-    if the respective checks return `True`. The dataset is then reconstructed
-    (arrays merged into dataset, dimensions renamed if they aren't named
-    "northings" and "eastings" and addition of coordinate variables).
+    If a `DataArray` of the input dataset does not conform to the expected extent
+    an empty zarr will be written to disk in that shape.
+    If the cell size of the `DataArray` isn't equal to the expected,
+    it will be resampled. The `DataArray` is then written to the empty zarr.
+    This process is executed in chunks as significant upsampling can cause
+    memory issues.
+    If the `Dataset`'s contents does conform to the expected extent and cell size
+    it is returned.
 
     Args:
-        dataset (Dataset): Input dataset.
-        expected_cell_size (int): Cell size to resample the
-            data to if it is not already this value.
-        expected_x_min (int): x minimum.
-        expected_x_max (int): x maximum (width).
-        expected_y_max (int): y maximum (height).
+        dataset (Dataset): Input `Dataset` with **chunked** `DataArray`(s).
+        expected_cell_size (int): expected cell size.
+        expected_x_max (int): expected x maximum.
+        expected_x_min (int): expected x minimum.
+        expected_y_max (int): expected y maximum.
         bands (Optional[Union[List[int], List[str]]]): List of bands to select
             from the `Dataset`.
         categorical (Union[bool, Dict[Union[int, str], bool]]): `bool` or `dict`
             mapping ({band : bool}) of the interpolation used to resample.
-            False will use bilinear. True will use nearest-neighbour.
+        out_path (Optional[str]): Path to write reshaped data.
         nodata (Optional[float]): Value that will fill the grid where
             there is no data (if it is not `None`).
         engine (Optional[str]): Engine used by open_dataset.
+
+    Raises:
+        ValueError: If input data needs to be reshaped and no path is provided
+            to `out_path`.
 
     Returns:
         Dataset: A dataset of `DataArray`s that conform to the `expected_...` values.
     """
     transform = dataset.rio.transform()
     data_arrays = _select_bands(dataset, bands=bands, engine=engine)
-    if _has_wrong_cell_size(
-        transform=transform,
-        expected_cell_size=expected_cell_size,
-    ):
-        if isinstance(categorical, bool):
-            categorical = {
-                str(data_array.name): categorical for data_array in data_arrays
-            }
-        else:
-            categorical = {str(_band): _bool for _band, _bool in categorical.items()}
-        for index, data_array in enumerate(data_arrays):
-            data_arrays[index] = _resample_cell_size(
-                data_array=data_array,
-                expected_cell_size=expected_cell_size,
-                categorical=categorical[str(data_array.name)],
-            )
-
+    dims = ("eastings", "northings")
     if _has_wrong_shape(
         transform=transform,
+        expected_cell_size=expected_cell_size,
         expected_x_min=expected_x_min,
         expected_y_max=expected_y_max,
     ):
-        for index, data_array in enumerate(data_arrays):
-            data_arrays[index] = _to_grid_extent(
-                data_array=data_array,
-                expected_x_min=expected_x_min,
-                expected_x_max=expected_x_max,
-                expected_y_max=expected_y_max,
-                nodata=nodata,
+        if not out_path:
+            raise ValueError(
+                "Provide a path to `out_path` to reshape the input Dataset."
+            )
+        _dtype, _nodata = {}, {}
+        for data_array in data_arrays:
+            _dtype[str(data_array.name)] = data_array.dtype.name
+            _nodata[str(data_array.name)] = (
+                data_array.nodata
+                if "nodata" in data_array.attrs
+                else _check_no_data(data_array, nodata)
+            )
+        _create_dummy_dataset(
+            path=cast(str, out_path),
+            dtype=_dtype,
+            nodata=_nodata,
+            cell_size=expected_cell_size,
+            bng_xmin=expected_x_min,
+            bng_xmax=expected_x_max,
+            bng_ymax=expected_y_max,
+            columns=[data_array.name for data_array in data_arrays],
+            mask_name=None,
+            lookup=None,
+            metadata=None,
+            graph=None,
+        )
+
+        if _has_wrong_cell_size(transform, expected_cell_size):
+            categorical = (
+                {str(data_array.name): categorical for data_array in data_arrays}
+                if isinstance(categorical, bool)
+                else {str(_band): _bool for _band, _bool in categorical.items()}
             )
 
-    _dataset = merge(
-        data_array.to_dataset(name=data_array.name) for data_array in data_arrays
-    )
-    dims = ("eastings", "northings")
-    if set(_dataset.dims) != set(dims):
-        _dataset = _dataset.rename(
-            {dataset.rio.x_dim: dims[0], dataset.rio.y_dim: dims[1]}
+        for data_array in data_arrays:
+            for indices in product(*map(range, data_array.data.blocks.shape)):
+                chunk_shape = (
+                    _get_resample_shape(
+                        data_array.data.blocks[indices].shape,
+                        transform,
+                        expected_cell_size,
+                    )
+                    if _has_wrong_cell_size(transform, expected_cell_size)
+                    else array(data_array.data.blocks[indices].shape)
+                )
+                grid_chunk_shape = chunk_shape * expected_cell_size
+                chunks = cast(Tuple[Tuple[int, ...], ...], data_array.chunks)
+                y_delta, x_delta = sum(chunks[0][: indices[0]]), sum(
+                    chunks[1][: indices[1]]
+                )
+
+                if _has_wrong_cell_size(transform, expected_cell_size):
+                    y_delta, x_delta = _get_resample_shape(
+                        (y_delta, x_delta), transform, 1
+                    )
+                else:
+                    y_delta *= expected_cell_size
+                    x_delta *= expected_cell_size
+                chunk_maxy, chunk_minx = transform.f - y_delta, transform.c + x_delta
+                chunk_miny, chunk_maxx = (
+                    chunk_maxy - grid_chunk_shape[0],
+                    chunk_minx + grid_chunk_shape[1],
+                )
+
+                _resample_cell_size(
+                    data_array.data.blocks[indices].compute(),
+                    resample_shape=chunk_shape,
+                    expected_cell_size=expected_cell_size,
+                    expected_x_max=chunk_maxx,
+                    expected_x_min=chunk_minx,
+                    expected_y_max=chunk_maxy,
+                    expected_y_min=chunk_miny,
+                    categorical=categorical[str(data_array.name)]
+                    if isinstance(categorical, dict)
+                    else False,
+                    name=str(data_array.name),
+                ).drop_vars(
+                    dims  # drop dims so coordinates don't interfere with zarr region
+                ).to_zarr(
+                    store=out_path,
+                    mode="r+",
+                    region={
+                        dims[1]: slice(
+                            int(
+                                round(
+                                    (chunk_maxy - expected_y_max) / -expected_cell_size
+                                )
+                            ),
+                            int(
+                                round(
+                                    (chunk_miny - expected_y_max) / -expected_cell_size
+                                )
+                            ),
+                        ),
+                        dims[0]: slice(
+                            int(round(chunk_minx / expected_cell_size)),
+                            int(round(chunk_maxx / expected_cell_size)),
+                        ),
+                    },
+                )
+        _dataset = open_dataset(
+            cast(str, out_path),
+            engine="zarr",
+            decode_coords="all",
+            mask_and_scale=False,
         )
-    _dataset.update(
-        affine_to_coords(
-            Affine(
-                expected_cell_size,
-                0,
-                expected_x_min,
-                0,
-                -expected_cell_size,
-                expected_y_max,
+    else:
+        _dataset = merge(
+            data_array.to_dataset(name=data_array.name) for data_array in data_arrays
+        )
+        if set(_dataset.dims) != set(dims):
+            _dataset = _dataset.rename(
+                {dataset.rio.x_dim: dims[0], dataset.rio.y_dim: dims[1]}
+            )
+        _dataset.update(
+            affine_to_coords(
+                Affine(
+                    expected_cell_size,
+                    0,
+                    expected_x_min,
+                    0,
+                    -expected_cell_size,
+                    expected_y_max,
+                ),
+                height=int(expected_y_max / expected_cell_size),
+                width=int(expected_x_max / expected_cell_size),
+                y_dim=dims[1],
+                x_dim=dims[0],
             ),
-            height=int(expected_y_max / expected_cell_size),
-            width=int(expected_x_max / expected_cell_size),
-            y_dim=dims[1],
-            x_dim=dims[0],
-        ),
-    )
+        )
     _dataset.rio.set_spatial_dims(*dims)
     return _dataset
 
@@ -400,6 +402,8 @@ def _read_dataset_from_file(
     nodata: Optional[float] = None,
     engine: Optional[str] = None,
     decode_coords: Optional[Union[bool, Literal["coordinates", "all"]]] = "all",
+    out_path: Optional[str] = None,
+    chunks: Optional[Union[int, Dict[Any, Any], Literal["auto"]]] = "auto",
     expected_cell_size: int = CELL_SIZE,
     expected_x_min: int = BNG_XMIN,
     expected_x_max: int = BNG_XMAX,
@@ -408,8 +412,8 @@ def _read_dataset_from_file(
     """Returns a `Dataset` from an input raster according to the constant value args.
 
     Opens the raster from the input filename using `open_dataset`. CRS is checked.
-    Data and args are passed to `_resample_and_reshape` that will conditionally
-    resample and reshape the input data.
+    Data and args are passed to `_reshape_raster` that will conditionally
+    reshape, write and read data.
 
     Args:
         data_path (str): File path to raster.
@@ -425,6 +429,9 @@ def _read_dataset_from_file(
         decode_coords (Optional[Union[bool, Literal["coordinates", "all"]]], optional):
             Value used by `open_dataset`. Variable upon `engine` selection.
             Defaults to "all".
+        out_path (Optional[str]): Path to write reshaped data. Defaults to None.
+        chunks (Optional[Union[int, Dict[Any, Any], Literal["auto"]]]): Chunk size or
+            state. Passed to `chunks` in `xarray.open_dataset`. Defaults to "auto".
         expected_cell_size (int): Cell size to resample the data to if it is not already
             this value. Defaults to CELL_SIZE.
         expected_x_min (int): x minimum. Defaults to BNG_XMIN.
@@ -450,14 +457,16 @@ def _read_dataset_from_file(
         engine=_engine,
         decode_coords=_decode_coords,
         mask_and_scale=False,
+        chunks=chunks,
     )
 
     _check_layer_projection({"crs": dataset.rio.crs.to_string()})
 
-    return _resample_and_reshape(
+    return _reshape_raster(
         dataset=dataset,
         bands=bands,
         categorical=categorical,
+        out_path=out_path,
         nodata=nodata,
         engine=_engine,
         expected_cell_size=expected_cell_size,

@@ -515,6 +515,7 @@ def make_expected_dataset_path(
             data=dataframe_for_rasterisations,
             metadata=None,
             lookup=None,
+            graph=None,
         ).to_zarr(
             path=path,
             columns=columns,
