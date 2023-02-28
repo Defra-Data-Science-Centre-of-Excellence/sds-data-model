@@ -2,7 +2,6 @@
 from functools import partial
 from re import search
 from typing import Any, Dict, List, Optional, Tuple
-from uuid import uuid4
 
 from graphviz import Digraph
 
@@ -113,6 +112,7 @@ def _add_output_node(
     Args:
         graph (Digraph): An exists graph.
         output_name (str): The name of the output.
+        output_label (str): ?
     """
     _add_input_output_node(
         graph,
@@ -210,7 +210,7 @@ def _get_input_node(
 def update_graph(
     graph: Digraph,
     method: str,
-    args: str,
+    args: Optional[str],
     output_class_name: str,
 ) -> Digraph:
     """Update an existing graph.
@@ -218,6 +218,7 @@ def update_graph(
     Args:
         graph (Digraph): An exists graph.
         method (str): The name of the method to add to the graph.
+        args: _description.
         output_class_name (str): The name of the class that's created by the method.
 
     Returns:

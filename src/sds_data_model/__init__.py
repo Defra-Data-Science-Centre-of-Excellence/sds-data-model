@@ -266,8 +266,8 @@ For example:
 The above code would update the `sdf` object, providing the wrapped DataFrame
 with the additional columns.
 
-Some of the other arguments allow the user to provide custom column names for the
-geometry column as an input, and the two output columns:
+Some of the other arguments allow the user to provide custom column names for
+the geometry column as an input, and the two output columns:
 
 .. code-block:: python
 
@@ -278,10 +278,16 @@ geometry column as an input, and the two output columns:
         bounds_column_name="custom_bounds",
     )
 
-**TODO: how do variations in `how` work?**
+For polygons/multipolygons 'how' methods of 'bounding box', 'intersects' and
+'contains' are available. The 'bounding box' method returns all grid cells
+covering the bounding box of the geometry; the 'intersects' method is the
+default returning the grid cells that the polygon intersects; the 'contains'
+methods additionally returns a boolean for each grid cell that the polygon
+intersects with indicating whether that grid cell is contained by the polygon
+(True) or intersects but is not contained (False).
 
-Once the spatial index has been created, the DataFrameWrapper is ready for writing
-to a zarr file.
+Once the spatial index has been created, the DataFrameWrapper is ready for
+writing to a zarr file.
 
 Writing to zarr
 ---------------
@@ -347,7 +353,11 @@ The SDS data model DatasetWrapper class is a thin wrapper around a
 Reading in data
 ---------------
 
-To read a file, you just need to the path:
+Input data that is not the shape of the British National Grid at 10m cell size
+will be reshaped/placed into an array of that shape.
+Data that does not have a cell size of 10m will be resampled to that cell size.
+
+Read a file where that has a 10m cell size and British National Grid extent:
 
 .. code-block:: python
 
@@ -355,7 +365,24 @@ To read a file, you just need to the path:
         data_path="/path/to/file.ext",
     )
 
-If the raster dataset isn't the right shape or resolution, it will be resampled.
+
+Read the first and fourth band from a file where both bands are categorical,
+the nodata value/variable does not exist in the metadata,
+the data does not have BNG extent,
+and the data uses a large datatype e.g. float32:
+
+.. code-block:: python
+
+    ds = DatasetWrapper.from_files(
+        data_path="path/to/file.ext",  # path to file
+        bands=["0", "4"],  # select band names
+        categorical=True,  # all input bands are categorical
+        nodata=-9999,  # set a nodata value
+        out_path="path/to/reshaped_file.zarr",  # provide a path for the BNG raster
+        overwrite=True,  # overwrite the `out_path` if it exists
+        chunks=300,  # use a small chunksize because of the large data type
+    )
+
 
 .. _`Spark DataFrame`:
     https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html
