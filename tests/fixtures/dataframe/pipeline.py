@@ -153,15 +153,18 @@ def expected_categorical_dataset(
     """
 
     dask_array = full(shape=(BNG_YMAX / CELL_SIZE, BNG_XMAX / CELL_SIZE), fill_value=255, dtype="uint8")
-    
+
     # loop through each small box and assign the relevant value to the region of the zarr the box represent
-    for box, lookup in zip(small_boxes, new_category_lookup_column):
+    for _box, lookup in zip(small_boxes, new_category_lookup_column):
         if lookup != 3:
-            xmin, ymin, xmax, ymax = tuple(coordinate / CELL_SIZE for coordinate in box)
-            dask_array[slice(ymin, ymax), slice(xmin, xmax)] = lookup
-    
+            dask_array[
+                slice((_box[3] - BNG_YMAX) / -CELL_SIZE, (_box[1] - BNG_YMAX) / -CELL_SIZE),
+                slice(_box[0] / CELL_SIZE, _box[2] / CELL_SIZE),
+            ] = lookup
+
+
     dims = ("northings", "eastings")
-    
+
     data_array = DataArray(
         dask_array,
         dims = dims,
@@ -197,7 +200,7 @@ def expected_categorical_dataset(
             "nodata": 255,
         }
     )
-    
+
     # reorder coordinates to match test output
     main_dataset = main_dataset[['eastings', 'northings', 'land_cover']]
 
