@@ -41,14 +41,14 @@ from sds_data_model.dataframe import DataFrameWrapper
         (".shp"),
         (".geojson"),
         (".gpkg"),
-        (".gml"),
+        # (".gml"),
         (".gdb"),
     ),
     ids=(
         "ESRI Shapefile",
         "GeoJSON",
         "GeoPackage",
-        "Geography Markup Language",
+        #  "Geography Markup Language",
         "ESRI File Geodatabase",
     ),
 )

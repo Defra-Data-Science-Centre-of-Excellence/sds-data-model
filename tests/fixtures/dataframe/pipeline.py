@@ -33,7 +33,7 @@ from sds_data_model.constants import (
 
 @fixture
 def small_boxes(
-    bboxes: Tuple[int, int, int, int] = BBOXES,
+    bboxes: Tuple[BoundingBox, ...] = BBOXES,
 ) -> List[Tuple[int, int, int, int]]:
     """Generate small boxes for chequerboard pattern."""
     centers = [box(*bbox).centroid for bbox in bboxes]
@@ -150,7 +150,7 @@ def expected_categorical_dataset(
         dask_array,
         dims=dims,
         name="land_cover",
-        attrs="",
+        attrs=None,
         # coords={
         #    "northings": arange(BNG_YMAX - (CELL_SIZE / 2), BNG_YMIN, -CELL_SIZE),
         #    "eastings": arange(BNG_XMIN + (CELL_SIZE / 2), BNG_XMAX, CELL_SIZE),
