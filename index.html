@@ -144,11 +144,11 @@
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p>You can install <em>SDS Data Model</em> via <a class="reference external" href="https://pip.pypa.io/">pip</a> from <a class="reference external" href="https://github.com/">GitHub</a>:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip install git+https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model
 </pre></div>
 </div>
 <p>However, if you’re installing within a Databricks notebook, you’ll need to include your Personal Access Token (PAT):</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip install git+https://&lt;YOUR_PAT&gt;@github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://&lt;YOUR_PAT&gt;@github.com/Defra-Data-Science-Centre-of-Excellence/sds-data-model
 </pre></div>
 </div>
 </section>
@@ -193,7 +193,7 @@ avoid version conflicts:</p>
 </div>
 <p>Verify the installation:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">ogrinfo --version</span>
-<span class="gp"># </span>GDAL <span class="m">3</span>.4.3, released <span class="m">2022</span>/04/22
+<span class="gp"># </span>GDAL<span class="w"> </span><span class="m">3</span>.4.3,<span class="w"> </span>released<span class="w"> </span><span class="m">2022</span>/04/22
 </pre></div>
 </div>
 </section>
@@ -211,12 +211,12 @@ avoid version conflicts:</p>
 </div>
 <p>Check that both the runtime environment (jre) and development kit (jdk) are installed:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">java -version</span>
-<span class="gp"># </span>openjdk version <span class="s2">&quot;11.0.14&quot;</span> <span class="m">2022</span>-01-18
-<span class="gp"># </span>OpenJDK Runtime Environment <span class="o">(</span>build <span class="m">11</span>.0.14+9-Ubuntu-0ubuntu2<span class="o">)</span>
-<span class="gp"># </span>OpenJDK <span class="m">64</span>-Bit Server VM <span class="o">(</span>build <span class="m">11</span>.0.14+9-Ubuntu-0ubuntu2, mixed mode, sharing<span class="o">)</span>
+<span class="gp"># </span>openjdk<span class="w"> </span>version<span class="w"> </span><span class="s2">&quot;11.0.14&quot;</span><span class="w"> </span><span class="m">2022</span>-01-18
+<span class="gp"># </span>OpenJDK<span class="w"> </span>Runtime<span class="w"> </span>Environment<span class="w"> </span><span class="o">(</span>build<span class="w"> </span><span class="m">11</span>.0.14+9-Ubuntu-0ubuntu2<span class="o">)</span>
+<span class="gp"># </span>OpenJDK<span class="w"> </span><span class="m">64</span>-Bit<span class="w"> </span>Server<span class="w"> </span>VM<span class="w"> </span><span class="o">(</span>build<span class="w"> </span><span class="m">11</span>.0.14+9-Ubuntu-0ubuntu2,<span class="w"> </span>mixed<span class="w"> </span>mode,<span class="w"> </span>sharing<span class="o">)</span>
 
 <span class="go">javac -version</span>
-<span class="gp"># </span>javac <span class="m">11</span>.0.14
+<span class="gp"># </span>javac<span class="w"> </span><span class="m">11</span>.0.14
 </pre></div>
 </div>
 </section>

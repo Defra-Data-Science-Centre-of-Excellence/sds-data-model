@@ -251,7 +251,7 @@ relating to the source data and transformations that have taken place.</p>
 <li><p><strong>self</strong> (<em>sds_data_model.dataframe._DataFrameWrapper</em>) – </p></li>
 <li><p><strong>method_name</strong> (<em>str</em>) – </p></li>
 <li><p><strong>args</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>Sequence</em><em>[</em><em>str</em><em>]</em><em>]</em><em>]</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>pyspark.sql.dataframe.DataFrame</em><em>, </em><em>pyspark.sql.group.GroupedData</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -448,7 +448,7 @@ Look at data
 <li><p><strong>**kwargs</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>int</em><em>]</em><em>]</em>) – Additional keyword arguments provided by user.</p></li>
 <li><p><strong>self</strong> (<em>sds_data_model.dataframe._DataFrameWrapper</em>) – </p></li>
 <li><p><strong>args</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>Sequence</em><em>[</em><em>str</em><em>]</em><em>]</em><em>]</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>pyspark.sql.dataframe.DataFrame</em><em>, </em><em>pyspark.sql.group.GroupedData</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
