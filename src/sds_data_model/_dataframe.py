@@ -9,6 +9,7 @@ from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple, Union,
 from affine import Affine
 from bng_indexer import wkt_from_bng
 from geopandas import GeoDataFrame, GeoSeries
+from graphviz import Digraph
 from numpy import (
     arange,
     array,
@@ -37,7 +38,6 @@ from shapely.wkt import loads
 from xarray import DataArray, Dataset, merge, open_dataset
 
 from sds_data_model.metadata import Metadata
-from graphviz import Digraph
 
 
 @udf(returnType=ArrayType(FloatType()))
@@ -563,9 +563,9 @@ def _create_dummy_dataset(
     )
     dataset.rio.write_crs("EPSG:27700", inplace=True)
     dataset.rio.write_transform(transform, inplace=True)
-    
+
     dataset.attrs = _package_attrs(metadata, graph)
-    
+
     dataset.to_zarr(
         store=path,
         mode="w",

@@ -1,36 +1,19 @@
 """Tests for the `DataFrameWrapper` pipeline."""
-from itertools import product
-import logging
-
 from pathlib import Path
-from struct import pack
-from sys import stdout
-from typing import Callable, Tuple, Optional
+from typing import Callable
 
-from dask.array import all, equal
-from numpy import unique
-from chispa import assert_df_equality
-from shapely.wkb import loads
-from shapely.geometry.polygon import orient
-from pyspark.sql import DataFrame as SparkDataFrame, SparkSession
-from pyspark.sql.functions import udf
+import pytest
+from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType
-
-from sds_data_model.dataframe import DataFrameWrapper
-from sds_data_model.raster import DatasetWrapper
-from sds_data_model.constants import BBOXES
-
 from xarray import Dataset, open_dataset
 from xarray.testing import assert_identical
 
-from osgeo.ogr import Open, Feature, wkbNDR
-import pytest
-
+from sds_data_model.dataframe import DataFrameWrapper
 
 # The aim of this test is to test the whole pipeline of the datamodel including
-# reading from various sources, executing some methods on the dataframes (including join)
-# categorizing the data, indexing and writing to zarr. Ultimately the zarr file
-# and associated DAG will be checked for comparison.
+# reading from various sources, executing some methods on the dataframes
+# (including join), categorizing the data, indexing and writing to zarr.
+# Ultimately the zarr file and associated DAG will be checked for comparison.
 
 # The 4 classes in the csv are joined, filtered down to 3 and then categorized.
 # Having 3 classes will test that categorization works as the results should be 3

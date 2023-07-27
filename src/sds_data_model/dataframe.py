@@ -30,14 +30,13 @@ from pyspark.sql.types import ArrayType, StringType
 from pyspark_vector_files import read_vector_files
 from pyspark_vector_files.gpkg import read_gpkg
 
-from sds_data_model._dataframe import (
+from sds_data_model._dataframe import (  # _graph_to_zarr,
     _bng_to_bounds,
     _check_sparkdataframe,
     _create_dummy_dataset,
     _get_minimum_dtypes_and_nodata,
     _recode_column,
     _to_zarr_region,
-    # _graph_to_zarr,
     _warn_zarr_overwrite,
 )
 from sds_data_model._vector import _get_metadata, _get_name
@@ -181,7 +180,10 @@ class DataFrameWrapper:
             spark_pandas_data = file_reader_pandas[suffix_data_path](
                 data_path, **read_file_kwargs
             )
-            if isinstance(spark_pandas_data, SparkPandasDataFrame,) or isinstance(
+            if isinstance(
+                spark_pandas_data,
+                SparkPandasDataFrame,
+            ) or isinstance(
                 spark_pandas_data,
                 SparkPandasSeries,
             ):

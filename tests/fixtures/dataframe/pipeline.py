@@ -1,45 +1,30 @@
-from pathlib import Path
-from typing import Callable, List, Dict, Tuple, Union, Iterable
+"""Fixtures for full pipeline intergration test."""
 
+from itertools import chain, repeat
+from pathlib import Path
+from typing import Callable, Dict, Iterable, List, Tuple, Union
+
+from affine import Affine
+from dask.array import full
 from geopandas import GeoDataFrame, GeoSeries
 from pandas import DataFrame
-from pyspark.sql import SparkSession, DataFrame as SparkDataFrame
-from pyspark.sql.functions import udf
-from pyspark.sql.types import (
-    StructField,
-    StringType,
-    BinaryType,
-    StructType,
-    LongType,
-    ArrayType,
-    IntegerType,
-)
+from pyspark.sql import DataFrame as SparkDataFrame
+from pyspark.sql import SparkSession
+from pyspark.sql.types import BinaryType, LongType, StringType, StructField, StructType
 from pytest import fixture
-from shapely.wkb import loads
+from rioxarray.rioxarray import affine_to_coords
 from shapely.geometry import box
-
-from itertools import chain, repeat, product
-
-from dask import delayed
-from dask.array import from_delayed, ones, full, arange
 from xarray import DataArray, Dataset
 
-from sds_data_model.constants import BoundingBox
-
 from sds_data_model.constants import (
+    BBOXES,
     BNG_XMAX,
     BNG_XMIN,
     BNG_YMAX,
     BNG_YMIN,
-    BOX_SIZE,
     CELL_SIZE,
-    BBOXES,
+    BoundingBox,
 )
-
-import rioxarray
-
-from affine import Affine
-from rioxarray.rioxarray import affine_to_coords
 
 # create a new fixture which has smaller boxes centred on the original boxes
 # produce a list of tuples containing bounds for 20_000 x 20_000 boxes with their
@@ -50,18 +35,7 @@ from rioxarray.rioxarray import affine_to_coords
 def small_boxes(
     bboxes: Tuple[int, int, int, int] = BBOXES,
 ) -> List[Tuple[int, int, int, int]]:
-    # x_centres = list(range(int(BNG_XMIN + (BOX_SIZE / 2)), BNG_XMAX, BOX_SIZE))
-    # y_centres = list(range(int(BNG_YMIN + (BOX_SIZE / 2)), BNG_YMAX, BOX_SIZE))
-    # comb = list(product(x_centres, y_centres))
-    # collector = []
-    # for centre in comb:
-    #     cell_xmin = centre[0] - 10_000
-    #     cell_xmax = centre[0] + 10_000
-    #     cell_ymin = centre[1] - 10_000
-    #     cell_ymax = centre[1] + 10_000
-    #     collector.append((cell_xmin, cell_ymin, cell_xmax, cell_ymax))
-
-    # return collector
+    """Generate small boxes for chequerboard pattern."""
     centers = [box(*bbox).centroid for bbox in bboxes]
     return [
         (
@@ -130,14 +104,16 @@ def new_data(
 
 @fixture
 def expected_dag_source() -> Dict[str, str]:
-    source = 'digraph {\n\tdata_path [label="data input:\n/tmp/pytest-of-jamesduffy/pytest-14/test_pipeline_ESRI_Shapefile_0" shape=oval]\n\t"DataFrameWrapper.from_files" [label="function:\nDataFrameWrapper.from_files" shape=box]\n\tDataFrameWrapper [label="output:\nDataFrameWrapper" shape=parallelogram]\n\tdata_path -> "DataFrameWrapper.from_files"\n\t"DataFrameWrapper.from_files" -> DataFrameWrapper\n\t"DataFrameWrapper.join(\nother=DataFrame[category: string, land_cover: string],on=category\n)" [label="function:\nDataFrameWrapper.join(\nother=DataFrame[category: string, land_cover: string],on=category\n)" shape=box]\n\tDataFrameWrapper_1 [label="output:\nDataFrameWrapper" shape=parallelogram]\n\tDataFrameWrapper -> "DataFrameWrapper.join(\nother=DataFrame[category":" string, land_cover": string],on=category\n)\n\t"DataFrameWrapper.join(\nother=DataFrame[category":" string, land_cover": string],on=category\n) -> DataFrameWrapper_1\n\t"DataFrameWrapper.filter(\ncondition=land_cover != \'farmland\'\n)" [label="function:\nDataFrameWrapper.filter(\ncondition=land_cover != \'farmland\'\n)" shape=box]\n\tDataFrameWrapper_2 [label="output:\nDataFrameWrapper" shape=parallelogram]\n\tDataFrameWrapper_1 -> "DataFrameWrapper.filter(\ncondition=land_cover != \'farmland\'\n)"\n\t"DataFrameWrapper.filter(\ncondition=land_cover != \'farmland\'\n)" -> DataFrameWrapper_2\n}\n'
-    return {'DAG_source': source}
+    """Return DAG source string."""
+    source = 'digraph {\n\tdata_path [label="data input:\n/tmp/pytest-of-jamesduffy/pytest-14/test_pipeline_ESRI_Shapefile_0" shape=oval]\n\t"DataFrameWrapper.from_files" [label="function:\nDataFrameWrapper.from_files" shape=box]\n\tDataFrameWrapper [label="output:\nDataFrameWrapper" shape=parallelogram]\n\tdata_path -> "DataFrameWrapper.from_files"\n\t"DataFrameWrapper.from_files" -> DataFrameWrapper\n\t"DataFrameWrapper.join(\nother=DataFrame[category: string, land_cover: string],on=category\n)" [label="function:\nDataFrameWrapper.join(\nother=DataFrame[category: string, land_cover: string],on=category\n)" shape=box]\n\tDataFrameWrapper_1 [label="output:\nDataFrameWrapper" shape=parallelogram]\n\tDataFrameWrapper -> "DataFrameWrapper.join(\nother=DataFrame[category":" string, land_cover": string],on=category\n)\n\t"DataFrameWrapper.join(\nother=DataFrame[category":" string, land_cover": string],on=category\n) -> DataFrameWrapper_1\n\t"DataFrameWrapper.filter(\ncondition=land_cover != \'farmland\'\n)" [label="function:\nDataFrameWrapper.filter(\ncondition=land_cover != \'farmland\'\n)" shape=box]\n\tDataFrameWrapper_2 [label="output:\nDataFrameWrapper" shape=parallelogram]\n\tDataFrameWrapper_1 -> "DataFrameWrapper.filter(\ncondition=land_cover != \'farmland\'\n)"\n\t"DataFrameWrapper.filter(\ncondition=land_cover != \'farmland\'\n)" -> DataFrameWrapper_2\n}\n'  # noqa: B950
+    return {"DAG_source": source}
+
 
 # create xarray that looks as you would expect from rasterisation
 @fixture
 def expected_categorical_dataset(
     new_category_lookup_column: Tuple[int, ...],
-    #expected_dag_source: Dict,
+    # expected_dag_source: Dict,
     small_boxes: List[Tuple],
     BNG_XMIN: int = BNG_XMIN,
     BNG_XMAX: int = BNG_XMAX,
@@ -151,29 +127,34 @@ def expected_categorical_dataset(
     to represent what rasterising a set of polygons with 3 different values
     should look like.
     """
+    dask_array = full(
+        shape=(BNG_YMAX / CELL_SIZE, BNG_XMAX / CELL_SIZE),
+        fill_value=255,
+        dtype="uint8",
+    )
 
-    dask_array = full(shape=(BNG_YMAX / CELL_SIZE, BNG_XMAX / CELL_SIZE), fill_value=255, dtype="uint8")
-
-    # loop through each small box and assign the relevant value to the region of the zarr the box represent
+    # loop through each small box and assign the relevant value to
+    # the region of the zarr the box represent
     for _box, lookup in zip(small_boxes, new_category_lookup_column):
         if lookup != 3:
             dask_array[
-                slice((_box[3] - BNG_YMAX) / -CELL_SIZE, (_box[1] - BNG_YMAX) / -CELL_SIZE),
+                slice(
+                    (_box[3] - BNG_YMAX) / -CELL_SIZE, (_box[1] - BNG_YMAX) / -CELL_SIZE
+                ),
                 slice(_box[0] / CELL_SIZE, _box[2] / CELL_SIZE),
             ] = lookup
-
 
     dims = ("northings", "eastings")
 
     data_array = DataArray(
         dask_array,
-        dims = dims,
+        dims=dims,
         name="land_cover",
-        attrs = "",
-        #coords={
+        attrs="",
+        # coords={
         #    "northings": arange(BNG_YMAX - (CELL_SIZE / 2), BNG_YMIN, -CELL_SIZE),
         #    "eastings": arange(BNG_XMIN + (CELL_SIZE / 2), BNG_XMAX, CELL_SIZE),
-        #},
+        # },
     )
 
     height = int(BNG_YMAX / CELL_SIZE)
@@ -202,7 +183,7 @@ def expected_categorical_dataset(
     )
 
     # reorder coordinates to match test output
-    main_dataset = main_dataset[['eastings', 'northings', 'land_cover']]
+    main_dataset = main_dataset[["eastings", "northings", "land_cover"]]
 
     return main_dataset
 
@@ -212,7 +193,9 @@ def make_dummy_vector_file(
     tmp_path: Path,
     new_data: List[Dict[str, Union[str, bytearray]]],
 ) -> Callable[[str], None]:
-    def _make_dummy_vector_file(ext: str):
+    """."""
+
+    def _make_dummy_vector_file(ext: str) -> None:
         out_path = tmp_path / f"tmp_geodata{ext}"
         df = DataFrame(new_data)
         gdf = GeoDataFrame(df, geometry=GeoSeries.from_wkb(df.geometry))
@@ -225,6 +208,7 @@ def make_dummy_vector_file(
 def make_dummy_csv(
     tmp_path: Path,
 ) -> str:
+    """."""
     output_path = tmp_path / "dummy.csv"
     DataFrame(
         {
@@ -261,6 +245,7 @@ def output_schema() -> StructType:
 
 
 def to_wkt(pdf: DataFrame) -> DataFrame:
+    """."""
     gdf = GeoDataFrame(
         pdf,
         geometry=GeoSeries.from_wkb(pdf["geometry"], crs=27700),

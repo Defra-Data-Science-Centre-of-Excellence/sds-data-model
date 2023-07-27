@@ -227,7 +227,7 @@ def update_graph(
     input_node = _get_input_node(
         graph=graph,
     )
-    
+
     _method = f"{input_node.split('_')[0]}.{method}(\n{args}\n)"
 
     _add_function_node(
