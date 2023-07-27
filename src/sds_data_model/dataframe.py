@@ -30,7 +30,7 @@ from pyspark.sql.types import ArrayType, StringType
 from pyspark_vector_files import read_vector_files
 from pyspark_vector_files.gpkg import read_gpkg
 
-from sds_data_model._dataframe import (
+from sds_data_model._dataframe import (  # _graph_to_zarr,
     _bng_to_bounds,
     _check_sparkdataframe,
     _create_dummy_dataset,
@@ -180,7 +180,10 @@ class DataFrameWrapper:
             spark_pandas_data = file_reader_pandas[suffix_data_path](
                 data_path, **read_file_kwargs
             )
-            if isinstance(spark_pandas_data, SparkPandasDataFrame,) or isinstance(
+            if isinstance(
+                spark_pandas_data,
+                SparkPandasDataFrame,
+            ) or isinstance(
                 spark_pandas_data,
                 SparkPandasSeries,
             ):
@@ -213,7 +216,9 @@ class DataFrameWrapper:
         method_name: str,
         /,
         *args: Optional[Union[str, Sequence[str]]],
-        **kwargs: Optional[Dict[str, Any]],
+        **kwargs: Optional[
+            Union[str, Dict[str, Any], Union[SparkDataFrame, GroupedData]]
+        ],
     ) -> _DataFrameWrapper:
         """Calls Spark method specified by user on Spark DataFrame in wrapper.
 
@@ -510,6 +515,7 @@ class DataFrameWrapper:
             bng_xmin=bng_xmin,
             bng_xmax=bng_xmax,
             bng_ymax=bng_ymax,
+            graph=self.graph,
         )
 
         _partial_to_zarr_region = partial(

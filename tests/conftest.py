@@ -20,6 +20,21 @@ from .fixtures.dataframe.common import (  # noqa: F401
     expected_empty_metadata,
     spark_session,
 )
+from .fixtures.dataframe.pipeline import (  # noqa: F401
+    expected_categorical_dataset,
+    expected_dag_source,
+    make_dummy_csv,
+    make_dummy_vector_file,
+    new_category_lookup_column,
+    new_data,
+    new_geometry_column,
+    new_num_rows,
+    new_string_category_column,
+    output_schema,
+    schema,
+    small_boxes,
+    spark_dataframe,
+)
 from .fixtures.dataframe.to_zarr import (  # noqa: F401
     bng_index_column,
     boolean_column,

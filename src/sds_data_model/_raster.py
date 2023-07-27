@@ -285,6 +285,7 @@ def _reshape_raster(
             mask_name=None,
             lookup=None,
             metadata=None,
+            graph=None,
         )
 
         if _has_wrong_cell_size(transform, expected_cell_size):

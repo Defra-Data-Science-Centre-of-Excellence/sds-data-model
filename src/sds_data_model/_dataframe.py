@@ -9,6 +9,7 @@ from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple, Union,
 from affine import Affine
 from bng_indexer import wkt_from_bng
 from geopandas import GeoDataFrame, GeoSeries
+from graphviz import Digraph
 from numpy import (
     arange,
     array,
@@ -497,6 +498,7 @@ def _create_dummy_dataset(
     columns: Optional[List],
     lookup: Optional[Dict[str, Dict[Any, float]]],
     metadata: Optional[Metadata],
+    graph: Optional[Digraph],
 ) -> None:
     """A dummy Dataset. It's metadata is used to create the initial `zarr` store.
 
@@ -525,6 +527,8 @@ def _create_dummy_dataset(
         bng_xmin (int): The minimum x value of the DataArray.
         bng_xmax (int): The maximum x value of the DataArray.
         bng_ymax (int): The maximum y value of the DataArray.
+        metadata (Optional[metadata]): Metadata object to include in the attrs.
+        graph (Optional[Digraph]): DAG object to include in the attrs.
 
     .. _`Appending to existing Zarr stores`:
         https://docs.xarray.dev/en/stable/user-guide/io.html#appending-to-existing-zarr-stores  # noqa: B950
@@ -559,7 +563,9 @@ def _create_dummy_dataset(
     )
     dataset.rio.write_crs("EPSG:27700", inplace=True)
     dataset.rio.write_transform(transform, inplace=True)
-    dataset.attrs = asdict(metadata) if metadata else {}
+
+    dataset.attrs = _package_attrs(metadata, graph)
+
     dataset.to_zarr(
         store=path,
         mode="w",
@@ -702,3 +708,32 @@ def _warn_zarr_overwrite(
 
         if overwrite is True and _check_for_zarr(_path):
             warning("Overwriting existing zarr.")
+
+
+def _package_attrs(
+    metadata: Union[None, Metadata] = None,
+    graph: Union[None, Digraph] = None,
+) -> Dict:
+    """Create a dictionary of attributes to be added to a zarr file.
+
+    This function is flexible, creating a dictionary, depending on which data
+    are present to be written into the attrs. It always returns a dictionary
+    but it's contents will differ depending on what is provided.
+
+    Args:
+        metadata (Optional[None, metadata]): Metadata object to include in the attrs.
+        graph (Optional[None, Digraph]): DAG object to include in the attrs.
+
+    Returns:
+        Dict: Dictionary containing any combination of metadata and a graph or neither.
+    """
+    if metadata and graph:
+        combo = asdict(metadata)
+        combo["DAG_source"] = graph.source
+        return combo
+    elif metadata:
+        return asdict(metadata)
+    elif graph:
+        return {"DAG_source": graph.source}
+    else:
+        return {}
