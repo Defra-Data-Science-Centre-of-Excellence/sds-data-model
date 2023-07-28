@@ -44,8 +44,9 @@ bng-indexer = {git = "https://github.com/Defra-Data-Science-Centre-of-Excellence
 odfpy = "^1.4.1"
 pyspark-vector-files = {git = "https://github.com/Defra-Data-Science-Centre-of-Excellence/pyspark-vector-files.git", rev = "python_upgrade"}
 
-[tool.poetry.dev-dependencies]
-pytest = "^6.2.5"
+[tool.poetry.group.dev.dependencies]
+piccolo-theme = "^0.14.0"
+pytest = "^7.4.0"
 coverage = {extras = ["toml"], version = "^6.1"}
 safety = "^1.10.3"
 mypy = "^0.982"
@@ -75,9 +76,6 @@ myst-parser = "^0.18.0"
 bandit = "^1.7.4"
 Flake8-pyproject = "^1.1.0"
 blacken-docs = "^1.12.1"
-
-[tool.poetry.group.dev.dependencies]
-piccolo-theme = "^0.14.0"
 
 
 [tool.isort]
