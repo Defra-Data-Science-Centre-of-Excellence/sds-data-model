@@ -1,0 +1,546 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Usage &#8212; SDS Data Model  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/basic_mod.css?v=0.7.0-1" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <script src="_static/js/petite-vue.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Modules" href="modules.html" />
+    <link rel="prev" title="Aim" href="aim.html" /> 
+  </head><body data-dark_mode_code_blocks="true">
+
+<div id="top_nav">
+    
+
+    <nav>
+        
+            
+        
+
+        <p id="toggle_sidebar">
+            <a href="#" title="Toggle sidebar">|||</a>
+        </p>
+        <h1><a href="index.html" title="Go to homepage">SDS Data Model  documentation</a></h1>
+
+        <a id="mode_toggle" href="#" @click.prevent="handleClick" :title="mode">
+    <template v-if="mode == 'light'">
+        <svg width="100%" height="100%" viewBox="0 0 79 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="mode_light"><rect id="Bounds" x="0" y="-0" width="78.623" height="79.049" style="fill:none;"/><circle cx="39.311" cy="39.524" r="15.734" style="fill:#fff;"/><g id="beams"><g id="beam"><path id="beam1" serif:id="beam" d="M44.212,4.901c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.9,2.196 -4.9,4.901l-0,9.614c-0,2.705 2.196,4.901 4.9,4.901c2.705,0 4.901,-2.196 4.901,-4.901l0,-9.614Z" style="fill:#fff;"/></g><g id="beam2" serif:id="beam"><path id="beam3" serif:id="beam" d="M67.48,18.073c1.913,-1.912 1.913,-5.018 0,-6.931c-1.912,-1.912 -5.018,-1.912 -6.931,0l-6.798,6.799c-1.912,1.912 -1.912,5.018 0,6.931c1.913,1.912 5.018,1.912 6.931,-0l6.798,-6.799Z" style="fill:#fff;"/></g><g id="beam4" serif:id="beam"><path id="beam5" serif:id="beam" d="M25.728,61.108c1.912,-1.913 1.912,-5.018 -0,-6.931c-1.913,-1.913 -5.019,-1.913 -6.931,-0l-6.799,6.798c-1.912,1.913 -1.912,5.019 0,6.931c1.913,1.913 5.019,1.913 6.931,0l6.799,-6.798Z" style="fill:#fff;"/></g><g id="beam6" serif:id="beam"><path id="beam7" serif:id="beam" d="M60.682,54.177c-1.913,-1.913 -5.018,-1.913 -6.931,-0c-1.912,1.913 -1.912,5.018 0,6.931l6.798,6.798c1.913,1.913 5.019,1.913 6.931,0c1.913,-1.912 1.913,-5.018 0,-6.931l-6.798,-6.798Z" style="fill:#fff;"/></g><g id="beam8" serif:id="beam"><path id="beam9" serif:id="beam" d="M4.901,34.623c-2.705,0 -4.901,2.196 -4.901,4.901c0,2.705 2.196,4.901 4.901,4.901l9.614,0c2.705,0 4.901,-2.196 4.901,-4.901c0,-2.705 -2.196,-4.901 -4.901,-4.901l-9.614,0Z" style="fill:#fff;"/></g><g id="beam10" serif:id="beam"><path id="beam11" serif:id="beam" d="M44.212,64.534c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.9,2.196 -4.9,4.901l-0,9.614c-0,2.705 2.196,4.901 4.9,4.901c2.705,-0 4.901,-2.196 4.901,-4.901l0,-9.614Z" style="fill:#fff;"/></g><g id="beam12" serif:id="beam"><path id="beam13" serif:id="beam" d="M18.929,11.142c-1.912,-1.912 -5.018,-1.912 -6.931,0c-1.912,1.913 -1.912,5.019 0,6.931l6.799,6.799c1.912,1.912 5.018,1.912 6.931,-0c1.912,-1.913 1.912,-5.019 -0,-6.931l-6.799,-6.799Z" style="fill:#fff;"/></g><g id="beam14" serif:id="beam"><path id="beam15" serif:id="beam" d="M64.108,34.623c-2.705,0 -4.901,2.196 -4.901,4.901c-0,2.705 2.196,4.901 4.901,4.901l9.614,0c2.705,0 4.901,-2.196 4.901,-4.901c-0,-2.705 -2.196,-4.901 -4.901,-4.901l-9.614,0Z" style="fill:#fff;"/></g></g></g></svg>
+    </template>
+
+    <template v-if="mode == 'dark'">
+        <svg width="100%" height="100%" viewBox="0 0 79 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="mode_dark"><rect id="Bounds" x="0" y="-0" width="78.623" height="79.049" style="fill:none;"/><circle cx="39.311" cy="39.524" r="15.734" style="fill:#fff;"/><g id="beams"><g id="beam"><path id="beam1" serif:id="beam" d="M44.212,14.515c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,0 -4.901,2.196 -4.901,4.901c0,2.705 2.197,4.901 4.901,4.901c2.705,0 4.901,-2.196 4.901,-4.901Z" style="fill:#fff;"/></g><g id="beam2" serif:id="beam"><path id="beam3" serif:id="beam" d="M60.662,24.892c1.902,-1.902 1.902,-4.99 0,-6.892l-0.04,-0.039c-1.901,-1.902 -4.989,-1.902 -6.891,-0c-1.901,1.901 -1.901,4.989 0,6.891l0.04,0.04c1.902,1.901 4.989,1.901 6.891,-0Z" style="fill:#fff;"/></g><g id="beam4" serif:id="beam"><path id="beam5" serif:id="beam" d="M25.732,61.103c1.91,-1.91 1.91,-5.011 0,-6.921l-0.009,-0.01c-1.91,-1.91 -5.012,-1.91 -6.921,-0c-1.91,1.91 -1.91,5.011 -0,6.921l0.01,0.01c1.909,1.91 5.011,1.91 6.92,-0Z" style="fill:#fff;"/></g><g id="beam6" serif:id="beam"><path id="beam7" serif:id="beam" d="M60.672,54.167c-1.907,-1.907 -5.004,-1.907 -6.911,0l-0.02,0.02c-1.907,1.907 -1.907,5.004 0,6.911c1.907,1.907 5.004,1.907 6.911,-0l0.02,-0.02c1.907,-1.907 1.907,-5.004 0,-6.911Z" style="fill:#fff;"/></g><g id="beam8" serif:id="beam"><path id="beam9" serif:id="beam" d="M14.52,34.623c-2.702,0 -4.896,2.194 -4.896,4.896l0,0.01c0,2.702 2.194,4.896 4.896,4.896c2.702,0 4.896,-2.194 4.896,-4.896l-0,-0.01c-0,-2.702 -2.194,-4.896 -4.896,-4.896Z" style="fill:#fff;"/></g><g id="beam10" serif:id="beam"><path id="beam11" serif:id="beam" d="M44.212,64.534c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.901,2.196 -4.901,4.901c0,2.704 2.197,4.9 4.901,4.9c2.705,0 4.901,-2.196 4.901,-4.9Z" style="fill:#fff;"/></g><g id="beam12" serif:id="beam"><path id="beam13" serif:id="beam" d="M25.73,17.943c-1.911,-1.911 -5.015,-1.911 -6.926,0l-0.005,0.005c-1.911,1.911 -1.911,5.015 0,6.926c1.911,1.911 5.015,1.911 6.926,0l0.005,-0.005c1.911,-1.911 1.911,-5.014 -0,-6.926Z" style="fill:#fff;"/></g><g id="beam14" serif:id="beam"><path id="beam15" serif:id="beam" d="M64.098,34.623c-2.699,0 -4.891,2.192 -4.891,4.892l-0,0.019c-0,2.699 2.192,4.891 4.891,4.891c2.7,0 4.892,-2.192 4.892,-4.891l0,-0.019c0,-2.7 -2.192,-4.892 -4.892,-4.892Z" style="fill:#fff;"/></g></g></g></svg>
+    </template>
+
+    <template v-if="mode == 'darkest'">
+        <svg width="100%" height="100%" viewBox="0 0 79 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="mode_darkest"><rect id="Bounds" x="0" y="-0" width="78.623" height="79.049" style="fill:none;"/><path d="M39.315,23.791c8.684,-0 15.734,7.05 15.734,15.733c0,8.684 -7.05,15.734 -15.734,15.734c-8.683,0 -15.733,-7.05 -15.733,-15.734c-0,-8.683 7.05,-15.733 15.733,-15.733Zm0,4.737c6.069,0 10.997,4.927 10.997,10.996c-0,6.069 -4.928,10.996 -10.997,10.996c-6.068,0 -10.996,-4.927 -10.996,-10.996c0,-6.069 4.928,-10.996 10.996,-10.996Z" style="fill:#fff;"/><g id="beams"><g id="beam"><path id="beam1" serif:id="beam" d="M44.216,14.515c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,0 -4.9,2.196 -4.9,4.901c-0,2.705 2.196,4.901 4.9,4.901c2.705,0 4.901,-2.196 4.901,-4.901Z" style="fill:#fff;"/></g><g id="beam2" serif:id="beam"><path id="beam3" serif:id="beam" d="M60.666,24.892c1.902,-1.902 1.902,-4.99 0,-6.892l-0.04,-0.039c-1.901,-1.902 -4.989,-1.902 -6.891,-0c-1.901,1.901 -1.901,4.989 0,6.891l0.04,0.04c1.902,1.901 4.99,1.901 6.891,-0Z" style="fill:#fff;"/></g><g id="beam4" serif:id="beam"><path id="beam5" serif:id="beam" d="M25.737,61.103c1.909,-1.91 1.909,-5.011 -0,-6.921l-0.01,-0.01c-1.91,-1.91 -5.011,-1.91 -6.921,-0c-1.91,1.91 -1.91,5.011 -0,6.921l0.01,0.01c1.91,1.91 5.011,1.91 6.921,-0Z" style="fill:#fff;"/></g><g id="beam6" serif:id="beam"><path id="beam7" serif:id="beam" d="M60.676,54.167c-1.907,-1.907 -5.004,-1.907 -6.911,0l-0.02,0.02c-1.907,1.907 -1.907,5.004 0,6.911c1.907,1.907 5.004,1.907 6.911,-0l0.02,-0.02c1.907,-1.907 1.907,-5.004 0,-6.911Z" style="fill:#fff;"/></g><g id="beam8" serif:id="beam"><path id="beam9" serif:id="beam" d="M14.524,34.623c-2.702,0 -4.896,2.194 -4.896,4.896l0,0.01c0,2.702 2.194,4.896 4.896,4.896c2.702,0 4.896,-2.194 4.896,-4.896l0,-0.01c0,-2.702 -2.194,-4.896 -4.896,-4.896Z" style="fill:#fff;"/></g><g id="beam10" serif:id="beam"><path id="beam11" serif:id="beam" d="M44.216,64.534c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.9,2.196 -4.9,4.901c-0,2.704 2.196,4.9 4.9,4.9c2.705,0 4.901,-2.196 4.901,-4.9Z" style="fill:#fff;"/></g><g id="beam12" serif:id="beam"><path id="beam13" serif:id="beam" d="M25.734,17.943c-1.911,-1.911 -5.015,-1.911 -6.926,0l-0.005,0.005c-1.911,1.911 -1.911,5.015 0,6.926c1.911,1.911 5.015,1.911 6.926,0l0.005,-0.005c1.911,-1.911 1.911,-5.014 0,-6.926Z" style="fill:#fff;"/></g><g id="beam14" serif:id="beam"><path id="beam15" serif:id="beam" d="M64.103,34.623c-2.7,0 -4.892,2.192 -4.892,4.892l-0,0.019c-0,2.699 2.192,4.891 4.892,4.891c2.699,0 4.891,-2.192 4.891,-4.891l0,-0.019c0,-2.7 -2.192,-4.892 -4.891,-4.892Z" style="fill:#fff;"/></g></g></g></svg>
+    </template>
+</a>
+
+<script>
+(function() {
+    const LOCAL_STORAGE_KEY = 'piccoloThemeMode'
+
+    var initialMode = localStorage.getItem(LOCAL_STORAGE_KEY)
+
+    if (initialMode) {
+        // Make sure the value in local storage is valid
+        if (['light', 'dark', 'darkest'].indexOf(initialMode) == -1) {
+            initialMode = 'light'
+            localStorage.setItem(LOCAL_STORAGE_KEY, initialMode)
+        }
+    } else {
+        // Check if the client prefers dark mode
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            initialMode = 'dark'
+        } else {
+            initialMode = 'light'
+        }
+        localStorage.setItem(LOCAL_STORAGE_KEY, initialMode)
+    }
+
+    document.documentElement.dataset.mode = initialMode
+
+    PetiteVue.createApp({
+        'mode': initialMode,
+        handleClick() {
+            let currentMode = this.mode
+
+            if (currentMode == 'light') {
+                this.mode = 'dark'
+            } else if (currentMode == 'dark') {
+                this.mode = 'darkest'
+            } else if (currentMode == 'darkest') {
+                this.mode = 'light'
+            }
+
+            document.documentElement.dataset.mode = this.mode
+            localStorage.setItem(LOCAL_STORAGE_KEY, this.mode)
+
+            console.log(this.mode)
+        }
+    }).mount('#mode_toggle')
+})()
+</script>
+            <p class="mobile_search_link">
+                <a href="search.html" title="Search">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 65 64" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2">
+                        <path d="M14.873 40.009c-2.315-3.943-3.642-8.532-3.642-13.429C11.231 11.91 23.141 0 37.811 0s26.58 11.91 26.58 26.58-11.91 26.58-26.58 26.58a26.44 26.44 0 0 1-14.277-4.161L9.739 62.794a3.12 3.12 0 0 1-4.413 0L.913 58.382c-1.217-1.218-1.217-3.196 0-4.413l13.96-13.96zM37.811 8.054c10.225 0 18.526 8.301 18.526 18.526s-8.301 18.526-18.526 18.526-18.526-8.301-18.526-18.526S27.586 8.054 37.811 8.054z" fill="#fff" />
+                    </svg>
+                </a>
+            </p>
+        
+
+        <div class="searchbox_wrapper">
+            
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+    </nav>
+</div>
+
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="aim.html">Aim</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/EFT-Defra/sds-data-model/releases">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-sds_data_model">
+<span id="usage"></span><h1>Usage<a class="headerlink" href="#module-sds_data_model" title="Permalink to this headline">¶</a></h1>
+<p>The following usage examples assume a pyspark enabled environment.</p>
+<section id="the-dataframewrapper-class">
+<h2>The <cite>DataFrameWrapper</cite> class<a class="headerlink" href="#the-dataframewrapper-class" title="Permalink to this headline">¶</a></h2>
+<p>The SDS data model DataFrameWrapper class is a thin wrapper around a
+<a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.html">Spark DataFrame</a>.</p>
+<p>It consists of:</p>
+<ul class="simple">
+<li><p>A name</p></li>
+<li><p>A Spark DataFrame instance</p></li>
+<li><p>An instance of the SDS data model <a class="reference internal" href="modules/sds_data_model.metadata.Metadata.html#sds_data_model.metadata.Metadata" title="sds_data_model.metadata.Metadata"><code class="xref py py-class docutils literal notranslate"><span class="pre">sds_data_model.metadata.Metadata</span></code></a> class</p></li>
+</ul>
+<p>Wrapping a Spark DataFrame in this way allows us to bind data and metadata together,
+abstract common patterns to methods, and capture transformations.</p>
+<section id="reading-in-data">
+<h3>Reading in data<a class="headerlink" href="#reading-in-data" title="Permalink to this headline">¶</a></h3>
+<p>To read a file, you just need to specify a name and a path:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span> <span class="o">=</span> <span class="n">DataFrameWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;vector_name&quot;</span><span class="p">,</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;/path/to/files/&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>You can construct a DataFrameWrapper instance from several different spatial and
+aspatial file formats using the
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">sds_data_model.dataframe.DataFrameWrapper.from_files()</span></code> alternative constructor.
+<cite>from_files</cite> will use a different reader depending on the file extension.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>For Excel Workbook (<cite>.xlsx</cite>, <cite>.xls</cite>, <cite>.xlsm</cite>, and <cite>.xlsb</cite>) or OpenDocument Format</dt><dd><p>(<cite>.odf</cite>, <cite>.ods</cite>, <cite>.odt</cite>) files, it will use <a class="reference external" href="https://spark.apache.org/docs/latest/api/python/reference/pyspark.pandas/api/pyspark.pandas.read_excel.html">pyspark.pandas.read_excel</a>.</p>
+</dd>
+</dl>
+</li>
+<li><p>For CSV, it will use <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.csv.html">pyspark.sql.DataFrameReader.csv</a>.</p></li>
+<li><p>For JSON, it will use <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.json.html">pyspark.sql.DataFrameReader.json</a>.</p></li>
+<li><p>For Parquet, it will use <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.parquet.html">pyspark.sql.DataFrameReader.parquet</a>.</p></li>
+<li><p>For GeoPackage, it will use <a class="reference external" href="https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/usage.html#read-a-layer-into-a-spark-dataframe">pyspark_vector_files.gpkg.read_gpkg</a>.</p></li>
+</ul>
+<p>It will assume that any other file type is a vector file and will try and use
+<a class="reference external" href="https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/api.html">pyspark_vector_files.read_vector_files</a> to read it.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Databricks File System paths</p>
+<p>The Excel, OpenDocument, CSV, JSON, and Parquet readers use Spark API Format
+file paths, i.e. <cite>dbfs:/path/to/file.ext</cite>, whereas, the GeoPackage and other
+vector file type readers use the File API Format, i.e. <cite>/dbfs/path/to/file.ext</cite>.</p>
+</div>
+<section id="passing-keyword-arguments-to-the-underlying-reader">
+<h4>Passing keyword arguments to the underlying reader<a class="headerlink" href="#passing-keyword-arguments-to-the-underlying-reader" title="Permalink to this headline">¶</a></h4>
+<p>The <cite>read_file_kwargs</cite> argument allows you to pass <cite>kwargs</cite> to the underlying reader.</p>
+<p>For example, you can pass <cite>kwargs</cite> to <a class="reference external" href="https://spark.apache.org/docs/latest/api/python/reference/pyspark.pandas/api/pyspark.pandas.read_excel.html">pyspark.pandas.read_excel</a> to read a specific
+section of an OpenDocument Spreadsheet:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ods_df</span> <span class="o">=</span> <span class="n">DataFrameWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;opendocument spreadsheet example&quot;</span><span class="p">,</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;dbfs:/path/to/file.ods&quot;</span><span class="p">,</span>
+    <span class="n">read_file_kwargs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;sheet_name&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;skiprows&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+        <span class="s2">&quot;nrows&quot;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Or you can pass <cite>kwargs</cite> to <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrameReader.csv.html">pyspark.sql.DataFrameReader.csv</a> to read a CSV with a
+header:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">csv_df</span> <span class="o">=</span> <span class="n">DataFrameWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;csv example&quot;</span><span class="p">,</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;dbfs:/path/to/file.csv&quot;</span><span class="p">,</span>
+    <span class="n">read_file_kwargs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;inferSchema&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Or you can pass <cite>kwargs</cite> to <a class="reference external" href="https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/usage.html#read-a-layer-into-a-spark-dataframe">pyspark_vector_files.gpkg.read_gpkg</a> to read a GeoPackage
+without returning the GeoPackage Binary Header:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">gpkg_df</span> <span class="o">=</span> <span class="n">DataFrameWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;geopackage example&quot;</span><span class="p">,</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;/dbfs/path/to/file.gpkg&quot;</span><span class="p">,</span>
+    <span class="n">read_file_kwargs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;drop_gpb_header&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>GeoPackage JDBC dialect</p>
+<p>To read a GeoPackage using Spark’s JDBC drivers, you will need to
+register a custom mapping of GeoPackage to Spark Catalyst types.</p>
+<p>See <a class="reference external" href="https://defra-data-science-centre-of-excellence.github.io/pyspark-vector-files/usage.html#register-the-geopackage-dialect">register the geopackage dialect</a> for details.</p>
+</div>
+<p>Or you can pass <cite>kwargs</cite> to <cite>pyspark_vector_files.read_vector_files</cite> to read multiple
+Shapefiles into single DataFrame:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vector_df</span> <span class="o">=</span> <span class="n">DataFrameWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;vector name&quot;</span><span class="p">,</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;/dbfs/path/to/files&quot;</span><span class="p">,</span>
+    <span class="n">read_file_kwargs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="s2">&quot;filename_pattern*&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;suffix&quot;</span><span class="p">:</span> <span class="s2">&quot;.ext&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="calling-pyspark-methods">
+<h3>Calling pyspark methods<a class="headerlink" href="#calling-pyspark-methods" title="Permalink to this headline">¶</a></h3>
+<p>The <cite>DataFrameWrapper</cite> class has a generic method named <cite>call_method</cite> which will allow
+the user to call <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/pyspark.sql.html#dataframe-apis">any valid Spark DataFrame method</a> on the underlying DataFrame
+instance.</p>
+<p>If the method returns a Spark DataFrame the underlying DataFrame instance
+will be updated, if not, the output of the method will be returned.</p>
+<section id="filter">
+<h4><cite>filter</cite><a class="headerlink" href="#filter" title="Permalink to this headline">¶</a></h4>
+<p>The Spark DataFrame <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.filter.html">filter</a> method allow you to select rows using SQL-like
+expressions. You can call this method by passing the name of the method, followed by
+the condition you want to filter on, to the <cite>DataFrameWrapper</cite>’s <cite>call_method</cite> method.</p>
+<p>For example, to filter attributes based on name matches in a single column:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span> <span class="o">=</span> <span class="n">DataFrameWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;vector_name&quot;</span><span class="p">,</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;/path/to/files/&quot;</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">call_method</span><span class="p">(</span><span class="s2">&quot;filter&quot;</span><span class="p">,</span> <span class="s2">&quot;col == &#39;val&#39;&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Multiple queries can be executed with <cite>or</cite>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span> <span class="o">=</span> <span class="n">DataFrameWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;vector_name&quot;</span><span class="p">,</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;/path/to/files/&quot;</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">call_method</span><span class="p">(</span>
+    <span class="s2">&quot;filter&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;col == &#39;val_a&#39; or col == &#39;val_b&#39;&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Or, to identify rows where values contain a certain string, you can use the following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span> <span class="o">=</span> <span class="n">DataFrameWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;vector_name&quot;</span><span class="p">,</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;/path/to/files/&quot;</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">call_method</span><span class="p">(</span>
+    <span class="s2">&quot;filter&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;col LIKE &#39;%val_a%&#39;&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="select">
+<h4><cite>select</cite><a class="headerlink" href="#select" title="Permalink to this headline">¶</a></h4>
+<p>The Spark DataFrame <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.select.html">select</a> method allow you to select columns by name. You can call
+this method by passing the name of the method, followed by the columns you want to
+select, to the <cite>DataFrameWrapper</cite>’s <cite>call_method</cite> method.</p>
+<p>For example, columns can be selected as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span> <span class="o">=</span> <span class="n">DataFrameWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;vector_name&quot;</span><span class="p">,</span> <span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;/path/to/files/&quot;</span>
+<span class="p">)</span><span class="o">.</span><span class="n">call_method</span><span class="p">(</span>
+    <span class="s2">&quot;select&quot;</span><span class="p">,</span>
+    <span class="p">[</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;col_a&quot;</span><span class="p">),</span> <span class="n">col</span><span class="p">(</span><span class="s2">&quot;col_b&quot;</span><span class="p">)],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Unlike the underlying method, column names cannot be passed as strings.</p>
+<p>Instead, they must be wrapped in <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.functions.col.html">pyspark.sql.functions.col</a>.</p>
+</div>
+</section>
+<section id="join">
+<h4><cite>join</cite><a class="headerlink" href="#join" title="Permalink to this headline">¶</a></h4>
+<p>The Spark DataFrame <a class="reference external" href="https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.DataFrame.join.html">join</a> method allow you to join two Spark DataFrames. You can call
+this method by passing the name of the method, followed by the relevant arguments, to
+the <cite>DataFrameWrapper</cite>’s <cite>call_method</cite> method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sdf1</span> <span class="o">=</span> <span class="n">DataFrameWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;vector_name&quot;</span><span class="p">,</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;/path/to/files/&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">sdf2</span> <span class="o">=</span> <span class="n">DataFrameWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;vector_name&quot;</span><span class="p">,</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;/path/to/files/&quot;</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">call_method</span><span class="p">(</span>
+    <span class="s2">&quot;join&quot;</span><span class="p">,</span>
+    <span class="n">other</span><span class="o">=</span><span class="n">sdf1</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+    <span class="n">on</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="p">,</span>
+    <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Note how the <cite>data</cite> object from the DataFrameWrapper classed <cite>sdf1</cite> is selected within
+the <cite>join</cite> method.</p>
+</section>
+<section id="chaining-methods">
+<h4>Chaining Methods<a class="headerlink" href="#chaining-methods" title="Permalink to this headline">¶</a></h4>
+<p>The <cite>call_method</cite> method has been designed so that methods can be chained together.
+For example, <cite>select</cite> then <cite>filter</cite> can be combined. The key thing to note here
+is that the Spark DataFrame within the DataFrameWrapper is updated in-place. For
+example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">DataFrameWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;vector_name&quot;</span><span class="p">,</span>
+        <span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;/path/to/files/&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">call_method</span><span class="p">(</span>
+        <span class="s2">&quot;select&quot;</span><span class="p">,</span>
+        <span class="p">[</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;col_a&quot;</span><span class="p">),</span> <span class="n">col</span><span class="p">(</span><span class="s2">&quot;col_b&quot;</span><span class="p">)],</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">call_method</span><span class="p">(</span>
+        <span class="s2">&quot;filter&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;col_a == &#39;val_a&#39; or col_a == &#39;val_b&#39;&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="indexing">
+<h3>Indexing<a class="headerlink" href="#indexing" title="Permalink to this headline">¶</a></h3>
+<p>Once vector files have been read in and transformations complete, the next step
+is to index the data. This process adds two additional columns to the DataFrame
+stored within <cite>data</cite> within the DataFrameWrapper. <cite>bng_index</cite> contains the two
+British National Grid grid letters relevant to that feature and <cite>bounds</cite> is a
+tuple with British National Grid coordinates for the cell relating to the grid
+letters. The indexing functions are called from the <a class="reference external" href="https://github.com/Defra-Data-Science-Centre-of-Excellence/bng-indexer">bng_indexer</a> library.</p>
+<p>For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span><span class="o">.</span><span class="n">index</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The above code would update the <cite>sdf</cite> object, providing the wrapped DataFrame
+with the additional columns.</p>
+<p>Some of the other arguments allow the user to provide custom column names for
+the geometry column as an input, and the two output columns:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span><span class="o">.</span><span class="n">index</span><span class="p">(</span>
+    <span class="n">resolution</span><span class="o">=</span><span class="mi">10_000</span><span class="p">,</span>
+    <span class="n">geometry_column_name</span><span class="o">=</span><span class="s2">&quot;custom_geom&quot;</span><span class="p">,</span>
+    <span class="n">index_column_name</span><span class="o">=</span><span class="s2">&quot;custom_index&quot;</span><span class="p">,</span>
+    <span class="n">bounds_column_name</span><span class="o">=</span><span class="s2">&quot;custom_bounds&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>For polygons/multipolygons ‘how’ methods of ‘bounding box’, ‘intersects’ and
+‘contains’ are available. The ‘bounding box’ method returns all grid cells
+covering the bounding box of the geometry; the ‘intersects’ method is the
+default returning the grid cells that the polygon intersects; the ‘contains’
+methods additionally returns a boolean for each grid cell that the polygon
+intersects with indicating whether that grid cell is contained by the polygon
+(True) or intersects but is not contained (False).</p>
+<p>Once the spatial index has been created, the DataFrameWrapper is ready for
+writing to a zarr file.</p>
+</section>
+<section id="writing-to-zarr">
+<h3>Writing to zarr<a class="headerlink" href="#writing-to-zarr" title="Permalink to this headline">¶</a></h3>
+<p>The final stage of the data model pipeline is to rasterise data to a standard
+10 m grid in British National Grid projection, and write the data to a zarr
+file. This can be done with the <cite>.to_zarr</cite> method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span><span class="o">.</span><span class="n">to_zarr</span><span class="p">(</span>
+    <span class="n">path</span><span class="o">=</span><span class="s2">&quot;/path/to/out_directory/&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>As with the indexing function, custom column names can be provided if they have
+been changed from the defaults:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sdf</span><span class="o">.</span><span class="n">to_zarr</span><span class="p">(</span>
+    <span class="n">path</span><span class="o">=</span><span class="s2">&quot;/path/to/out_directory/&quot;</span><span class="p">,</span>
+    <span class="n">index_column_name</span><span class="o">=</span><span class="s2">&quot;custom_index&quot;</span><span class="p">,</span>
+    <span class="n">geometry_column_name</span><span class="o">=</span><span class="s2">&quot;custom_geometry&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>In line with the <cite>xarray.Dataset.to_zarr</cite> method, <cite>to_zarr</cite> will accept both a
+path to a directory and a path to a directory suffixed with .zarr.</p>
+<section id="overwriting">
+<h4>Overwriting<a class="headerlink" href="#overwriting" title="Permalink to this headline">¶</a></h4>
+<p>The <cite>to_zarr</cite> method has a default overwrite flag set to False. This means that
+if a zarr dataset exists in the path provided to the method, then an error will
+be thrown. The flag can be set by the user to True to allow overwriting.</p>
+</section>
+</section>
+<section id="a-full-workflow">
+<h3>A full workflow<a class="headerlink" href="#a-full-workflow" title="Permalink to this headline">¶</a></h3>
+<p>The whole workflow can be pulled together like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">DataFrameWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;vector_name&quot;</span><span class="p">,</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;/dbfs/path/to/files&quot;</span><span class="p">,</span>
+    <span class="n">read_file_kwargs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="s2">&quot;filename_pattern*&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;suffix&quot;</span><span class="p">:</span> <span class="s2">&quot;.ext&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span><span class="o">.</span><span class="n">call_method</span><span class="p">(</span><span class="s2">&quot;filter&quot;</span><span class="p">,</span> <span class="s2">&quot;col_a == &#39;val_a&#39; or col_a == &#39;val_b&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">()</span><span class="o">.</span><span class="n">to_zarr</span><span class="p">(</span>
+    <span class="n">path</span><span class="o">=</span><span class="s2">&quot;/path/to/out_directory/&quot;</span><span class="p">,</span>
+    <span class="n">data_array_name</span><span class="o">=</span><span class="s2">&quot;array_name&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="the-datasetwrapper-class">
+<h2>The <cite>DatasetWrapper</cite> class<a class="headerlink" href="#the-datasetwrapper-class" title="Permalink to this headline">¶</a></h2>
+<p>The SDS data model DatasetWrapper class is a thin wrapper around a
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html">Xarray Dataset</a>.</p>
+<section id="id1">
+<h3>Reading in data<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Input data that is not the shape of the British National Grid at 10m cell size
+will be reshaped/placed into an array of that shape.
+Data that does not have a cell size of 10m will be resampled to that cell size.</p>
+<p>Read a file where that has a 10m cell size and British National Grid extent:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">DatasetWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;/path/to/file.ext&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Read the first and fourth band from a file where both bands are categorical,
+the nodata value/variable does not exist in the metadata,
+the data does not have BNG extent,
+and the data uses a large datatype e.g. float32:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">DatasetWrapper</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+    <span class="n">data_path</span><span class="o">=</span><span class="s2">&quot;path/to/file.ext&quot;</span><span class="p">,</span>  <span class="c1"># path to file</span>
+    <span class="n">bands</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;4&quot;</span><span class="p">],</span>  <span class="c1"># select band names</span>
+    <span class="n">categorical</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># all input bands are categorical</span>
+    <span class="n">nodata</span><span class="o">=-</span><span class="mi">9999</span><span class="p">,</span>  <span class="c1"># set a nodata value</span>
+    <span class="n">out_path</span><span class="o">=</span><span class="s2">&quot;path/to/reshaped_file.zarr&quot;</span><span class="p">,</span>  <span class="c1"># provide a path for the BNG raster</span>
+    <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># overwrite the `out_path` if it exists</span>
+    <span class="n">chunks</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>  <span class="c1"># use a small chunksize because of the large data type</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+    
+        <div id="show_right_sidebar">
+            <p><a class="toggle_right_sidebar" href="#"><span class="icon"><</span><span>Page contents<span></a></p>
+        </div>
+
+        <div id="right_sidebar">
+            <p><a class="toggle_right_sidebar" href="#"><span class="icon">></span><span>Page contents:<span></a></p>
+            <div class="page_toc">
+                <ul>
+<li><a class="reference internal" href="#">Usage</a><ul>
+<li><a class="reference internal" href="#the-dataframewrapper-class">The <cite>DataFrameWrapper</cite> class</a><ul>
+<li><a class="reference internal" href="#reading-in-data">Reading in data</a><ul>
+<li><a class="reference internal" href="#passing-keyword-arguments-to-the-underlying-reader">Passing keyword arguments to the underlying reader</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#calling-pyspark-methods">Calling pyspark methods</a><ul>
+<li><a class="reference internal" href="#filter"><cite>filter</cite></a></li>
+<li><a class="reference internal" href="#select"><cite>select</cite></a></li>
+<li><a class="reference internal" href="#join"><cite>join</cite></a></li>
+<li><a class="reference internal" href="#chaining-methods">Chaining Methods</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indexing">Indexing</a></li>
+<li><a class="reference internal" href="#writing-to-zarr">Writing to zarr</a><ul>
+<li><a class="reference internal" href="#overwriting">Overwriting</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#a-full-workflow">A full workflow</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-datasetwrapper-class">The <cite>DatasetWrapper</cite> class</a><ul>
+<li><a class="reference internal" href="#id1">Reading in data</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+        </div>
+    
+
+      <div class="clearer"></div>
+    </div>
+    <div class="button_nav_wrapper">
+        <div class="button_nav">
+            <div class="left">
+                
+                <a href="aim.html">
+                    <span class="icon"><</span><span>Aim</span></a>
+                
+            </div>
+
+            <div class="right">
+                
+                    <a href="modules.html"><span>Modules</span><span class="icon">></span></a>
+                
+            </div>
+        </div>
+    </div>
+
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2023, Piumi Algamagedona, Tim Ashelford, James Duffy, Ed Fawcett-Taylor, Samuel Flint, James Kenyon, Daniel Lewis, Jordan Pinder, Lara Spearman.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+    </div>
+
+<p id="theme_credit">Styled using the <a href="https://github.com/piccolo-orm/piccolo_theme">Piccolo Theme</a></p>
+  </body>
+</html>
