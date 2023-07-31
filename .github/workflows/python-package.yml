@@ -81,5 +81,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Setup
         uses: ./actions/setup-environment
+      - name: rtree install
+        run: sudo apt-get install python3-rtree
       - name: Run nox
         run: poetry run nox -s tests
