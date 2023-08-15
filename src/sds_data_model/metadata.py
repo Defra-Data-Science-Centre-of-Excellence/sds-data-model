@@ -260,7 +260,7 @@ def _get_xml(path: str, metadata_kwargs: Dict[str, Any]) -> ElementTree:
         https://requests.readthedocs.io/en/latest/api/#requests.request
     """  # noqa: B950 - URL
     if path.startswith("http"):
-        response = get(path, **metadata_kwargs)
+        response = get(path, **metadata_kwargs)  # noqa: S113
         buffered_content = BytesIO(response.content)
         return parse(buffered_content)  # noqa: S320 - assuming we can trust the XML
     else:
