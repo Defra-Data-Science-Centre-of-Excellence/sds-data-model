@@ -2880,7 +2880,7 @@ sql = ["pandas (>=0.23.2)", "pyarrow (>=1.0.0)"]
 
 [[package]]
 name = "pyspark-vector-files"
-version = "0.2.2"
+version = "0.3"
 description = "Read vector files into a Spark DataFrame with geometry encoded as WKB."
 category = "main"
 optional = false
@@ -2898,7 +2898,7 @@ pyspark = "3.2.1"
 type = "git"
 url = "https://github.com/Defra-Data-Science-Centre-of-Excellence/pyspark-vector-files.git"
 reference = "python_upgrade"
-resolved_reference = "19400a8773b5c6d68d1cefa997cf06928445283f"
+resolved_reference = "875ff6bfc14cc1790e4cc5689ce16e8f7deba359"
 
 [[package]]
 name = "pytest"

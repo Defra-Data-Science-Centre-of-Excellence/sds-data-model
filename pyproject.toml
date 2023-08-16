@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sds-data-model"
-version = "0.1.0"
+version = "0.1.2"
 description = "SDS Data Model"
 authors = ["Piumi Algamagedona", "Tim Ashelford", "James Duffy", "Ed Fawcett-Taylor", "Samuel Flint", "James Kenyon", "Daniel Lewis", "Jordan Pinder", "Lara Spearman",]
 license = "MIT"
@@ -42,7 +42,7 @@ pyarrow = "^9.0.0"
 scipy = "^1.9.2"
 bng-indexer = {git = "https://github.com/Defra-Data-Science-Centre-of-Excellence/bng-indexer.git"}
 odfpy = "^1.4.1"
-pyspark-vector-files = "^0.3.0"
+pyspark-vector-files = {git = "https://github.com/Defra-Data-Science-Centre-of-Excellence/pyspark-vector-files.git", rev = "python_upgrade"}
 nox = "^2023.4.22"
 
 [tool.poetry.group.dev.dependencies]
