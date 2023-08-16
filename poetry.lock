@@ -3262,20 +3262,21 @@ jupyter = ["ipywidgets (>=7.5.1,<9)"]
 
 [[package]]
 name = "rioxarray"
-version = "0.12.4"
+version = "0.15.0"
 description = "geospatial xarray extension powered by rasterio"
 category = "main"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "rioxarray-0.12.4-py3-none-any.whl", hash = "sha256:12d2c0b50b847ab1f88b37ee26d3861c2ae788cef2da9fe251066d7c7d9f0dfd"},
-    {file = "rioxarray-0.12.4.tar.gz", hash = "sha256:540fb32f6b5e5fe6b704623313be1eca591654f52807dc450e6ca618824c0cd2"},
+    {file = "rioxarray-0.15.0-py3-none-any.whl", hash = "sha256:d7c0b2efc21075f77fe04302b916a995320004695f3c31e4f06d9ab40acd4498"},
+    {file = "rioxarray-0.15.0.tar.gz", hash = "sha256:d2a8429a5b6405913c7b6f515ef2992b05139c96eb39a2dc1c9f475ce0848c9c"},
 ]
 
 [package.dependencies]
+numpy = ">=1.21"
 packaging = "*"
 pyproj = ">=2.2"
-rasterio = ">=1.1.1"
+rasterio = ">=1.2"
 xarray = ">=0.17"
 
 [package.extras]
@@ -4044,4 +4045,4 @@ jupyter = ["ipytree (>=0.2.2)", "ipywidgets (>=8.0.0)", "notebook"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.10"
-content-hash = "5d9d2ba66a0a578b1d28e63564652a219e293ccea50657fd5dad283ceca7f413"
+content-hash = "75af945f44c93767e2e0d2ad88e97d8c1afd82ecef274273199389ef1872ad1b"
